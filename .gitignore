@@ -1,0 +1,50 @@
+# ── Unity tarafindan uretilen, ASLA commit edilmeyen klasorler ──────────
+# Bunlar kaynak degil TUREV: Unity onlari Assets/ + Packages/ +
+# ProjectSettings/ uclusunden yeniden uretir. Commit edilirlerse depo
+# gigabaytlara sisar ve her makinede catisir.
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# ── Bu projeye ozel ────────────────────────────────────────────────────
+# Test kosusu ciktilari: her kosuda yeniden uretilir, kaynak degildir.
+Tools/.test-results/
+
+# ── IDE / derleyici turevleri ──────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+.gradle/
+ExportedObj/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+
+# ── Build ciktilari ────────────────────────────────────────────────────
+*.apk
+*.aab
+*.unitypackage
+*.app
+crashlytics-build.properties
+
+# ── Isletim sistemi ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

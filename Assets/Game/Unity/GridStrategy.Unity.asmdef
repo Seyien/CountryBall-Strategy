@@ -1,0 +1,16 @@
+{
+  "name": "GridStrategy.Unity",
+  "rootNamespace": "GridStrategy.Unity",
+  "references": [
+    "GridStrategy.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
