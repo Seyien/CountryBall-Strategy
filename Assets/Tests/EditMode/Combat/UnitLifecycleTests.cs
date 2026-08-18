@@ -169,5 +169,29 @@ namespace GridStrategy.Tests.EditMode.Combat
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => new UnitLifecycle(corpseWindowSeconds: seconds));
         }
+
+        // ÖĞRENEN KARARI (2026-08-18): diriltilen birim tekrar düşerse geri
+        // sayım SIFIRDAN başlar, kaldığı yerden devam etmez.
+        //
+        // Gerekçesi denge değil kapsam: "kalan süreyi hatırlama" ikinci bir
+        // sayaç ve ikinci bir kural demek. Bugün en basit doğru davranış
+        // seçiliyor; farklılaştırmak istenirse o gün tek bir alan eklenir.
+        //
+        // Bu test o kararı SABİTLİYOR: biri ileride "kaldığı yerden devam
+        // etsin" diye değiştirirse, tercih sessizce kaymaz, burası kırmızı olur.
+        [Test]
+        public void Revived_ThenDownedAgain_StartsAFullWindow()
+        {
+            var lifecycle = NewLifecycle();
+            lifecycle.OnHealthDepleted();
+            lifecycle.Tick(7f);                 // 3 saniyesi kalmisti
+            lifecycle.TryRevive();
+
+            lifecycle.OnHealthDepleted();       // tekrar dustu
+
+            Assert.That(lifecycle.State, Is.EqualTo(UnitState.Downed));
+            Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(10f),
+                "Yeni dusus yeni pencere acar; kalan 3 saniye devralinmaz.");
+        }
     }
 }
