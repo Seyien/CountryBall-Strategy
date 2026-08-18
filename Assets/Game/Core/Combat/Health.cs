@@ -48,5 +48,12 @@ namespace GridStrategy.Combat
             // eskiyebilirdi. Bu tip sapmalar derleme hatası vermez.
             current = DamageRules.ResolveRemaining(current, amount);
         }
+
+        // TakeDamage'in aynadaki esi. Ayni desen: formul disarida, yazma burada.
+        // Girdi dogrulamasi yine burada DEGIL - o da kuralin sahibine ait.
+        public void Heal(int amount)
+        {
+            current = HealingRules.ResolveRestored(current, Max, amount);
+        }
     }
 }
