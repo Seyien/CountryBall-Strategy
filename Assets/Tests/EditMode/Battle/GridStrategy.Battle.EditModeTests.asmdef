@@ -1,0 +1,26 @@
+{
+  "name": "GridStrategy.Battle.EditModeTests",
+  "rootNamespace": "GridStrategy.Tests.EditMode.Battle",
+  "references": [
+    "GridStrategy.Battle",
+    "GridStrategy.Core",
+    "GridStrategy.Combat",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

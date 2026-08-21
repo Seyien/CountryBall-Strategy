@@ -1,0 +1,17 @@
+{
+  "name": "GridStrategy.Battle",
+  "rootNamespace": "GridStrategy.Battle",
+  "references": [
+    "GridStrategy.Core",
+    "GridStrategy.Combat"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}
