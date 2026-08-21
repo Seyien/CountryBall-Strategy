@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using GridStrategy.Combat;
 
@@ -11,16 +12,29 @@ namespace GridStrategy.Tests.EditMode.Combat
     /// </summary>
     public sealed class CombatantTests
     {
-        private static Combatant NewCombatant(int maxHealth = 100)
+        private static Combatant NewCombatant(int maxHealth = 100, Team team = Team.None)
         {
+            // REDDEDILEN - CombatantTests.cs:29 yerine:
+            //     return new Combatant(new FakeHealth(), new FakeLifecycle(), profile);
+            // KIRILAN  : bu dosyanın sınadığı TEK şey parçalar arasındaki kural;
+            //            sahte parça tam o kuralı ölçülemez kılar.
+            //            "canı bitti mi" gerçek Health kuralıyla (sıfırda
+            //            durdurma) hiç uyuşturulmaz -> oyunda birim düşmez
+            //            derleyici: iki tip de sealed, önce arayüz ister  .
+            //            test: yeşil kalır ve artık hiçbir bütünlük ölçmez
+            // KAZANIRDI: parçalardan biri ağ/dosya/rastgelelik içerseydi ya da
+            //            kurulumu yavaş olsaydı — o zaman sahte parça şart.
+            // TEK CUMLE: Yalıtmak, yalıtacak bir şey varsa kazançtır; saf ve
+            //            hızlı parçalarda yalnızca sınanan kuralı siler.
             return new Combatant(
                 new Health(maxHealth),
                 new UnitLifecycle(downedWindowSeconds: 10f, corpseWindowSeconds: 5f),
-                new AttackProfile(damage: 10, range: 1));
+                new AttackProfile(damage: 10, range: 1),
+                team);
         }
 
         [Test]
-        public void NewCombatant_IsAliveWithFullHealth()
+        public void NewCombatant_StartsInAliveStateWithFullHealth()
         {
             var combatant = NewCombatant();
 
@@ -36,11 +50,11 @@ namespace GridStrategy.Tests.EditMode.Combat
             combatant.TakeDamage(99);
 
             Assert.That(combatant.CurrentHealth, Is.EqualTo(1));
-            Assert.That(combatant.State, Is.EqualTo(UnitState.Alive), "1 can hala candir.");
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Alive), "1 health is still the Alive state.");
         }
 
-        // Bu dosyanin var olma sebebi olan test: Health ile UnitLifecycle
-        // birbirini tanimiyor, baglantiyi Combatant kuruyor.
+        // Bu dosyanın var olma sebebi olan test: Health ile UnitLifecycle
+        // birbirini tanımıyor, bağlantıyı Combatant kuruyor.
         [Test]
         public void Damage_ThatDepletesHealth_MovesLifecycleToDowned()
         {
@@ -50,7 +64,7 @@ namespace GridStrategy.Tests.EditMode.Combat
 
             Assert.That(combatant.CurrentHealth, Is.Zero);
             Assert.That(combatant.State, Is.EqualTo(UnitState.Downed));
-            Assert.That(combatant.RemainingSeconds, Is.EqualTo(10f), "Kurtarma penceresi acilmali.");
+            Assert.That(combatant.RemainingSeconds, Is.EqualTo(10f), "The rescue window must open.");
         }
 
         [Test]
@@ -64,7 +78,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             Assert.That(combatant.State, Is.EqualTo(UnitState.Downed));
         }
 
-        // Ogrenen tasarim karari: dirilen birim TAM canla kalkmaz.
+        // Öğrenen tasarım kararı: dirilen birim TAM canla kalkmaz.
         [Test]
         public void Revive_RestoresHalfOfMaxHealth()
         {
@@ -75,11 +89,25 @@ namespace GridStrategy.Tests.EditMode.Combat
 
             Assert.That(revived, Is.True);
             Assert.That(combatant.State, Is.EqualTo(UnitState.Alive));
-            Assert.That(combatant.CurrentHealth, Is.EqualTo(50), "Maksimumun yarisi.");
+            Assert.That(combatant.CurrentHealth, Is.EqualTo(50), "Half of max health.");
         }
 
-        // Oran olmasi mimari karar: sabit sayi farkli maksimumlarda bambaska
-        // anlamlara gelirdi.
+        // Oran olması mimari karar: sabit sayı farklı maksimumlarda bambaşka
+        // anlamlara gelirdi. 7 → 3 satırı ayrıca tam sayı bölmesinin aşağı
+        // yuvarladığını sabitliyor.
+        //
+        // REDDEDILEN - CombatantTests.cs:111 yerine:
+        //     (yalnızca yukarıdaki Revive_RestoresHalfOfMaxHealth, tek maksimum
+        //      canla — 100 → 50)
+        // KIRILAN  : tek maksimumda ORAN ile SABİT SAYI ayırt edilemez.
+        //            ReviveHealthDivisor silinip ReviveHealthAmount = 50 yazılır
+        //            -> test yeşil geçer, karar korumasız kalır
+        //            derleyici: hiçbir şey der  .  test: 40 → 20 ve 400 → 200
+        //            satırları o değişikliği yakalayan tek şeydir
+        // KAZANIRDI: diriltme oranı tek bir birim türüne özgü olsaydı (oyunda
+        //            tek maksimum can varsa) — ikinci vaka aynı şeyi tekrarlardı.
+        // TEK CUMLE: Tek bir örnek formülü değil, yalnızca o örneğin sonucunu
+        //            sabitler.
         [TestCase(40, ExpectedResult = 20)]
         [TestCase(400, ExpectedResult = 200)]
         [TestCase(7, ExpectedResult = 3)]
@@ -100,12 +128,13 @@ namespace GridStrategy.Tests.EditMode.Combat
 
             combatant.TakeDamage(50);
 
-            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed), "Ikinci kez dustu.");
-            Assert.That(combatant.RemainingSeconds, Is.EqualTo(10f), "Tam pencere, kalan degil.");
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed), "It went down for the second time.");
+            Assert.That(combatant.RemainingSeconds, Is.EqualTo(10f), "A full window, not the leftover of the previous one.");
         }
 
-        // Downed bir birim hasar ALMAYA DEVAM eder. Bu, if (!IsAlive) return;
-        // satirini reddetme kararinin canli kaniti.
+        // Downed bir birim hasar ALMAYA DEVAM eder. Bu, Combatant.TakeDamage'in
+        // başında reddedilen "if (!health.HasRemaining) return;" satırının canlı
+        // kanıtı: erken çıkış olsaydı yerdekini bitirme yolu tamamen kapanırdı.
         [Test]
         public void Downed_StillAcceptsDamage()
         {
@@ -113,7 +142,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             combatant.TakeDamage(100);
 
             Assert.DoesNotThrow(() => combatant.TakeDamage(5));
-            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed), "Vurmak pencereyi kapatmaz.");
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed), "Hitting a downed unit must not close the rescue window.");
         }
 
         [Test]
@@ -124,7 +153,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             combatant.Tick(10.1f);
 
             Assert.That(combatant.TryRevive(), Is.False);
-            Assert.That(combatant.CurrentHealth, Is.Zero, "Basarisiz diriltme can vermez.");
+            Assert.That(combatant.CurrentHealth, Is.Zero, "A rejected revive must not restore health.");
         }
 
         [Test]
@@ -137,6 +166,201 @@ namespace GridStrategy.Tests.EditMode.Combat
             Assert.Throws<ArgumentNullException>(() => new Combatant(null, lifecycle, profile));
             Assert.Throws<ArgumentNullException>(() => new Combatant(health, null, profile));
             Assert.Throws<ArgumentNullException>(() => new Combatant(health, lifecycle, null));
+        }
+
+        // Combatant tarafı TAŞIR, tarafla ilgili hiçbir karar VERMEZ. Aşağıdaki
+        // üç test yalnızca taşımayı sınıyor; "kime saldırılır" sorusunun testi
+        // TargetingRulesTests'te. Üçüncü vaka Team.None: tarafsızlık da geçerli
+        // bir taraftır, kurucunun reddedeceği bir değer değil.
+        //
+        // REDDEDILEN - CombatantTests.cs:190 yerine (üç kabul vakası yerine bir ret):
+        //     Assert.Throws<ArgumentOutOfRangeException>(
+        //         () => new Combatant(health, lifecycle, profile, (Team)99));
+        // KIRILAN  : Combatant'a bir doğrulama satırı BORÇLANDIRIR ve o satır
+        //            Team.cs'teki değer listesini ikinci kez yazar.
+        //            enum'a dördüncü değer eklenir -> ilk kırmızı bu testten
+        //            gelir ve YANLIŞ yeri gösterir
+        //            derleyici: hiçbir şey söylemez  .  test: kırmızı olur ama
+        //            Team.cs yerine CombatantTests.cs'i suçlar
+        // KAZANIRDI: takım değeri dışarıdan gelseydi — kayıt dosyası, ağ paketi,
+        //            seviye editörü çıktısı; o gün (Team)99 gerçek bir girdidir
+        //            ve onu sınırda durdurmak kurucunun işidir.
+        // TEK CUMLE: Geçerli enum değerlerini derleyici zaten biliyorsa, aynı
+        //            listeyi bir kurucuya yazdırmak testi yalancı şahit yapar.
+        [TestCase(Team.None)]
+        [TestCase(Team.Player)]
+        [TestCase(Team.Enemy)]
+        public void Constructor_StoresTeamUnchanged(Team team)
+        {
+            Assert.That(NewCombatant(team: team).Team, Is.EqualTo(team));
+        }
+
+        /// <summary>
+        /// VARSAYILAN DEĞER KARARINI koruyan test. Kurucunun dördüncü parametresi
+        /// isteğe bağlı ve atlanmış takım Team.None demek — "sessizce oyuncunun
+        /// tarafı" değil.
+        ///
+        /// Kırmızıya dönerse varsayılan Player ya da Enemy'ye çevrilmiş demektir
+        /// ve o günden sonra takımı atanmayı unutulmuş her birim bir tarafta
+        /// doğar; hata ancak yanlış birime saldırılamadığında görülür.
+        /// </summary>
+        [Test]
+        public void Constructor_WithoutTeam_DefaultsToNeutral()
+        {
+            Assert.That(NewCombatant().Team, Is.EqualTo(Team.None),
+                "an unspecified team must mean neutral, never a silently assigned side");
+        }
+
+        // Taraf kuruluşta sabitlenir: düşüp dirilmek onu değiştirmez. Bu test,
+        // readonly property'nin ÇALIŞMA ZAMANINDAKİ tanığı — derleyici zaten
+        // atamayı engelliyor, ama yaşam döngüsünün tarafı sıfırlamadığını
+        // gösteren başka hiçbir şey yok.
+        [Test]
+        public void Team_SurvivesDownAndRevive()
+        {
+            var combatant = NewCombatant(maxHealth: 100, team: Team.Enemy);
+
+            combatant.TakeDamage(100);
+            combatant.TryRevive();
+
+            Assert.That(combatant.Team, Is.EqualTo(Team.Enemy), "the lifecycle must not reset the side");
+        }
+
+        // ═══ DURUM DEĞİŞİKLİĞİNİN DIŞARI VERİLMESİ ═══════════════════
+        // Bu bölümün sınadığı tek şey ÇEVİRİdir: UnitLifecycle'ın tek değerli
+        // olayı ("hangi duruma") burada iki değerli hâle geliyor ("nereden
+        // nereye"). Geçişlerin kendisi UnitLifecycleTests'te zaten sınanıyor;
+        // burada tekrarlanmıyor.
+
+        // Geçişleri sırasıyla biriktiren en küçük kap. İki paralel liste
+        // yerine tek tip: hangi "nereden"in hangi "nereye" ile geldiği
+        // indeksle değil, kabın kendisiyle korunuyor.
+        private sealed class TransitionLog
+        {
+            public readonly List<UnitState> From = new List<UnitState>();
+            public readonly List<UnitState> To = new List<UnitState>();
+
+            public int Count => From.Count;
+
+            public void Record(UnitState from, UnitState to)
+            {
+                From.Add(from);
+                To.Add(to);
+            }
+        }
+
+        /// <summary>
+        /// ÇEVİRİNİN KENDİSİNİ koruyan test: olay "nereden" bilgisini taşımalı.
+        ///
+        /// Önceki durum yeni durumdan TÜRETİLSEYDİ bu test bugün yine yeşil
+        /// kalırdı — geçiş tablosu şu an tek yönlü. Bu yüzden aşağıdaki üç vaka
+        /// birlikte yazıldı: üçü de aynı anda doğru kalmayan bir türetme yazmak
+        /// zordur ve tabloyu ikinci kez yazan her deneme burada takılır.
+        /// </summary>
+        [Test]
+        public void StateChanged_CarriesBothTheOldAndTheNewState()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            var log = new TransitionLog();
+            combatant.StateChanged += log.Record;
+
+            combatant.TakeDamage(10);   // Alive -> Downed
+            combatant.TryRevive();      // Downed -> Alive
+            combatant.TakeDamage(10);   // Alive -> Downed
+            combatant.Tick(10.1f);      // Downed -> Dead
+
+            Assert.That(log.Count, Is.EqualTo(4));
+            Assert.That(log.From, Is.EqualTo(new[]
+            {
+                UnitState.Alive, UnitState.Downed, UnitState.Alive, UnitState.Downed
+            }));
+            Assert.That(log.To, Is.EqualTo(new[]
+            {
+                UnitState.Downed, UnitState.Alive, UnitState.Downed, UnitState.Dead
+            }));
+        }
+
+        /// <summary>
+        /// "BİR ŞEY OLDU" İLE "DURUM DEĞİŞTİ" AYRIMINI koruyan test —
+        /// <see cref="UnitLifecycle"/> katmanındaki ikizinin bu tipteki hâli.
+        ///
+        /// Üçüncü <c>Tick</c> ceset süresini bitirir ve
+        /// <c>IsReadyForCleanup</c>'ı açar; bu bir geçiş DEĞİLDİR ve olay
+        /// tetiklenmemelidir. Kırmızıya dönerse toplu süpürme ile durum olayı
+        /// aynı soruyu cevaplamaya başlamış demektir ve ikisinden biri
+        /// gereksizleşmiş gibi görünür — oysa gereksizleşen hiçbiri değildir.
+        /// </summary>
+        [Test]
+        public void StateChanged_DoesNotFireWhenOnlyTheCleanupFlagOpens()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            combatant.TakeDamage(10);
+            combatant.Tick(10.1f);      // Downed -> Dead
+
+            var log = new TransitionLog();
+            combatant.StateChanged += log.Record;
+            combatant.Tick(5.1f);       // yalnızca temizlik bayrağı
+
+            Assert.That(combatant.IsReadyForCleanup, Is.True, "setup");
+            Assert.That(log.Count, Is.Zero,
+                "becoming ready for cleanup is not a state transition");
+        }
+
+        /// <summary>
+        /// Aynı duruma "geçişin" olay üretmediğini koruyan test. Düşmüş bir
+        /// birime tekrar vurmak onu yeniden düşürmez; dinleyici aynı geçişi iki
+        /// kez duyup iki kez ses çalmamalı.
+        /// </summary>
+        [Test]
+        public void StateChanged_DoesNotFireForARepeatedHitOnADownedCombatant()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            combatant.TakeDamage(10);
+
+            var log = new TransitionLog();
+            combatant.StateChanged += log.Record;
+            combatant.TakeDamage(5);
+
+            Assert.That(log.Count, Is.Zero,
+                "hitting a downed combatant repeats no transition");
+        }
+
+        [Test]
+        public void StateChanged_DoesNotFireWhileTheCombatantIsBeingBuilt()
+        {
+            // Kurucudaki ilk durum bir GEÇİŞ değil, bir BAŞLANGIÇtır — ve o anda
+            // abone olabilmiş kimse zaten yoktur. Test bunu dolaylı olarak
+            // sabitliyor: kurulumdan hemen sonra abone olan bir dinleyici,
+            // gerçekten bir şey olana kadar sessiz kalmalı.
+            var combatant = NewCombatant(maxHealth: 10);
+            var log = new TransitionLog();
+
+            combatant.StateChanged += log.Record;
+
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Alive));
+            Assert.That(log.Count, Is.Zero);
+        }
+
+        /// <summary>
+        /// İKİ SAVAŞÇININ OLAYLARININ AYRI olduğunu koruyan test. Abonelik
+        /// örneğe aittir; bir savaşçının düşmesi diğerinin dinleyicisine
+        /// ulaşmamalı.
+        ///
+        /// Kırmızıya dönerse olay bir yerde <c>static</c> hâle gelmiş demektir —
+        /// ve o gün ekranda yanlış birim yere düşer.
+        /// </summary>
+        [Test]
+        public void StateChanged_IsPerCombatant_NotShared()
+        {
+            var first = NewCombatant(maxHealth: 10);
+            var second = NewCombatant(maxHealth: 10);
+            var log = new TransitionLog();
+            first.StateChanged += log.Record;
+
+            second.TakeDamage(10);
+
+            Assert.That(log.Count, Is.Zero,
+                "one combatant's transition must not reach another combatant's listeners");
         }
     }
 }

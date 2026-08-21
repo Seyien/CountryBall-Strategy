@@ -50,6 +50,19 @@ namespace GridStrategy.Tests.EditMode.Combat
         {
             var profile = new AttackProfile(damage: 5, range: 2);
 
+            // REDDEDILEN - AttackResolverTests.cs:66 yerine:
+            //     var first = AttackResolver.IsWithinRange(2, profile);
+            //     Assert.That(AttackResolver.IsWithinRange(2, profile), Is.EqualTo(first));
+            // KIRILAN  : test kendi çıktısını kendine ölçüt yapar.
+            //            kural her çağrıda false dönse -> iki cevap yine eşittir
+            //            aranan durum sızıntısı -> görünmez kalır, çünkü sızan
+            //            durum da tutarlı olabilir: aynı yanlışı iki kez verir
+            //            derleyici: hiçbir şey der  .  test: sonsuza dek YEŞİL
+            // KAZANIRDI: beklenen cevap yapılandırmaya ya da rastgele bir tohuma
+            //            bağlı olsaydı — literal yazılamayacağı için iki çağrıyı
+            //            karşılaştırmak tek yol olurdu.
+            // TEK CUMLE: Ölçütü kendi çıktısı olan bir test tutarlılığı ölçer,
+            //            doğruluğu değil — saflık ise ikisini birden ister.
             Assert.That(AttackResolver.IsWithinRange(2, profile), Is.True);
             Assert.That(AttackResolver.IsWithinRange(2, profile), Is.True);
             Assert.That(AttackResolver.IsWithinRange(3, profile), Is.False);

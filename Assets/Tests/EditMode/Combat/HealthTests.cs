@@ -4,6 +4,12 @@ using NUnit.Framework;
 
 namespace GridStrategy.Tests.EditMode.Combat
 {
+    /// <summary>
+    /// Bu dosyanın iddiaları SAYI hakkındadır, sahibi hakkında değil. Assert
+    /// mesajları da bilerek alan sözcüğü kullanmaz ("canlı", "ölü"): bir barakaya
+    /// da uygulanan bir kuralı yalnızca askerlerle anlatmak, <c>IsAlive</c> adının
+    /// düştüğü tuzağın aynısıdır — sadece yorumda.
+    /// </summary>
     public sealed class HealthTests
     {
         [Test]
@@ -11,8 +17,8 @@ namespace GridStrategy.Tests.EditMode.Combat
         {
             var health = new Health(max: 10);
 
-            Assert.That(health.Current, Is.EqualTo(10), "A new fighter must start undamaged.");
-            Assert.That(health.IsAlive, Is.True, "A new fighter must be alive.");
+            Assert.That(health.Current, Is.EqualTo(10), "A new owner must start undamaged.");
+            Assert.That(health.HasRemaining, Is.True, "Full health must report remaining health.");
         }
 
         // ---- clamp ATIL olduğu satırlar -------------------------------------
@@ -27,7 +33,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             health.TakeDamage(4);
 
             Assert.That(health.Current, Is.EqualTo(6), "Ordinary damage must subtract exactly.");
-            Assert.That(health.IsAlive, Is.True, "6 health is still alive.");
+            Assert.That(health.HasRemaining, Is.True, "6 health is still health remaining.");
         }
 
         [Test]
@@ -38,12 +44,25 @@ namespace GridStrategy.Tests.EditMode.Combat
             health.TakeDamage(10);
 
             Assert.That(health.Current, Is.EqualTo(0), "Exact lethal damage must land on zero.");
-            Assert.That(health.IsAlive, Is.False, "Zero health is not alive.");
+            Assert.That(health.HasRemaining, Is.False, "Zero health has nothing remaining.");
         }
 
         // ---- clamp ETKİLİ olduğu satırlar -----------------------------------
         // Kural kaldırılsaydı bu iki test negatif değer görürdü: -4 ve -5.
 
+        // REDDEDILEN - HealthTests.cs:66 yerine:
+        //     // (bu test ve alttaki ikizi hiç yazılmaz; kelepçe satırları
+        //     //  yalnızca DamageRulesTests'in [TestCase] tablosunda durur)
+        // KIRILAN  : Health'in kuralı ÇAĞIRDIĞI ve dönen değeri current'a
+        //            YAZDIĞI yer hiçbir yerde sınanmaz.
+        //            gövde `DamageRules.ResolveRemaining(current, amount);` diye
+        //            dönüşü ATARSA -> bütün formül testleri yeşil kalır
+        //            derleyici: hiçbir şey der  .  test: bağlantı kopar, ekran
+        //            yeşil kalır
+        // KAZANIRDI: aynı bağlantıyı uçtan uca yürüten bir test varsa
+        //            (CombatantTests hasar → Downed geçişini gerçekten koşuyorsa)
+        //            ve Health tek satırlık delegasyon olarak kalacaksa.
+        // TEK CUMLE: Formülü sınamak, formülün ÇAĞRILDIĞINI sınamaz.
         [Test]
         public void TakeDamage_WhenAmountExceedsCurrent_ClampsToZeroInsteadOfNegative()
         {
@@ -58,7 +77,7 @@ namespace GridStrategy.Tests.EditMode.Combat
         }
 
         [Test]
-        public void TakeDamage_WhenAlreadyDead_StaysAtZero()
+        public void TakeDamage_WhenAlreadyDepleted_StaysAtZero()
         {
             var health = new Health(max: 10);
             health.TakeDamage(10);
@@ -68,7 +87,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             Assert.That(
                 health.Current,
                 Is.EqualTo(0),
-                "A second hit on a dead fighter must not go below zero; without the rule this would be -5.");
+                "A second hit after depletion must not go below zero; without the rule this would be -5.");
         }
 
         // ---- sınır ve sözleşme ----------------------------------------------
@@ -100,7 +119,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             Assert.That(
                 () => new Health(max: 0),
                 Throws.TypeOf<ArgumentOutOfRangeException>(),
-                "A fighter that starts dead is a configuration defect.");
+                "An owner that starts with no health is a configuration defect.");
         }
     }
 }

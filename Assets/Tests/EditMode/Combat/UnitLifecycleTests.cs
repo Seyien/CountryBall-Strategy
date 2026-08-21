@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using GridStrategy.Combat;
 
@@ -66,6 +67,20 @@ namespace GridStrategy.Tests.EditMode.Combat
             var lifecycle = NewLifecycle();
             lifecycle.OnHealthDepleted();
 
+            // REDDEDILEN - UnitLifecycleTests.cs:84 yerine:
+            //     [UnityTest] public IEnumerator ... {
+            //         yield return new WaitForSeconds(10.1f);
+            // KIRILAN  : test EditMode'dan PlayMode'a düşer; dosyanın süresi
+            //            milisaniyeden dakikaya çıkar.
+            //            kare süresi 0,1 saniyeyi aşar -> "hâlâ Downed" iddiası
+            //            rastgele kırmızı olur, pencerenin TAM yeri sınanamaz
+            //            derleyici: hiçbir şey der  .  test: kırmızılığı kurala
+            //            değil o günkü kare süresine bağlanır
+            // KAZANIRDI: sınanan şey gerçekten motorun kare döngüsü olsaydı —
+            //            animasyon süresi, fizik adımı ya da coroutine sırası
+            //            gibi, Tick ile taklit edilemeyecek bir davranış.
+            // TEK CUMLE: Zamanı parametre olarak alan bir tip zamanı BEKLEMEDEN
+            //            sınanır; beklemek ölçüyü değil yalnızca süreyi büyütür.
             lifecycle.Tick(10.1f);
 
             Assert.That(lifecycle.State, Is.EqualTo(UnitState.Dead));
@@ -190,8 +205,119 @@ namespace GridStrategy.Tests.EditMode.Combat
             lifecycle.OnHealthDepleted();       // tekrar dustu
 
             Assert.That(lifecycle.State, Is.EqualTo(UnitState.Downed));
+            // REDDEDILEN - UnitLifecycleTests.cs:222 yerine:
+            //     Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(3f),
+            //         "Kalan sure devralinir.");
+            // KIRILAN  : "kaldığı yerden devam" tek sayaçla YAZILAMAZ.
+            //            kalanı saklayan ikinci alan gerekir -> onu ne zaman
+            //            sıfırlayacağı belli olmayan ikinci bir kural doğar
+            //            TryRevive geçmişi de taşır -> tek remainingSeconds
+            //            alanı ayakta kalamaz
+            //            derleyici: hiçbir şey der  .  test: bedeli başka dosyada
+            // KAZANIRDI: denge "bir kere diriltilmiş birim daha kırılgan olsun"
+            //            derse — o zaman kalan sürenin devralınması hata değil,
+            //            tam istenen ceza olurdu.
+            // TEK CUMLE: Bir testin beklediği sayı, sınanan tipin kaç alan
+            //            taşımak zorunda olduğunu belirler.
             Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(10f),
                 "Yeni dusus yeni pencere acar; kalan 3 saniye devralinmaz.");
+        }
+
+        // ── StateChanged event'i ────────────────────────────────────────
+        //
+        // Bu blok bir DAVRANIŞI değil bir SÖZLEŞMEYİ koruyor: event yalnız
+        // gerçek geçişlerde ve her geçiş için TAM BİR KEZ tetiklenir. İkisi de
+        // sessizce bozulabilen türden: fazladan tetikleme iki kez ses çalar,
+        // eksik tetikleme cesedi ekranda bırakır — ve ikisi de derleme hatası
+        // vermez.
+
+        [Test]
+        public void StateChanged_FiresOnceWhenHealthIsDepleted()
+        {
+            var lifecycle = new UnitLifecycle();
+            var seen = new List<UnitState>();
+            lifecycle.StateChanged += seen.Add;
+
+            lifecycle.OnHealthDepleted();
+
+            Assert.That(seen, Is.EqualTo(new[] { UnitState.Downed }));
+        }
+
+        [Test]
+        public void StateChanged_DoesNotFireWhileAliveTicksPass()
+        {
+            var lifecycle = new UnitLifecycle();
+            var seen = new List<UnitState>();
+            lifecycle.StateChanged += seen.Add;
+
+            lifecycle.Tick(1f);
+            lifecycle.Tick(100f);
+
+            // Alive'da zaman gecmesi bir GECIS degildir. Bu test olmasaydi
+            // "her Tick'te haber ver" hatasi her kare event yayardi ve dinleyen
+            // taraf kare basina is yapardi.
+            Assert.That(seen, Is.Empty);
+        }
+
+        [Test]
+        public void StateChanged_FiresForEachRealTransitionInOrder()
+        {
+            var lifecycle = new UnitLifecycle(downedWindowSeconds: 10f, corpseWindowSeconds: 5f);
+            var seen = new List<UnitState>();
+            lifecycle.StateChanged += seen.Add;
+
+            lifecycle.OnHealthDepleted();   // Alive -> Downed
+            lifecycle.Tick(10.1f);          // Downed -> Dead
+            lifecycle.Tick(5.1f);           // Dead -> Dead (geçiş YOK, temizlik bayrağı)
+
+            Assert.That(seen, Is.EqualTo(new[] { UnitState.Downed, UnitState.Dead }));
+            // Üçüncü Tick durumu değiştirmedi ama IsReadyForCleanup'ı açtı.
+            // Yani "bir şey oldu" ile "durum değişti" aynı şey değil — ve event
+            // yalnızca ikincisini taşır.
+            Assert.That(lifecycle.IsReadyForCleanup, Is.True);
+        }
+
+        [Test]
+        public void StateChanged_DoesNotFireWhenReviveIsRejected()
+        {
+            var lifecycle = new UnitLifecycle();
+            var seen = new List<UnitState>();
+            lifecycle.StateChanged += seen.Add;
+
+            bool revived = lifecycle.TryRevive();   // Alive iken başarısız
+
+            Assert.That(revived, Is.False);
+            // Başarısız bir işlem sessizdir. Bu satır olmasaydı "denedim ama
+            // olmadı" da bir geçiş gibi yayılır ve dinleyen taraf durumu
+            // değişmemiş bir birim için animasyon oynatırdı.
+            Assert.That(seen, Is.Empty);
+        }
+
+        [Test]
+        public void StateChanged_FiresOnSuccessfulRevive()
+        {
+            var lifecycle = new UnitLifecycle();
+            lifecycle.OnHealthDepleted();
+
+            var seen = new List<UnitState>();
+            lifecycle.StateChanged += seen.Add;   // abone DUSTUKTEN sonra eklendi
+
+            bool revived = lifecycle.TryRevive();
+
+            Assert.That(revived, Is.True);
+            Assert.That(seen, Is.EqualTo(new[] { UnitState.Alive }));
+        }
+
+        [Test]
+        public void StateChanged_WithNoSubscribers_DoesNotThrow()
+        {
+            var lifecycle = new UnitLifecycle();
+
+            // Abonesiz bir event null'dur; ?.Invoke olmadan bu satir
+            // NullReferenceException atardi. Uretim kodunda hicbir zaman
+            // abone GARANTISI yok - UI kapaliyken de birim dusebilir.
+            Assert.DoesNotThrow(() => lifecycle.OnHealthDepleted());
+            Assert.That(lifecycle.State, Is.EqualTo(UnitState.Downed));
         }
     }
 }

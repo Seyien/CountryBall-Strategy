@@ -27,6 +27,17 @@ namespace GridStrategy.Combat
         /// Verilen uzaklık, bu saldırının menzili içinde mi?
         /// Yalnızca ULAŞABİLİRLİK söyler; vurmanın doğru olup olmadığını değil.
         /// </summary>
+        // REDDEDILEN - AttackResolver.cs:41 yerine:
+        //     public static bool IsWithinRange(int ax, int ay, int bx, int by, AttackProfile profile)
+        //         => Math.Abs(ax - bx) + Math.Abs(ay - by) <= profile.Range;
+        // KIRILAN  : mesafe ölçümü kuralın İÇİNE girer ve Manhattan/Chebyshev kararı burada donar.
+        //            menzili sınamak için önce tahta kurmak gerekir
+        //            engel ya da yükseklik kuralı geldiği gün iki dosya birden değişir
+        //            derleyici: hiçbir şey der  .  test: AttackResolverTests tahtaya bağlanır
+        // KAZANIRDI: oyunda tek bir mesafe metriği olsaydı ve hiç değişmeyecek
+        //            olsaydı — her çağıranın aynı formülü tekrar yazması biterdi.
+        // TEK CUMLE: "İki hücre arası uzaklık nedir" ayrı bir kuraldır; menzil
+        //            kuralı onu SORAR, hesaplamaz.
         public static bool IsWithinRange(int distance, AttackProfile profile)
         {
             if (profile == null)
@@ -44,6 +55,7 @@ namespace GridStrategy.Combat
             // mesafeyi ölçer. Burada engelleseydik, ileride "kendi kendini
             // iyileştirme" gibi bir yetenek geldiğinde bu satırı geri almak
             // gerekirdi.
+            // Alternatif: `return distance > 0 && distance <= profile.Range;` — aynı hücre reddedilirdi. Seçilmedi: sebebi hemen yukarıda; "kendine uygulanır mı" hedef seçiminin sorusudur, menzil kuralının değil.
             return distance <= profile.Range;
         }
     }

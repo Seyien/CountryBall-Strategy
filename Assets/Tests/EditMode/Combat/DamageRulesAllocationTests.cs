@@ -41,6 +41,19 @@ namespace GridStrategy.Tests.EditMode.Combat
         // lambda içinden yerel değişkene dokunmak "closure" nesnesi doğurur —
         // yani ölçmek istediğimiz kodun yanında ölçüm kurulumunun kendisi tahsis
         // yapardı. Alan kullanınca closure oluşmaz.
+        // REDDEDILEN - DamageRulesAllocationTests.cs:57 yerine:
+        //     // alan yerine, ölçülen testin gövdesinde yerel değişken:
+        //     int sink = 0;
+        // KIRILAN  : ölçüm penceresinin İÇİNDE ölçüm kurulumunun kendisi tahsis
+        //            yapar.
+        //            lambda yereli yakalar -> derleyici closure sınıfı üretir
+        //            -> kısıt kırmızı verir, ama suçlu üretim kodu değildir
+        //            derleyici: hiçbir şey der  .  test: YANLIŞ kırmızı — suçsuz
+        //            formülü "pahalı" ilan eder
+        // KAZANIRDI: ölçüm delegate almayan bir API'ye dönerse (önce/sonra sayaç
+        //            okuma) — o gün lambda da closure da yoktur.
+        // TEK CUMLE: Ölçüm aracının kendisi ölçülen pencerenin içinde iş
+        //            yapıyorsa, ölçtüğü şey artık üretim kodu değildir.
         private int sink;
         private Health health;
 
@@ -55,6 +68,19 @@ namespace GridStrategy.Tests.EditMode.Combat
         [Test]
         public void Olcum_Aygiti_Tahsisi_Gorebiliyor()
         {
+            // REDDEDILEN - DamageRulesAllocationTests.cs:84 yerine:
+            //     long before = GC.GetAllocatedBytesForCurrentThread();
+            // KIRILAN  : bu sayaç Unity 2021.3.45f2 Mono'da ÖLÇÜLDÜ ve her zaman
+            //            sıfır döndürüyor.
+            //            negatif kontrol kırmızıya döner -> delta "sıfır olmalı"
+            //            diye yazılırsa diğer iki test sonsuza dek yeşil kalır
+            //            derleyici: hiçbir şey der  .  test: üretim kodu bozulsa
+            //            bile yeşil — yani hiçbir şey ölçmeyen iki test
+            // KAZANIRDI: aynı üretim kodu düz bir .NET test projesinde ölçülürse
+            //            — çekirdek noEngineReferences olduğu için mümkün ve
+            //            CoreCLR'de sayaç gerçekten çalışır.
+            // TEK CUMLE: Ölçüm aracını seçerken ilk soru "doğru mu ölçüyor"
+            //            değil, "bu çalışma zamanında ÇALIŞIYOR mu".
             Assert.That(() =>
             {
                 // new ile dizi ayırmak managed heap'te yer kaplar; araç bunu
@@ -79,6 +105,25 @@ namespace GridStrategy.Tests.EditMode.Combat
             Warmup();
             sink = 0;
 
+            // REDDEDILEN - DamageRulesAllocationTests.cs:127 yerine:
+            //     for (int i = 0; i < Iterations; i++)
+            //     {
+            //         sink += DamageRules.ResolveRemaining(100, 10);
+            //     }
+            //
+            //     Assert.That(() => { }, UnityIs.Not.AllocatingGCMemory());
+            // KIRILAN  : döngü, kısıtın ölçüm penceresinin DIŞINDA çalışır.
+            //            kaydedici boş bir aralık ölçer -> sıfır tahsis görür ->
+            //            yeşil verir; bu tam olarak bir kez yaşandı — LANE_LOG'un
+            //            kaydı: "kısıt çalıştı ama hiçbir şey ölçmedi"
+            //            derleyici: hiçbir şey der  .  test: yeşil, ve yalnızca
+            //            negatif kontrol yakaladı
+            // KAZANIRDI: kısıt bir yan etkiyi değil bir DEĞERİ değerlendiriyorsa
+            //            — K-13'ün ikinci yarısı: Assert.That(health.Current,
+            //            Is.EqualTo(90)) gibi teslimlerde kod lambda'nın DIŞINDA
+            //            çalışmak zorundadır.
+            // TEK CUMLE: Lambda alan bir kısıtta ölçülen şey lambda'nın İÇİ'dir;
+            //            dışarıda kalan kod ölçülmemiş demektir.
             Assert.That(() =>
             {
                 for (int i = 0; i < Iterations; i++)

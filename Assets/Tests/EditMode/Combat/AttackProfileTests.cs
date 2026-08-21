@@ -33,6 +33,10 @@ namespace GridStrategy.Tests.EditMode.Combat
 
         // Menzil 0 reddediliyor çünkü hiçbir hücreye ulaşamayan bir saldırı,
         // kırmızı vermeden işe yaramayan bir birim üretirdi.
+        //
+        // Alternatif: 0 ve -3 için iki ayrı [Test] metodu. Seçilmedi: tek kuralı
+        // (range < 1) iki kuralmış gibi okutur — ayrı adlar ancak iki değer
+        // farklı sebeplerle reddedilseydi kazanırdı.
         [TestCase(0)]
         [TestCase(-3)]
         public void Constructor_RangeBelowOne_Throws(int range)

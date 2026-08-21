@@ -10,6 +10,22 @@ namespace GridStrategy.Tests.EditMode.Combat
     // yaratmak zorunda kalirdi.
     public sealed class DamageRulesTests
     {
+        // REDDEDILEN - DamageRulesTests.cs:29 yerine:
+        //     [Test]
+        //     public void ResolveRemaining_OrdinaryHit_SubtractsExactly()
+        //     { ... }
+        //     // ...ve aynı gövdenin dört kopyası daha
+        // KIRILAN  : sınır KÜMESİ tek yerde okunamaz hâle gelir.
+        //            "10, 14 → 0" ile "0, 5 → 0" arasındaki fark (eksi dört ile
+        //            eksi beş) beş ayrı gövdeye dağılır
+        //            zırh geldiği gün -> yeni sınır bir satır değil yeni bir
+        //            metot ister; tablo büyümez, dosya büyür
+        //            derleyici: hiçbir şey der  .  test: beşi de yeşil kalır
+        // KAZANIRDI: satırlar aynı gövdeyi paylaşamaz hâle gelirse — biri değer,
+        //            biri fırlatma bekliyorsa ya da her vaka kendi kurulumunu
+        //            istiyorsa.
+        // TEK CUMLE: [TestCase] tablosu vakaları değil SINIR KÜMESİNİ belgeler;
+        //            ayrı metotlar aynı kümeyi beş parçaya böler.
         [TestCase(10, 4, 6, TestName = "OrdinaryHit")]
         [TestCase(10, 10, 0, TestName = "ExactlyLethalHit")]
         [TestCase(10, 14, 0, TestName = "OverkillClampsInsteadOfMinusFour")]
@@ -48,10 +64,10 @@ namespace GridStrategy.Tests.EditMode.Combat
         [Test]
         public void ResolveRemaining_WhenCurrentIsNegative_Throws()
         {
-            // Health uzerinden bu duruma ASLA gelinmez, cunku Health'in kendi
-            // kelepcesi current'i sifirin altina indirmez. Bu test, DamageRules
-            // artik public oldugu ve baska cagiranlari olabilecegi icin var:
-            // sozlesmesini kendisi korur.
+            // Health üzerinden bu duruma ASLA gelinmez, çünkü Health'in kendi
+            // kelepçesi current'i sıfırın altına indirmez. Bu test, DamageRules
+            // artık public olduğu ve başka çağıranları olabileceği için var:
+            // sözleşmesini kendisi korur.
             Assert.That(
                 () => DamageRules.ResolveRemaining(-1, 3),
                 Throws.TypeOf<ArgumentOutOfRangeException>(),
