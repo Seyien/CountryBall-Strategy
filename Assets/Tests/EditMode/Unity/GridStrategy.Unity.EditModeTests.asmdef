@@ -3,6 +3,7 @@
   "rootNamespace": "GridStrategy.Tests.EditMode.Unity",
   "references": [
     "GridStrategy.Core",
+    "GridStrategy.Combat",
     "GridStrategy.Unity",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"

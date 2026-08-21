@@ -2,7 +2,9 @@
   "name": "GridStrategy.Unity",
   "rootNamespace": "GridStrategy.Unity",
   "references": [
-    "GridStrategy.Core"
+    "GridStrategy.Core",
+    "GridStrategy.Combat",
+    "GridStrategy.Battle"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

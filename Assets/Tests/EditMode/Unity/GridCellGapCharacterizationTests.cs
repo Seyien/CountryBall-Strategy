@@ -4,22 +4,22 @@ using UnityEngine;
 namespace GridStrategy.Tests.EditMode.Unity
 {
     /// <summary>
-    /// Unity'nin kendi <see cref="Grid"/> bileseninin davranisini olcen bir
-    /// CHARACTERIZATION testidir. Bizim kodumuzu degil, uzerine insa ettigimiz
-    /// varsayimi dogrular.
+    /// Unity'nin kendi <see cref="Grid"/> bileşeninin davranışını ölçen bir
+    /// CHARACTERIZATION testidir. Bizim kodumuzu değil, üzerine inşa ettiğimiz
+    /// varsayımı doğrular.
     ///
-    /// Neden var: cellGap eklendiginde tiklamanin hangi hucreye dustugu konusunda
-    /// iki rakip model vardi. Elle tiklayarak olcmek nisan hatasi tasidi, bu yuzden
-    /// olcum buraya tasindi. Play mode, tiklama ve Scene gerekmez.
+    /// Neden var: cellGap eklendiğinde tıklamanın hangi hücreye düştüğü konusunda
+    /// iki rakip model vardı. Elle tıklayarak ölçmek nişan hatası taşıdı, bu yüzden
+    /// ölçüm buraya taşındı. Play mode, tıklama ve Scene gerekmez.
     ///
-    /// Bu test kirmizi olursa Unity'nin davranisi degismis demektir; kodumuz degil.
+    /// Bu test kırmızı olursa Unity'nin davranışı değişmiş demektir; kodumuz değil.
     /// </summary>
     public sealed class GridCellGapCharacterizationTests
     {
         private const float CellSize = 1f;
         private const float CellGap = 0.5f;
 
-        // Bir hucrenin koordinat araligi cellSize + cellGap kadardir.
+        // Bir hücrenin koordinat aralığı cellSize + cellGap kadardır.
         private const float Stride = CellSize + CellGap;
 
         private GameObject probe;
@@ -51,7 +51,7 @@ namespace GridStrategy.Tests.EditMode.Unity
         [Test]
         public void WorldToCell_InTheGapAfterACell_StillReturnsThatCell()
         {
-            // Cizilen alan [0, 1]; bosluk [1, 1.5). Bosluk onceki hucreye aittir.
+            // Çizilen alan [0, 1]; boşluk [1, 1.5). Boşluk önceki hücreye aittir.
             Assert.That(CellXAt(1.0f), Is.EqualTo(0), "Boslugun basi.");
             Assert.That(CellXAt(1.25f), Is.EqualTo(0), "Boslugun ortasi.");
             Assert.That(CellXAt(1.499f), Is.EqualTo(0), "Boslugun sonu.");
@@ -67,13 +67,13 @@ namespace GridStrategy.Tests.EditMode.Unity
         [Test]
         public void WorldToCell_TheGapTrailsEachCell_ItIsNotCentredAroundIt()
         {
-            // Bu test iki modeli birbirinden ayirir.
-            // Ardina modeli : hucre 0 araligi [0.00, 1.50)  -> -0.1 disarida
-            // Ortalanmis    : hucre 0 araligi [-0.25, 1.25) -> -0.1 hala hucre 0
+            // Bu test iki modeli birbirinden ayırır.
+            // Ardına modeli : hücre 0 aralığı [0.00, 1.50)  -> -0.1 dışarıda
+            // Ortalanmış    : hücre 0 aralığı [-0.25, 1.25) -> -0.1 hâlâ hücre 0
             Assert.That(
                 CellXAt(-0.1f),
                 Is.EqualTo(-1),
-                "Ilk hucrenin SOLUNDA bosluk yoktur; bosluk her hucrenin ardina eklenir.");
+                "There is no gap to the LEFT of the first cell; the gap trails each cell.");
             Assert.That(
                 CellXAt(-0.001f),
                 Is.EqualTo(-1),
@@ -84,7 +84,7 @@ namespace GridStrategy.Tests.EditMode.Unity
         public void WorldToCell_ReproducesTheFourMeasuredClicks()
         {
             // Ogrenci tarafindan Play mode'da uretilen gercek olcumler.
-            // Dordu de "bosluk hucrenin ardina eklenir" modeliyle uyusur.
+            // Dördü de "boşluk hücrenin ardına eklenir" modeliyle uyuşur.
             Assert.That(CellXAt(0.103f), Is.EqualTo(0));
             Assert.That(CellXAt(0.515f), Is.EqualTo(0));
             Assert.That(CellXAt(3.592f), Is.EqualTo(2));
