@@ -1,0 +1,866 @@
+[
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "verilir):\npublic Battle(UnitGrid board)\n{\nthis.board = board ?? throw new ArgumentNullException(nameof(board));\n}",
+  "target": 136,
+  "targetText": "public Battle(int width, int height)"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "private readonly Combatant[,] combatantsByCell;",
+  "target": 91,
+  "targetText": "private readonly Dictionary<Unit, Combatant> combatants ="
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "private readonly UnitGrid structureBoard;\nprivate readonly Dictionary<Structure, ...> structuresByCell;",
+  "target": 113,
+  "targetText": "private readonly Dictionary<Unit, Structure> structures ="
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "public int UnitCount => combatants.Count + structures.Count;",
+  "target": 211,
+  "targetText": "public int StructureCount => structures.Count;"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "BoardAdapter'a taşınır ve savaş onu hiç bilmez):\n// BoardAdapter.cs içinde:\nprivate readonly TurnState turn = new TurnState();\nprivate void OnEndTurnButton() { turn.EndTurn(); }",
+  "target": 262,
+  "targetText": "public TurnState Turn { get; }"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "static örneğini tutar):\n// BattleActions.cs içinde:\nprivate static readonly TurnState Turn = new TurnState();",
+  "target": 262,
+  "targetText": "public TurnState Turn { get; }"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "BIRAKILMAZ; kayıt silindiği için nasıl olsa duyulmaz\nvarsayılır):\ncombatants.Remove(unit);   // stateForwarders'a hiç dokunulmaz",
+  "target": 309,
+  "targetText": "public event Action<Unit, UnitState, UnitState> UnitStateChanged;"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "Dictionary.Add'in kendi hatası bildirir):\nboard.PlaceUnit(x, y, unit);\ncombatants.Add(unit, combatant);",
+  "target": 373,
+  "targetText": "board.PlaceUnit(x, y, unit);"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "açılır ve döngü çağıranda yaşar):\npublic IEnumerable<Unit> Units => combatants.Keys;",
+  "target": 564,
+  "targetText": "public void Tick(float deltaSeconds)"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "katmanı her karede kendi görsel tablosunu dolaşıp\nsavaşçıları YOKLAR):\nforeach (Unit unit in unitViews.Keys)\n{\nif (battle.TryGetCombatant(unit, out Combatant c)\n&& c.IsReadyForCleanup)\n{\nbattle.RemoveUnit(unit);\n}\n}",
+  "target": 637,
+  "targetText": "public int RemoveReadyForCleanup(List<Unit> removed)"
+ },
+ {
+  "file": "Assets/Game/Battle/Battle.cs",
+  "fingerprint": "ve AddUnit ile RemoveUnit onu günceller):\nprivate readonly Dictionary<Unit, (int x, int y)> positions;",
+  "target": 747,
+  "targetText": "public bool TryGetPosition(Unit unit, out int x, out int y)"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "bir bayrakla gelir):\npublic static AttackOutcome Attack(Battle battle, Unit attacker,\nUnit target, bool targetIsStructure)",
+  "target": 98,
+  "targetText": ": RequireCombatant(battle, target, nameof(target));"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "uygunluğundan SONRA sorulur, yani AttackAction'a\ndevredildikten sonra):\nAttackOutcome outcome = AttackAction.Execute(\nattackerCombatant, targetCombatant, distance);\nif (outcome != AttackOutcome.Hit && outcome != AttackOutcome.HitAndDowned)\n{\nreturn outcome;\n}\nif (!TurnRules.CanAct(attackerCombatant.Team, battle.Turn.Current))\n{\nreturn AttackOutcome.RejectedActorCannotAct;\n}",
+  "target": 137,
+  "targetText": "if (!TurnRules.CanAct(attackerCombatant.Team, battle.Turn.Current))"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "sormak zarar vermez\" diye):\nif (!TargetingRules.CanBeAttacked(\ntargetCombatant.State, attackerCombatant.Team, targetCombatant.Team))\n{\nreturn AttackOutcome.RejectedInvalidTarget;\n}",
+  "target": 180,
+  "targetText": "int distance = GridDistance.Between(attackerX, attackerY, targetX, targetY);"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "sırayı yakar, \"düşünüp doğru hamleyi bul\" diye):\nbattle.Turn.EndTurn();\nreturn outcome;",
+  "target": 221,
+  "targetText": "bool attacked = outcome == AttackOutcome.Hit"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "alınır):\nif (!AttackRules.CanAttack(reviverCombatant.State))\n{\nreturn ReviveOutcome.RejectedActorCannotAct;\n}",
+  "target": 426,
+  "targetText": "if (!ReviveRules.CanRevive(reviverCombatant.State))"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "if (reviverCombatant.State != UnitState.Alive)\n{\nreturn ReviveOutcome.RejectedActorCannotAct;\n}",
+  "target": 426,
+  "targetText": "if (!ReviveRules.CanRevive(reviverCombatant.State))"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "const int ReviveRange = 1;\nif (distance > ReviveRange)\n{\nreturn ReviveOutcome.RejectedOutOfRange;\n}",
+  "target": 466,
+  "targetText": "if (!AttackResolver.IsWithinRange(distance, reviverCombatant.AttackProfile))"
+ },
+ {
+  "file": "Assets/Game/Battle/BattleActions.cs",
+  "fingerprint": "doğar ve bu dosya onu döndürür):\npublic enum BattleOutcome { RejectedUnknownUnit, Attacked, Moved }",
+  "target": 580,
+  "targetText": "private static Combatant RequireCombatant(Battle battle, Unit unit, string paramName)"
+ },
+ {
+  "file": "Assets/Game/Battle/PlacementOutcome.cs",
+  "fingerprint": "PlaceStructure Battle.AddStructure'ın hatalarını olduğu\ngibi geçirir):\npublic static void PlaceStructure(Battle battle, Unit unit,\nStructure structure, int x, int y)\n{\nbattle.AddStructure(unit, structure, x, y);\n}",
+  "target": 73,
+  "targetText": "RejectedCellOccupied,"
+ },
+ {
+  "file": "Assets/Game/Battle/PlacementOutcome.cs",
+  "fingerprint": "de uygulanır ve dördüncü bir değer doğar):\nRejectedActorCannotAct\n// ve BattleActions.PlaceStructure içinde:\nif (!TurnRules.CanAct(structure.Team, battle.Turn.Current))\n{\nreturn PlacementOutcome.RejectedActorCannotAct;\n}",
+  "target": 100,
+  "targetText": "Placed"
+ },
+ {
+  "file": "Assets/Game/Battle/ReviveOutcome.cs",
+  "fingerprint": "diriltme AttackOutcome'u paylaşır):\nAttackOutcome outcome = BattleActions.Revive(battle, reviver, target);\n// ve \"Revived\" için AttackOutcome'a altıncı bir değer eklenir",
+  "target": 79,
+  "targetText": "Revived"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnRules.cs",
+  "fingerprint": "savaşın durumuna taşınır):\n// TurnState içinde:\npublic int MaxActionsPerTurn { get; }",
+  "target": 57,
+  "targetText": "public const int MaxActionsPerTurn = 1;"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnRules.cs",
+  "fingerprint": "yalnızca üç parametreli sürüm kalır ve taraf sorusunu\nsoran uydurma bir sıfır geçer):\nTurnRules.CanAct(unitTeam, currentTurn, actionsUsedThisTurn: 0)",
+  "target": 85,
+  "targetText": "public static bool CanAct(Team unitTeam, Team currentTurn)"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnRules.cs",
+  "fingerprint": "geçilir):\npublic static bool CanAct(Team unitTeam, TurnState turn,\nint actionsUsedThisTurn)",
+  "target": 130,
+  "targetText": "if (actionsUsedThisTurn < 0)"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnState.cs",
+  "fingerprint": "arasında sabitlenir ve EndTurn tek satıra iner):\npublic Team Current { get; private set; }\n// EndTurn içinde:\nCurrent = Current == Team.Player ? Team.Enemy : Team.Player;",
+  "target": 65,
+  "targetText": "private readonly Team[] order;"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnState.cs",
+  "fingerprint": "tarafsız taraf da sıraya girer):\ncopy[i] = turnOrder[i];",
+  "target": 136,
+  "targetText": "if (turnOrder[i] == Team.None)"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnState.cs",
+  "fingerprint": "public event Action<Team> TurnChanged;",
+  "target": 195,
+  "targetText": "public Team Current => order[index];"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnState.cs",
+  "fingerprint": "private readonly Dictionary<Unit, int> actionsUsed =\nnew Dictionary<Unit, int>();\npublic int ActionsUsedBy(Unit unit) { ... }\n// ve EndTurn içinde: actionsUsed.Clear();",
+  "target": 247,
+  "targetText": "public bool EndTurn()"
+ },
+ {
+  "file": "Assets/Game/Battle/TurnState.cs",
+  "fingerprint": "devir turu ilerletir ve yukarıdaki erken dönüş silinir):\nindex = (index + 1) % order.Length;\nTurnNumber++;\nreturn true;",
+  "target": 276,
+  "targetText": "TurnNumber++;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "metot Combatant'a taşınır):\npublic AttackOutcome Attack(Combatant target, int distance)\n{\nif (!TargetingRules.CanBeAttacked(target.State)) ...\n}",
+  "target": 65,
+  "targetText": "public static AttackOutcome Execute(Combatant attacker, Combatant target, int distance)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "kontrollerinin ALTINA taşınır):\nif (!TargetingRules.CanBeAttacked(target.State, attacker.Team, target.Team)) ...\nif (!AttackResolver.IsWithinRange(distance, attacker.AttackProfile)) ...\nif (!AttackRules.CanAttack(attacker.State))\n{\nreturn AttackOutcome.RejectedActorCannotAct;\n}",
+  "target": 108,
+  "targetText": "if (!AttackRules.CanAttack(attacker.State))"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "her akış kendi ön kontrolünü taşır):\nif (!TargetingRules.CanBeAttacked(target.State))",
+  "target": 137,
+  "targetText": "if (!TargetingRules.CanBeAttacked(target.State, attacker.Team, target.Team))"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "return target.State == UnitState.Downed\n? AttackOutcome.HitAndDowned\n: AttackOutcome.Hit;",
+  "target": 168,
+  "targetText": "return stateBeforeHit == UnitState.Alive && target.State == UnitState.Downed"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "birleşir; hedefler ortak bir arayüz arkasına alınır):\npublic interface IAttackTarget\n{\nbool CanBeAttackedBy(Team attackerTeam);\nbool TakeDamage(int amount);\n}\npublic static AttackOutcome Execute(Combatant attacker, IAttackTarget target, int distance)",
+  "target": 202,
+  "targetText": "public static AttackOutcome Execute(Combatant attacker, Structure target, int distance)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackAction.cs",
+  "fingerprint": "körü körüne kopyalanır):\nStructureState stateBeforeHit = target.State;\ntarget.TakeDamage(attacker.AttackProfile.Damage);\nreturn stateBeforeHit == StructureState.Standing\n&& target.State == StructureState.Destroyed\n? AttackOutcome.HitAndDestroyed\n: AttackOutcome.Hit;",
+  "target": 269,
+  "targetText": "return target.TakeDamage(attacker.AttackProfile.Damage)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackOutcome.cs",
+  "fingerprint": "Hit,\nHitAndDowned,\nRejectedInvalidTarget,\nRejectedOutOfRange",
+  "target": 42,
+  "targetText": "RejectedInvalidTarget,"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackOutcome.cs",
+  "fingerprint": "public readonly struct AttackOutcome\n{\npublic bool Rejected { get; }\npublic int DamageDealt { get; }\npublic bool Downed { get; }\n}",
+  "target": 67,
+  "targetText": "HitAndDowned,"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackOutcome.cs",
+  "fingerprint": "public enum StructureAttackOutcome\n{\nRejectedInvalidTarget,\nRejectedOutOfRange,\nHit,\nHitAndDestroyed\n}",
+  "target": 100,
+  "targetText": "HitAndDestroyed,"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackOutcome.cs",
+  "fingerprint": "sebep):\nRejectedNotYourTurn,\nRejectedAttackerCannotAct",
+  "target": 140,
+  "targetText": "RejectedActorCannotAct"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackProfile.cs",
+  "fingerprint": "public readonly struct AttackProfile",
+  "target": 35,
+  "targetText": "public sealed class AttackProfile"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackProfile.cs",
+  "fingerprint": "ScriptableObject'ten türer):\n[SerializeField] private int damage;\n[SerializeField] private int range;\nprivate void OnValidate() { range = Mathf.Max(1, range); }",
+  "target": 52,
+  "targetText": "public AttackProfile(int damage, int range)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackResolver.cs",
+  "fingerprint": "public static bool IsWithinRange(int ax, int ay, int bx, int by, AttackProfile profile)\n=> Math.Abs(ax - bx) + Math.Abs(ay - by) <= profile.Range;",
+  "target": 41,
+  "targetText": "public static bool IsWithinRange(int distance, AttackProfile profile)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackRules.cs",
+  "fingerprint": "return state != UnitState.Downed && state != UnitState.Dead;",
+  "target": 73,
+  "targetText": "public static bool CanAttack(UnitState attackerState)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackRules.cs",
+  "fingerprint": "hareket kuralından DEVRALINIR):\nreturn MovementRules.CanMove(state);",
+  "target": 73,
+  "targetText": "public static bool CanAttack(UnitState attackerState)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/AttackRules.cs",
+  "fingerprint": "public static bool CanAttack(UnitState attackerState, Team attackerTeam)\n{\nif (attackerTeam == Team.None) { return false; }\nreturn CanAttack(attackerState);\n}",
+  "target": 75,
+  "targetText": "return attackerState == UnitState.Alive;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "public const int ReviveHealthAmount = 50;",
+  "target": 47,
+  "targetText": "public const int ReviveHealthDivisor = 2;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "YENİ durumdan TÜRETİLİR, çünkü her geçişin tek bir\nkaynağı var):\nprivate static UnitState PreviousOf(UnitState next)\n{\n// Downed'a yalnız Alive'dan, Dead'e yalnız Downed'dan,\n// Alive'a yalnız Downed'dan gelinir.\nreturn next == UnitState.Alive ? UnitState.Downed\n: next == UnitState.Downed ? UnitState.Alive\n: UnitState.Downed;\n}",
+  "target": 79,
+  "targetText": "private UnitState lastObservedState;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "public Combatant(Health health, UnitLifecycle lifecycle,\nAttackProfile attackProfile, Team team)",
+  "target": 103,
+  "targetText": "Team team = Team.None)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "this.health = new Health(maxHealth);",
+  "target": 118,
+  "targetText": "AttackProfile = attackProfile ?? throw new ArgumentNullException(nameof(attackProfile));"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "Battle tek bir dinleyiciyle kurtulur):\npublic event Action<Combatant, UnitState, UnitState> StateChanged;",
+  "target": 210,
+  "targetText": "UnitState previous = lastObservedState;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "olayı olduğu gibi dışarı verilir):\npublic event Action<UnitState> StateChanged\n{\nadd { lifecycle.StateChanged += value; }\nremove { lifecycle.StateChanged -= value; }\n}",
+  "target": 210,
+  "targetText": "UnitState previous = lastObservedState;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "public Team Team { get; set; }",
+  "target": 246,
+  "targetText": "public Team Team { get; }"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "public bool IsAlive => lifecycle.State == UnitState.Alive;",
+  "target": 283,
+  "targetText": "public void TakeDamage(int amount)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Combatant.cs",
+  "fingerprint": "if (!health.HasRemaining) return;",
+  "target": 296,
+  "targetText": "health.TakeDamage(amount);"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/DamageRules.cs",
+  "fingerprint": "private int ResolveRemaining(int amount)\n{\nreturn Math.Max(0, current - amount);\n}",
+  "target": 31,
+  "targetText": "public static class DamageRules"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/DamageRules.cs",
+  "fingerprint": "return current - amount;\n// ...ve Health.TakeDamage içinde, atamadan SONRA:\ncurrent = DamageRules.ResolveRemaining(current, amount);\nif (current < 0) { current = 0; }",
+  "target": 68,
+  "targetText": "return Math.Max(0, current - amount);"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/HealingRules.cs",
+  "fingerprint": "içinde tek metot; delta işaretiyle iki yön):\npublic static int ResolveHealth(int current, int max, int delta)\n{\n// delta < 0 => hasar, delta > 0 => iyileştirme\nreturn Math.Clamp(current + delta, 0, max);\n}",
+  "target": 37,
+  "targetText": "public static class HealingRules"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Health.cs",
+  "fingerprint": "public int Current { get; set; }",
+  "target": 50,
+  "targetText": "public int Current => current;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Health.cs",
+  "fingerprint": "public bool IsIntact => current > 0;",
+  "target": 70,
+  "targetText": "public bool HasRemaining => current > 0;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Health.cs",
+  "fingerprint": "if (amount < 0)\n{\nthrow new ArgumentOutOfRangeException(nameof(amount), amount, \"Damage amount cannot be negative.\");\n}",
+  "target": 97,
+  "targetText": "current = DamageRules.ResolveRemaining(current, amount);"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/MovementRules.cs",
+  "fingerprint": "TargetingRules.CanBeAttacked'ın şekli):\nreturn state != UnitState.Downed && state != UnitState.Dead;",
+  "target": 72,
+  "targetText": "public static bool CanMove(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/MovementRules.cs",
+  "fingerprint": "yazılmaz, hedefleme kuralından TÜRETİLİR):\nreturn TargetingRules.CanBeAttacked(state)\n&& !TargetingRules.CanBeRevived(state);",
+  "target": 72,
+  "targetText": "public static bool CanMove(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/MovementRules.cs",
+  "fingerprint": "public static bool CanMove(UnitState state, Team unitTeam, Team activeTeam)\n{\nif (unitTeam == Team.None) { return false; }\nif (unitTeam != activeTeam) { return false; }\nreturn CanMove(state);\n}",
+  "target": 74,
+  "targetText": "return state == UnitState.Alive;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/ReviveRules.cs",
+  "fingerprint": "diriltemesin diye hedef de sorulur):\npublic static bool CanRevive(UnitState reviverState, UnitState targetState)\n{\nif (reviverState != UnitState.Alive) { return false; }\nreturn targetState == UnitState.Downed;\n}",
+  "target": 81,
+  "targetText": "public static bool CanRevive(UnitState reviverState)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Structure.cs",
+  "fingerprint": "public sealed class Structure : Combatant",
+  "target": 37,
+  "targetText": "public sealed class Structure"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Structure.cs",
+  "fingerprint": "Combatant'taki gibi):\npublic Structure(Health health, StructureLifecycle lifecycle, Team team, AttackProfile attackProfile)\n{\nAttackProfile = attackProfile ?? throw new ArgumentNullException(nameof(attackProfile));\n}",
+  "target": 73,
+  "targetText": "Team = team;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Structure.cs",
+  "fingerprint": "public bool IsStanding => health.HasRemaining;",
+  "target": 113,
+  "targetText": "public bool IsStanding => lifecycle.State == StructureState.Standing;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureLifecycle.cs",
+  "fingerprint": "public event Action<StructureState> StateChanged;",
+  "target": 84,
+  "targetText": "public StructureState State { get; private set; }"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureLifecycle.cs",
+  "fingerprint": "metot void kalır ve çağıran durumu kendisi okur):\npublic void OnHealthDepleted()",
+  "target": 121,
+  "targetText": "public bool OnHealthDepleted()"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureLifecycle.cs",
+  "fingerprint": "public bool TryRepair()\n{\nif (State != StructureState.Destroyed) { return false; }\nState = StructureState.Standing;\nremainingSeconds = 0f;\nreturn true;\n}",
+  "target": 160,
+  "targetText": "public void Tick(float deltaSeconds)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureState.cs",
+  "fingerprint": "UnitState'i yeniden kullanır):\npublic UnitState State { get; private set; }   // StructureLifecycle içinde",
+  "target": 54,
+  "targetText": "public enum StructureState"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureState.cs",
+  "fingerprint": "Standing,\nDestroyed",
+  "target": 77,
+  "targetText": "Destroyed,"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/StructureState.cs",
+  "fingerprint": "yerine üçüncü bir değer):\nDestroyed,\nRubble,\nStanding",
+  "target": 95,
+  "targetText": "Standing"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "property'sinin yanı):\npublic bool CanBeAttacked => State != UnitState.Dead;",
+  "target": 57,
+  "targetText": "public static bool CanBeAttacked(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "silinir, AttackAction.Execute'un birim hedefli aşırı\nyüklemesindeki hedef uygunluğu çağrısı şuna döner):\nif (!TargetingRules.CanBeAttacked(target.State, attacker.Team, target.Team))",
+  "target": 102,
+  "targetText": "if (!IsHostilePairing(attackerTeam, targetTeam))"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "körü körüne kopyalanır):\npublic static bool CanBeAttacked(StructureState state)\n=> state != StructureState.Destroyed;",
+  "target": 136,
+  "targetText": "public static bool CanBeAttacked(StructureState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "ikiz eklenir):\npublic static bool CanBeRepaired(StructureState state)\n{\nreturn state == StructureState.Standing;\n}",
+  "target": 203,
+  "targetText": "public static bool CanBeRevived(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "metoda katlanır):\npublic static bool IsValidTarget(UnitState state, AbilityKind kind)\n=> kind == AbilityKind.Revive ? state == UnitState.Downed : state != UnitState.Dead;",
+  "target": 203,
+  "targetText": "public static bool CanBeRevived(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/TargetingRules.cs",
+  "fingerprint": "kural yalnız \"aynı takım\" olur):\nif (attackerTeam == targetTeam) { return false; }\nreturn CanBeAttacked(state);",
+  "target": 264,
+  "targetText": "private static bool IsHostilePairing(Team attackerTeam, Team targetTeam)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/Team.cs",
+  "fingerprint": "Player,\nEnemy",
+  "target": 35,
+  "targetText": "None,"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+  "fingerprint": "private float downedRemaining;\nprivate float corpseRemaining;",
+  "target": 48,
+  "targetText": "private float remainingSeconds;"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+  "fingerprint": "her kare State'i okuyup önceki değerle karşılaştırır):\nvar before = lifecycle.State;\nlifecycle.Tick(dt);\nif (lifecycle.State != before) { /* tepki */ }",
+  "target": 113,
+  "targetText": "private void SetState(UnitState next)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+  "fingerprint": "public event Action OnReadyForCleanup;",
+  "target": 143,
+  "targetText": "public bool IsReadyForCleanup { get; private set; }"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+  "fingerprint": "if (State == UnitState.Downed)\n{\nState = UnitState.Dead;\nremainingSeconds = corpseWindowSeconds;\nreturn;\n}",
+  "target": 175,
+  "targetText": "if (State != UnitState.Alive)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+  "fingerprint": "public void Tick()\n{\nfloat deltaSeconds = Time.deltaTime;",
+  "target": 218,
+  "targetText": "public void Tick(float deltaSeconds)"
+ },
+ {
+  "file": "Assets/Game/Core/Combat/UnitState.cs",
+  "fingerprint": "public bool isAlive;\npublic bool isDowned;",
+  "target": 32,
+  "targetText": "public enum UnitState"
+ },
+ {
+  "file": "Assets/Game/Core/GridDistance.cs",
+  "fingerprint": "public static int Between(UnitGrid board, int ax, int ay, int bx, int by)",
+  "target": 50,
+  "targetText": "int dy = Math.Abs(ay - by);"
+ },
+ {
+  "file": "Assets/Game/Core/GridDistance.cs",
+  "fingerprint": "return dx + dy;                        // Manhattan",
+  "target": 72,
+  "targetText": "return Math.Max(dx, dy);"
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "tahtanın kendisine taşınır):\npublic MoveOutcome TryMoveUnit(int fromX, int fromY, int toX,\nint toY, int moveRange)",
+  "target": 70,
+  "targetText": "public static MoveOutcome Execute("
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "silinir ve içeride unit.MoveRange okunur):\npublic Unit(string name, int moveRange) { ... }\npublic int MoveRange { get; }",
+  "target": 81,
+  "targetText": "throw new ArgumentNullException(nameof(board));"
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "daha eklenir ve buradan o dönülür):\nreturn MoveOutcome.RejectedUnitNotAtSource;",
+  "target": 118,
+  "targetText": "if (!board.TryGetUnit(fromX, fromY, out Unit standing)"
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "if (board.TryGetUnit(toX, toY, out Unit occupant)) ...   // önce doluluk",
+  "target": 153,
+  "targetText": "if (!board.IsInsideGrid(toX, toY))"
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "if (board.TryGetUnit(toX, toY, out Unit _))   // \"orada biri var mı\"",
+  "target": 177,
+  "targetText": "if (board.TryGetUnit(toX, toY, out Unit occupant)"
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "alan sürümün imzası doğrudan değiştirilir):\npublic static MoveOutcome Execute(UnitGrid board, Unit unit,\nint fromX, int fromY, int toX, int toY, MoveProfile profile)",
+  "target": 236,
+  "targetText": "public static MoveOutcome Execute("
+ },
+ {
+  "file": "Assets/Game/Core/MoveAction.cs",
+  "fingerprint": "alınır, profil yerine birimin durumu sorulur):\nif (!MovementRules.CanMove(state)) return MoveOutcome.Rejected...;",
+  "target": 236,
+  "targetText": "public static MoveOutcome Execute("
+ },
+ {
+  "file": "Assets/Game/Core/MoveOutcome.cs",
+  "fingerprint": "Moved,                            // sıfırıncı değer BAŞARI olur\nRejectedInvalidDestination,",
+  "target": 35,
+  "targetText": "RejectedInvalidDestination,"
+ },
+ {
+  "file": "Assets/Game/Core/MoveOutcome.cs",
+  "fingerprint": "Rejected,\nMoved",
+  "target": 52,
+  "targetText": "RejectedCellOccupied,"
+ },
+ {
+  "file": "Assets/Game/Core/MoveOutcome.cs",
+  "fingerprint": "BattleActions kendi sarmalayıcı sonuç tipini alır):\npublic enum BattleRejection { None, NotYourTurn, ActorCannotAct }\npublic readonly struct BattleMoveOutcome { Rejection; Core; }",
+  "target": 107,
+  "targetText": "RejectedActorCannotAct"
+ },
+ {
+  "file": "Assets/Game/Core/MoveProfile.cs",
+  "fingerprint": "public readonly struct MoveProfile",
+  "target": 61,
+  "targetText": "public sealed class MoveProfile"
+ },
+ {
+  "file": "Assets/Game/Core/MoveProfile.cs",
+  "fingerprint": "\"range < 1\" eşiği birebir kopyalanır):\nif (range < 1) throw new ArgumentOutOfRangeException(...);",
+  "target": 82,
+  "targetText": "public MoveProfile(int range)"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "using UnityEngine;\npublic PointerPhase Sample()   // Input.GetMouseButton... + mousePosition",
+  "target": 110,
+  "targetText": "public sealed class PointerGesture"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "public bool IsDragging { get; private set; }",
+  "target": 110,
+  "targetText": "public sealed class PointerGesture"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "hâliyle saklanır):\nreturn Math.Sqrt((dx * dx) + (dy * dy)) > dragThreshold;",
+  "target": 146,
+  "targetText": "private readonly float dragThresholdSquared;"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "düzeltilir):\ndragThresholdSquared = Math.Max(0f, dragThreshold) * Math.Max(0f, dragThreshold);",
+  "target": 230,
+  "targetText": "public PointerPhase Phase { get; private set; }"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "AttackProfile'ın \"range < 1\" eşiği birebir kopyalanır):\nif (dragThreshold <= 0f) throw new ArgumentOutOfRangeException(...);",
+  "target": 230,
+  "targetText": "public PointerPhase Phase { get; private set; }"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "if (IsActive) throw new InvalidOperationException(\"Pointer is pressed.\");",
+  "target": 262,
+  "targetText": "public PointerPhase Press(float x, float y)"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "hesaplanır ve geri dönebilir):\nPhase = ExceedsDragThreshold(x, y) ? PointerPhase.Dragging\n: PointerPhase.Pressed;",
+  "target": 305,
+  "targetText": "public PointerPhase MoveTo(float x, float y)"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "indirilir):\npublic enum PointerPhase { Idle, Pressed, Dragging, Released }",
+  "target": 374,
+  "targetText": "public PointerPhase Release(float x, float y)"
+ },
+ {
+  "file": "Assets/Game/Core/PointerGesture.cs",
+  "fingerprint": "sayılır, parametreler yalnızca simetri için durur):\nPhase = Phase == PointerPhase.Dragging ? PointerPhase.DragReleased\n: PointerPhase.ClickReleased;",
+  "target": 374,
+  "targetText": "public PointerPhase Release(float x, float y)"
+ },
+ {
+  "file": "Assets/Game/Core/Unit.cs",
+  "fingerprint": "yapılar için ikinci bir kimlik tipi doğar):\npublic sealed class BoardPiece { }     // Unit yeniden adlandırılır\npublic sealed class StructureId { }    // yapılar için ayrı kimlik",
+  "target": 46,
+  "targetText": "public sealed class Unit"
+ },
+ {
+  "file": "Assets/Game/Core/UnitGrid.cs",
+  "fingerprint": "public bool TryPlaceUnit(int x, int y, Unit unit)   // tahta dışı -> false",
+  "target": 73,
+  "targetText": "public void PlaceUnit(int x, int y, Unit unit)"
+ },
+ {
+  "file": "Assets/Game/Core/UnitGrid.cs",
+  "fingerprint": "public void RemoveUnit(Unit unit)   // koordinat değil KİMLİK ile",
+  "target": 106,
+  "targetText": "public void RemoveUnit(int x, int y)"
+ },
+ {
+  "file": "Assets/Game/Core/UnitGrid.cs",
+  "fingerprint": "RemoveUnit(fromX, fromY);  sonra  PlaceUnit(toX, toY, moving);",
+  "target": 134,
+  "targetText": "public void MoveUnit(int fromX, int fromY, int toX, int toY)"
+ },
+ {
+  "file": "Assets/Game/Core/UnitGrid.cs",
+  "fingerprint": "public Unit FindUnit(int x, int y)   // hücre boşsa null döner",
+  "target": 195,
+  "targetText": "public bool TryGetUnit(int x, int y, out Unit unit)"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "asset'ine taşınır ve bu alanlar tek bir referansa iner):\n[SerializeField] private UnitDefinition playerDefinition;\n[CreateAssetMenu(menuName = \"GridStrategy/Unit Definition\")]\npublic sealed class UnitDefinition : ScriptableObject { ... }",
+  "target": 178,
+  "targetText": "[SerializeField, Min(1)] private int maxHealth = 30;"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "diye SpawnUnit parametre alır ve sayı burada saklanır):\nprivate readonly Dictionary<Unit, int> moveRanges =\nnew Dictionary<Unit, int>();",
+  "target": 213,
+  "targetText": "[SerializeField, Min(0)] private int moveRange = 1;"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "kipe girerken tahtaya eklenir, iptalde geri alınır):\nbattle.AddStructure(selectedUnit, ghostStructure, x, y);\n// ... iptalde: battle.RemoveStructure(selectedUnit);",
+  "target": 237,
+  "targetText": "[SerializeField] private SpriteRenderer placementGhost;"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "OnDestroy'da bırakılır):\nprivate void Awake()    { battle.UnitStateChanged += OnUnitStateChanged; }\nprivate void OnDestroy() { battle.UnitStateChanged -= OnUnitStateChanged; }",
+  "target": 421,
+  "targetText": "private void OnEnable()"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "yazılır, savaş kaydı atlanır):\nboard.PlaceUnit(x, y, unit);",
+  "target": 944,
+  "targetText": "battle.AddUnit(unit, NewCombatant(team), x, y);"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "da bir hareket denemesidir):\nReactToMove(\nBattleActions.Move(battle, selectedUnit, x, y, moveRange),\nx, y);",
+  "target": 1059,
+  "targetText": "if (ReferenceEquals(clicked, selectedUnit))"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "sonra elle tazeleme de bu dalda KALIR):\nRefreshDownedVisual(target);",
+  "target": 1119,
+  "targetText": "case AttackOutcome.HitAndDowned:"
+ },
+ {
+  "file": "Assets/Game/Unity/BoardAdapter.cs",
+  "fingerprint": "türetilir ve bu metot hiç doğmaz):\nview.SetDowned(outcome == AttackOutcome.HitAndDowned);",
+  "target": 1245,
+  "targetText": "private void ApplyStateVisual(Unit unit, UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Unity/UnitView.cs",
+  "fingerprint": "kısıtlar):\npublic void SetSelected(bool isSelected)\n{\nif (lastState == UnitState.Dead) { return; }   // sessiz ret\n...\n}",
+  "target": 205,
+  "targetText": "public void SetSelected(bool isSelected)"
+ },
+ {
+  "file": "Assets/Game/Unity/UnitView.cs",
+  "fingerprint": "savaş sözlüğü hiç öğrenilmez, üç durum bayrağa iner):\npublic void SetDowned(bool isDowned)\n{\nBody.flipY = isDowned;\n}",
+  "target": 275,
+  "targetText": "public void SetState(UnitState state)"
+ },
+ {
+  "file": "Assets/Game/Unity/UnitView.cs",
+  "fingerprint": "durum ikinci bir BOOL eksenine bindirilir):\nbodyRenderer.flipY = state != UnitState.Alive;\nbodyRenderer.flipX = state == UnitState.Dead;",
+  "target": 328,
+  "targetText": "bodyRenderer.color = authoredColor * TintFor(state);"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Battle/TurnRulesTests.cs",
+  "fingerprint": "[TestCase(Team.Player, Team.Player, 0, ExpectedResult = true)]\n[TestCase(Team.Player, Team.Player, 1, ExpectedResult = false)]\n... 27 satır: üç birim tarafı × üç sıra tarafı × üç bütçe değeri",
+  "target": 35,
+  "targetText": "[TestCase(Team.Player, Team.Player, ExpectedResult = true)]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Battle/TurnStateTests.cs",
+  "fingerprint": "sınanmaz, dosya yalnızca iki girişli dizilimle çalışır):\nvar turn = TwoSided();\nturn.EndTurn();\nturn.EndTurn();",
+  "target": 134,
+  "targetText": "public void TurnNumber_AdvancesOnlyAfterEveryEntryHasPlayed()"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/AttackResolverTests.cs",
+  "fingerprint": "var first = AttackResolver.IsWithinRange(2, profile);\nAssert.That(AttackResolver.IsWithinRange(2, profile), Is.EqualTo(first));",
+  "target": 66,
+  "targetText": "Assert.That(AttackResolver.IsWithinRange(2, profile), Is.True);"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/CombatantTests.cs",
+  "fingerprint": "return new Combatant(new FakeHealth(), new FakeLifecycle(), profile);",
+  "target": 29,
+  "targetText": "return new Combatant("
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/CombatantTests.cs",
+  "fingerprint": "(yalnızca yukarıdaki Revive_RestoresHalfOfMaxHealth, tek maksimum\ncanla — 100 → 50)",
+  "target": 111,
+  "targetText": "[TestCase(40, ExpectedResult = 20)]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/CombatantTests.cs",
+  "fingerprint": "Assert.Throws<ArgumentOutOfRangeException>(\n() => new Combatant(health, lifecycle, profile, (Team)99));",
+  "target": 190,
+  "targetText": "[TestCase(Team.None)]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs",
+  "fingerprint": "// alan yerine, ölçülen testin gövdesinde yerel değişken:\nint sink = 0;",
+  "target": 57,
+  "targetText": "private int sink;"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs",
+  "fingerprint": "long before = GC.GetAllocatedBytesForCurrentThread();",
+  "target": 84,
+  "targetText": "Assert.That(() =>"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs",
+  "fingerprint": "for (int i = 0; i < Iterations; i++)\n{\nsink += DamageRules.ResolveRemaining(100, 10);\n}",
+  "target": 127,
+  "targetText": "Assert.That(() =>"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/DamageRulesTests.cs",
+  "fingerprint": "[Test]\npublic void ResolveRemaining_OrdinaryHit_SubtractsExactly()\n{ ... }\n// ...ve aynı gövdenin dört kopyası daha",
+  "target": 29,
+  "targetText": "[TestCase(10, 4, 6, TestName = \"OrdinaryHit\")]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/HealthTests.cs",
+  "fingerprint": "// (bu test ve alttaki ikizi hiç yazılmaz; kelepçe satırları\n//  yalnızca DamageRulesTests'in [TestCase] tablosunda durur)",
+  "target": 66,
+  "targetText": "[Test]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/MovementRulesTests.cs",
+  "fingerprint": "hiç sınanmaz, yalnızca akış üzerinden sınanır):\n[Test] public void Move_DownedUnit_IsRejected()\n{\nvar battle = ...; // düşmüş bir Combatant kurulur\nAssert.That(BattleActions.Move(battle, unit, 1, 3, 1),\nIs.Not.EqualTo(MoveOutcome.Moved));\n}",
+  "target": 39,
+  "targetText": "[TestCase(UnitState.Alive, ExpectedResult = true)]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/TargetingRulesTests.cs",
+  "fingerprint": "[TestCase(UnitState.Alive, Team.Player, Team.Player, ExpectedResult = false)]\n[TestCase(UnitState.Downed, Team.Player, Team.Player, ExpectedResult = false)]\n... 27 satır: üç durum × üç saldıran × üç hedef",
+  "target": 68,
+  "targetText": "[TestCase(Team.Enemy, Team.Enemy, ExpectedResult = false)]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs",
+  "fingerprint": "[UnityTest] public IEnumerator ... {\nyield return new WaitForSeconds(10.1f);",
+  "target": 84,
+  "targetText": "lifecycle.Tick(10.1f);"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs",
+  "fingerprint": "Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(3f),\n\"Kalan sure devralinir.\");",
+  "target": 222,
+  "targetText": "Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(10f),"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Core/MoveActionTests.cs",
+  "fingerprint": "sınayan bir testle korunur):\n[Test] public void Execute_DownedUnit_IsRejected()\n{\nAssert.That(MoveAction.Execute(board, mover, 1, 2, 1, 3,\nUnitState.Downed, moveRange: 1),\nIs.Not.EqualTo(MoveOutcome.Moved));\n}",
+  "target": 276,
+  "targetText": "[Test]"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Core/MoveProfileTests.cs",
+  "fingerprint": "Assets/Tests/EditMode/Combat/ altına, ikizi\nAttackProfileTests'in yanına konur):\nnamespace GridStrategy.Tests.EditMode.Combat { ... }",
+  "target": 27,
+  "targetText": "public sealed class MoveProfileTests"
+ },
+ {
+  "file": "Assets/Tests/EditMode/Core/PointerGestureTests.cs",
+  "fingerprint": "üzerinden, PlayMode'da sınanır):\n[UnityTest]\npublic IEnumerator Drag_PlacesTheStructure()\n{\nyield return new WaitForSeconds(0.1f);\n// fare olayları enjekte edilir, BoardAdapter üzerinden okunur\n}",
+  "target": 47,
+  "targetText": "public sealed class PointerGestureTests"
+ }
+]

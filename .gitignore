@@ -15,6 +15,7 @@
 # ── Bu projeye ozel ────────────────────────────────────────────────────
 # Test kosusu ciktilari: her kosuda yeniden uretilir, kaynak degildir.
 Tools/.test-results/
+Tools/__pycache__/
 
 # ── IDE / derleyici turevleri ──────────────────────────────────────────
 .vs/
