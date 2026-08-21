@@ -131,7 +131,7 @@ namespace GridStrategy.Battle
         // bilmiyor. Unit bir sınıftır, varsayılan karşılaştırma referans
         // eşitliğidir ve aradığımız zaten tam olarak o nesnenin kendisi.
         //
-        // REDDEDILEN - Battle.cs:91 yerine (savaş durumu hücreye yazılır):
+        // REDDEDILEN - Battle.cs:152 yerine (savaş durumu hücreye yazılır):
         //     private readonly Combatant[,] combatantsByCell;
         // KIRILAN  : konum İKİ yerde yaşar ve ayrıştırmak tek satır alır.
         //            MoveAction.Execute tahtanın MoveUnit'ini doğrudan çağırır
@@ -156,7 +156,7 @@ namespace GridStrategy.Battle
         // giriyor; ayrışan tek şey "bu kimliğe hangi savaş parçası eşlendi"
         // sorusudur ve o soru zaten sözlüğün cevapladığı sorudur.
         //
-        // REDDEDILEN - Battle.cs:113 yerine (yapılara kendi tahtası verilir):
+        // REDDEDILEN - Battle.cs:174 yerine (yapılara kendi tahtası verilir):
         //     private readonly UnitGrid structureBoard;
         //     private readonly Dictionary<Structure, ...> structuresByCell;
         // KIRILAN  : "bu hücre dolu mu" sorusu İKİYE bölünür.
@@ -247,7 +247,7 @@ namespace GridStrategy.Battle
         // olduğundan geniş okunuyor — sayacağı şey SAVAŞÇI, tahtadaki her şey
         // değil. S-11'in aynı sınavı: sayı doğru, ad geniş.
         //
-        // REDDEDILEN - Battle.cs:211 yerine (ad korunur, ANLAM genişletilir):
+        // REDDEDILEN - Battle.cs:272 yerine (ad korunur, ANLAM genişletilir):
         //     public int UnitCount => combatants.Count + structures.Count;
         // KIRILAN  : imza değişmez; kırılan şey cevabın kendisidir ve sessizdir.
         //            tahtaya bir baraka konur -> "kaç askerim kaldı" bir fazla
@@ -276,7 +276,7 @@ namespace GridStrategy.Battle
         // NE ANLAMA GELDİĞİ ise bir kuraldır ve TurnRules'ta yaşıyor. İkisi
         // birbirine karışmıyor: burada tek bir izin/yasak satırı yok.
         //
-        // REDDEDILEN - Battle.cs:262 yerine (sıra durumu Unity katmanına,
+        // REDDEDILEN - Battle.cs:323 yerine (sıra durumu Unity katmanına,
         //              BoardAdapter'a taşınır ve savaş onu hiç bilmez):
         //     // BoardAdapter.cs içinde:
         //     private readonly TurnState turn = new TurnState();
@@ -298,7 +298,7 @@ namespace GridStrategy.Battle
         // TEK CUMLE: Bir durumun sahibi onu DEĞİŞTİREN değil, ömrünü PAYLAŞAN
         //            şeydir — sıra ekranla değil savaşla doğar ve savaşla ölür.
         //
-        // REDDEDILEN - Battle.cs:262 yerine (durum hiç doğmaz, akış sahibi kendi
+        // REDDEDILEN - Battle.cs:323 yerine (durum hiç doğmaz, akış sahibi kendi
         //              static örneğini tutar):
         //     // BattleActions.cs içinde:
         //     private static readonly TurnState Turn = new TurnState();
@@ -336,7 +336,7 @@ namespace GridStrategy.Battle
         // IsReadyForCleanup'ı açar ama hiçbir durumu değiştirmez — o an süpürme
         // bir şey bulur, bu olay tetiklenmez.
         //
-        // REDDEDILEN - Battle.cs:309 yerine (abonelik kurulur ama RemoveUnit'te
+        // REDDEDILEN - Battle.cs:370 yerine (abonelik kurulur ama RemoveUnit'te
         //              BIRAKILMAZ; kayıt silindiği için nasıl olsa duyulmaz
         //              varsayılır):
         //     combatants.Remove(unit);   // stateForwarders'a hiç dokunulmaz
@@ -608,7 +608,7 @@ namespace GridStrategy.Battle
         // NEDEN BURADA: savaşçı kümesinin sahibi bu tip. Zamanı ilerletmek için
         // o kümeyi dolaşmak gerekir ve kümeyi dolaşabilen başka kimse yok.
         //
-        // REDDEDILEN - Battle.cs:564 yerine (bu metot doğmaz; küme dışarı
+        // REDDEDILEN - Battle.cs:625 yerine (bu metot doğmaz; küme dışarı
         //              açılır ve döngü çağıranda yaşar):
         //     public IEnumerable<Unit> Units => combatants.Keys;
         // KIRILAN  : kare başına ÇÖP, ve döngü her çağıranda yeniden doğar.
@@ -673,7 +673,7 @@ namespace GridStrategy.Battle
         // silinir — tek geçişte yazmayı denemek çalışır GÖRÜNÜR (tek ceset
         // varken) ve ikinci ceset doğduğu gün patlar.
         //
-        // REDDEDILEN - Battle.cs:637 yerine (bu metot hiç doğmaz; Unity
+        // REDDEDILEN - Battle.cs:698 yerine (bu metot hiç doğmaz; Unity
         //              katmanı her karede kendi görsel tablosunu dolaşıp
         //              savaşçıları YOKLAR):
         //     foreach (Unit unit in unitViews.Keys)
@@ -791,7 +791,7 @@ namespace GridStrategy.Battle
         /// </summary>
         // KONUM HİÇ ÖNBELLEĞE ALINMIYOR — her çağrıda tahta taranıyor.
         //
-        // REDDEDILEN - Battle.cs:747 yerine (konum ikinci bir sözlükte tutulur
+        // REDDEDILEN - Battle.cs:808 yerine (konum ikinci bir sözlükte tutulur
         //              ve AddUnit ile RemoveUnit onu günceller):
         //     private readonly Dictionary<Unit, (int x, int y)> positions;
         // KIRILAN  : konum iki sahipli olur — üstteki sözlük gerekçesinin aynısı,

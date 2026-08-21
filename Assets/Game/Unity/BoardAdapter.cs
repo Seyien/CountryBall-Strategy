@@ -204,7 +204,7 @@ namespace GridStrategy.Unity
         // verir; asset dosyası bundan fazlasını (paylaşım, birim listesi,
         // sürümleme) verir ve o fazlanın bugün alıcısı yok.
         //
-        // REDDEDILEN - BoardAdapter.cs:178 yerine (sayılar bir varlık tanımı
+        // REDDEDILEN - BoardAdapter.cs:236 yerine (sayılar bir varlık tanımı
         //              asset'ine taşınır ve bu alanlar tek bir referansa iner):
         //     [SerializeField] private UnitDefinition playerDefinition;
         //     [CreateAssetMenu(menuName = "GridStrategy/Unit Definition")]
@@ -252,7 +252,7 @@ namespace GridStrategy.Unity
         // sayıdan kendisi kuruyor; SAYININ sahibi ise hâlâ burası. Bu bir karar
         // değil, adı konmuş bir BORÇ.
         //
-        // REDDEDILEN - BoardAdapter.cs:213 yerine (menzil birime göre değişsin
+        // REDDEDILEN - BoardAdapter.cs:271 yerine (menzil birime göre değişsin
         //              diye SpawnUnit parametre alır ve sayı burada saklanır):
         //     private readonly Dictionary<Unit, int> moveRanges =
         //         new Dictionary<Unit, int>();
@@ -276,7 +276,7 @@ namespace GridStrategy.Unity
         // bilmez, hiçbir kural onu görmez; yalnızca bir SpriteRenderer'dır ve
         // tek işi "bırakırsan buraya konur" demektir.
         //
-        // REDDEDILEN - BoardAdapter.cs:237 yerine (hayalet gerçek bir yapıdır;
+        // REDDEDILEN - BoardAdapter.cs:295 yerine (hayalet gerçek bir yapıdır;
         //              kipe girerken tahtaya eklenir, iptalde geri alınır):
         //     battle.AddStructure(selectedUnit, ghostStructure, x, y);
         //     // ... iptalde: battle.RemoveStructure(selectedUnit);
@@ -462,7 +462,7 @@ namespace GridStrategy.Unity
         // sunucu tarafı simülasyon) bırakılmamış abonelik YOK EDİLMİŞ bir
         // MonoBehaviour'ı çağırır ve kaynağından çok uzakta patlar.
         //
-        // REDDEDILEN - BoardAdapter.cs:421 yerine (abonelik Awake'te kurulur,
+        // REDDEDILEN - BoardAdapter.cs:479 yerine (abonelik Awake'te kurulur,
         //              OnDestroy'da bırakılır):
         //     private void Awake()    { battle.UnitStateChanged += OnUnitStateChanged; }
         //     private void OnDestroy() { battle.UnitStateChanged -= OnUnitStateChanged; }
@@ -985,7 +985,7 @@ namespace GridStrategy.Unity
             // exception ile reddeder; o hata görsel doğmadan patlasın ki ekranda
             // karşılığı olmayan bir birim asla oluşmasın.
             //
-            // REDDEDILEN - BoardAdapter.cs:944 yerine (birim doğrudan tahtaya
+            // REDDEDILEN - BoardAdapter.cs:1002 yerine (birim doğrudan tahtaya
             //              yazılır, savaş kaydı atlanır):
             //     board.PlaceUnit(x, y, unit);
             // KIRILAN  : tahtada duran ama Combatant'ı OLMAYAN bir birim doğar
@@ -1098,7 +1098,7 @@ namespace GridStrategy.Unity
 
             // KENDİ ÜSTÜNE TIKLAMAK SEÇİMİ BIRAKIR.
             //
-            // REDDEDILEN - BoardAdapter.cs:1059 yerine (kendi hücresine tıklamak
+            // REDDEDILEN - BoardAdapter.cs:1117 yerine (kendi hücresine tıklamak
             //              da bir hareket denemesidir):
             //     ReactToMove(
             //         BattleActions.Move(battle, selectedUnit, x, y, moveRange),
@@ -1160,7 +1160,7 @@ namespace GridStrategy.Unity
                 // TEK tetiği Battle.UnitStateChanged oldu; saldırı da bir durum
                 // değişikliği ürettiği için olay zaten yolda.
                 //
-                // REDDEDILEN - BoardAdapter.cs:1119 yerine (olay bağlandıktan
+                // REDDEDILEN - BoardAdapter.cs:1177 yerine (olay bağlandıktan
                 //              sonra elle tazeleme de bu dalda KALIR):
                 //     RefreshDownedVisual(target);
                 // KIRILAN  : ekranın aynı olguya İKİ kaynağı olur; ikisi aynı
@@ -1286,7 +1286,7 @@ namespace GridStrategy.Unity
         // AttackOutcome.HitAndDowned yalnızca "şimdi sormaya değer" der, ne
         // gösterileceğini söylemez. Tek doğruluk kaynağı Combatant.State.
         //
-        // REDDEDILEN - BoardAdapter.cs:1245 yerine (görsel doğrudan sonuçtan
+        // REDDEDILEN - BoardAdapter.cs:1303 yerine (görsel doğrudan sonuçtan
         //              türetilir ve bu metot hiç doğmaz):
         //     view.SetDowned(outcome == AttackOutcome.HitAndDowned);
         // KIRILAN  : ekran ile savaş kaydı SESSİZCE ayrışır.
