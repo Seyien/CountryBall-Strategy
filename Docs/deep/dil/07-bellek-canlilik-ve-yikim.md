@@ -101,6 +101,130 @@ mı — **dört ayrı olgu** ve hiçbiri ötekini gerektirmiyor.
 ╚════════════════════════════════════════════════════════════════╝
 ```
 
+### Beş kutunun GERÇEK SATIRLAR tarafındaki karşılığı
+
+██ Bu beşi TİP DEĞİL, AKTÖR. ██ Hiçbirinin kaynakta bir tanım satırı yoktur ve
+aranmamalıdır — `Assets/` altında `DERLEYİCİ` diye bir şey bildirilmiyor.
+Aşağıda her kutu için yazılan şey **etkisinin nerede gözlendiği**; ikisinde de
+dürüst cevap "bu projede karşılığı yok" ve o da yazılı.
+
+**DERLEYİCİ (Roslyn) bu projede** — ██ TANIM SATIRI YOK ██; etkisi ÜRETTİĞİ ŞEKİLDE
+gözleniyor: `Assets/Game/Battle/Battle.cs` → `AddUnit`
+
+```csharp
+Action<UnitState, UnitState> forwarder =
+    (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
+```
+
+`unit` bu metodun bir parametresi, yani kutunun dilinde saf bir KAPSAM olgusu —
+ama derleyici bu kapanışı bir yığın nesnesine çeviriyor ve `unit` o nesnenin
+**alanı** hâline geliyor. Kutudaki «██ `}` ONUN İŞARETİ, GC'nin değil ██» satırı
+tam burada ölçülüyor: `AddUnit`'in kapanış parantezi `unit` **adını** öldürür,
+derleyicinin ürettiği kapanış nesnesi ise `stateForwarders` sözlüğünde yaşamaya
+devam eder. Kutunun «BİLMEZ: çalışırken hangi nesnenin yaşadığını. Bir tek nesne
+bile göremez.» satırının bedeli budur — bu aktör nesneyi ÜRETİR, sonra onu bir
+daha hiç görmez. Aynı aktörün daha ucuz ikinci gözlemi bir hata kodudur:
+[`06`](06-delege-arka-taraf.md)'nın CS0070 ölçüsü.
+
+**JIT / ENİYİLEŞTİRİCİ bu projede** — ██ TANIM SATIRI YOK ██, ve
+██ **bu projede gözlemlenebilir karşılığı YOK** ██. <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette --> Bir değerin son okumasının
+nerede olduğunu gösteren tek bir satır ya da ölçü yok; birinci duraktaki figür de
+bu satırın gözlemini «doğrudan gözlenemez» diye yazıyor. ██ Doğacağı koşul ██: bir
+nesnenin toplanmasını bir yerelin kapsamına dayanarak beklediğin gün — o gün bu
+aktör yereli son okumadan sonra ölü sayabilir ve nesne kapanış parantezinden ÖNCE
+toplanabilir.
+
+Kaynaktaki tek izi bir gözlem değil bir **savunma** —
+`Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs` → `ResolveRemaining_Hic_Tahsis_Yapmaz`:
+
+```csharp
+Assert.That(sink, Is.GreaterThan(0), "Döngü elenmiş olmamalı.");
+```
+
+Bu satır aktörün bir etkisini ölçmüyor, bir etkisini **imkânsız kılıyor**: `sink`
+okunmasaydı döngünün tamamen atılma hakkı doğardı ve "tahsis yok" sonucu kodun
+ucuz olduğunu değil hiç çalışmadığını gösterirdi. Test geçtiği için o etkinin
+doğmadığını biliyoruz — yani kutunun tamamı bu depoda hâlâ **sınanmamış** bir vaat.
+
+> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — JIT / ENİYİLEŞTİRİCİ
+>
+> **GEREKÇE:** Bu kutu bir tip değil bir AKTÖRDÜR, ve aktörün sahibi motor ile
+> çalışma zamanıdır. Projede yazılabilir bir yüzeyi bulunmuyor. ① dolmuyor:
+> hiçbir oyun özelliği eniyileştiricinin canlılık analizini gerektiremez, çünkü
+> oyuncunun ekranda göreceği hiçbir şey oradan doğmuyor. ② de dolmuyor:
+> bağlanacak bir üye bulunmuyor, ve bunu bu bölümün kendi başlığı yazıyor. Bu
+> beşinin kaynakta bir tanım satırı yoktur ve aranmamalıdır.
+>
+> **④ yapı gereği HAYIR.** Burada uydurulabilecek her özellik, örneğin oyuncuya
+> çöpün ne zaman toplandığını göstermek, yalnızca aktörü gözlemlenebilir kılmak
+> için var olurdu. Kararmetrenin reddettiği şey tam olarak budur.
+>
+> **DOĞACAĞI KOŞUL YERİNDE DURUYOR.** Yukarıdaki «Doğacağı koşul» cümlesi
+> silinmedi; düşülmüş senedin tek tetikleyicisi odur. O gün gelirse doğan şey
+> bir özellik değil bir HATADIR, ve depodaki tek iz zaten bir gözlem değil bir
+> savunmadır.
+
+**ÇÖP TOPLAYICI (GC) bu projede** — ██ TANIM SATIRI YOK ██; etkisi tahsis testinde
+gözleniyor: `Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs` →
+`ResolveRemaining_Hic_Tahsis_Yapmaz`
+
+```csharp
+}, UnityIs.Not.AllocatingGCMemory());
+```
+
+Kutudaki «BİLMEZ: NE ZAMAN toplayacağını sana söylemez» satırının kanıtı, bu
+satırın ne ölçMEDİĞİ: burada ölçülen şey **tahsis**, toplama değil. Bir toplamayı
+gözleyen tek bir satır yok ve birinci duraktaki figür de erişilebilirliğin
+gözlemini «bellek profilcisi anlık görüntüsü (bu projede HENÜZ YOK)» diye yazıyor.
+Kutunun «Vaadi: erişilemeyen bir nesne er ya da geç toplanır» satırı bu yüzden
+burada **sınanmıyor**; sınanan şey o vaadin hiç tetiklenmemesi, yani kare başına
+çöp üretilmemesi. ██ Kutunun «dosya, soket, yerel motor nesnesi diye bir kavramı
+YOKTUR» satırının karşılığı da bir sonraki blokta ██ — orada `Destroy` var ve GC
+onun varlığından habersiz.
+
+**UNITY'NİN YEREL TARAFI bu projede** — ██ TANIM SATIRI YOK ██; C# kaynağında
+bildirilmiyor, gözlendiği yer tek bir çağrı: `Assets/Game/Unity/BoardAdapter.cs` →
+`DespawnView`
+
+```csharp
+Destroy(view.gameObject);
+```
+
+Kutudaki «BİLMEZ: C# tarafında o nesneye kaç değişkenin ok tuttuğunu» satırı tam
+burada okunuyor: `Destroy` yalnız yerel eşi yıkım sırasına sokuyor, `view`
+değişkeni ise elde duran yönetilen nesneye bakmaya devam ediyor. Aynı metotta bu
+çağrıdan hemen önce gelen `unitViews.Remove(unit);` satırının neden ÖNCE yazıldığı
+da bu — ters sırada tabloda "null gibi ama null değil" bir referans kalırdı. Kutunun
+«██ İKİ TARAF BİRBİRİNİN ÖMRÜNÜ BELİRLEMEZ ██» satırı bu iki satırın **sırasıyla**
+ödeniyor. Depoda `Destroy` geçen başka bir satır yok; seçim değil, tek aday.
+
+██ Sınırın kendisi ÖLÇÜLDÜ ve burada tekrar EDİLMİYOR ██ —
+[`../../ogrenme/08-unity-altyapisi.md`](../../ogrenme/08-unity-altyapisi.md) yerel
+sınırın kaç metottan geçtiğini, hangi üyelerin `internalcall` damgalı olduğunu ve
+`Object.Destroy`'un bu şekillerden hangisine düştüğünü tek tek sayıyor. Bu kutunun
+sayısal dayanağı orası.
+
+**SEN (elle serbest bırakan) bu projede** — ██ TANIM SATIRI YOK ██; gözlendiği yer,
+elle yapılması gereken işin yazıldığı satır: `Assets/Game/Battle/Battle.cs` →
+`RemoveUnit`
+
+```csharp
+combatants[unit].StateChanged -= forwarder;
+```
+
+Kutudaki «Bu projede bugün: `-=` ile abonelik sökmek, `Destroy` çağırmak»
+satırının iki karşılığından biri bu, ötekisi bir üstteki `Destroy` satırı — yani
+kutu bu iki bloğu birlikte okumak zorunda. Kutunun «BİLMEZ: unuttuğunu. Eksik bir
+`-=` tek bir uyarı üretmez» satırı da tam buradan okunuyor: bu satır silinseydi
+derleyici susardı, ve sözlükte kalan tek kapanış bütün savaşı erişilebilir tutardı
+(üçüncü durak bu zinciri sayıyor).
+
+██ Klasik anlamda elle serbest bırakma ise bu projede YOK ██ — ölçü:
+`Assets/Game/` altında `IDisposable`, `Dispose()` ve sonlandırıcı (`~Tip`) **sıfır**
+kez geçiyor. ██ Doğacağı koşul ██: yönetilmeyen bir kaynağı (dosya, soket,
+`NativeArray`) sahiplenen ilk tip yazıldığı gün — o gün bu kutunun işi `-=` ile
+`Destroy`'dan ibaret olmaktan çıkar ve bir `using` bloğu borcu doğar.
+
 ### Ödünç alınan beş ad, beş sahip satırı
 
 | Ad | Sahibi | Ne VAAT EDER | Ne VAAT ETMEZ |

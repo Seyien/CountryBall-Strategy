@@ -95,6 +95,81 @@ Bu tek istisnanın neden istisna olduğu, bu dosyanın omurgası.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### Dört kutunun gerçek satır karşılığı
+
+Dördü de ödünç: `Action<…>` .NET'in tipi, kalan üçü C# derleyicisinin ürettiği
+şeyler. Aşağıda tanım yerleri değil, ██ bu projede karşılaşıldıkları yerler ██
+yazılı.
+
+**`System.Action<…>` bu projede** — `Assets/Game/Battle/Battle.cs` → `stateForwarders`
+
+```csharp
+private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
+    new Dictionary<Unit, Action<UnitState, UnitState>>();
+```
+
+Kutudaki «Ne yapar: bir METODU değer gibi taşır — değişkende tutulur, parametre
+olarak geçer, sözlükte saklanır» satırının karşılığı doğrudan bu tip
+ifadesinde: sözlüğün **değeri** bir fonksiyon. «DÖNÜŞ: ██ YERİ YOK ██ — Action
+her zaman void'dir» satırının karşılığı da orada — iki tip argümanının ikisi de
+girdi (`UnitState`, `UnitState`); dönüş için yazılacak bir yer yok, olsaydı tip
+`Func<…>` olurdu.
+
+**`event` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `StateChanged`
+
+```csharp
+public event Action<UnitState> StateChanged;
+```
+
+Kutudaki «Ne yapar: bir delege alanının DIŞARIYA açık yüzünü kısar» satırının
+karşılığı `event` kelimesinin kendisi: kelime silinse satır hâlâ derlenir, ama o
+gün `Battle` alana **atayabilir**, `BoardAdapter` onu **çağırabilir** hâle
+gelir. «BİLMEZ: kaç abonesi olduğunu — sıfır abone = null» satırının karşılığı
+ise aynı dosyadaki tetikleme satırı:
+
+```csharp
+StateChanged?.Invoke(next);
+```
+
+`?.` orada bir üslup değil zorunluluk: alan abone yokken `null`, ve `event`
+bunu haber verecek bir sayaç taşımıyor.
+
+**lambda / kapanış bu projede** — `Assets/Game/Battle/Battle.cs` → `AddUnit`
+
+```csharp
+Action<UnitState, UnitState> forwarder =
+    (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
+```
+
+██ Projedeki tek lambda bu ██ — geri kalan bütün abonelikler metot adıyla
+yazılmış, yani seçilecek ikinci bir kullanım yok. Kutudaki «Vaadi: çevredeki
+değişkeni İÇİNE alıp taşır» satırının karşılığı `unit`: parametre listesinde
+yok, gövdede var. «BİLMEZ: aynı metinle yazılmış ikizini ██ TANIMAZ ██»
+satırının karşılığı ise hemen bir sonraki satırda:
+
+```csharp
+combatant.StateChanged += forwarder;
+```
+
+Abone edilen şey `forwarder` **nesnesi**, lambdanın metni değil. Aynı metni
+ikinci kez yazmanın sökmeye yaramaması bundan — ve `stateForwarders` sözlüğü tam
+olarak o nesneyi elde tutmak için var.
+
+**metot grubu bu projede** — `Assets/Game/Core/Combat/Combatant.cs` → `Combatant` kurucusu
+
+```csharp
+this.lifecycle.StateChanged += OnLifecycleStateChanged;
+```
+
+Parantez yok. Kutudaki «Vaadi: aynı metot + aynı hedef = EŞİT delege, her defa»
+satırının karşılığı bu satırın sökülebilir olması: bir `-=` aynı metinle
+yazılsaydı çalışırdı — bir üstteki lambdada çalışmazdı. «BİLMEZ: hiçbir şey
+yakalamaz — yakalayacak kapsamı yok» satırının karşılığı ise `Combatant`ın kendi
+`Unit`ini bilmemesi: yakalanacak bir yerel değişken olmadığı için kimliği
+ekleyen halka bir üstte, `Battle`da kalıyor ve orada metot grubu yetmeyip
+**kapanış** kullanılmak zorunda kalınıyor. İki satır arasındaki fark, projedeki
+tek lambdanın var olma sebebi.
+
 ---
 
 ## Birinci durak: delege — metoda işaret eden nesne

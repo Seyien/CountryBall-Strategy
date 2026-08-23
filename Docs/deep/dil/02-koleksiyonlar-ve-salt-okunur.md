@@ -69,6 +69,66 @@ anahtar kelime. Hiçbiri projeye ait değil, hepsi .NET'ten geliyor.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### Üç kutunun gerçek satır karşılığı
+
+Üçü de ödünç: `Team[]` dilin, `ReadOnlyCollection<T>` ile `IReadOnlyList<T>`
+.NET'in. Tanımları bizde olmadığı için aşağıda tanım yerleri değil ██ karşılaşma
+yerleri ██ yazılı — ve üçü de aynı dosyada karşılaşılıyor, çünkü `TurnState`
+üçünü tek zincirde üst üste diziyor.
+
+**`Team[]` (dizi) bu projede** — `Assets/Game/Battle/TurnState.cs` → `order`
+
+```csharp
+private readonly Team[] order;
+```
+
+Kutudaki «BİLMEZ: kimin elinde olduğunu. Referansı olan HERKES içeriğini
+değiştirebilir» satırının karşılığı bu alanın **nasıl doldurulduğunda**:
+
+```csharp
+var copy = new Team[turnOrder.Count];
+```
+
+Çağıranın verdiği liste saklanmıyor, **kopyalanıyor**. Dizi kutunun dediği şeyi
+gerçekten yapıyor — hiçbir şey vaat etmiyor — o yüzden vaadi kod üstleniyor:
+referansın dışarıda ikinci bir sahibi hiç doğmuyor.
+
+**`ReadOnlyCollection<T>` bu projede** — `Assets/Game/Battle/TurnState.cs` → `orderView`
+
+```csharp
+private readonly ReadOnlyCollection<Team> orderView;
+```
+
+Sarmalayıcı kurucuda bir kez doğuyor:
+
+```csharp
+orderView = Array.AsReadOnly(copy);
+```
+
+Kutudaki «BİLMEZ: alttaki diziyi başka kimin tuttuğunu ██ KRİTİK ██» satırının
+karşılığı tam olarak `copy` kelimesinde. Sarmalanan dizi az önce burada doğdu;
+`order` ile `orderView` aynı diziye bakıyor ama ikisi de `private`. Sarmalayıcı
+gerçek bir kilide **ancak bu yüzden** dönüşüyor — tipin kendi vaadinden değil.
+
+**`IReadOnlyList<T>` bu projede** — `Assets/Game/Battle/TurnState.cs` → `TurnOrder`
+
+```csharp
+public IReadOnlyList<Team> TurnOrder => orderView;
+```
+
+Bu arayüz projede **iki yönde** de geçiyor ve kutunun «BİLMEZ: arkasındaki
+nesnenin gerçekte ne olduğunu» satırı asıl gelen yönde okunuyor:
+
+```csharp
+public TurnState(IReadOnlyList<Team> turnOrder)
+```
+
+Kurucu bu parametreye **güvenmiyor**. Elindeki şey bir `ReadOnlyCollection` da
+olabilir, çağıranın hâlâ elinde tuttuğu canlı bir `List<Team>` de — arayüz
+ikisini ayırt etmiyor. Yukarıdaki kopyalama kararı doğrudan bu körlükten
+çıkıyor. Giden yönde (`TurnOrder`) aynı körlük lehte çalışıyor: çağıran
+arkadaki dizinin varlığını bile bilmiyor.
+
 ---
 
 ## Birinci durak: `IReadOnlyList` neyi vaat ETMEZ

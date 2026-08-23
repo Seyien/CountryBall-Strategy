@@ -166,6 +166,41 @@ Altı belirteç. Her kutunun ikinci satırı asıl mesele: **duvar NEREDE bitiyo
         `readonly`de de var: dil/01, "kelime OKA bakar, ucuna değil".
 ```
 
+### Kutunun GERÇEK SATIRLAR tarafındaki karşılığı
+
+██ Altısı da ÖDÜNÇ, yani aşağıda gösterilen yer **tanım yeri değil KULLANIM
+YERİDİR**. ██
+
+**`internal` bu projede** — `Assets/Game/Battle/Battle.cs` → `Board`
+
+```csharp
+internal UnitGrid Board => board;
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — kutu altı belirteç taşıyor ama kaynağa bağlanacak satır
+tek: `Assets/Game/` altında `internal` bir **belirteç olarak** yalnız burada
+geçiyor (ölçüldü; kalan iki eşleşme aynı üyenin üstündeki yorum satırları).
+`public` ile `private` onlarca satırda, dolayısıyla ayırt edici değil;
+`protected`, `protected internal` ve `private protected` ise kutunun kendi
+söylediği gibi sıfır kez. Kutudaki «Duvar: ██ .asmdef ██ — klasör değil, ad alanı
+değil» satırının karşılığı tam bu satır ve iddia bu depoda ölçülebilir:
+`BattleActions` bu tahtayı GERÇEKTEN kullanıyor —
+`MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);` —
+çünkü `Assets/Game/Battle/GridStrategy.Battle.asmdef` içinde; `BoardAdapter` ise
+`.Board`'u hiç anmıyor çünkü `Assets/Game/Unity/GridStrategy.Unity.asmdef` içinde —
+oysa ikisi de aynı `Assets/Game/` ağacında duruyor. ██ Duvarı çizen şey klasör
+olsaydı ikisi de görürdü. ██ Ve kutunun «Referans vermek yetmez» uyarısının en
+temiz kanıtı da burada: o `.asmdef`in `references` listesinde
+`GridStrategy.Battle` **yazılı**, yani `BoardAdapter` `Battle` tipini görüyor —
+`Board` üyesini yine de göremiyor. Kutunun «BİLMEZ: test assembly'sini» satırının
+faturası da burada: `Board`'u doğrudan sınayan bir EditMode testi yazılamaz, çünkü
+`InternalsVisibleTo` bu depoda yok.
+
+Kutunun alt bölümündeki «██ ALTISININ ORTAK KÖRLÜĞÜ ██» satırı da aynı satırda
+görünür: `internal` olan şey **üye**, döndürdüğü `UnitGrid` nesnesi değil. Onu bir
+kez alan `BattleActions`'ın elinde artık sıradan bir referans var ve duvar o anda
+çoktan aşılmıştır.
+
 ---
 
 ## Birinci durak: sınır nerede biter

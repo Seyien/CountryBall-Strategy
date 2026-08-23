@@ -130,6 +130,142 @@ Son satır bir eksiklik değil, bir karar — dördüncü durakta.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### Altı kutunun gerçek satır karşılığı
+
+Altısı da ödünç — `nameof` dilin operatörü, kalan beşi .NET'in tipleri. Aşağıda
+tanım yerleri değil, ██ bu projede karşılaşıldıkları yerler ██ yazılı.
+
+**`nameof` bu projede** — `Assets/Game/Core/Combat/DamageRules.cs` → `ResolveRemaining`
+
+```csharp
+throw new ArgumentOutOfRangeException(nameof(amount), amount, "Damage amount cannot be negative.");
+```
+
+Tek satırda `amount` **iki kez** geçiyor ve iki farklı şeye dönüşüyor: birincisi
+`nameof` içinde ve `"amount"` dizesi oluyor, ikincisi çıplak ve sayının kendisi
+kalıyor. Kutudaki «BİLMEZ: değeri. Yalnız ADI görür» satırının karşılığı bu —
+değeri de taşımak istiyorsan ikinci argümanı ayrıca yazmak zorundasın.
+
+«██ ve nitelenmiş adı vermez: son parçayı verir ██» satırının karşılığı ise
+`Assets/Game/Core/UnitGrid.cs` → `MoveUnit`'te:
+
+```csharp
+ThrowIfOutsideGrid(toX, toY, nameof(toX), nameof(toY));
+```
+
+`nameof(toX)` `"toX"` verir, `"UnitGrid.MoveUnit.toX"` değil. Sonucun kısalığı
+burada işe yarıyor: `paramName` sözleşmesi çıplak parametre adını bekliyor.
+Projedeki seksen `nameof` kullanımının hepsi bu biçimde.
+
+**`ArgumentNullException` bu projede** — `Assets/Game/Battle/Battle.cs` → `AddUnit`
+
+```csharp
+throw new ArgumentNullException(nameof(unit));
+```
+
+Kutudaki «Vaadi: tek argüman alır — parametrenin ADI» satırının karşılığı bu tek
+argüman; projedeki otuz dört fırlatmanın hepsi böyle yazılmış. «BİLMEZ: null'ın
+neden geldiğini. Kimi suçlayacağını yalnız sen söylersin» satırının karşılığı da
+aynı satırın **eksiği**: parantezin içinde "hangi çağıran" ya da "neden" yazacak
+bir yer hiç yok — suçlanan şey `nameof(unit)` diyerek elle seçiliyor.
+
+**`ArgumentOutOfRangeException` bu projede** — `Assets/Game/Core/UnitGrid.cs` → `ThrowIfOutsideGrid`
+
+```csharp
+throw new ArgumentOutOfRangeException(xParamName, x, "x is outside the grid.");
+```
+
+Üç argüman, üç ayrı iş: ad, **değer**, sınır cümlesi. Kutudaki «Vaadi: SAYIYI DA
+TAŞIR — ActualValue alanında» satırının karşılığı ortadaki çıplak `x`; «██ orta
+argüman boş bırakılırsa tipin tek üstünlüğü çöpe gider ██» uyarısının karşılığı
+da orası — projedeki yirmi iki fırlatmanın hiçbirinde o argüman atlanmamış.
+İlk argümanın `nameof(...)` değil dışarıdan gelen bir `string` olması ayrı bir
+karar ve imzada duruyor:
+
+```csharp
+private void ThrowIfOutsideGrid(int x, int y, string xParamName, string yParamName)
+```
+
+Çünkü suçlanacak ad çağrı yerine göre değişiyor: `MoveUnit`ten gelindiğinde
+`"x"` değil `"toX"` yazmalı.
+
+**`ArgumentException` bu projede** — `Assets/Game/Battle/Battle.cs` → `ThrowIfCannotJoin`
+
+```csharp
+throw new ArgumentException("The unit is already in this battle.", nameof(unit));
+```
+
+Kutudaki «██ argüman sırası ÖTEKİLERİN TERSİ ██» satırının karşılığı doğrudan
+burada okunuyor: mesaj **önce**, ad **sonra**. Bir üstteki kutunun
+`Assets/Game/Battle/Battle.cs` → `AddUnit` satırında ad baştaydı — iki ters sıra
+aynı dosyanın içinde, birbirinden yüz satır ötede. «BİLMEZ: gösterilecek bir
+sayı. Taşıyacak alanı yok» satırının karşılığı da aynı satırda: burada
+gösterilecek bir sayı zaten yok, geçersiz olan şey `unit`in **kimliği**.
+
+**`InvalidOperationException` bu projede** — ██ FIRLATILDIĞI YER YOK ██
+
+Kutu bunu zaten söylüyor («BİLMEZ: bu projede hiç fırlatılmadığını ██ 0 çağrı
+██») ve ölçü doğruluyor: `Assets/Game/` altında tek bir
+`throw new InvalidOperationException` satırı yok. **Bu projede gözlemlenebilir
+karşılığı YOK** — hangi koşulda doğacağı ise yazılı, <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette -->
+`Assets/Game/Battle/Battle.cs` → `RemoveReadyForCleanup`'ın gerekçesinde:
+
+```csharp
+// İKİ GEÇİŞ ZORUNLU: sözlük üzerinde dönerken silmek
+// InvalidOperationException fırlatır. Süpürmenin baktığı küme SAVAŞ
+```
+
+Yani tip bu projede **kaçınılan** bir şey olarak var: iki geçişli süpürme tam
+olarak onu doğurmamak için yazılmış. Tek geçişe indirilirse fırlatan biz olmayız,
+`Dictionary<,>`nin numaralandırıcısı olur — ve o zaman kutunun «hiçbir
+parametreyi suçlamaz» satırı da anlamını bulur: suçlanacak bir argüman yok,
+suçlanan şey nesnenin o anki durumu.
+
+> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — `InvalidOperationException`
+>
+> **GEREKÇE:** Bu tipin bu projede doğacağı tek koşul bir GERİLEMEDİR, bir
+> özellik değil. Bir üstteki paragraf o koşulu adıyla yazıyor: iki geçişli
+> süpürme tek geçişe indirilirse fırlatan biz bile olmayız, sözlüğün
+> numaralandırıcısı olur. Yani senedi ödemenin yolu çalışan koddan bir
+> güvenceyi sökmekten geçiyor.
+>
+> **① dolmuyor.** Bu proje durum kaynaklı reddi üç yoldan bildiriyor ve üçü de
+> yerinde duruyor. `TryGetCombatant` gibi metotlar bir `bool` döndürüyor. Sonuç
+> enum'ları (`ReviveOutcome`, `AttackOutcome`, `MoveOutcome`) reddin sebebini
+> taşıyor. Suçlanacak bir nesne varsa `ArgumentException` onu adıyla suçluyor.
+> Yeni bir oyun özelliği durum kaynaklı bir ret istediğinde bu üç yoldan birine
+> iner; hiçbiri bu tipi zorunlu kılmıyor.
+>
+> **④ yapı gereği HAYIR.** Burada uydurulabilecek her özellik, yalnız bu tipi
+> gözlemlenebilir kılmak için var olurdu. Kararmetrenin reddettiği şey tam
+> olarak budur.
+
+**`Math.Max` / `Math.Min` bu projede** — `Assets/Game/Core/Combat/DamageRules.cs` → `ResolveRemaining` **ve** `Assets/Game/Core/GridDistance.cs` → `Between`
+
+Kutudaki «BİLMEZ: KELEPÇE mi ÖLÇÜ mü olduğunu — bunu operandların statüsü
+söyler, fonksiyonun adı değil» satırı ancak iki çağrı yan yana konunca
+okunuyor. Aynı fonksiyon, iki ayrı iş — KELEPÇE, `Assets/Game/Core/Combat/DamageRules.cs` → `ResolveRemaining`:
+
+```csharp
+return Math.Max(0, current - amount);
+```
+
+ÖLÇÜ, `Assets/Game/Core/GridDistance.cs` → `Between`:
+
+```csharp
+return Math.Max(dx, dy);
+```
+
+Birincide operandlardan biri **sabit bir sınır** (`0`) — bu bir KELEPÇE, "canın
+altına inemeyeceği yer". İkincide iki operand da **eşit statüde ölçüm** (`dx`,
+`dy`) — bu bir ÖLÇÜ, Chebyshev uzaklığı. `Math.Max` ikisini ayırt etmiyor;
+ayıran tek şey operandların ne olduğu. Üst kelepçenin biçimi
+`Assets/Game/Core/Combat/HealingRules.cs` → `ResolveRestored`'da:
+
+```csharp
+return Math.Min(max, current + amount);
+```
+
 ---
 
 ## Birinci durak: `nameof` — önce ölç, sonra inan

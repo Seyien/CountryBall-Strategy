@@ -65,6 +65,43 @@ Ayrı bir `width` alanı tutulsaydı aynı bilgi iki yerde yaşardı ve ikisini 
 tutmak bir yükümlülük olurdu; dizi bir gün yeniden boyutlandırılırsa (tahta
 büyümesi) alan sessizce eskirdi.
 
+**Figürün SEÇİLEN sütunu, kaynakta:** `Assets/Game/Core/UnitGrid.cs` → `Width`
+
+```csharp
+public int Width => cells.GetLength(0);
+```
+
+Sol sütundaki «cells dizisi → `GetLength(0)` → Width ── türetilmiş (kopya YOK)»
+okunun tamamı bu tek satır. Oku çizen şey `=>`: bir alan değil, her okumada
+yeniden koşan bir gövde — bu yüzden `Width` bir kopya TUTAMAZ, ancak hesaplar.
+`Height` ve `CellCount` de aynı şekilde yazılı, dolayısıyla üç üyenin üçü de aynı
+tek kaynağa bakıyor.
+
+**REDDEDİLEN sütunun kaynakta karşılığı YOK** ve olmaması kararın kendisidir: <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette -->
+`UnitGrid.cs`'te `width` adında bir alan hiç yazılmadı, tipin tek alanı `cells`.
+Sağ sütundaki «readonly width ◄── AYRIŞMA NOKTASI» kutusu bu yüzden gözlenmiş bir
+olgu değil, kaçınılmış bir gelecektir; o kutunun doğacağı koşulu bir sonraki
+paragraf yazıyor (dizinin yeniden boyutlandırıldığı gün).
+
+> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — saklanan `width` alanı
+>
+> **GEREKÇE:** Buradaki boşluk bir eksiklik değil bir KARARDIR. Reddedilen sütun
+> aynı ölçüyü ikinci bir yerde saklıyor, oysa bu tipin tek alanı `cells` ve
+> ölçünün tek sahibi o dizidir. ① dolmuyor: hiçbir oyun özelliği ikinci bir
+> kopya istemez. Tahtanın büyümesi gerçek bir özelliktir ve bir gün istenebilir,
+> ama o özellik saklanan alanı gerektirmiyor. Tam tersini yapıyor: bir üstteki
+> figür ayrışma noktasını tam o gün için çiziyor, çünkü büyüyen dizi saklanan
+> sayıyı bayatlatır.
+>
+> **④ HAYIR.** Reddedilen tasarımı zorunlu kılabilecek tek şey bir ölçüdür: dizi
+> okumasının sahiplenilecek kadar pahalı olduğunu gösteren bir ölçü. O ölçü
+> alınmadı, ve bunu bir alttaki «Alternatif» satırı zaten yazıyor. Ölçü
+> alınmadan burada uydurulacak her özellik, kararı geriye çevirmek için
+> uydurulmuş olurdu.
+
+`=>`'nin ne vaat ettiği — ve aynı simgenin ikinci işi —
+[dil/05](../../dil/05-deger-referans-ve-kimlik.md)'te.
+
 **Alternatif:** ölçüyü ayrı `readonly int width`/`height` alanlarında saklamak.
 Seçilmedi: aynı ölçü iki sahipli olur ve dizi okumasının maliyeti hiç ölçülmedi.
 

@@ -268,6 +268,44 @@ Ok artık `UnitView`'ın **içindeki** bir düğüme uğruyor. Kırılma o düğ
 olmasında değil **eskimesinde**: onu `Combatant` ile aynı tutmayı hiçbir tip
 üstlenmiyor.
 
+**Figürdeki `UnitView` kutusu, kaynakta:** `Assets/Game/Unity/UnitView.cs` → `SetSelected(bool)`
+
+```csharp
+selectionOverlay.enabled = isSelected;
+```
+
+Kutunun sol hücresi — «selectionOverlay.enabled (yalnız YAZILIR)» — bu tek satır,
+ve «yalnız YAZILIR» ölçülebilir bir iddiadır: `Assets/` altında `.enabled` bu alan
+üstünde **bir kez** geçiyor ve o da burası, atamanın sol tarafı. `selectionOverlay`
+geçen kalan satırlar bildirim ve iki `null` kontrolü; hiçbiri `.enabled`'ı
+SORMUYOR. Yani seçim durumunun doğruluk kaynağı `BoardAdapter.selectedUnit`'te
+kalıyor, burada bir ikinci kopya doğmuyor — figürün SEÇİLEN sütununun tamamı bu.
+
+Kutunun sağ hücresi («Body.flipY / .color») aynı dosyanın `SetState` metodunda ve
+aynı şekilde yalnız yazılıyor: `bodyRenderer.flipY = state != UnitState.Alive;`.
+**İki eksenin KESİŞMEMESİ** de tam bu iki satırın karşılaştırılmasından okunuyor:
+buradaki satır `state`'i sormuyor, oradaki satır `isSelected`'ı sormuyor, ve
+ikisinin paylaştığı tek bir alan yok. REDDEDİLEN sütundaki `lastState` düğümünün
+kaynakta karşılığı **YOK** — o alan hiç yazılmadı; figür onu gözlenmiş bir kusur <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette -->
+olarak değil, bu iki satırın birbirine bakmaya başladığı gün doğacak olan şey
+olarak gösteriyor.
+
+> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — `lastState` ikinci kopyası
+>
+> **GEREKÇE:** Reddedilen düğüm, dışarıda sahibi olan bir bilginin bu dosyada
+> tutulan kopyasıdır. Bir alttaki başlık bunu açıkça yasaklıyor: bu tip alan
+> tutabilir, tutamayacağı şey ikinci KAYNAK olmaktır. ① dolmuyor, çünkü hiçbir
+> oyun özelliği bayatlayabilen bir kopya istemez.
+>
+> **EN GÜÇLÜ ADAY DA YETMİYOR.** Seçim ile yaşam durumunun kesişmesi gerçek bir
+> özellik olabilir. Örneğin seçili birimin çerçevesi, birim düştüğü anda renk
+> değiştirsin. O özellik bile bir alanı gerektirmiyor: iki satırın aynı çağrıda
+> okunmasını gerektiriyor, ve bilginin sahibi yine `BoardAdapter` ile
+> `Combatant` tarafında kalıyor.
+>
+> **④ HAYIR.** Burada uydurulacak her özellik, tam olarak bu dosyanın kendi
+> kuralını çiğnetmek için uydurulmuş olurdu.
+
 ### KAPSAM: yasak "alan tutmak" değil, "İKİNCİ KAYNAK olmak"
 
 Kural özeldir: bu tip alan tutabilir; tutamayacağı şey **dışarıda sahibi olan**

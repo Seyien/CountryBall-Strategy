@@ -37,6 +37,7 @@ Kuralın kendisi `unity-expert-code-quality` skill'inde:
 | [05](05-deger-referans-ve-kimlik.md) | **"Aynı" olmak ne demek** | değer/referans · `ReferenceEquals` · `enum` · `out` · `=>` · `switch` · `%` |
 | [06](06-delege-arka-taraf.md) | **Delegenin arka tarafı** — `+=` derleyicide neye dönüşür | `System.Delegate` (`Target`/`Method`) · `event` → gizli alan + `add_`/`remove_` · `Delegate.Combine`/`Remove` · `GetInvocationList` · `?.`nin tek okuması |
 | [07](07-bellek-canlilik-ve-yikim.md) | **Bir nesne ne zaman gerçekten biter** — kapsam ≠ canlılık ≠ erişilebilirlik ≠ kaynak ömrü | GC kökleri · kapanış tutması · `Destroy` · `System.Object` ≠ `UnityEngine.Object` · tahsis ölçümü |
+| [08](08-erisim-ve-sozlesme.md) | **Erişim ve sözleşme** — kim görebilir, kim değiştirebilir; `internal`in duvarı ASSEMBLY'dir | `public` · `private` · `internal` · `protected` · `interface` · `abstract`/`virtual`/`override` · `static class` |
 
 ██ `06` ile `07` **sıralı** okunur ve ikisi de kendi ön koşulunu dosyanın
 başında yazıyor: `06` `04`'ü, `07` `05`'i istiyor. Zincirdeki tek açık ön koşul

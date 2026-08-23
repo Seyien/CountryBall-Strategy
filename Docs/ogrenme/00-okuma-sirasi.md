@@ -36,8 +36,8 @@ duruyor. Doğru sıra `02 · 03 · 05 · 06 · 04 · 07 · 08 · 01`; numara sı
    Sıra ise tek bir yerde yaşayabilir: bu dosyada.
 ```
 
-**Numara dosyanın ADIDIR. Sıra bu belgededir. İkisi ayrı şeyler** — ve ayrı
-kalmaları bilinçli bir karar.
+**Numara dosyanın ADIDIR. Sıra bu belgededir. İkisi ayrı şeyler.** Ayrı
+kalmaları da bilinçli bir karar.
 
 ---
 
@@ -136,8 +136,9 @@ dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar de�
 ```
 
 **Bu kararın iki bağımsız kanıtı var** ve ikisi de aynı sonucu veriyor:
-① kenar sayımı (yukarıdaki grafik), ② anlatının kendi beyanı —
-`deep/00-iskelet.md:523-527` kendi önerdiği yolda `01`'i **hiç anmıyor**.
+① kenar sayımı (yukarıdaki grafik), ② anlatının kendi beyanı. İkincisinin
+ölçüsü şu: `deep/00-iskelet.md:523-527` kendi önerdiği yolda `01`'i
+**hiç anmıyor**.
 
 ---
 
@@ -148,8 +149,9 @@ nerede durduğunu bilmek.
 
 ### ADIM 1 · [`deep/00-iskelet.md`](../deep/00-iskelet.md) — tamamı (604 satır)
 
-**NEDEN BU SIRADA:** Zincirin tek acyclic kökü — gelen kenarı **sıfır**. Hiçbir
-dosyaya bağımlı değil ve her kavramı sığ biçimde tanıtıyor. Dahası bu dosya
+**NEDEN BU SIRADA:** Bu dosya zincirin tek acyclic köküdür; gelen kenarı
+**sıfır**. Hiçbir dosyaya bağımlı değil, ve her kavramı sığ biçimde tanıtıyor.
+Dahası bu dosya
 senin kendi cümlenle yazılmış (`00-iskelet.md:18-21`):
 
 > *"sen sadece şuraya bak şuraya dediğinde diğer kısımlarını görmediğim için
@@ -157,7 +159,7 @@ senin kendi cümlenle yazılmış (`00-iskelet.md:18-21`):
 
 ██ Bugünkü sorun ile bu dosyanın yazılma sebebi **aynı** sorun. ██
 
-**AÇIK OLACAK KOD:** ██ yok. ██ İlk geçişte kod açma — dosya kasten tip adı
+**AÇIK OLACAK KOD:** ██ yok. ██ İlk geçişte kod açma. Bu dosya kasten tip adı
 kullanmadan başlıyor.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
@@ -171,10 +173,10 @@ karşılaştırma; ilk geçişte gerekmez. Beşinci oturumda geri gel.
 
 ### ADIM 2 · [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md) — tamamı (658)
 
-**NEDEN BU SIRADA:** ██ Zincirin omurgası: altı dosya buna bağımlı, bu hiçbir
-şeye. ██ `01`, `03`, `04`, `05`, `06`, `07` — altısı da bir noktada "assembly
-duvarı" diyor ve **hiçbiri onu tanımlamıyor**. Bu adım altı ön koşulu birden
-kapatıyor; zincirdeki en yüksek getirili tek adım.
+**NEDEN BU SIRADA:** ██ Bu dosya zincirin omurgasıdır: altı dosya ona bağımlı,
+o hiçbir dosyaya bağımlı değil. ██ Şu altısı — `01`, `03`, `04`, `05`, `06`,
+`07` — bir noktada "assembly duvarı" diyor ve **hiçbiri onu tanımlamıyor**. Bu
+adım altı ön koşulu birden kapatıyor. Zincirdeki en yüksek getirili tek adım bu.
 
 **AÇIK OLACAK KOD — dört `.asmdef`, hepsi kısa:**
 ```
@@ -212,7 +214,7 @@ Assets/Game/Core/Combat/AttackResolver.cs IsWithinRange(int distance, AttackProf
 > assembly'si var**"*
 
 ██ Doğrulamadan ilerleme. ██ Duvarın "faturası"nın satın aldığı şey tam olarak
-o tek satır — ve zincirin geri kalanı bu takasa dayanıyor.
+o tek satırdır. Zincirin geri kalanı da bu takasa dayanıyor.
 
 ---
 
@@ -222,7 +224,7 @@ o tek satır — ve zincirin geri kalanı bu takasa dayanıyor.
 
 **NEDEN BU SIRADA:** `02`'nin hemen ardından, çünkü `03`'ün "üç katman"
 figürünün **orta katmanı** (`internal Board`) doğrudan duvara dayanıyor ve
-`03:271` *"Sözleşme assembly duvarında biter"* diyor — duvarı bilmeden o cümle
+`03:271` *"Sözleşme assembly duvarında biter"* diyor. Duvarı bilmeden o cümle
 okunamaz. Ayrıca `03` zincirin **en dürüst** dosyası: `:19-22` garantinin nerede
 biteceğini önden vaat ediyor ve `:220-271`'de gerçekten ödüyor.
 
@@ -245,8 +247,8 @@ Assets/Game/Battle/BattleActions.cs:207
 ### ADIM 4 · [`dil/01-degismezlik-anahtar-kelimeleri.md`](../deep/dil/01-degismezlik-anahtar-kelimeleri.md) — tamamı (598)
 
 **NEDEN BU SIRADA:** `03`'ün ikinci durağı `readonly`'nin **korumadığı** şeyi
-gösteriyor ama **neden** korumadığını dil düzeyinde vermiyor. `dil/01` veriyor —
-ve `dil/01:176` zaten `03`'e geri işaret ediyor:
+gösteriyor ama **neden** korumadığını dil düzeyinde vermiyor. Onu `dil/01`
+veriyor. Üstelik `dil/01:176` zaten `03`'e geri işaret ediyor:
 
 > *"Tekrarlamıyorum, gerekçesi ve üç katmanlı haritası burada:
 > `konular/03-tahta-sahipligi.md`"*
@@ -330,7 +332,7 @@ diyor; bağımlılık **tersini** diyor. İkisi de aynı ölçütü kuruyor:
    04:606    "ayırıcı şey SEBEP sayısı değil, ██ DAVRANIŞ sayısı ██"
 ```
 
-██ Aynı kural, iki dosyada iki kez, ve hiçbiri ötekini anmıyor. ██
+██ Aynı kural iki dosyada iki kez kuruluyor, ve hiçbiri ötekini anmıyor. ██
 `06` onu **kurar** (dört enum, on bir ret değeri, tam tablo); `04` onu bir
 **sıra kararına uygular**. ██ Kuran önce okunur. ██
 
@@ -366,11 +368,11 @@ Assets/Game/Battle/TurnRules.cs
 ```
 
 **██ BU DOSYANIN VERMEDİĞİ TEK ŞEY: ██** `04` bu üç tipin rolünü 628 satır
-boyunca anlatıyor ve o role **hiç ad vermiyor**. Adı
-[`ogrenme/01` §2](01-koda-gomulu-desenler.md#2-akis-sahibi-transaction-script-command-degil)'de:
-██ **akış sahibi** (transaction script) — ve bir Command DEĞİL ██
-(ölçü: üçü de `static class`, tek alanı yok). "Bu projede hangi desenleri
-kullandın" sorusunun cevabı orada; ADIM 14'te kapatacaksın.
+boyunca anlatıyor ve o role **hiç ad vermiyor**. O adı
+[`ogrenme/01` §2](01-koda-gomulu-desenler.md#2-akis-sahibi-transaction-script-command-degil)
+veriyor: ██ rolün adı **akış sahibi** (transaction script), ve bu bir Command
+DEĞİL. ██ Ölçüsü şu: üçü de `static class` ve tek alanı yok. "Bu projede hangi
+desenleri kullandın" sorusunun cevabı orada; ADIM 14'te kapatacaksın.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"Aynı tıklama neden **dört farklı sebeple** reddedilebiliyor ve hangisi
@@ -405,8 +407,8 @@ olması gerekir) ve ne zaman edilemeyeceğini bu dört test gösteriyor.
 
 # ██ OTURUM 4 · MOTOR SINIRI ██  (~2,5 saat · 1.866 satır)
 
-██ En uzun oturum, ve **içinde tek çalışmayan senaryo var.** Aşağıdaki uyarıyı
-oturuma başlamadan oku. ██
+██ Bu en uzun oturum, ve **içinde tek çalışmayan senaryo var.** ██ Aşağıdaki
+uyarıyı oturuma başlamadan oku.
 
 ### ADIM 8 · [`konular/07-tiklamadan-eyleme.md`](../deep/konular/07-tiklamadan-eyleme.md) — tamamı (916)
 
@@ -474,7 +476,8 @@ Battle.cs:289             throw new ArgumentException("The unit is already in th
 ancak **dolu** bir hücreye tıklanarak doğuyor:
 
 ```
-BoardAdapter.cs:361   if (selectedUnit == null)
+BoardAdapter.cs:359   private void TryEnterPlacementMode()
+BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
 ```
 
 **██ HANGİ HÜCREDE NE OLUYOR — üç dal, ölçüldü: ██**
@@ -493,14 +496,14 @@ BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
 
 **Testler neden yeşil:** `BattleActionsTests` her çağrıda **taze bir kimlik**
 veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir testte
-yok. `BoardAdapterTests.cs` diye bir dosya da yok —
+yok. `BoardAdapterTests.cs` diye bir dosya da yok.
 `deep/00-iskelet.md:330-332` bunu zaten yazıyor.
 
 **██ NE YAP: ██** İstisnayı **gör**, yukarıdaki üç sıçramayı kodda aç, zinciri
-kendin izle. ██ Bu, bütün turun en öğretici on dakikası olacak ██ — çünkü
-belgenin doğru olduğu yerle kodun doğru olduğu yerin nerede ayrıştığını kendi
-gözünle göreceksin, ve [`deep/README.md`](../deep/README.md)'nin ilk kuralını
-ilk kez gerçekten uygulayacaksın:
+kendin izle. ██ Bu, bütün turun en öğretici on dakikası olacak. ██ Belgenin
+doğru olduğu yerle kodun doğru olduğu yerin nerede ayrıştığını kendi gözünle
+göreceksin. Ve [`deep/README.md`](../deep/README.md)'nin ilk kuralını ilk kez
+gerçekten uygulayacaksın:
 
 > *"İkisi çelişirse **kod kazanır**."*
 
@@ -560,18 +563,19 @@ görürsün, `Awake` ve `Start` **tekrar etmez**.
 
 ### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1479)
 
-**NEDEN BU SIRADA:** ADIM 9 *"ne oluyor"*u kapattı — çağrı sırası, sahipleri,
+**NEDEN BU SIRADA:** ADIM 9 *"ne oluyor"*u kapattı: çağrı sırası, sahipleri, ve
 `Awake`'in bir `event` olmadığı. Bu dosya ██ *"neden ve teknik olarak nasıl"* ██
-açıyor: yönetilen C# ile yerel motorun sınırı, `Vector3` neden `struct`,
-PlayerLoop'un faz ağacı, serileştirmenin C#'ın `[Serializable]`'ı **olmadığı**,
-`.meta`/GUID kimliği, ve ad tabanlı geri çağrının bedeli — `void Awakee()`
-derlenir, uyarı çıkmaz, hiçbir zaman çağrılmaz.
+sorusunu açıyor. Açtıkları şunlar: yönetilen C# ile yerel motorun sınırı,
+`Vector3` neden `struct`, PlayerLoop'un faz ağacı, serileştirmenin C#'ın
+`[Serializable]`'ı **olmadığı**, `.meta`/GUID kimliği, ve ad tabanlı geri
+çağrının bedeli. O bedel şudur: `void Awakee()` derlenir, uyarı çıkmaz, hiçbir
+zaman çağrılmaz.
 
 **ÖN KOŞUL:** ADIM 2 (duvar) ve ADIM 9. **YANINDA AÇIK:** `Assets/Game/Unity/BoardAdapter.cs`
 
 ██ Bu dosyanın sonunda 8 adımlık bir **Editor geçiş listesi** var. ██ Kod
-tarafını bitirdikten sonra Unity tarafına oradan geçilir — her adımda nereye
-tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazılı.
+tarafını bitirdikten sonra Unity tarafına oradan geçilir. O listede her adımda
+nereye tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazılı.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"`GameObject` bir C# nesnesi mi? `transform.position.x = 5` neden derlenmiyor?"*
@@ -591,7 +595,7 @@ düğümlendiği yer burası ve üçünü de artık kapattın:
 
 ██ `dil/04` henüz kapanmadı ve bu bilinçli: ██ `01` delegenin **ne yaptığını**
 gösteriyor, `dil/04` **ne vaat ettiğini**. Zinciri önce gör, sözleşmeyi sonra
-oku — tersi, malzemeyi hiç kullanmadan öğrenmek olurdu.
+oku. Tersi, malzemeyi hiç kullanmadan öğrenmek olurdu.
 
 **AÇIK OLACAK KOD — zincirin dört durağı, sonra ekran yarısı:**
 ```
@@ -633,8 +637,8 @@ açıkça yazıyor (`dil/06:11-15`):
 - [`dil/04-delege-olay-ve-kapanis.md`](../deep/dil/04-delege-olay-ve-kapanis.md)
 - [`dil/06-delege-arka-taraf.md`](../deep/dil/06-delege-arka-taraf.md)
 
-██ `dil/06:395-533` doğrudan senin sorduğun bir pasajı cevaplıyor ██ —
-`Combatant` kurucusunun son iki satırının neden **en sonda** durduğunu.
+██ `dil/06:395-533` doğrudan senin sorduğun bir pasajı cevaplıyor. ██ O pasaj,
+`Combatant` kurucusunun son iki satırının neden **en sonda** durduğunu anlatıyor.
 
 **KOŞTURULABİLİR:** `dil/06:116-143` geçici bir `DescribeSubscribers()` üyesi
 tarif ediyor. ██ Yaz, ölç, sil. ██ `seen.Add` abone ettiğinde `Target`'ın bir
@@ -649,8 +653,8 @@ tarif ediyor. ██ Yaz, ölç, sil. ██ `seen.Add` abone ettiğinde `Target
 ### ADIM 12 · [`dil/07-bellek-canlilik-ve-yikim.md`](../deep/dil/07-bellek-canlilik-ve-yikim.md) (709)
 
 **NEDEN BURAYA AİT:** `dil/07:277-341` ADIM 10'da okuduğun sözlüğün **bellek**
-faturasını ölçüyor — yedi hop, ve tek bir `Combatant` referansı bütün savaşı
-erişilebilir tutuyor. ██ `01` davranış faturasını, `dil/07` bellek faturasını
+faturasını ölçüyor. Ölçüm şu: yedi hop, ve tek bir `Combatant` referansı bütün
+savaşı erişilebilir tutuyor. ██ `01` davranış faturasını, `dil/07` bellek faturasını
 veriyor: aynı eksik `-=`, iki ayrı fatura. ██
 
 **ÖN KOŞUL — dosya kendi yazıyor** (`dil/07:15-18`): `dil/05` semantiği anlatır,
@@ -671,11 +675,11 @@ doğduğunda açılmak.
 | [`dil/02`](../deep/dil/02-koleksiyonlar-ve-salt-okunur.md) | `IReadOnlyList` ≠ değişmez · indeksleyici · `object Current` · `Dictionary` |
 | [`dil/03`](../deep/dil/03-hata-bildirme-ve-dogrulama.md) | `nameof` · dört istisna tipi · `Math.Max` kelepçesi |
 
-**██ `dil/02` KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL: ██** ölçüldü —
-`dil/README.md:34`'ün saydığı beş konunun **beşi de** var ve `dil/` ağacının
-yedi adımlık kalıbı tam. Konusu küçük, dosya değil. Ayrıca `konular/08:570` ve
-`dil/07:89` ona **dayanıyor** ve tekrar etmiyor: kısalığın sebebi kapsam değil,
-██ iş bölümü ██.
+**██ `dil/02` KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL: ██** bunu ölçtüm.
+`dil/README.md:34`'ün saydığı beş konunun **beşi de** var, ve `dil/` ağacının
+yedi adımlık kalıbı tam. Küçük olan dosya değil, konusu. Ayrıca `konular/08:570`
+ve `dil/07:89` ona **dayanıyor** ve tekrar etmiyor. Yani kısalığın sebebi kapsam
+değil, ██ iş bölümü ██.
 
 ---
 
@@ -693,8 +697,8 @@ yedi adımlık kalıbı tam. Konusu küçük, dosya değil. Ayrıca `konular/08:
 - [`03-kavram-borc-defteri.md`](03-kavram-borc-defteri.md)
 - [`02-sonraki-asamalar.md`](02-sonraki-asamalar.md)
 
-Sonra ██ dört tamamlayıcı dosya ██ — sıra serbest, ama `07` ile `06` bu sırada
-en iyi okunur (önce dörtlünün **adı**, sonra ilkelerin adı):
+Sonra ██ dört tamamlayıcı dosya ██ geliyor. Sıraları serbest, ama `07` ile `06`
+bu sırada en iyi okunur (önce dörtlünün **adı**, sonra ilkelerin adı):
 
 - [`07-oop-dortlusu.md`](07-oop-dortlusu.md) (1034) — kapsülleme · kalıtım ·
   soyutlama · **çok biçimlilik**; polimorfizmin üç türü sayımla ayrılıyor
@@ -711,9 +715,9 @@ yapıya düştü. Ayrıca `ogrenme/03` bir makine kapısıyla bağlı.
 
 `ogrenme/01` sana `deep/` ağacının **hiç vermediği** şeyi veriyor: dokuz desenin
 **adı**, her biri için hangi baskının onu doğurduğu, hangi SOLID harfini
-taşıdığı, ve ██ neyin yanlış hatırlandığı ██ — *"MoveAction bir Command
-DEĞİL"*, *"kural sınıfları Strategy DEĞİL"*, *"BoardAdapter bir GoF Adapter
-DEĞİL"*.
+taşıdığı, ve ██ neyin yanlış hatırlandığı ██. Son kalemin örnekleri şunlar:
+*"MoveAction bir Command DEĞİL"*, *"kural sınıfları Strategy DEĞİL"*,
+*"BoardAdapter bir GoF Adapter DEĞİL"*.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"Bu projede hangi desenleri kullandım, hangi baskı her birini doğurdu, ve
@@ -777,8 +781,8 @@ olduğunu **kendin işaretle**. Defterin işi bu. ██
 
 ### ADIM 15 · [`ogrenme/09-ecs-dots-yol-haritasi.md`](09-ecs-dots-yol-haritasi.md) (1402)
 
-██ ADIM 14'ten SONRA. `01`/`02`/`03` okunmadan açılmaz — bu dosya üçüne de geri
-bağlanıyor. ██
+██ Bu dosya ADIM 14'ten SONRA okunur. ██ `01`/`02`/`03` okunmadan açılmaz,
+çünkü bu dosya üçüne de geri bağlanıyor.
 
 **NEDEN EN SONDA:** ECS, Job System ve Burst ██ üç ayrı şey ██ ve üçü de bu
 projede **yok**. Bu dosya onları mekanizma olarak anlatır, eşiği sayıyla ölçer
@@ -788,9 +792,9 @@ hiç dokunmadan yapılabilir.
 
 **YANINDA AÇIK:** `Assets/Game/Battle/Battle.cs` · `Assets/Game/Core/Unit.cs`
 
-██ Ölçülmüş sınır: Entities 1.0 Unity 2022.3+ istiyor, bu depo 2021.3.45f2 —
-yani ECS örnek kodu bu projede **derlenmez**. Dosya bu yüzden örnek kod yazmıyor
-ve hiçbir hızlanma oranı vermiyor. ██
+██ Ölçülmüş sınır şu: Entities 1.0 Unity 2022.3+ istiyor, bu depo ise
+2021.3.45f2. Yani ECS örnek kodu bu projede **derlenmez**. Dosya bu yüzden
+örnek kod yazmıyor ve hiçbir hızlanma oranı vermiyor. ██
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"ECS ne zaman kazanır, ve bu oyun neden o eşiğe hiç ulaşmıyor?"*
@@ -825,19 +829,20 @@ Numaralar 30+ yerde ve dört makine kapısında **çapa**. Yeniden numaralandır
 ## REDDEDİLEN 3 · `dil/` ağacını `konular/`'dan önce okumak
 Beş `dil/` dosyası `konular/`'a geri bağlanıyor ve hepsi *"bunun proje tarafı
 şurada"* diyor. Ok yönü net: ██ `dil/` `konular/`'ı açıklıyor, tersi değil. ██
-Tek istisna `dil/01` — `03`'ün hemen ardına konmasının sebebi tam olarak bu
+Tek istisna `dil/01`. Onun `03`'ün hemen ardına konmasının sebebi tam olarak bu
 (`dil/01:176` `03`'e işaret ediyor).
 
 ## REDDEDİLEN 4 · Yerleştirme hatasını okumadan ÖNCE düzeltmek
 Bugünkü soru *"okuduğumda anlayabilecek miyim"*, kod tamir etmek değil. Ayrıca
 ██ hatayı Play'de görmek, *"İkisi çelişirse kod kazanır"* kuralının
-koşturulabilir tek örneği ██ — ve turun en öğretici on dakikası. Düzeltme ayrı
-bir tura ait: not al, geç.
+koşturulabilir tek örneğidir. ██ Aynı on dakika turun en öğretici on dakikası.
+Düzeltme ayrı bir tura ait: not al, geç.
 
 ## REDDEDİLEN 5 · `deep/kod/` ağacını (14.788 satır) sıraya dahil etmek
 33 ayna belge, tip başına. Sıraya girseydi 9-11 saatlik bütçeyi **üçe**
 katlardı. ██ Doğru kullanımı referans: ██ bir tipe **dokunmadan önce** onun
-aynasını aç — [`deep/kod/README.md`](../deep/kod/README.md).
+aynasını aç. Ayna belgelerin dizini
+[`deep/kod/README.md`](../deep/kod/README.md).
 
 ---
 

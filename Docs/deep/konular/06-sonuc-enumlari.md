@@ -94,6 +94,124 @@ En tuhafı birincisi: **`MoveOutcome` kendi beşinci değerini üretemeyen bir
 katmanda yaşıyor.** Bu bir hata değil, ölçülmüş bir taviz — beşinci durakta
 tamamı yazılı.
 
+### Kutudan gerçek satıra — her kutunun kod karşılığı
+
+Kutular **rolü** anlatıyor; bu bölüm o rolün **hangi satırda** durduğunu
+gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.
+
+**`MoveOutcome` bu projede** — `Assets/Game/Core/MoveOutcome.cs` → `RejectedActorCannotAct`
+
+```csharp
+/// <summary>
+/// Hareket eden şu an eylem yapamaz: sırası değil ya da durumu
+/// elvermiyor (<c>MovementRules.CanMove</c> — bu tipin GÖREMEDİĞİ bir
+/// kural). Bu değeri yalnızca <c>GridStrategy.Battle</c> katmanı üretir.
+/// </summary>
+RejectedActorCannotAct
+```
+
+Kutudaki «██ kendi beşinci değerini nasıl üreteceğini ██» satırının karşılığı bu
+altı satırdır — ve dikkat çekici olan, tipin bunu **kendi belgesinde itiraf
+etmesi**. Değeri gerçekten döndüren satır başka bir assembly'de:
+`Assets/Game/Battle/BattleActions.cs` → `Move`, içindeki
+`return MoveOutcome.RejectedActorCannotAct;`. Aynı dosyada iki ayrı kapı (sıra
+ve durum) bu tek değere düşüyor; ikisi de bu enum'un göremediği tipleri soruyor.
+
+**`AttackOutcome` bu projede** — `Assets/Game/Core/Combat/AttackOutcome.cs` → `RejectedActorCannotAct`
+
+```csharp
+/// <summary>
+/// Saldıran şu an saldıramaz: durumu elvermiyor
+/// (<see cref="AttackRules.CanAttack"/>) ya da sırası değil
+/// (bu ikincisini yalnızca <c>BattleActions</c> üretir).
+/// </summary>
+// ALTINCI DEĞER, SONA EKLENDİ: ret ailesinin yanına sokulsaydı aradaki üç
+// değer sessizce yeniden numaralanırdı. Üç sebebi (saldıran düşmüş,
+// hareket eden düşmüş, sırası değil) BİLEREK tek değerde topluyor; ayrım
+// ancak çağıranın dallanması değiştiği gün doğar.
+// → AttackOutcome.md#rejectedactorcannotact
+RejectedActorCannotAct
+```
+
+Kutudaki «"Sıran değil" cevabını ÜRETEMEZ, ama o cevabın ADI burada yazılı»
+satırının karşılığı bu bloğun **iki yarısıdır**: son satır adın kendisi — bu
+dosyada yazılı; parantez içindeki cümle ise üreteni gösteriyor ve o üreten
+burada değil, `Assets/Game/Battle/BattleActions.cs` → `Attack` içindeki
+`if (!TurnRules.CanAct(...))` kapısı. `TurnRules` bu enum'un assembly'sinden
+görünmez; ad görünür, üreteç görünmez.
+
+**`PlacementOutcome` bu projede** — `Assets/Game/Battle/PlacementOutcome.cs` → `Placed`
+
+```csharp
+/// <summary>Yapı tahtaya kondu ve savaşa katıldı.</summary>
+Placed
+```
+
+Kutudaki «"eyleyen" diye bir şeyi. İmzada özne YOK.» satırının karşılığı bu
+üçlünün **eksik dördüncüsüdür**: kardeş enum'ların üçünde de bulunan
+`RejectedActorCannotAct` burada hiç yazılmadı. Sebebi üreticinin imzasında
+duruyor — `Assets/Game/Battle/BattleActions.cs` → `PlaceStructure`, parametresi
+`Battle battle, Unit unit, Structure structure, int x, int y`. Buradaki `unit`
+yapının **tahtadaki kimliği**, eylemi yapan taraf değil; kime "sıran mı" diye
+sorulacağı imzada yazmıyor.
+
+**`ReviveOutcome` bu projede** — `Assets/Game/Battle/ReviveOutcome.cs` → `Revived`
+
+```csharp
+/// <summary>Hedef ayağa kalktı.</summary>
+Revived
+```
+
+Kutudaki «██ bugün onu kimsenin OKUMADIĞINI ██» satırının karşılığı bir satır
+değil, bir **yokluk** — ve ölçülebilir: bu tipi üreten tek yer
+`Assets/Game/Battle/BattleActions.cs` → `Revive`, ve o metodu çağıran her satır
+`Assets/Tests/EditMode/Battle/BattleActionsTests.cs` içinde. Üretim tarafında tek
+çağıran yok; `Assets/Game/Unity/BoardAdapter.cs` bu tipin adını hiç yazmıyor
+(karşılaştır: aynı dosyada `ReactToAttack` ve `ReactToMove` var, `ReactToRevive`
+yok).
+
+**`BattleActions` bu projede** — `Assets/Game/Battle/BattleActions.cs` → `Attack`
+
+```csharp
+bool attacked = outcome == AttackOutcome.Hit
+    || outcome == AttackOutcome.HitAndDowned
+    || outcome == AttackOutcome.HitAndDestroyed;
+
+if (attacked)
+{
+    battle.Turn.EndTurn();
+}
+
+return outcome;
+```
+
+Kutudaki «ekranı. Tek bir Debug.Log bile basmaz.» satırının karşılığı bu bloğun
+**son satırıdır**: metodun cevabı bir yan etkiyle değil, dönüş değeriyle
+çıkıyor. Blokta görünen tek yan etki `battle.Turn.EndTurn()` ve o da ekran değil
+oyun durumu. Ölçü: bu dosyada `Debug` kelimesi **0 kez**, `UnityEngine` kelimesi
+**0 kez** geçiyor — kutunun cümlesi bir üslup tercihi değil, assembly sınırının
+sonucu.
+
+**`BoardAdapter` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `ReactToMove`
+
+```csharp
+case MoveOutcome.RejectedActorCannotAct:
+    Debug.Log($"[Board] '{unit.Name}' cannot act right now; the move was rejected. {DescribeCondition(unit)}", this);
+    break;
+
+default:
+    Debug.LogError($"[Board] Unhandled move outcome: {outcome}.", this);
+    break;
+```
+
+Kutudaki «hangi kuralın reddettiğini. Yalnız ADI görür.» satırının karşılığı
+`case` satırıdır: elindeki tek şey bir enum değeri. Bu değeri `TurnRules.CanAct`
+mi yoksa `MovementRules.CanMove` mu ürettiği — `BattleActions.Move`'da ikisi de
+aynı değeri döndürüyor — bu dalda **sorulamaz**. Metnin `DescribeCondition(unit)`
+ile durumu ayrıca okuması da bunun kanıtı: sebep dönen değerde taşınmadığı için
+sonradan aranıyor. Alttaki `default` dalı ise bilmemenin dürüst hâli: adı
+tanımayan bir değer geldiğinde sessizce yutulmuyor, `LogError` basılıyor.
+
 ---
 
 ## Birinci durak: sıfırıncı hücre

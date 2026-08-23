@@ -101,6 +101,119 @@ Altı tip var ve hikâyeyi kuran şey yine bildikleri değil, **bilmedikleri**.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+
+Altı kutunun altısı da bu projede yaşayan tip. Aşağıda her biri için tanımın
+yeri, iddiayı karşılayan **gerçek satır**, ve kutunun hangi ifadesinin o satırda
+okunduğu duruyor. Sıra kararının kanıtı bu altı alıntıda: bir kuralın nerede
+yaşayabildiğini, **parametre listesinin ne taşıyabildiği** söylüyor.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+**`BattleActions` bu projede** — `Assets/Game/Battle/BattleActions.cs` → `Attack`
+
+```csharp
+            if (!TurnRules.CanAct(attackerCombatant.Team, battle.Turn.Current))
+            {
+                return AttackOutcome.RejectedActorCannotAct;
+            }
+```
+
+Kutudaki «BİLMEZ : ██ HİÇBİR KURALIN METNİNİ ██ — her `if` bir kuralı SORAR,
+hiçbiri bir kural YAZMAZ» satırının karşılığı bu dört satır: `if`'in koşulunda
+tek bir karşılaştırma bile yok, bir **çağrı** var; gövdesinde ise karar değil,
+bir sonuç değeri. Kuralın metni `TurnRules.CanAct`'in içinde; burada yalnız
+sorulduğu **an** yazılı — ve bu dosyanın tek gerçek kararı zaten o an.
+
+**`TurnRules` bu projede** — `Assets/Game/Battle/TurnRules.cs` → `CanAct`
+
+```csharp
+        public static bool CanAct(Team unitTeam, Team currentTurn)
+```
+
+Kutudaki «BİLMEZ : hangi birimin sorulduğunu — yalnızca TARAFINI görür» satırı
+bu imzada ölçülebiliyor: iki parametrenin ikisi de `Team`. `Unit` de yok,
+`Combatant` de yok. Birimin kimliği bu sınırı hiç geçmiyor, dolayısıyla
+"hangi birim" sorusu burada sorulamaz bile.
+
+**`AttackRules` bu projede** — `Assets/Game/Core/Combat/AttackRules.cs` → `CanAttack`
+
+```csharp
+        public static bool CanAttack(UnitState attackerState)
+        {
+            return attackerState == UnitState.Alive;
+        }
+```
+
+Kutudaki «Bilir : tek bir UnitState» satırı burada harfi harfine doğrulanıyor —
+tipin gördüğü şey bir tek değer ve gövde de tek satır. «BİLMEZ : … ██ SIRANIN
+KİMDE OLDUĞUNU ██» satırının karşılığı ise **yazılamayan** şey: bu gövdeye bir
+`TurnState` sorusu eklemek istesen o adı yazamazsın, çünkü tip
+`GridStrategy.Battle`'da ve bu dosya onu görmüyor.
+
+**`TargetingRules` bu projede** — `Assets/Game/Core/Combat/TargetingRules.cs` → `CanBeAttacked(UnitState, Team, Team)`
+
+```csharp
+        public static bool CanBeAttacked(UnitState state, Team attackerTeam, Team targetTeam)
+```
+
+Kutudaki «Bilir : hedefin durumunu VE iki tarafı birden» satırı bu parametre
+listesinin kendisi: **bir** durum, **iki** taraf. «BİLMEZ : saldıranın kendi
+durumunu» satırı da aynı listede okunuyor — tek `UnitState` hedefe ait, ikinci
+bir durum parametresi yok. Bu yüzden "ben vurabilir miyim" sorusu bir üstteki
+kutuda, ayrı bir tipte yaşıyor.
+
+**`AttackAction` bu projede** — `Assets/Game/Core/Combat/AttackAction.cs` → `Execute`
+
+```csharp
+            if (!AttackResolver.IsWithinRange(distance, attacker.AttackProfile))
+            {
+                return AttackOutcome.RejectedOutOfRange;
+            }
+
+            // Durumu vuruştan ÖNCE oku. Sonucu ayırt etmenin tek yolu bu:
+            // "düştü mü" sorusu bir DEĞİŞİM sorusudur, bir durum sorusu değil.
+            // Sonradan okunan State tek başına yeterli olmaz — hedef zaten
+            // Downed'ken vurulmuş da olabilir.
+            UnitState stateBeforeHit = target.State;
+```
+
+Kutunun iki satırı da bu blokta. «Bilir : üç kuralı ve onları hangi sırayla
+soracağını» — burada görülen merdivenin **son** basamağı; kendinden öncekiler
+geçmeden bu satıra gelinmiyor, ve hemen ardından merdiven bitiyor.
+«BİLMEZ : iki birimin nerede durduğunu (mesafe hazır gelir)» — koşula giren
+`distance` bu metotta hiç hesaplanmıyor, parametre olarak alınmış hâlde
+kullanılıyor; kutunun parantez içindeki notu bir açıklama değil, o değişkenin
+doğum yerinin adı. ██ Alıntının son satırı bu dosyanın çizgisinin bu tipteki
+karşılığı: ██ üstünde sorular var, altında olgular başlıyor — ve `stateBeforeHit`
+tam o sınırda okunuyor, çünkü bir satır sonrası artık geri alınamaz.
+
+██ Bu alıntı `Execute`'un **`Combatant` hedefli** aşırı yüklemesinden. ██ İkinci
+aşırı yükleme (`Structure` hedefli) aynı iki basamağı **harfi harfine aynı
+metinle** taşıyor; ayrıldıkları yer tam olarak yukarıdaki yorum bloğu — orada
+"önceki durumu oku" deseni bilerek yok, çünkü `Structure.TakeDamage` cevabı
+zaten döndürüyor. Alıntıyı ararken iki eşleşme bulursan yanlış yere bakmıyorsun:
+merdiven iki kez yazılmış, ayrım aşağısında.
+
+**`MoveAction` bu projede** — `Assets/Game/Core/MoveAction.cs` → `Execute`
+
+```csharp
+        public static MoveOutcome Execute(
+            UnitGrid board,
+            Unit unit,
+            int fromX,
+            int fromY,
+            int toX,
+            int toY,
+            int moveRange)
+```
+
+Kutudaki «BİLMEZ : ██ BİRİMİN DURUMUNU ██ — `UnitState` diye bir tipin adını
+bile yazamaz» satırının karşılığı bu sekiz satırlık liste ve orada **olmayan**
+şey: tahta var, kimlik var, dört koordinat ve bir menzil var; `UnitState` yok,
+`Combatant` yok, `Team` yok. Aynı tipin `MoveProfile` alan ikinci aşırı
+yüklemesi de aynı: profil `GridStrategy.Core`'da doğduğu için geçebiliyor. Sıra
+kararının kaynağı bu liste — sorulamayan soru, bir üst katmana çıkmak zorunda.
+
 En tuhaf iki satır alttaki ikisi: `AttackRules` sırayı **soramaz**,
 `MoveAction` durumu **soramaz**. İkisi de nezaketten değil — sorunun cevabını
 taşıyan tip o assembly'den görünmüyor.

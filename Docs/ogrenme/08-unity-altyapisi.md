@@ -36,7 +36,7 @@ buradaki her cümle yanlış okunur.
   ██ Burada TEKRAR EDİLMİYOR. ██
 
 Onlar *"ne oluyor"* diyor. Bu dosya ██ *"motor bunu neden ve nasıl böyle
-çözüyor"* ██ diyor — ve her cevabı yerel kurulumdan ölçüyor.
+çözüyor"* ██ diyor. Ve her cevabını yerel kurulumdan ölçüyor.
 
 ---
 
@@ -121,8 +121,8 @@ En öğretici satır sonuncusudur ve dördüncü durakta açılıyor.
 ## Birinci durak: ██ İKİ DÜNYA — yönetilen C# ve yerel motor ██
 
 Unity'nin çekirdeği C++ ile yazılı. Senin yazdığın C# o çekirdeğe bir **cephe**
-(facade). `GameObject`, `Transform`, `Camera`, `SpriteRenderer` — ██ bunlar veri
-taşıyan C# nesneleri DEĞİL, yerel taraftaki nesnelere birer TUTAMAKTIR. ██
+(facade). ██ `GameObject`, `Transform`, `Camera` ve `SpriteRenderer` veri taşıyan
+C# nesneleri DEĞİLDİR. ██ Bu dördü, yerel taraftaki nesnelere birer TUTAMAKTIR.
 
 ### ██ Bunun ölçüsü tek bir sayı: SIFIR ██
 
@@ -144,9 +144,10 @@ UnityEngine.Object                          3
     String m_UnityRuntimeErrorString
 ```
 
-██ Bir `GameObject`'in adı, katmanı, etkinliği, bileşen listesi — ██ **hiçbiri**
-C# tarafında durmuyor. Yönetilen nesnenin taşıdığı tek gerçek veri, kalıtımla
-gelen bir `IntPtr`. Geri kalan her şey o adresin ucundaki C++ nesnesinde.
+██ Bir `GameObject`'in adı, katmanı, etkinliği ve bileşen listesi — bu dördünün
+**hiçbiri** C# tarafında durmuyor. ██ Yönetilen nesnenin taşıdığı tek gerçek
+veri, kalıtımla gelen bir `IntPtr`'dir. Geri kalan her şey, o adresin ucundaki
+C++ nesnesinde yaşıyor.
 
 Bu, "GameObject bir C# nesnesidir" cümlesinin neden yanlış olduğunun tam
 ölçüsüdür: **o bir C# nesnesidir, ama içi boştur.**
@@ -224,7 +225,7 @@ Bu projenin **gerçekten kullandığı** API'ler tek tek yansımayla sorgulandı
 ```
 
 Okunan şekil şudur: **kamu yüzeyi yönetilen, sınırı geçen şey bir adres.**
-Değer geri dönerken kopyalanmıyor — çağıran bir `Vector3` ayırıyor ve yerel
+Değer geri dönerken kopyalanmıyor. Çağıran bir `Vector3` ayırıyor, ve yerel
 taraf onu **doldurmak için** adresini alıyor. `_Injected` adı bir proje
 sözleşmesi değildir; sürüme göre değişebilir ve buna güvenerek kod yazılmaz.
 
@@ -249,8 +250,8 @@ testidir ve konusu motor sınırı değil, saf C# kuralları:
 [`dil/07` → Beşinci durak](../deep/dil/07-bellek-canlilik-ve-yikim.md#besinci-durak-bu-projenin-tahsis-gercegi-olculmus).
 
 ██ **NE ZAMAN ÖLÇERSİN:** ██ kare zamanı gözle görülür şekilde bozulduğunda ve
-Profiler bir API ailesini işaret ettiğinde. Önce ölçü, sonra iddia — tersi
-sırayla yazılan her cümle bu belgenin kendi kuralını çiğner.
+Profiler bir API ailesini işaret ettiğinde. Sıra şu: önce ölçü, sonra iddia.
+Tersi sırayla yazılan her cümle bu belgenin kendi kuralını çiğner.
 
 ---
 
@@ -348,8 +349,9 @@ IL bunu açıyor:
 Yani: ██ `zero` bir **özelliktir**; arkasında `private static initonly`
 (`static readonly`) bir alan var ve getter `AggressiveInlining` damgalı. ██
 Davranışça `new Vector3(0f, 0f, 0f)` ile aynı sonucu verir; **yapı olarak**
-aynı şey değildir. Aynısı `one`, `up`, `right`, `forward` için de geçerli —
-onda da `oneVector`, `upVector`, `rightVector`, `forwardVector` alanları var.
+aynı şey değildir. Aynısı `one`, `up`, `right`, `forward` için de geçerli.
+Onların arkasında da `oneVector`, `upVector`, `rightVector`, `forwardVector`
+alanları var.
 
 ██ Bunu düzeltilmiş olarak yazıyorum çünkü ölçü ezberi bozdu. ██ Ezberi
 korumak, ölçüyü çöpe atmaktır.
@@ -406,8 +408,8 @@ BoardAdapter.cs:741   view.transform.position = CellCentre(x, y);
 ██ İkinci fatura: `position` bir özellik olduğu için her okuma bir ÇAĞRIDIR. ██
 Ölçülmüş şekli birinci durakta: `get_position` → `get_position_Injected`
 (internalcall). Bir alan okuması olsaydı bu bir bellek erişimi olurdu.
-██ Ama maliyet iddiası yine ölçüsüz yazılmaz — ██ bu bir **yapı** farkıdır,
-ölçülmüş bir performans farkı değil.
+██ Ama maliyet iddiası yine ölçüsüz yazılmaz. ██ Buradaki fark bir **yapı**
+farkıdır, ölçülmüş bir performans farkı değil.
 
 ### ⑥ `Vector3` matematiği yerel tarafa GİTMİYOR — ölçüldü
 
@@ -448,8 +450,8 @@ başlıyor ve orada bitiyor; duvarın öte yanına yalnız `int x, int y` geçiy
 Duvarın kendi hikâyesi: [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md).
 
 `Vector3Int` ayrı bir tiptir ve **bilerek** kullanılıyor: `float` bir hücre
-indeksi olamaz. Kodun kendi notu (`BoardAdapter.cs:607-608`) bunu yazıyor —
-`Vector3Int` sınırın ötesine geçmez, "tahta içinde mi" sorusunu soran taraf
+indeksi olamaz. Kodun kendi notu (`BoardAdapter.cs:607-608`) bunu yazıyor.
+`Vector3Int` sınırın ötesine geçmez. "Tahta içinde mi" sorusunu soran taraf
 yine `Battle`'dır.
 
 ---
@@ -477,11 +479,11 @@ BoardAdapter.cs:673   cell.transform.SetParent(transform, worldPositionStays: fa
 Çıplak `transform` = `this.transform`. Amaç konum değil ██ TOPLU YAŞAM
 DÖNGÜSÜ ██: tahtayı yok etmek tek çağrıyla 15 hücreye uygulanır.
 
-██ Yerel vs dünya koordinatı: ██ ölçülmüş şekil şu — `Transform` tipinde
-`position` ve `localPosition` **iki ayrı özellik** ve ikisinin de ayrı bir
-`_Injected` internalcall'ı var. Ayrıca `localToWorldMatrix` ve
-`worldToLocalMatrix` de ayrı birer internalcall. Sahnede saklanan şey
-**yereldir** — ölçü, sahne dosyasının kendisi:
+██ Yerel koordinat ile dünya koordinatı ayrı şeylerdir. ██ Ölçülmüş şekil şudur:
+`Transform` tipinde `position` ve `localPosition` **iki ayrı özelliktir**, ve
+ikisinin de ayrı bir `_Injected` internalcall'ı vardır. `localToWorldMatrix` ile
+`worldToLocalMatrix` de ayrı birer internalcall'dır. Sahnede saklanan şey
+**yereldir**. Bunun ölçüsü sahne dosyasının kendisidir:
 
 ```
 Assets/Scenes/SampleScene.unity
@@ -494,12 +496,12 @@ Assets/Scenes/SampleScene.unity
 ```
 
 ██ **DOĞRULANMADI:** ██ "`transform.position` okumak hiyerarşi boyunca matris
-çarpımı yapabilir" cümlesi yerel kaynaktan **doğrulanamadı** — yerel taraf C++
-ve elimde kaynağı yok. ██ ÖLÇÜLEN olgu şudur: ██ dünya konumu sahnede
-**saklanmıyor**, yalnız yerel konum saklanıyor; dünya konumunu döndüren metot
-ayrı bir yerel çağrıdır ve `localToWorldMatrix` diye bir kardeşi var. Bu
-şekilden "türetiliyor" çıkarımı yapılabilir, ama **kanıt değildir** ve bu dosya
-onu kanıt gibi yazmıyor.
+çarpımı yapabilir" cümlesi yerel kaynaktan **doğrulanamadı**. Sebebi şu: yerel
+taraf C++ ve elimde kaynağı yok. ██ ÖLÇÜLEN olgu şudur: ██ dünya konumu sahnede
+**saklanmıyor**, yalnız yerel konum saklanıyor. Dünya konumunu döndüren metot
+ayrı bir yerel çağrıdır, ve `localToWorldMatrix` diye bir kardeşi var. Bu
+şekilden "türetiliyor" çıkarımı yapılabilir. Ama o çıkarım **kanıt değildir**,
+ve bu dosya onu kanıt gibi yazmıyor.
 
 **SEN OLSAN NE YAPARDIN.** Her nesnede bir `parent` referansı ve bir `localPos`
 tutardın; dünya konumunu isteyen olduğunda zinciri yukarı yürürdün. Aynı fikir.
@@ -515,9 +517,9 @@ Farkı: motor bunu C++'ta, bütün nesneler için, tek bir bellek düzeninde yap
 koşması, girdinin kare başında okunması ve çizimin en sonda olması gerekir.
 Sıra yanlışsa girdi bir kare gecikir, kamera bir kare titrer.
 
-**MOTORUN ÇÖZÜMÜ.** ██ `PlayerLoop` ██ — motorun kare planı, adlandırılmış
-fazlardan ve alt sistemlerden oluşan bir **ağaç**. Bu bir soyutlama değil,
-ölçülebilir bir API: `UnityEngine.LowLevel.PlayerLoop` ve
+**MOTORUN ÇÖZÜMÜ.** ██ Motorun kare planını `PlayerLoop` tutar. ██ Bu plan,
+adlandırılmış fazlardan ve alt sistemlerden oluşan bir **ağaçtır**. Ağaç bir
+soyutlama değil, ölçülebilir bir API'dir: `UnityEngine.LowLevel.PlayerLoop` ve
 `UnityEngine.LowLevel.PlayerLoopSystem` tipleri bu sürümde **var**.
 
 ██ Yerel `UnityEngine.CoreModule.dll`'den sökülerek sayıldı (2026-08-23): ██
@@ -568,13 +570,13 @@ UnityEngine.PlayerLoop  —  ██ 8 faz, 127 alt sistem ██
 bir ağaç.
 
 **SEN OLSAN NE YAPARDIN.** Tek bir `while (true)` döngüsü yazardın: girdi oku,
-sistemleri sırayla çağır, çiz, bekle. Motor da aynısını yapıyor — sadece 127
-yuvası ve her yuvanın yerel bir sahibi var.
+sistemleri sırayla çağır, çiz, bekle. Motor da aynısını yapıyor. Farkı şu:
+motorun 127 yuvası var, ve her yuvanın yerel bir sahibi var.
 
-**MALİYET.** ██ Bu projede ÖLÇÜLMEDİ. ██ Editor'de kare zamanı bakılmadı,
+**MALİYET.** ██ Bu projede ÖLÇÜLMEDİ. ██ Editor'de kare zamanına bakılmadı,
 Profiler açılmadı. Ölçmenin nereye ait olduğu yedinci duraktaki geçiş
-listesinde ADIM 6 olarak yazılı — ve ██ Editor ölçümü ITERASYON kanıtıdır,
-hedef cihaz kanıtı DEĞİLDİR ██.
+listesinde ADIM 6 olarak yazılı. ██ Editor ölçümü bir ITERASYON kanıtıdır,
+hedef cihaz kanıtı DEĞİLDİR. ██
 
 ### 3.3 · Serileştirme — `[SerializeField]` `private` bir alanı nasıl gösteriyor
 
@@ -582,8 +584,9 @@ hedef cihaz kanıtı DEĞİLDİR ██.
 **sahnede** yaşaması gerekir ki tasarımcı onu derleme yapmadan değiştirebilsin.
 Ama o alanın kod tarafında `private` kalması gerekir ki kimse dışarıdan yazmasın.
 
-**MOTORUN ÇÖZÜMÜ.** ██ Unity'nin KENDİ serileştiricisi. ██ Ve buradaki en pahalı
-yanılgı şu: bu, C#'ın `[Serializable]` mekanizması **DEĞİLDİR**.
+**MOTORUN ÇÖZÜMÜ.** ██ Bu işi Unity'nin KENDİ serileştiricisi yapar. ██ Buradaki
+en pahalı yanılgı şudur: o serileştirici, C#'ın `[Serializable]` mekanizması
+**DEĞİLDİR**.
 
 ██ ÖLÇÜLDÜ — yansıma sondası: ██
 
@@ -620,8 +623,8 @@ BoardAdapter.cs:114   [SerializeField, Min(1)] private int height = 5;
 
 ██ Erişim belirteci C# derleyicisinin kuralıdır. Unity'nin serileştiricisi bir
 C# çağrı yolu değildir; alanı **doğrudan** okur ve yazar. ██ Aynı sebep, bir
-`private void Awake()`'in neden çağrıldığını da açıklıyor — ikisi de aynı
-sınırın iki yüzü.
+`private void Awake()`'in neden çağrıldığını da açıklıyor. İkisi de aynı sınırın
+iki yüzüdür.
 
 **██ SERİLEŞTİRİCİNİN DESTEKLEMEDİKLERİ — ve bu projedeki doğrudan sonucu ██**
 
@@ -677,9 +680,10 @@ UnitView.cs:66   [SerializeField] private Color deadTint = new Color(0.35f, 0.35
 ```
 
 ██ **DOĞRULANMADI:** ██ Unity bu sahneyi açtığında eksik dokuz alana ne yazdığı bu
-turda **Editor koşturulmadığı için ölçülmedi**. İki okuma da mümkün ve ayrımı
-Inspector'da bir bakışta görülür — yedinci duraktaki ██ ADIM 4 ██ tam olarak
-bunu ölçüyor. ██ ÖLÇÜLEN olgu tektir: dosyada o anahtarlar YOK. ██
+turda **Editor koşturulmadığı için ölçülmedi**. İki okuma da mümkündür, ve
+aralarındaki ayrım Inspector'da bir bakışta görülür. Yedinci duraktaki
+██ ADIM 4 ██ tam olarak bu soruyu ölçüyor. ██ ÖLÇÜLEN olgu tektir: dosyada o
+anahtarlar YOK. ██
 
 **SEN OLSAN NE YAPARDIN.** Bir JSON dosyası yazar, `private` alanları
 `Newtonsoft` ile okurdun. Farkı: Unity'nin serileştiricisi Editor'ün kendi
@@ -687,7 +691,7 @@ düzenleme yüzeyiyle (Inspector), önizlemeyle ve prefab devralma zinciriyle
 bütünleşik. JSON'da o üçü yok.
 
 **MALİYET.** Serileştirilmiş her alan bir sahne/prefab anahtarıdır ve
-şemayı değiştirdiğin gün eski dosyalar **sessizce** eski kalır — yukarıdaki
+şemayı değiştirdiğin gün eski dosyalar **sessizce** eski kalır. Yukarıdaki
 ölçüm bunun canlı örneği. ██ Yazım maliyeti ölçülmedi; şema kayması maliyeti
 ÖLÇÜLDÜ (13'e 4 ve 3'e 1). ██
 
@@ -728,8 +732,8 @@ Assets/Game/Unity/BoardAdapter.cs.meta
 ```
 
 ██ Yani `[DefaultExecutionOrder]`'ın ve Editor'deki "Script Execution Order"
-penceresinin sakladığı yer bu satırdır. ██ Bu projede değeri `0` — yani sıra
-zorlanmamış. Bunun neden bir tercih olduğu:
+penceresinin sakladığı yer bu satırdır. ██ Bu projede o satırın değeri `0`.
+Yani sıra zorlanmamış. Bunun neden bir tercih olduğu:
 [`konular/08` → Kaçış yolu](../deep/konular/08-motor-cagri-dongusu.md#kacis-yolu-bu-donguden-nasil-kacilirdi).
 
 `.meta` üretiminin **kendi** ölçüsü — `Assets/` altındaki bir `.md`'nin bile
@@ -743,7 +747,7 @@ gereksiz kılıyor.
 **MALİYET.** ██ Her varlık bir GUID sahibi olur ve `.meta` dosyası varlıkla
 BİRLİKTE taşınmak zorundadır. ██ `.meta` olmadan taşınan bir dosya yeni bir GUID
 alır ve ona işaret eden her referans kopar. Sürüm kontrolünde `.meta`
-dosyalarını dışlamak bu yüzden bir hatadır — bu projede dışlanmamış (114 `.meta`
+dosyalarını dışlamak bu yüzden bir hatadır. Bu projede dışlanmamış (114 `.meta`
 depoda duruyor).
 
 ### 3.5 · Çizim (rendering) — ██ YALNIZ SINIR ██
@@ -757,9 +761,9 @@ Assets/Game/ altında `SpriteRenderer` geçen dosya sayısı : 2
 Mesh · Material · Shader · Camera efekti · katman/aşama ayarı : ██ SIFIR ██
 ```
 
-Motorun çizim tarafı — kamera kırpması, gruplama (batching), çizim çağrısı,
-sıralama katmanları, malzeme örnekleri, gölgelendirici derlemesi — ██ BU DOSYADA
-ANLATILMIYOR. ██
+██ Motorun çizim tarafı BU DOSYADA ANLATILMIYOR. ██ Anlatılmayanlar şunlar:
+kamera kırpması, gruplama (batching), çizim çağrısı, sıralama katmanları,
+malzeme örnekleri, gölgelendirici derlemesi.
 
 ```
 ██ HENÜZ YOK ██ → hangi aşamada gelir:
@@ -812,8 +816,8 @@ Kalıtım zinciri (ölçüldü):
 ██ Bir C# event abonesi DEĞİL ██       bütün zincirde 0 event üyesi var
 ```
 
-`event` ile mesaj geri çağrısının satır satır farkı burada **tekrar edilmiyor** —
-o tabloyu [`konular/08` → Birinci durak](../deep/konular/08-motor-cagri-dongusu.md#birinci-durak-awake-bir-event-degildir)
+`event` ile mesaj geri çağrısının satır satır farkı burada **tekrar edilmiyor**.
+O tabloyu [`konular/08` → Birinci durak](../deep/konular/08-motor-cagri-dongusu.md#birinci-durak-awake-bir-event-degildir)
 zaten kuruyor. ██ Buradaki katkı: o tablonun makine tarafındaki kanıtı. ██
 
 ### ② PEKİ NASIL — ██ AD TABANLI ÇÖZÜM ██
@@ -927,7 +931,7 @@ hâli ██.
 
 **KENDİNİ KORUMA YOLU — bugün elde olan.** Bir geri çağrı yazdığında adını
 **IDE'nin tamamlamasından** seç, elle yazma. Rider ve Visual Studio bilinen
-Unity mesaj adlarını tanır. Bu bir garanti değil, bir alışkanlık — ve bugün bu
+Unity mesaj adlarını tanır. Bu bir garanti değil, bir alışkanlıktır. Bugün bu
 projede geri çağrıların **beşi de** doğru yazılmış (ölçü: beşi de gerçekten
 koşuyor, aksi hâlde oyun ilk karede patlardı).
 
@@ -984,7 +988,7 @@ varsayılanını kullanır.
 ██ **DOĞRULANMADI:** ██ "Bu projenin hedef platformundaki varsayılan
 `Mono2x`'tir" cümlesi **yazılmıyor**, çünkü varsayılanın ne olduğu Editor'ün
 kendi kodunda yaşıyor ve bu turda Editor açılmadı. Ayrıca aktif hedef platform
-`Library/EditorUserBuildSettings.asset` içinde ve o dosya **ikili** — metin
+`Library/EditorUserBuildSettings.asset` içinde, ve o dosya **ikili**. Metin
 olarak okunamadı.
 
 ██ **DOĞRULANABİLEN İKİ ŞEY:** ██
@@ -1060,9 +1064,9 @@ Yalnız son iki satır bu repoya karşı ölçüldü.
 | ██ KARŞILIĞI OLMAYAN SATIR ██ | Fizik ve çarpışma | ██ HENÜZ YOK ██ → Vampire Survivors satırının belirleyici hizmeti bu projede **hiç yok**: `Rigidbody`, `Collider`, `OnTrigger*` → sıfır. Yaratacağı aşama: birimlerin hücre değil **serbest** konumda hareket ettiği gün |
 
 ██ **EN ÖĞRETİCİ SATIR BİRİNCİDİR** ██ ve iki kez öyle: (a) o oyun Unity bile
-kullanmıyor, yani "hangi Unity hizmeti" sorusunun **karşılığı yok**;
+kullanmıyor, yani "hangi Unity hizmeti" sorusunun **karşılığı yok**; <!-- YOK-MUAF · KAPSAM DIŞI: yokluk BU projede değil, karşılaştırılan başka bir oyunda. -->
 (b) kare başına yapılacak oyun işi neredeyse **sıfır**. Bu bir eksiklik değil
-bir **tür farkıdır** — sıra tabanlı bir oyunda iş olaya bağlıdır, kare yalnız
+bir **tür farkıdır**. Sıra tabanlı bir oyunda iş olaya bağlıdır, ve kare yalnız
 çizim için döner. Bu proje ikisinin **arasında**: kararı olay veriyor (tıklama),
 zamanı kare taşıyor (`Tick`).
 
@@ -1085,8 +1089,9 @@ yazılı ██ — *proje* · *Sahne* · *GameObject* · *Bileşen* · *Inspect
 **NEREYE:** Unity Hub → Projects → CountryBall-Strategy satırı.
 **GÖRÜNÜR SONUÇ:** Editor açılır, altta "Importing…" çubuğu dönebilir; bitince
 pencere başlığında proje adı ve sürüm görünür.
-**DUR VE RAPOR:** Sütunda başka bir sürüm yazıyorsa ██ AÇMA ██ — farklı sürümle
-açmak `Library/` klasörünü yeniden üretir ve ilk üretimin sürümünü kaybedersin.
+**DUR VE RAPOR:** Sütunda başka bir sürüm yazıyorsa ██ AÇMA ██. Farklı bir
+sürümle açmak `Library/` klasörünü yeniden üretir, ve o üretimle ilk üretimin
+sürümünü kaybedersin.
 
 **ADIM 2 · *Sahne*yi aç ve iki *GameObject*'i bul**
 **NE YAPILIR:** Project penceresinde (varsayılan: altta) Assets → Scenes yolunu
@@ -1095,8 +1100,8 @@ aç; "SampleScene" varlığına ÇİFT tıkla.
 **GÖRÜNÜR SONUÇ:** Hierarchy penceresinde (varsayılan: solda) ██ tam iki ██ kök
 GameObject: "Main Camera" ve ██ "Board" ██. Ölçü: sahne dosyasında iki
 GameObject var, ikisinin de `m_IsActive` değeri 1.
-**DUR VE RAPOR:** Hierarchy boşsa ya da ikiden fazla nesne varsa dur — yanlış
-sahne açılmış olabilir.
+**DUR VE RAPOR:** Hierarchy boşsa ya da ikiden fazla nesne varsa dur. Yanlış
+bir sahne açılmış olabilir.
 
 **ADIM 3 · `Board` *GameObject*'inin *Bileşen*lerini oku**
 **NE YAPILIR:** Hierarchy'de "Board" GameObject'ine TEK tıkla; Inspector
@@ -1108,8 +1113,8 @@ Height = 5 · Terrain Sprites (4 eleman) · Unit Prefab.
 **DUR VE RAPOR:** ██ Asıl gözlem: kaç Inspector alanı görünüyor? ██ Kodda 13
 `[SerializeField]` var, sahne dosyasında 4 tanesi yazılı. 13'ünü de görüyorsan
 Unity kalan 9'un değerini C# alan başlatıcılarından almış demektir.
-██ Gördüğün sayıyı NOT AL — 3.3'te "DOĞRULANMADI" diye işaretlenen tek soruyu
-tam olarak bu kapatır. ██
+██ Gördüğün sayıyı NOT AL. ██ O sayı, 3.3'te "DOĞRULANMADI" diye işaretlenen
+tek soruyu tam olarak kapatır.
 
 **ADIM 4 · Bir *Inspector alanı*nı değiştir ve etkisini gör**
 **NE YAPILIR:** Inspector'da `Board Adapter` Bileşenindeki ██ Width ██ alanına
@@ -1118,8 +1123,9 @@ tıkla, 3'ü 6 yap, Enter'a bas; sonra araç çubuğundan ▶ (Play).
 **GÖRÜNÜR SONUÇ:** Game penceresinde tahta ██ 6 sütun ██ genişler; Console'da
 tek satır: `[Board] built 6x5 = 30 cells.`
 **DUR VE RAPOR:** Alan gri ve tıklanamıyorsa dur (prefab kilidi olabilir).
-Değeri 0 yapamazsın — `[Min(1)]` attribute'ü engeller; ██ bunu bilerek dene,
-serileştirmenin doğrulama tarafını tek hamlede gösterir ██. Bitince Play'den çık
+Değeri 0 yapamazsın, çünkü `[Min(1)]` attribute'ü engeller. ██ Bunu bilerek
+dene: engellenmiş bir alan, serileştirmenin doğrulama tarafını tek hamlede
+gösterir. ██ Bitince Play'den çık
 ve 3'e döndür. ██ Play SIRASINDA yapılan değişiklik çıkışta KAYBOLUR; Play
 DIŞINDA yapılan KALIR. ██
 
@@ -1128,8 +1134,9 @@ DIŞINDA yapılan KALIR. ██
 çerçeveden anlarsın); klavyeden ██ B ██; sonra tahta içindeki BOŞ bir hücreye
 tıkla.
 **NEREYE:** Araç çubuğu → ▶ → Game penceresi → sol tık → B → sol tık.
-**GÖRÜNÜR SONUÇ:** ██ Console'da KIRMIZI bir satır — ama HANGİSİ, bu turda
-ölçülemedi. İki aday var ve ayrımı bu adımın asıl dersi: ██
+**GÖRÜNÜR SONUÇ:** Console'da KIRMIZI bir satır belirir. ██ Ama hangi satırın
+belireceği bu turda ölçülemedi. ██ İki aday var, ve aralarındaki ayrım bu adımın
+asıl dersi:
 
 ```
 ADAY A   [Board] Cannot enter placement mode: placementGhost is not assigned.
@@ -1148,9 +1155,10 @@ BoardAdapter.cs:367   if (placementGhost == null)
 ```
 
 **DUR VE RAPOR:** ██ İKİ ADAYDAN HANGİSİNİ GÖRDÜĞÜNÜ YAZ. ██ Bu, iki belgenin
-farklı şey söylediği tek noktadır ve hangisinin bayat olduğunu **senin gözlemin**
-belirler — [`deep/README.md`](../deep/README.md)'nin ilk kuralının koşan hâli:
-*ikisi çelişirse kod kazanır.* Aday B'yi görürsen üç daldan ikisinin neden
+farklı şey söylediği tek noktadır. Hangisinin bayat olduğunu **senin gözlemin**
+belirler. Gözlemin, [`deep/README.md`](../deep/README.md)'nin ilk kuralının
+koşan hâlidir: *ikisi çelişirse kod kazanır.* Aday B'yi görürsen üç daldan
+ikisinin neden
 sağlıklı ret döndürdüğü ölçülmüş hâliyle yazılı:
 [`konular/07` → BUGÜNKÜ SINIR](../deep/konular/07-tiklamadan-eyleme.md#bugunku-sinir-bu-yol-playde-bastan-sona-kosmuyor).
 ██ DÜZELTME BU TURUN İŞİ DEĞİL: not al, geç. ██
@@ -1169,14 +1177,14 @@ Create Empty; sürükle-bırak Inspector'a.
 Sınadığın iddia "bütün `Awake`'ler bütün `Start`'lardan önce" — "A önce" değil.
 Deneyin tam kurgusu ve ön koşulu (Domain Reload):
 [`konular/08` → Bunu kendin ölç](../deep/konular/08-motor-cagri-dongusu.md#bunu-kendin-olc-iki-bilesen-bir-gunluk).
-██ DENEY BİTİNCE BETİĞİ SİL — repoya girmemeli. ██
+██ DENEY BİTİNCE BETİĞİ SİL. ██ O betik repoya girmemeli.
 
 **ADIM 7 · Profiler'ı aç ve kare zamanını gör**
 **NE YAPILIR:** Üst menü → Window → Analysis → Profiler; pencere açılınca ▶
 (Play); sol sütundaki modüllerden "CPU Usage" satırına tıkla.
 **NEREYE:** Window → Analysis → Profiler → CPU Usage.
 **GÖRÜNÜR SONUÇ:** Grafiğin altında kare başına milisaniye ve "PlayerLoop" ile
-başlayan bir ağaç. Ağacı aç: ██ 3.2'deki faz adlarını orada göreceksin ██ —
+başlayan bir ağaç. Ağacı aç. ██ 3.2'deki faz adlarını orada göreceksin: ██
 `Update` → `ScriptRunBehaviourUpdate` → `BoardAdapter.Update`.
 **DUR VE RAPOR:** ██ Buradaki sayı bir ITERASYON kanıtıdır, HEDEF CİHAZ KANITI
 DEĞİLDİR. ██ Editor'ün kendi yükü ölçüme karışır. "Oyun 200 FPS koşuyor" cümlesi
@@ -1192,8 +1200,9 @@ satırını ara.
 olmalı ve `Assets/Game/Unity/BoardAdapter.cs.meta` içindeki guid ile ██ AYNI ██
 olmalı. İkinci gözlem: kaydettikten sonra kaç `[SerializeField]` yazılı?
 Kaydetmeden önce 4'tü.
-**DUR VE RAPOR:** İki GUID farklıysa ██ DUR ██ — `.meta` dosyası bir yerde
-kaybolmuş demektir ve bu, sürüm kontrolüne ait bir sorundur.
+**DUR VE RAPOR:** İki GUID farklıysa ██ DUR ██. Farklı olmaları, `.meta`
+dosyasının bir yerde kaybolduğu anlamına gelir. Bu, sürüm kontrolüne ait bir
+sorundur.
 
 ██ **BU SEKİZ ADIMDAN SONRA NE ÖĞRENMİŞ OLURSUN** ██
 
@@ -1299,7 +1308,8 @@ Sırayla sor, ilk "evet"te dur:
 ## Yanlış hatırlanan üç şey
 
 **1. ██ "`GameObject` bir C# nesnesidir." ██**
-██ Öyle, ama içi BOŞTUR — ve bu, cümlenin işe yaramaz olmasına yeter. ██
+██ `GameObject` gerçekten bir C# nesnesidir, ama içi BOŞTUR. ██ Ve bu tek olgu,
+cümleyi işe yaramaz kılmaya yeter.
 Ölçüldü: `GameObject`, `Component`, `Behaviour` ve `MonoBehaviour` tiplerinin
 **bildirdiği örnek alan sayısı dördünde de SIFIR**. Bütün zincirdeki tek gerçek
 veri `UnityEngine.Object.m_CachedPtr` — bir `IntPtr`, yani yerel nesnenin adresi.
@@ -1310,9 +1320,10 @@ serileştirmeye ya da klonlamaya kalkarsın; (c) `== null` ile
 oysa iki ayrı ömrün gözlenebilir izidir.
 
 **2. ██ "`Awake` bir `event`'tir." ██**
-██ Değil, ve bunun üç ayrı ölçüsü var: ██ `MonoBehaviour` zincirinde `event`
-üye sayısı **0**; `Awake` adında bir metot zincirde **hiç tanımlı değil**;
-`MonoBehaviour` **0** arayüz uyguluyor ve **0** `virtual` metot bildiriyor.
+██ `Awake` bir `event` değildir, ve bunun üç ayrı ölçüsü var. ██ `MonoBehaviour`
+zincirinde `event` üye sayısı **0**. `Awake` adında bir metot zincirde **hiç
+tanımlı değil**. `MonoBehaviour` **0** arayüz uyguluyor ve **0** `virtual` metot
+bildiriyor.
 Motor onu **ada göre** buluyor. ██ Faturası: `Awake` adını bozmak bir derleme
 hatası değil, SESSİZ bir çöküş üretir. ██ Ölçüldü: `void Awakee()` en yüksek
 uyarı seviyesinde (`-warn:4`) 0 uyarıyla derlendi ve 3.072 baytlık bir DLL
@@ -1320,24 +1331,25 @@ uyarı seviyesinde (`-warn:4`) 0 uyarıyla derlendi ve 3.072 baytlık bir DLL
 [`konular/08` → Yanlış hatırlanan üç şey](../deep/konular/08-motor-cagri-dongusu.md#yanlis-hatirlanan-uc-sey).
 
 **3. ██ "`[SerializeField]` C#'ın `[Serializable]` mekanizmasını kullanır." ██**
-██ Kullanmaz — ve bunun tek satırlık ölçüsü var: ██
-`typeof(Vector3).IsSerializable` → **False**. `typeof(Color).IsSerializable` →
+██ `[SerializeField]` o mekanizmayı kullanmaz, ve bunun tek satırlık bir ölçüsü
+var. ██ `typeof(Vector3).IsSerializable` → **False**. `typeof(Color).IsSerializable` →
 **False**. İki tip de `[System.Serializable]` taşımıyor, ama ikisi de
 Inspector'da görünüyor ve sahne dosyasına yazılıyor. Unity'nin kendi
 serileştiricisi ayrı bir mekanizmadır; `Dictionary<,>` ve `null` referansları
 desteklemez. ██ Pratik zararı: ██ "neden `Dictionary`'m Inspector'da
-görünmüyor" sorusuna bir C# cevabı ararsın — cevap C#'ta değil.
+görünmüyor" sorusuna bir C# cevabı ararsın. Ama cevap C#'ta değil.
 
 ---
 
 ## Kaçış yolu: bu altyapıdan nasıl kaçılırdı
 
-**① Motoru hiç kullanmamak — saf C# ile yazmak.** Kaçış değil, bu projenin
-zaten yaptığı şeyin abartılmış hâli: `Battle`, `UnitLifecycle`, `AttackRules`
-şu anda **motorsuz** yaşıyor ve EditMode'da sahnesiz sınanıyor. Sınırın
-faturaları [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md)
-içinde dört kalem hâlinde yazılı. ██ Ama çizim, girdi ve kare bir yerden
-gelmek zorunda — o yer motordur ve bu projede iki dosyaya sıkışmış. ██
+**① Motoru hiç kullanmamak — saf C# ile yazmak.** Bu bir kaçış değil, bu
+projenin zaten yaptığı şeyin abartılmış hâlidir: `Battle`, `UnitLifecycle` ve
+`AttackRules` şu anda **motorsuz** yaşıyor ve EditMode'da sahnesiz sınanıyor.
+Sınırın faturaları
+[`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md)
+içinde dört kalem hâlinde yazılı. ██ Ama çizim, girdi ve kare bir yerden gelmek
+zorunda. ██ O yer motordur, ve bu projede iki dosyaya sıkışmış.
 
 **② `[SerializeField]` yerine kendi yapılandırma dosyanı okumak.** JSON ya da
 `ScriptableObject`. ██ HENÜZ YOK ██ → aynı sayı kümesinin **birden fazla**
@@ -1452,7 +1464,7 @@ grep -rl "SpriteRenderer" Assets/Game --include=*.cs | wc -l      # ►  2  (ote
 ██ `grep -E` içinde alternasyon için DÜZ `|` kullan, `\|` DEĞİL. ██
 Ölçüldü: `\|` düz bir boru karakteridir, desen hiçbir şeyi eşlemez ve
 ██ SAHTE BOŞLUK ██ raporlar. Bu dosyanın hazırlığında bu tuzağa canlı olarak
-düşülmedi çünkü baştan biliniyordu — ama bilinmese düşülürdü.
+düşülmedi, çünkü baştan biliniyordu. Ama bilinmese düşülürdü.
 
 ---
 

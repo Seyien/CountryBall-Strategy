@@ -148,6 +148,119 @@ Bu dosya o boşluğu anlatıyor: çağıran kim, adı nasıl buluyor, hangi sır
 
 Sonuncusu bu dosyanın en öğretici karakteri; onu birinci durakta açıyoruz.
 
+### Kutudan gerçek satıra — her kutunun kod karşılığı
+
+Kutular **rolü** anlatıyor; bu bölüm o rolün **hangi satırda** durduğunu
+gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.
+
+██ Birinci kutu ötekilerden farklı: motorun bu depoda bir **tanım satırı yok**.
+Onun için verilen yer bir tanım değil, **etkinin gözlendiği** yerdir. ██
+
+**`UnityEngine (motor)` bu projede** — ██ TANIM DEĞİL, ETKİ ██ · gözlem yeri:
+`Assets/Game/Unity/BoardAdapter.cs` → `AdvanceBattleTime`
+
+```csharp
+private void AdvanceBattleTime()
+{
+    battle.Tick(Time.deltaTime);
+
+    if (battle.RemoveReadyForCleanup(cleanupBuffer) == 0)
+    {
+        return;
+    }
+```
+
+Kutudaki «kareyi saymak, adı bilinen metotları çağırmak» satırının bu depodaki
+karşılığı **iki gözlemdir, ikisi de bir tanım değil**. Birincisi: bu metodu
+çağıran tek satır `Update`'in içinde, `Update`'i çağıran satır ise bu depoda
+**hiç yok** (sayı bu dosyanın en başında). İkincisi: `Time.deltaTime` bir sayı
+**okumuyor**, motorun kare başlamadan önce yazdığı bir değeri **teslim alıyor** —
+`Time` tipinin gövdesi `Assets/` altında bulunmaz, `UnityEngine`'in içindedir.
+Yani motorun "kareyi saydığı" bu depoda görünmez; görünen tek şey, sayının
+`battle.Tick(...)` çağrısına **girdiği andır**. Çağrının motorun kare planında
+hangi yuvada durduğu ayrı bir dosyanın ölçüsü:
+[`../../ogrenme/08-unity-altyapisi.md` → 3.2](../../ogrenme/08-unity-altyapisi.md#32-oyun-dongusu-kim-cagiriyor-sira-kimin-karari).
+
+**`BoardAdapter` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `Awake`
+
+```csharp
+unityGrid = GetComponent<Grid>();
+battle = new Battle(width, height);
+```
+
+Kutudaki «motor tarafı ile motorsuz çekirdek arasında çeviri» satırının karşılığı
+bu **iki komşu satırdır**: birincisi motora soruyor (`Grid` bir `UnityEngine`
+tipi), ikincisi assembly'sinde `noEngineReferences: true` yazan bir katmanın
+tipini kuruyor. Sınır iki satır arasında geçiyor ve iki satır aynı metotta.
+Kutunun «4 geri çağrı tanımlı, 0'ı bu repodan çağrılıyor» ölçüsünün karşılığı da
+bu dosyadaki dört imzadır — `Awake`, `OnEnable`, `OnDisable`, `Update` — ve
+dördü de `private`; erişilemez olmaları motoru durdurmuyor.
+
+**`UnitView` bu projede** — `Assets/Game/Unity/UnitView.cs` → `Awake`
+
+```csharp
+private void Awake()
+{
+    // SIRA BİR KARARDIR: normalizasyon, selectionOverlay kontrolünün
+    // ÜSTÜNDE. Altına konsaydı atanmamış BİR alan, ilgisiz İKİ şeyi
+    // birden bozardı — aşağıdaki erken çıkış bu satırı da atlar ve
+    // prefab'da ters/soluk kaydedilmiş gövde öyle kalırdı. Doğan her
+    // birim AYAKTA başlamak ZORUNDA. → UnitView.md#awake
+    SetState(UnitState.Alive);
+```
+
+Kutudaki «1 geri çağrı tanımlı (Awake), o kadar» ölçüsünün karşılığı bu imzadır;
+dosyada motorun adına bakarak bulabileceği ikinci bir metot yok. «██ KARE DİYE
+BİR ŞEYİ ██ — `Update`'i YOK, `Time` bu dosyada hiç geçmez» satırının karşılığı
+ise bu bloğun **bittiği yerdir**: `Awake` bir kez koşuyor ve tipin geri kalanı
+(`SetSelected`, `SetState`) `public` — yani söylendiğinde çalışıyor, kare
+başına değil. `Time` sözcüğü dosyada bir kez geçiyor ve o da bu olguyu yazan
+yorum satırının kendisi.
+
+**`Battle` bu projede** — `Assets/Game/Battle/Battle.cs` → `Tick`
+
+```csharp
+public void Tick(float deltaSeconds)
+{
+    // Sözlük üzerinde DOĞRUDAN foreach: Dictionary<,>.Enumerator bir
+    // struct'tır ve burada bir arayüz ardında saklanmadığı için
+    // kutulanmaz. Aynı döngü `IEnumerable` üzerinden dönseydi kare
+    // başına bir tahsis üretirdi.
+    foreach (KeyValuePair<Unit, Combatant> pair in combatants)
+    {
+        pair.Value.Tick(deltaSeconds);
+    }
+```
+
+Kutudaki «██ KAREYİ ██ · ██ TIKLAMAYI ██ · Awake diye bir kavramı» satırının
+karşılığı **parametrenin tipidir**: kare, bu imzayı geçerken sıradan bir `float`a
+dönüşüyor ve adı bile "kare" demiyor. Kutunun ölçü satırındaki dosya
+`Assets/Game/Battle/GridStrategy.Battle.asmdef`; içinde `"noEngineReferences": true`
+yazıyor, yani buraya `Time.deltaTime` yazan biri bir çalışma anı hatası değil bir
+**derleme** hatası alır. Yukarıdaki yorumun "kare başına bir tahsis" cümlesi de
+bu sınırın kanıtı: tip kareyi göremiyor ama kare başına çağrıldığını **bilerek**
+yazılmış.
+
+**`PointerGesture` bu projede** — `Assets/Game/Core/PointerGesture.cs` → `Reset`
+
+```csharp
+public void Reset()
+{
+    Phase = PointerPhase.Idle;
+    pressX = 0f;
+    pressY = 0f;
+}
+```
+
+Kutudaki «██ ADININ MOTOR İÇİN BİR ANLAMI OLDUĞUNU ██» satırının karşılığı bu
+metot **ile** onu saran tip bildiriminin birlikte okunmasıdır:
+`public sealed class PointerGesture` — devamında `: MonoBehaviour` yok. Motor
+`Reset` adını yalnızca `MonoBehaviour`'dan türeyen tiplerde arıyor; bu tipte ad
+yalnızca bir addır ve metodu çalıştıran tek şey onu yazan çağrıdır —
+`BoardAdapter` içinde üç yerde: `TryEnterPlacementMode`, `UpdatePlacement`,
+`CancelPlacement`. Aynı ad, iki farklı tipte, iki farklı anlam — ve farkı
+doğuran şey adın kendisi değil, **taban tipin varlığı**.
+
 ---
 
 ## Birinci durak: ██ `Awake` bir `event` DEĞİLDİR ██

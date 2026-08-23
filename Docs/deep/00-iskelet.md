@@ -498,6 +498,37 @@ kutuda — sıra ikilisi tek kutuyu paylaşıyor); kalan yirmi bir tip, yani
 ╚════════════════════════════════════════════════════════════════════╝
 ```
 
+### Kutunun en pahalı satırının GERÇEK SATIRLAR tarafındaki karşılığı
+
+██ Bu kutuda on bir gözlem var; kaynağa tek bir satır bağlanacaksa hangisi? ██
+Seçimi kutunun kendisi söylüyor — `Combatant` satırındaki
+«sonucu : B6'daki bütün olay zinciri bu tek eksiklikten doğuyor».
+
+**PROJE TİPİ: `Combatant`'ın eksiği, kaynakta** — `Assets/Game/Battle/Battle.cs` → `AddUnit`
+
+```csharp
+Action<UnitState, UnitState> forwarder =
+    (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — bu satır **`Combatant.cs`'te değil**, ve seçilme sebebi
+tam olarak bu: kutudaki «`Combatant` BİLMEZ : ██ KENDİ KİMLİĞİNİ ██» satırının
+karşılığı, `Combatant`'ta **olmayan** bir alan. Bir yokluğun kaynakta satırı
+olmaz; onun yerine, o yokluğu telafi eden satır gösterilir. Burada olan şu:
+`Combatant.StateChanged` yalnız «bir durum değişti» diyebiliyor, «HANGİ birim»
+diyemiyor; eksik kimliği bu kapanış dışarıdan ekliyor — `unit`i yakalayıp
+`UnitStateChanged`e üç parametreyle geçiriyor.
+
+Aynı satır kutunun iki gözlemini daha aynı anda kapatıyor: `UnitGrid` satırındaki
+«BİLMEZ : tuttuğu şeyin ne olduğunu» (tahta kimliği tutar, savaşçıyı bilmez) ve
+`Battle` satırındaki «bilir : kim nerede · kim hangi savaşçı» — ikisini
+buluşturan tek yer burası. ██ Kutuda üç ayrı satır olarak duran şey, kaynakta tek
+bir ifade. ██
+
+Mekanizmanın tamamı (`Target`/`Method`, kapanışın neden saklandığı, sökülmezse ne
+olduğu): [dil/06-delege-arka-taraf.md](dil/06-delege-arka-taraf.md) ve
+[konular/01-olay-zinciri.md](konular/01-olay-zinciri.md).
+
 ---
 
 ## 5. Okuma sırası — hangi soru hangi dosyaya gider

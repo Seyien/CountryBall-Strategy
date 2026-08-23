@@ -133,6 +133,120 @@ seçim. Hangisinin hangisi olduğu ikinci durakta.
         nesnenin kendi tipinin yazılışıdır.
 ```
 
+### Beş kutunun gerçek satır karşılığı
+
+Kutular **ne vaat edildiğini** yazıyor. Aşağıdaki beş blok o vaadin bu projede
+**hangi satırda** yaşadığını yazıyor. Beşi de ödünç: tanımları C# derleyicisinde,
+bizde değil — bu yüzden aranan şey "nerede tanımlı" değil, ██ "nerede
+karşılaşıyorsun" ██.
+
+**`readonly` bu projede** — `Assets/Game/Battle/Battle.cs` → `board`
+
+```csharp
+private readonly UnitGrid board;
+```
+
+Kutudaki «BİLMEZ: baktığı nesnenin içinde ne olduğunu» satırının karşılığını
+alanın kendi yorumu zaten yazmış:
+
+```csharp
+// Koruma readonly'den gelmiyor: dışarıda referansın HİÇ doğmamasından.
+```
+
+`board`un gösterdiği tahtaya her turda yazılıyor ve `readonly` o yazmaların
+hiçbirini görmüyor. Tahtayı koruyan şey kurucunun dışarıdan bir `UnitGrid`
+**almaması** — bir tasarım kararı, anahtar kelime değil.
+
+**`const` bu projede** — `Assets/Game/Battle/TurnRules.cs` → `MaxActionsPerTurn`
+
+```csharp
+public const int MaxActionsPerTurn = 1;
+```
+
+Kutudaki «BİLMEZ: değeri KOPYALAYAN assembly'nin yeniden derlenip
+derlenmediğini» satırının karşılığı bu sayının **okunduğu iki yerde**. Biri
+kendi derleme biriminde, `Assets/Game/Battle/TurnRules.cs` → `CanAct`:
+
+```csharp
+return actionsUsedThisTurn < MaxActionsPerTurn;
+```
+
+Öteki assembly duvarının ARKASINDA,
+`Assets/Tests/EditMode/Battle/TurnRulesTests.cs` → `MoveAndAttack_ShareOneBudgetToday`:
+
+```csharp
+Assert.That(TurnRules.MaxActionsPerTurn, Is.EqualTo(1));
+```
+
+Kutunun körlüğü yalnız ikincisinde bir bedele dönüşüyor: o test DLL'inin
+IL'inde artık `MaxActionsPerTurn` diye bir ad yok, düz `1` var. Üçüncü durak o
+kopyanın nerede yalan söylemeye başlayacağını ölçüyor.
+
+**`static readonly` bu projede** — `Assets/Game/Battle/TurnState.cs` → `DefaultTurnOrder`
+
+```csharp
+public static readonly IReadOnlyList<Team> DefaultTurnOrder =
+    Array.AsReadOnly(new[] { Team.Player, Team.Enemy });
+```
+
+Üretim kodundaki **tek** `static readonly` bu; seçilecek ikinci bir kullanım
+yok. (Ölçü, `Assets/` tamamı: ikinci bir tane testlerde duruyor —
+`Assets/Tests/EditMode/Unity/UnitViewTests.cs` → `AuthoredColor`. Yukarıdaki
+sayım tablosu üretim kodunu sayıyor.)
+Kutudaki «BİLMEZ: hiçbir sabit-bağlamda (varsayılan parametre, `case`,
+attribute) kullanılamayacağını» satırının karşılığı ise bu dosyada değil,
+`Assets/Game/Core/Combat/UnitLifecycle.cs` → `UnitLifecycle` kurucusunda
+görünüyor:
+
+```csharp
+public UnitLifecycle(
+    float downedWindowSeconds = DefaultDownedWindowSeconds,
+    float corpseWindowSeconds = DefaultCorpseWindowSeconds)
+```
+
+O iki varsayılan bir **sabit bağlam**. `DefaultDownedWindowSeconds` bugün
+`const`; `static readonly` yapılsaydı bu satır derlenmez, derleyici **CS1736**
+verirdi ("Default parameter value for … must be a compile-time constant"). Yani
+`const` ile `static readonly` arasındaki seçim burada serbest değil — kullanım
+yeri seçimi kapatmış.
+
+**`{ get; }` bu projede** — `Assets/Game/Battle/Battle.cs` → `Turn`
+
+```csharp
+public TurnState Turn { get; }
+```
+
+Projedeki on `{ get; }` üyesinden dokuzu değişmez bir şey döndürüyor (`int`,
+`string`, `enum`, ya da kendi de yalnız `{ get; }` taşıyan `AttackProfile`).
+Kutudaki «BİLMEZ: döndürdüğü nesnenin değişip değişmediğini» satırını
+gösterebilen tek üye bu — ve farkı XML belgesi kendi yazıyor:
+
+```csharp
+/// Nesnenin KENDİSİ değişkendir (<see cref="TurnState.EndTurn"/>);
+/// değiştirilemez olan, hangi nesne olduğudur.
+```
+
+`Turn.EndTurn()` çağrısı bu property'ye hiç dokunmadan savaşın sırasını
+değiştiriyor.
+
+**`sealed` bu projede** — `Assets/Game/Core/Combat/Health.cs` → `Health`
+
+```csharp
+public sealed class Health
+```
+
+Kutudaki «BİLMEZ: alanlarının işaret ettiği nesnelerin kaç sahibi olduğunu»
+satırının karşılığı `Assets/Game/Core/Combat/Combatant.cs` → `health`
+alanında:
+
+```csharp
+private readonly Health health;
+```
+
+`Health` mühürlü, `Combatant` mühürlü, alan `readonly` — üç kelepçe üst üste, ve
+üçü de aynı `Health` örneğinin iki ayrı `Combatant` tarafından paylaşılmasına
+izin veriyor. Ölçüsü dördüncü durakta.
+
 ---
 
 ## Birinci durak: `readonly` — slot kilitli, içerik serbest
@@ -385,7 +499,9 @@ değil, **kuralın adını görünür kılma** kararı.
 > altındaki `FirstTurnNumber`
 > **BAK:** iki bildirim yan yana. Biri `static readonly`, öteki `const` — ve fark
 > üslup değil: birincinin sağ tarafı bir `new`, `const` böyle bir ifadeyi kabul
-> etmez. Projedeki **tek** `static readonly` bu satır.
+> etmez. Üretim kodundaki **tek** `static readonly` bu satır. (Depoda ikinci bir
+> tane var: `Assets/Tests/EditMode/Unity/UnitViewTests.cs` → `AuthoredColor`.
+> Ölçüldü 2026-08-24; "projedeki tek" yazan önceki hâli yanlıştı.)
 > **DÖNÜŞ:** bu dosyanın «Serbest seçim olan üçü ve `const`'un assembly sınırında yaptığı şey» bölümü
 
 ---

@@ -115,6 +115,122 @@ girer. Geri kalan her şey bunun sonucu.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### Dört kutunun GERÇEK SATIRLAR tarafındaki karşılığı
+
+Yukarıdaki dört kutu ödünç alınmış makineyi anlatıyor. Aşağıdaki dört blok o
+makinenin bu depoda hangi satırda çalıştığını gösteriyor. ██ Dördü de ÖDÜNÇ TİP,
+yani gösterilen yer **tanım yeri değil KULLANIM YERİDİR** ██ — `System.Delegate`'i
+biz yazmadık, onu çalıştıran satırı biz yazdık.
+
+**`System.Delegate` bu projede** — `Assets/Game/Core/Combat/Combatant.cs` → `Combatant(...)` kurucusu
+
+```csharp
+this.lifecycle.StateChanged += OnLifecycleStateChanged;
+```
+
+Kutudaki «İKİ ALANLI bir NESNE tutar — Target ve Method» satırının karşılığı tam
+bu satır: burada bir delege nesnesi DOĞUYOR. `Target` = kurulmakta olan
+`Combatant` örneği (`this`), `Method` = `OnLifecycleStateChanged`. Kutunun
+«BİLMEZ: Target'ın kurulmayı bitirip bitirmediğini» satırı da buradan okunuyor —
+`Target` bu satırda kurulmayı HENÜZ BİTİRMEMİŞTİR; kurucunun gövdesi bir satır
+sonra kapanıyor, ama araya bir doğrulama girseydi `lifecycle`'ın çağrı listesinde
+yarım bir nesne kalırdı. ██ Kutunun «BU DOSYANIN TAMAMI BU SATIRDAN ÇIKIYOR»
+işareti işte bu `.cs` satırını gösteriyor ██ — beşinci durak baştan sona bunun
+üstüne kurulu.
+
+**`MulticastDelegate` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `OnHealthDepleted`
+
+```csharp
+SetState(UnitState.Downed);
+remainingSeconds = downedWindowSeconds;
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — bu kutunun iki yarısı ayrı yerlerde okunuyor ve yalnız
+biri kaynakta var. `GetInvocationList()` yarısının **bu projede karşılığı YOK**:
+`Assets/` altında sıfır eşleşme, bu yüzden birinci duraktaki `DescribeSubscribers`
+ölçüsü üyeyi GEÇİCİ olarak ekletiyor. Doğacağı koşul: bir aboneyi adıyla teşhis
+etmek gerektiği gün. `Invoke` yarısının karşılığı ise burada ve üretimde duran en
+pahalı iki satır bunlar. Kutunun «BİLMEZ: abonelerin birbirini — biri patlarsa
+ötekini KURTARMAZ ██ Invoke try/catch TAŞIMAZ ██» satırı tam olarak bu iki satırın
+**arasından** geçiyor: birinci satır içeride `StateChanged?.Invoke(next)`
+çalıştırıyor; bir abone fırlatırsa istisna oradan yukarı çıkar ve kurtarma
+penceresinin süresini kuran ikinci satır hiç çalışmaz.
+
+> ██ YOKLUK SENEDİ ██ — `GetInvocationList()`
+>
+> **① HANGİ ÖZELLİK:** Oyuncu bugün bir birim öldüğünde ekranda yalnızca
+> tahtanın boyandığını görüyor. Kaç düşmanın kaldığını, kazanmaya ne kaldığını
+> hiçbir yerde okuyamıyor. Zafer koşulu paneli geldiği gün aynı ölüm iki iş
+> birden yapacak: tahta boyanacak ve "kalan düşman" sayacı bir düşecek.
+>
+> **② NEREYE BAĞLANIR:** `Assets/Game/Battle/Battle.cs` → `AddUnit`. Yükseltmeyi
+> yapan yönlendirici kapanış bu metodun içinde kuruluyor. İkinci durak
+> `Assets/Game/Unity/BoardAdapter.cs` → `OnEnable`; bugünkü tek abone orada
+> bağlanıyor ve panel de onun yanına girecek.
+>
+> **③ NE KIRAR:** Bugünkü yükseltme ne `try`/`catch` taşıyor ne de abone başına
+> yalıtım. Tek abone varken bu görünmüyor. İkinci abone panel olduğu gün panelin
+> fırlattığı bir istisna çağrı listesini ortadan kesiyor. `BoardAdapter` o ölümü
+> hiç duymuyor ve az önce ölen birim tahtada ayakta kalıyor. Hangi test kızarır?
+> Bugün hiçbiri: `Assets/Tests/EditMode/Battle/BattleTests.cs` dört
+> `UnitStateChanged` testi taşıyor ve dördü de tek abone kuruyor. Fırlatan abone
+> kuran testi yazmak o günün ilk borcudur.
+>
+> **④ KARARMETRE:** `GetInvocationList()` hiç var olmasaydı da zafer koşulu
+> paneli istenir miydi? EVET. Zafer koşulunu göstermeyen bir strateji oyunu
+> eksiktir; bu özellik oyunun yol haritasında duruyor, dilin yol haritasında
+> değil. Mekanizmayı elverişliden zorunluya çeviren değişmez şudur:
+> ██ tahta, hangi birimin canlı olduğu konusunda asla yalan söylemeyecek ██.
+> Bu cümle olmadan iki abone de sorunsuz çalışır. Bu cümleyle biri ötekini
+> susturamaz, ve abone başına yalıtımın tek yolu çağrı listesini elle gezmektir.
+>
+> **⑤ ARAŞTIRMA BORCU:** GEREKİYOR, adresi `performance-research`. Soru üç
+> parçalıdır. (a) `Delegate.GetInvocationList()` her çağrıda yeni bir dizi
+> tahsis ediyor mu, üç elemanlı bir liste için çağrı başına kaç bayt düşüyor?
+> (b) `AddUnit` ile `RemoveUnit` listeyi değiştirdiğine göre dizi iki yükseltme
+> arasında önbelleğe alınabilir mi, geçersizleştirme hangi üyeye düşer?
+> (c) Her elemanı somut temsilci tipine çevirip doğrudan çağırmak,
+> `Delegate.DynamicInvoke`'un IL2CPP altında taşıdığı yansıma maliyetinden
+> kaçınıyor mu? Kanıt biçimi tarihli birincil kaynak ile yerel bir EditMode
+> tahsis ölçümüdür.
+
+**`Delegate.Combine` / `Delegate.Remove` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `OnEnable`
+
+```csharp
+private void OnEnable()
+{
+    battle.UnitStateChanged += OnUnitStateChanged;
+}
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde üç `+=` var (`Combatant` kurucusu,
+`Battle.AddUnit`, `BoardAdapter.OnEnable`); seçilen bu, çünkü kutunun İKİ adı da
+yalnız burada yan yana duruyor: aynı dosyanın birkaç satır aşağısındaki `OnDisable`
+`battle.UnitStateChanged -= OnUnitStateChanged;` satırıyla `Delegate.Remove`
+tarafını yazıyor. Kutudaki «her çağrıda ██ YENİ NESNE ██; verilenler kımıldamaz»
+satırının karşılığı bu `+=`; kutunun «BİLMEZ: aynı hedef+metodun listeye ikinci
+kez girdiğini — ELEMEZ. Remove yalnız SONUNCU eşleşmeyi çıkarır.» satırının
+faturası da burada kesiliyor: `OnEnable` bir `OnDisable` görmeden ikinci kez
+çağrılırsa `Combine` şikâyet etmez, aynı abone listeye iki kez girer ve tek bir
+`-=` yalnız sonuncusunu çıkarır. Simetriyi tutan tek şey bu iki metodun çifti.
+
+**`event` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `StateChanged`
+
+```csharp
+public event Action<UnitState> StateChanged;
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde üç `event` bildirimi var
+(`UnitLifecycle.StateChanged`, `Combatant.StateChanged`, `Battle.UnitStateChanged`);
+seçilen bu, çünkü ikinci duraktaki CS0070 ölçüsü de bunun üstünde koşuyor.
+Kutudaki «TEK alan gibi yazılır, ÜÇ üye üretir (gizli alan + add_X + remove_X)»
+satırının karşılığı tam bu satır: yazılan bir tane, derleyicinin ürettiği üç tane.
+Kutunun «BİLMEZ: ██ İÇERİDE hiçbir şey ██ — bildiren tipin gövdesi gizli alanı
+sıradan bir alan gibi görür» satırı ise aynı dosyanın `SetState` metodundaki
+`StateChanged?.Invoke(next);` satırından okunuyor: o satır bildiren tipin
+**içinde** olduğu için derleniyor, `Combatant.cs`'e taşınsaydı CS0070 verirdi.
+Duvarı kuran `event`, duvarın içinde kalan tarafa hiçbir şey yapmıyor.
+
 ---
 
 ## Birinci durak: delegenin İÇİ — `Target` + `Method`
@@ -535,10 +651,29 @@ BattleTests.UnitStateChanged_IsNotWiredByARejectedAdd
    ►  log.Count == 0  ██ reddedilen ekleme TEK BİR abone bırakmadı ██
 ```
 
-`Combatant` kurucusunda bu testin karşılığı **yok**: kurucu fırlattığında elinde
+`Combatant` kurucusunda bu testin karşılığı **yok**: kurucu fırlattığında elinde <!-- YOK-MUAF · KAPSAM DIŞI · gerekçe aşağıda -->
 sınayacak bir nesne kalmıyor, testin şekli de farklı olmak zorunda (birinci
 duraktaki `DescribeSubscribers` gibi bir ölçü üyesi gerekirdi). Kuralı bugün
 tutan şey testler değil, satır sırası.
+
+> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+>
+> **NEDEN SENET YAZILMADI:** Yukarıdaki cümle bir mekanizmanın değil bir TESTİN
+> yokluğunu hükmediyor. Senedin birinci alanı oyunda görünen bir özellik ister.
+> Bir test ise oyuncunun ekranında hiçbir şeyi değiştirmez, dolayısıyla ① bu
+> şekle oturmuyor. Bu borcun doğru sahibi başka bir senedin ③ alanıdır: kural
+> "hangi test kızarır" sorusunu orada sorar ve "bugün hiçbiri" cevabını orada
+> meşru sayar. Bu dosyanın `GetInvocationList()` senedi ③ alanında tam olarak
+> öyle bir borç taşıyor.
+>
+> **VURGU NEYİ İŞARETLİYOR:** Buradaki kalın `yok` bir hükmün altını çizmiyor,
+> cümlenin cevap sözcüğünü kalınlaştırıyor. Kapı bu lehçeyi zaten kapsam dışında
+> tutuyor. Anma yine de kapsama girdi, çünkü taramada `karşılık` lehçesi o
+> konumu önce tuttu ve cevap sözcüğünü içine aldı.
+>
+> **BORÇ SİLİNMEDİ:** Testin şekli belgede yazılı duruyor. Kurucu fırlattığında
+> elde sınayacak bir nesne kalmıyor ve bir ölçü üyesi gerekiyor. Kuralı bugün
+> tutan şeyin satır sırası olduğu da bir üstteki cümlede yazılı.
 
 ### İŞ BÖLÜMÜ: ⑤ ile ⑥ örtüşmez, bölüşür
 

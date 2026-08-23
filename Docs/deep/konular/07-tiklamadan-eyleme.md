@@ -98,6 +98,96 @@ Bu satır ölçülmüş bir gerçek, tahmin değil: `Core` derlenirken `UnityEng
 hiç bakmaz. Dolayısıyla `PointerGesture` içine bir `Input.GetMouseButton`
 yazıldığı gün dosya **derlenmez** — ve bütün hikâye o duvarın etrafında dönüyor.
 
+### Kutudan gerçek satıra — her kutunun kod karşılığı
+
+Kutular **rolü** anlatıyor; bu bölüm o rolün **hangi satırda** durduğunu
+gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.
+
+**`BoardAdapter` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `UpdatePlacement`
+
+```csharp
+PointerPhase phase = FeedGesture(worldX, worldY);
+
+switch (phase)
+```
+
+Kutudaki «██ BİR JESTİN NE OLDUĞUNU ██ — "bu tıklama mıydı" sorusunu kendisi
+cevaplamaz, SORAR» satırının karşılığı bu iki satırın **sırasıdır**: birincisi
+soruyu dışarı veriyor, ikincisi yalnızca gelen cevaba bakıyor. Arada bir karar
+satırı yok — bu dosyada eşiği karşılaştıran, mesafe kareleyen ya da "yeterince
+uzağa gitti mi" diye soran hiçbir satır bulunmuyor. `phase` bir yerel değişken;
+bir sonraki kareye taşınan hâl adaptörde değil, `PointerGesture` örneğinde
+yaşıyor.
+
+**`PointerGesture` bu projede** — `Assets/Game/Core/PointerGesture.cs` → `MoveTo`
+
+```csharp
+public PointerPhase MoveTo(float x, float y)
+{
+    if (Phase != PointerPhase.Pressed)
+    {
+        return Phase;
+    }
+
+    if (ExceedsDragThreshold(x, y))
+    {
+        Phase = PointerPhase.Dragging;
+    }
+
+    return Phase;
+```
+
+Kutudaki «██ CİHAZI ██ hangi düğme, kaç saniye, hangi hücre, hangi kamera,
+hatta eşiğin BİRİMİ bile» satırının karşılığı **imzanın kendisidir**: iki çıplak
+`float`. `Vector2` bile değil — o tip `UnityEngine`'de yaşıyor ve bu assembly onu
+göremiyor. Birimin bilinmediği de imzada görünüyor: parametrelerin adı `x` ve
+`y`, piksel mi dünya birimi mi olduklarını söyleyen hiçbir şey yok. İlk `if` ise
+kutunun «içinde bulunduğu kip» satırının karşılığı: kip yalnız `Pressed` iken
+yeniden hesaplanıyor, `Dragging`'den geri dönen bir yol yazılmamış.
+
+**`PointerPhase` bu projede** — `Assets/Game/Core/PointerGesture.cs` → `Idle`
+
+```csharp
+/// <summary>Basılı değil; ortada bir jest yok.</summary>
+Idle = 0,
+```
+
+Kutudaki «hiçbir şey — o bir sözlük, bir aktör değil» satırının karşılığı bu iki
+satırın **eksiği**: bir metot yok, bir alan yok, bir `=>` yok. Tipteki tek
+açık sayı `= 0` ve o bile karar vermiyor, yalnızca `default` ile doğan alanın
+"hiç basılmadı" demesini sağlıyor. Kutunun «(enum, aynı dosyada)» başlığının
+karşılığı da bu yoldur: dosyanın adı `PointerGesture.cs`, ama içindeki ilk tip
+`PointerPhase`.
+
+**`BattleActions` bu projede** — `Assets/Game/Battle/BattleActions.cs` → `Move`
+
+```csharp
+public static MoveOutcome Move(Battle battle, Unit unit, int toX, int toY, int moveRange)
+```
+
+Kutudaki «██ NİYETİ ██ fare diye bir şey duymadı; ona göre her çağrı zaten
+kasıtlıdır» satırının karşılığı bu tek satırdır: savaş, birim, iki hücre indeksi
+ve bir menzil. İmzada `PointerPhase` yok, "sürükledi mi" diye bir `bool` yok,
+"oyuncu gerçekten istedi mi" diye sorulacak bir parametre yok. Niyet duvarın öteki
+tarafında — `BoardAdapter.HandleOccupiedCellClick` içindeki "kendi üstüne
+tıklamak seçimi bırakır" dalı bir NİYET dalıdır ve bu imzaya hiç ulaşmaz.
+
+**`UnitView` bu projede** — `Assets/Game/Unity/UnitView.cs` → `SetSelected`
+
+```csharp
+selectionOverlay.enabled = isSelected;
+
+// "Seçili miyim" bilgisi burada SAKLANMIYOR. Tek doğruluk kaynağı
+// BoardAdapter.selectedUnit; ikinci bir bool ikisini kaydırırdı.
+```
+
+Kutudaki «"seçili miyim" diye SORULACAK bir yeri yok» satırının karşılığı ilk
+satırın **sağ tarafının nereye gittiğidir**: `isSelected` bir alana değil,
+doğrudan çizicinin `enabled` özelliğine yazılıyor. Metodun dönüşü `void`, tipte
+`IsSelected` diye bir üye yok — soru sorulacak bir kapı bırakılmamış. Kutunun
+«`Unit` tipini» satırı da ölçülebilir: bu dosyada `Unit` sözcüğü yalnız üç
+satırda geçiyor ve üçü de yorum ya da metin dizesi içinde; kodda hiç geçmiyor.
+
 ---
 
 ## Birinci durak: aynı basış, iki ayrı yol
@@ -702,7 +792,8 @@ Battle.cs:289             throw new ArgumentException("The unit is already in th
 tıklanarak doğuyor.
 
 ```
-BoardAdapter.cs:361   if (selectedUnit == null)
+BoardAdapter.cs:359   private void TryEnterPlacementMode()
+BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
 ```
 
 ██ Hangi hücrede ne olduğu ölçüldü — üç dal, ve **sağlıklı** iki dalı ret

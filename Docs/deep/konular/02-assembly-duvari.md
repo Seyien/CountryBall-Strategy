@@ -96,6 +96,109 @@ başka hiçbir şey tarafından değil.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+
+██ **Bu dördü AKTÖR kutusudur, tip kutusu değil.** ██ Hiçbirinin bir `.cs` tanım
+satırı **yok** ve aranmamalı: bir assembly bir sınıf gibi bildirilmez, bir JSON
+dosyasıyla kurulur. Bu yüzden aşağıda her kutu için **iki** satır var — kilidi
+**kuran** satır (`.asmdef`) ve o kilidin faturasını **ödeyen** satır (`.cs`).
+Kutunun iddiası ancak ikisi yan yana konunca ölçülebiliyor. ██ Satır numarası
+bilerek yazılmıyor: satır kayar, anahtar adı kaymaz. ██
+
+**`GridStrategy.Core` bu projede** — kilidi kuran satır:
+`Assets/Game/Core/GridStrategy.Core.asmdef` → `references`
+
+```json
+  "references": [],
+```
+
+Faturayı ödeyen satır: `Assets/Game/Core/MoveOutcome.cs` → `RejectedActorCannotAct`
+
+```csharp
+        /// <summary>
+        /// Hareket eden şu an eylem yapamaz: sırası değil ya da durumu
+        /// elvermiyor (<c>MovementRules.CanMove</c> — bu tipin GÖREMEDİĞİ bir
+        /// kural). Bu değeri yalnızca <c>GridStrategy.Battle</c> katmanı üretir.
+        /// </summary>
+        RejectedActorCannotAct
+```
+
+Kutudaki «BİLMEZ : can, hasar, taraf, yaşam döngüsü, sıra, motor» satırının en
+pahalı sonucu bu: `MoveOutcome` Core'da **tanımlı**, ama bu değerin cevabını
+veren `MovementRules` Combat'ta. Üstteki boş dizi o adı burada aranamaz kılıyor,
+dolayısıyla tip kendi değerini üretemiyor. Kutunun "bilmez" listesi bir üslup
+değil, bir enum değerinin doğum yerini kaydıran bir kısıt.
+
+**`GridStrategy.Combat` bu projede** — kilidi kuran satır:
+`Assets/Game/Core/Combat/GridStrategy.Combat.asmdef` → `references`
+
+```json
+  "references": [],
+```
+
+Faturayı ödeyen satır: `Assets/Game/Core/Combat/AttackAction.cs` → `Execute`
+
+```csharp
+        public static AttackOutcome Execute(Combatant attacker, Combatant target, int distance)
+```
+
+Kutudaki «BİLMEZ : ██ TAHTAYI ██ hücre yok, koordinat yok, uzaklık yok» satırı
+bu imzada tek bir kelimeye iniyor: `int distance`. Uzaklık **ölçülmüş** olarak
+geliyor; ölçen tip Core'da ve üstteki boş dizi onun adını bu dosyada aranamaz
+kılıyor. Duvarı geçen şeyin bir sayı olduğu, gözle görülebilir biçimde, bu
+parametre listesinde yazılı.
+
+**`GridStrategy.Battle` bu projede** — kilidi kuran satır:
+`Assets/Game/Battle/GridStrategy.Battle.asmdef` → `references`
+
+```json
+  "references": [
+    "GridStrategy.Core",
+    "GridStrategy.Combat"
+  ],
+```
+
+Faturayı ödeyen satır — burada fatura değil **kazanç**:
+`Assets/Game/Battle/Battle.cs` → `combatants`
+
+```csharp
+        private readonly Dictionary<Unit, Combatant> combatants =
+            new Dictionary<Unit, Combatant>();
+```
+
+Kutudaki «İki kutuyu AYNI ANDA gören ilk yer» satırının karşılığı bu tek
+bildirimde görülebiliyor: `Unit` `GridStrategy.Core`'un tipi, `Combatant`
+`GridStrategy.Combat`'ın tipi ve ikisi aynı satırda yan yana **yazılabiliyor**.
+Üstteki iki adı `references` dizisinden silersen derlenmeyen ilk satır bu olur.
+
+**`GridStrategy.Unity` bu projede** — kilidi kuran satır:
+`Assets/Game/Unity/GridStrategy.Unity.asmdef` → `noEngineReferences`
+
+```json
+  "noEngineReferences": false
+```
+
+Faturayı ödeyen satır: `Assets/Game/Unity/BoardAdapter.cs` → `using Battle` alias'ı
+
+```csharp
+    using Battle = global::GridStrategy.Battle.Battle;
+```
+
+Kutudaki «noEngineReferences : ██ FALSE ██» satırı motorun projeye girdiği tek
+kapı — üç kutuda `true`, yalnız burada `false`. Alttaki alias ise aynı kutunun
+`references` dizisine `GridStrategy.Battle` yazmanın kesilen faturası: tek bir
+`Battle` kelimesi hem bir ad alanını hem onun içindeki sınıfı adlandırıyor,
+çıplak yazıldığında ad alanı kazanıyor ve derleyici **CS0118** veriyor. Kutunun
+"çevirmenlik" işi burada bir satırlık bakım borcuna dönüşüyor; gerekçesinin
+tamamı o satırın hemen üstünde, kodun kendi yorumunda.
+
+██ **DERLEYİCİNİN KENDİSİ İÇİN AYRI BİR KUTU YOK — ve olmamalı.** ██ Yukarıdaki
+dört kutunun hiçbiri derleyiciyi adlandırmıyor, ama dördünün de uygulayıcısı o.
+Derleyicinin bu projedeki gözlemlenebilir karşılığı bir dosya ya da üye değil,
+**bir hata kodu**: `CS0118`. Nerede doğduğu yazılı — `BoardAdapter.cs`'teki
+alias satırı dosyanın **başına**, öteki `using`'lerin yanına taşınırsa geri
+gelir. Metin harfi harfine aynı, sonuç zıt.
+
 Dört kutunun en tuhaf yanı ilk ikisinde: **Core ile Combat kardeş.** Ne biri
 diğerini görüyor, ne de tersi. İkisinin de `references` dizisi harfi harfine
 `[]`.
@@ -377,7 +480,22 @@ farklı assembly'lerde:
 Ayıran ölçüt kelime değil, **tipin ihtiyaç duyduğu kavramın hangi kutuda
 yaşadığı**. `MoveProfile`'ın ihtiyacı olan her şey — hücre, uzaklık, sınır —
 zaten Core'da. `AttackProfile`'ın yanında `Damage` var ve hasarın Core'da
-karşılığı olan bir kavram **yok**.
+karşılığı olan bir kavram **yok**. <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette -->
+
+> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — Core'da bir hasar kavramı
+>
+> **GEREKÇE:** Bu cümle bir ölü son değil, bir YERLEŞTİRME gerekçesidir. Hasar
+> Core'da bir kavram olarak yaşamadığı için `AttackProfile` bir kat ötede
+> doğuyor. ① dolmuyor. En güçlü aday tuzak hücresidir: oyuncu bir gün bazı
+> hücrelere basınca canının yandığını görebilir. O özellik bile hasarı Core'a
+> taşımıyor. Hücrenin tehlikeli olduğu bilgisi Core'da yaşar, hasarı uygulayan
+> kural `DamageRules` ile birlikte Combat'ta kalır, ve ikisini bir araya getiren
+> çağrıyı `Battle` yapar. Bugün iki kutu birbirini zaten tanımıyor: hem
+> `GridStrategy.Core`'un hem `GridStrategy.Combat`'ın `references` dizisi boştur.
+>
+> **④ HAYIR.** Core'un hasarı öğrendiği gün bu bölümün ölçtüğü duvar ortadan
+> kalkar. Yani burada uydurulabilecek şey mekanizmayı zorunlu kılan bir özellik
+> değil, bölümün tezini yıkan bir özellik olurdu.
 
 İki eşik bile ayrışıyor ve bu asimetri kasıtlı: `MoveProfile` kurucusu
 `range < 0` ile keser (sıfır geçerli — "kök salmış birim"), `AttackProfile`

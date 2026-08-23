@@ -70,6 +70,69 @@ Dört tip var. Hikâyeyi ilginç kılan, üçüncüsünün **bilmediği** şey.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+
+Dört kutunun dördü de bu projede yaşayan tip. Aşağıda her biri için tanımın
+yeri, iddiayı karşılayan **gerçek satır**, ve kutunun hangi ifadesinin o satırda
+okunduğu duruyor. ██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı
+kaymaz. ██
+
+**`UnitGrid` bu projede** — `Assets/Game/Core/UnitGrid.cs` → `cells`
+
+```csharp
+        private readonly Unit[,] cells;
+```
+
+Kutudaki «Bilir : kendi ölçüsü, hücre içerikleri, sınırın yeri» ve «BİLMEZ : …
+Kendi SAHİBİNİ» satırlarının **ikisi de** bu tek alanda okunuyor: tipin başka
+alanı yok. İçerik bu dizide; ölçü ayrı bir alanda tutulmuyor, `Width` ile
+`Height` bu diziden okuyor; ve dizinin yanında "sahibim şu" diye yazılacak
+ikinci bir alan yok. Bilmemek bir eksiklik değil, **yazılacak yerin hiç
+açılmamış olması**.
+
+**`Battle` bu projede** — `Assets/Game/Battle/Battle.cs` → `Battle(int, int)`
+
+```csharp
+        public Battle(int width, int height)
+        {
+            board = new UnitGrid(width, height);
+```
+
+Kutudaki «Bilir : tahtayı (KENDİ kurduğu)» satırının parantez içi kısmı tam
+olarak bu üç satır: kurucunun parametre listesinde `UnitGrid` **yok**, iki `int`
+var, ve nesne kurucunun **içinde** doğuyor. Parantezdeki "KENDİ" kelimesi bir
+vurgu değil, bu `new`'in yerinin adı.
+
+**`BoardAdapter` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `battle`
+
+```csharp
+        // Tahtanın ve savaşın durumu BURADA DEĞİL, Battle'ın içinde yaşar; bu
+        // alan yalnızca o bütüne bir tutamaktır. Burada bir UnitGrid alanı vardı
+        // ve silinmesi bu dosyanın en pahalı satırı: tahtaya yazan tek yol artık
+        // Battle.AddUnit. → BoardAdapter.md#battle
+        // DERİN ANLATIM: Docs/deep/konular/03-tahta-sahipligi.md
+        private Battle battle;
+```
+
+Kutudaki «BİLMEZ : ██ TAHTAYI ██ — ve bir zamanlar biliyordu» satırının **iki
+yarısı da** bu blokta yazılı: bugünkü tek alan `Battle`, ve silinen `UnitGrid`
+alanının bir zamanlar burada durduğu kodun kendi yorumunda kayıtlı. Kutunun "bir
+zamanlar" dediği şey bu belgenin hatırlaması değil, kaynağın kendi kaydı.
+
+**`BattleActions` bu projede** — `Assets/Game/Battle/BattleActions.cs` → `Move`
+
+```csharp
+            MoveOutcome outcome =
+                MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
+```
+
+Kutudaki «tahtayı GÖREBİLİYOR» ve «BİLMEZ : — ◄── ██ garantinin bittiği yer
+burası ██» satırlarının ikisi de tek bir ifadede toplanıyor: `battle.Board`.
+`Board` üyesi `internal`, yani kapı yalnız aynı assembly'ye açık — ama açık. Bu
+ifade projedeki **tek** `battle.Board` çağrısı; ikincisini yazan bir satır
+bugün yok ve onu engelleyen bir şey de yok. Kutunun BİLMEZ hanesinin boş olması
+bu yüzden bir övgü değil, bir **uyarı**.
+
 En tuhafı üçüncüsü: **`BoardAdapter` tahtayı bilmiyor.**
 
 Bu bir eksiklik değil, kapanmış bir borç. O tipte bir `private UnitGrid board;`
@@ -130,7 +193,7 @@ board.PlaceUnit(x, y, unit);      // tahtaya girdi
 ```
 
 Tahtada bir `Unit` duruyor. Ekranda görseli var. Tıklanabiliyor. Ama
-`Battle.combatants` sözlüğünde o `Unit`'in karşılığı **yok** — çünkü kayda giden
+`Battle.combatants` sözlüğünde o `Unit`'in karşılığı **yok** — çünkü kayda giden <!-- YOK-MUAF · KAPSAM DIŞI · çalışma anı olgusu, gerekçe aşağıda -->
 tek yol `Battle.AddUnit`'ti ve o yol atlandı.
 
 Sonra oyuncu ona saldırıyor:
@@ -145,6 +208,18 @@ BattleActions.Attack
 Ekranda duran, tıklanabilen, hedeflenebilen bir asker — ve savaşta olmadığını
 söyleyen bir istisna. Derleyici bu ayrışmayı **gösteremez**. Testler yeşil kalır,
 çünkü testler `Battle`'ı doğrudan kurar ve yan kapıdan hiç geçmez.
+
+> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+>
+> **NEDEN SENET YAZILMADI:** Bu bölümün başındaki cümle bir mekanizmanın
+> yokluğunu hükmetmiyor. O cümle, reddedilen imza seçilseydi ÇALIŞMA ANINDA
+> ortaya çıkacak durumu anlatıyor: tahtaya yan kapıdan giren bir birim kayda hiç
+> girmemiş olurdu. Yani anlatılan şey bir tasarım borcu değil, kaçınılmış bir
+> dünyanın anlık fotoğrafıdır. Senedin birinci alanı o gün kazanılacak bir
+> özellik ister, oysa buradaki tek aday zaten reddedilmiş bir imzadır.
+>
+> **KAPSAMA NEDEN GİRDİ:** Kapının eşiği yazarın kalın işaretine bakıyor,
+> cümlenin kipine bakmıyor. Bu blok o eşiğin bilinen ve yazılı faturasıdır.
 
 ### Ve imzanın söylemediği şey
 

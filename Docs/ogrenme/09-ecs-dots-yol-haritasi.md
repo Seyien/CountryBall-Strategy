@@ -563,7 +563,7 @@ tesadüf değil: `UnitView` bir motor tipi ve `Battle` motoru tanımıyor. ECS't
 dördü de aynı chunk şemasının parçası olurdu ve **assembly duvarı** o gün
 yeniden çizilirdi.
 
-Beşinci bir tablo daha var ve ECS tarafında **karşılığı yok**: tahtanın kendisi.
+Beşinci bir tablo daha var ve ECS tarafında **karşılığı yok**: tahtanın kendisi. <!-- YOK-MUAF · KAPSAM DIŞI · eşleme satırı, gerekçe aşağıda -->
 
 ```
 Assets/Game/Core/UnitGrid.cs:26   public sealed class UnitGrid
@@ -573,6 +573,19 @@ Assets/Game/Core/UnitGrid.cs:28   private readonly Unit[,] cells;
 ██ Bu, bu projedeki **tek bitişik depo**. ██ `Unit[,]` gerçekten ardışık bir
 bellek bloğu — ama içindeki şey veri değil, **referans**. Yani bitişik olan
 oklar; okların gösterdiği nesneler değil.
+
+> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+>
+> **NEDEN SENET YAZILMADI:** Yukarıdaki «Beşinci bir tablo daha var» cümlesi,
+> bu bölümün dört satırlık «BU PROJE / ECS» tablosunun beşinci satırıdır. O
+> satırın boş hücresi ECS sütunundadır.
+> Yani boşluk bu projede değil, karşılaştırılan çerçevededir: ECS hazır bir
+> tahta tipi getirmez. Senedin birinci alanı bu oyunun kazanacağı bir özelliği
+> sorar, ikinci alanı `Assets/` altında bir üye ister, oysa hiçbir oyun özelliği
+> ECS'e bir tip ekleyemez. Bir eşleme hücresine beş alan bağlanmaz.
+>
+> **BU PROJENİN ECS GÜNÜ AYRI BİR SORUDUR** ve sahibi bellidir:
+> [Aşama 5 · ECS / DOTS](02-sonraki-asamalar.md#asama-5-ecs-dots)
 
 **Satır 3 · davranış.** Dört `static class` yukarıda listelendi. Hiçbirinin alanı
 yok, hiçbiri bir küme dolaşmıyor.

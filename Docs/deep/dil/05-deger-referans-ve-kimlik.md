@@ -84,6 +84,79 @@ seçilip ötekinin seçilmediği — hikâye bu.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### Dört kutunun GERÇEK SATIRLAR tarafındaki karşılığı
+
+██ Dördü de ÖDÜNÇ, yani aşağıda gösterilen yer **tanım yeri değil KULLANIM
+YERİDİR** ██ — değer/referans ayrımını da `==`'i de biz tasarlamadık; onları
+çalıştıran satırları biz yazdık.
+
+**DEĞER TİPİ bu projede** — `Assets/Game/Unity/UnitView.cs` → `SetState(UnitState)`
+
+```csharp
+bodyRenderer.color = authoredColor * TintFor(state);
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — kutunun saydığı beş tipten üçü tek satırda: `state` bir
+`enum`, `authoredColor` ile `TintFor`'un döndürdüğü bir `Color`. Seçilme sebebi
+kutunun «BİLMEZ: nereden kopyalandığını. Kaynağa geri yol YOK.» satırının burada
+**görünür bir garantiye** dönüşmesi. Kutudaki «atandığı ve geçirildiği her yerde
+KOPYALANIR» satırı bu satırın iki ayrı yerinde birden okunuyor: `state`,
+`TintFor`'a kopya olarak giriyor ve o gövdede ne yapılırsa yapılsın çağıranın
+parametresi kımıldamıyor; `authoredColor` da çarpıma kopya olarak giriyor, bu
+yüzden prefab'da yazılı özgün renk her `SetState` çağrısında bozulmadan kalıyor.
+Bu iki güvence sözdiziminden değil, tipin değer tipi olmasından geliyor.
+
+**REFERANS TİPİ bu projede** — `Assets/Game/Core/UnitGrid.cs` → `MoveUnit(int, int, int, int)`
+
+```csharp
+Unit moving = cells[fromX, fromY];
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — kutunun adlandırdığı üç tipten (`Unit`, `UnitGrid`,
+`AttackProfile`) ikisi bu tek metotta buluşuyor. Kutudaki «değişken nesneyi DEĞİL,
+nesnenin ADRESİNİ tutar» satırının karşılığı tam bu satır: `moving`'e kopyalanan
+şey askerin kendisi değil, ona giden ok. Aynı metodun son iki satırı
+(`cells[fromX, fromY] = null;` ve `cells[toX, toY] = moving;`) bunu görünür
+kılıyor — hareket eden şey nesne değil **oklar**; `Unit` örneği bellekte hiç
+kımıldamıyor. Kutunun «BİLMEZ: kaç kişinin elinde olduğunu ██ KRİTİK ██» satırı da
+burada: bu iki satırın arasındaki anda aynı `Unit`'e iki ok bakıyor ve dizinin
+bundan haberi yok. ██ Aynı körlüğün bir üst kattaki faturası ██:
+[`../konular/03-tahta-sahipligi.md`](../konular/03-tahta-sahipligi.md).
+
+**`==` bu projede** — `Assets/Game/Unity/UnitView.cs` → `Awake()`
+
+```csharp
+if (selectionOverlay == null)
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — aynı satır `SetSelected` içinde de duruyor; `Awake`'teki
+seçildi, çünkü orada operatörün cevabı bir `LogError`'a bağlanıyor, yani `==`'in ne
+söylediği ekranda görünür hâle geliyor. Kutudaki «tipin SÖYLEDİĞİ şeyi sorar»
+satırının karşılığı tam bu satır: `SpriteRenderer`, `UnityEngine.Object`'ten türüyor
+ve o tip `==`'i AŞIRI YÜKLÜYOR. Bu satır «referans `null` mı» diye sormuyor; «yerel
+tarafta bir eş var mı» diye soruyor — Inspector'da atanmamış bir alan da,
+`Destroy` edilmiş bir nesne de burada `true` üretir. Kutunun «BİLMEZ: senin neyi
+kastettiğini. AŞIRI YÜKLENEBİLİR.» satırı buradan okunuyor: **birebir aynı
+sözdizimi** `Unit` üstünde yazılsaydı sıradan bir referans karşılaştırması olurdu.
+İki tarafın ayrımı ([`07`](07-bellek-canlilik-ve-yikim.md)) bu satırın altında
+yatıyor.
+
+**`ReferenceEquals` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `HandleOccupiedCellClick`
+
+```csharp
+if (ReferenceEquals(clicked, selectedUnit))
+```
+
+██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde iki çağrı var, ötekisi aynı dosyanın
+`DespawnView`'ında; seçilen bu, çünkü bu dosyanın «Sahne» bölümü zaten bu satırı
+gösteriyor ve kutunun vaadi burada bir **karara** dönüşüyor. Kutudaki «cevabı
+hiçbir tip değiştiremez — static, virtual değil, ezilemez» satırının karşılığı tam
+bu satır: `Unit` bir gün `Equals`/`==` ezip adı aynı olan iki birimi "eşit"
+sayarsa bu satırın cevabı yine de değişmez, çünkü aranan şey eşitlik değil TAM O
+NESNEnin kendisi. Kutunun «BİLMEZ: içeriği» satırı da burada bir kusur değil,
+aranan özelliğin ta kendisidir — bir üst satırdaki `==` kutusuyla arasındaki bütün
+fark bu.
+
 ---
 
 ## Birinci durak: kopyalanan mı, paylaşılan mı

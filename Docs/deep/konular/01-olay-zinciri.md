@@ -93,6 +93,66 @@ hikâyeyi ilginç kılan tam olarak bilmedikleri.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+
+Yukarıdaki dört kutu tipleri **tanıtıyor** ama hiçbirinin bu projede nerede
+yaşadığını söylemiyor. Aşağıda her kutu için üç şey var: tanımın yeri, o iddiayı
+karşılayan **gerçek satırın kendisi**, ve kutunun hangi ifadesini o satırın
+karşıladığı. ██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+**`UnitLifecycle` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `SetState`
+
+```csharp
+            StateChanged?.Invoke(next);
+```
+
+Kutudaki «sayaç tutmak … BİLMEZ: kimin sayacı olduğunu» satırının karşılığı bu
+tek satır: yayının taşıdığı **tek** şey `next`. Ne bir `this`, ne bir kimlik, ne
+bir taraf. Sayacın kendi adı bile gönderilmiyor — bilmediği için değil,
+gönderecek bir yeri olmadığı için.
+
+**`Combatant` bu projede** — `Assets/Game/Core/Combat/Combatant.cs` → `StateChanged`
+
+```csharp
+        public event Action<UnitState, UnitState> StateChanged;
+```
+
+Kutudaki «BİLMEZ : ██ KENDİ KİMLİĞİNİ ██» satırı burada okunuyor: açılı
+parantezin içinde **iki** `UnitState` var ve başka hiçbir şey yok. Kimlik
+eklenebilseydi bu satıra eklenirdi — üçüncü bir tür parametresi olarak. Satır
+iki değerde kalıyor.
+
+**`Battle` bu projede** — `Assets/Game/Battle/Battle.cs` → `combatants`
+
+```csharp
+        private readonly Dictionary<Unit, Combatant> combatants =
+            new Dictionary<Unit, Combatant>();
+```
+
+Kutudaki «eşleştirmek. "bu kimlik hangi savaşçı, hangi hücre"» satırının
+karşılığı bu iki satır: eşleme bir sözlük, anahtarı `Unit`, değeri `Combatant`.
+Bir üst kutunun taşıyamadığı kimlik burada **anahtar** olarak duruyor.
+
+**`BoardAdapter` bu projede** — `Assets/Game/Unity/BoardAdapter.cs` → `OnUnitStateChanged`
+
+```csharp
+        private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+        {
+            ApplyStateVisual(unit, to);
+```
+
+Kutudaki «BİLMEZ : savaş kurallarını. Tek satır kural yazmaz.» satırı bu gövdede
+ölçülebiliyor: metodun içinde tek bir `if` yok, tek bir karşılaştırma yok. Gelen
+üç değerin ikisi olduğu gibi bir görsel çağrısına aktarılıyor. Karar yukarıda
+verilmiş; burada yalnız çevriliyor.
+
+██ **BLOK KONMAYAN KUTU — bir tane var ve sebebi yazılı.** ██ «Combatant #1 ·
+StateChanged davet listesi» kutusu ([«Sökülmezse ne olur»](#sokulmezse-ne-olur-ok-yonune-dikkat) bölümünde) bir
+tip kutusu değil, **çalışma anındaki bir davet listesinin** şekli. Kod karşılığı
+zaten aynı dosyada, «Ve işte sözlüğün doğduğu an» bölümünde alıntılı ve yeri
+`Assets/Game/Battle/Battle.cs` → `AddUnit` / `RemoveUnit` olarak orada yazılı.
+İkinci kez yazmak yeni bir yer bilgisi eklemezdi, yalnız tekrar olurdu.
+
 ### ██ KADRO — dört kutu arasındaki ZİNCİR ██
 
 Yukarıdaki dört kutu dört ayrı tipi tanıtıyor ama **aralarındaki oku

@@ -749,7 +749,7 @@ iç durum yarısının var olduğunu zaten yazıyor; borç defteri de "paylaşı
 havuz/fabrika yok" diye adlandırmış.
 
 ██ Buradaki katkı tek cümle: "paylaşılan tanım" iddiasının bugün üretimde
-karşılığı YOKTUR, ve bu, `ScriptableObject`'in çözdüğü problemin işlenmiş
+karşılığı YOKTUR, ve bu, `ScriptableObject`'in çözdüğü problemin işlenmiş <!-- YOK-MUAF · DEVREDİLDİ · çapa aşağıda -->
 örneğidir. ██ Bir `.asset` dosyası tam olarak *o* paylaşılan tek örnektir: onu
 kullanan herkes aynı GUID'i gösterir, çünkü gösterecek başka bir şey yoktur.
 
@@ -758,6 +758,15 @@ kullanan herkes aynı GUID'i gösterir, çünkü gösterecek başka bir şey yok
 motoru hiç davet etmez. `ScriptableObject`'in satın aldığı şey paylaşım değil,
 **tasarımcının kod derlemeden düzenleyebileceği bir dosyadır**. O günün koşulu
 [Aşama 1](02-sonraki-asamalar.md#asama-1-scriptableobject)'de.
+
+> ██ YOKLUK SENEDİ — DEVREDİLDİ ██
+>
+> **GEREKÇE:** Bu boşluğun borcunu `02-sonraki-asamalar.md` zaten ödüyor. O
+> dosya her aşamada beş alan taşıyor, ve bu belgenin kendi başlığı «ne zaman»
+> sorusunun tek sahibinin `02` olduğunu yazıyor. Aynı beş alanı burada ikinci
+> kez yazmak o tekeli kırardı. Devir tam olarak bunu önlemek için var.
+>
+> **ÇAPA:** [Aşama 1 · ScriptableObject](02-sonraki-asamalar.md#asama-1-scriptableobject)
 
 ### ⑤ NE KIRAR
 

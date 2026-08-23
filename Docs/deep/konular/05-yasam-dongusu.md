@@ -101,6 +101,113 @@ düşmeye sebep olan sayıyı hiç görmüyor. Ona "can bitti" diye **haber veri
 **Bütün asimetri bu tek karardan doğuyor.** Aklında tut — yapı tarafında aynı
 sınır bambaşka bir sonuç veriyor.
 
+### Kutudan gerçek satıra — her kutunun kod karşılığı
+
+Kutular **rolü** anlatıyor; bu bölüm o rolün **hangi satırda** durduğunu
+gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.
+
+**`UnitState` bu projede** — `Assets/Game/Core/Combat/UnitState.cs` → `UnitState`
+
+```csharp
+public enum UnitState
+{
+    /// <summary>Ayakta. Hedeflenebilir, canı azalır.</summary>
+    Alive,
+
+    /// <summary>
+    /// Düşmüş ama kurtarılabilir. Hedeflenmeye ve hasar almaya DEVAM eder —
+    /// düşman ya geri sayımın dolmasını bekler ya da gidip bitirir.
+    /// </summary>
+    Downed,
+
+    /// <summary>Kalıcı ölü. Diriltilemez; geriye yalnızca ceset temizliği kalır.</summary>
+    Dead
+}
+```
+
+Kutudaki «geçişleri. Hangi sırayla gidileceğini. Süreyi.» satırının karşılığı bu
+gövdenin **tamamıdır**: tipin yazabildiği her şey burada ve içinde tek bir metot,
+tek bir sayı, tek bir ok yok. Üç ad ve üç cümle — «dördüncü hâl YOKTUR» satırı da
+aynı gövdenin uzunluğuyla ölçülüyor.
+
+**`UnitLifecycle` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `OnHealthDepleted`
+
+```csharp
+if (State != UnitState.Alive)
+{
+    return;
+}
+
+SetState(UnitState.Downed);
+remainingSeconds = downedWindowSeconds;
+```
+
+Kutudaki «██ CANIN KAÇ OLDUĞUNU ██» satırının karşılığı bu yedi satırın
+**imzasıdır**: düşme kararı burada veriliyor ve metodun parametresi yok —
+ortada ne bir `Health`, ne bir sayı, ne de doğrulanacak bir haber var. Sayacı
+kuran `downedWindowSeconds` de kurucudan gelmiş bir alan. Aynı kutunun
+«Time.deltaTime'ı» satırının karşılığı ise `Tick(float deltaSeconds)`
+imzasıdır: saniye bu tipe okunarak değil, **argüman olarak** giriyor.
+
+**`Health` bu projede** — `Assets/Game/Core/Combat/Health.cs` → `HasRemaining`
+
+```csharp
+public bool HasRemaining => current > 0;
+```
+
+Kutudaki «██ SAHİBİNİN NE OLDUĞUNU ██ — asker mi baraka mı» satırının karşılığı
+tam olarak bu **ad**: cümle "kalan var mı" diyor, "canlı mı" demiyor. Sağ taraf
+da yalnız bir sayıyı sıfırla karşılaştırıyor; sahibe giden bir alan olsaydı bu
+satır `owner`'a bakabilirdi — bakmıyor, çünkü öyle bir alan yok.
+
+**`TargetingRules` bu projede** — `Assets/Game/Core/Combat/TargetingRules.cs` → `CanBeAttacked(UnitState)`
+
+```csharp
+public static bool CanBeAttacked(UnitState state)
+{
+    return state != UnitState.Dead;
+}
+```
+
+Kutudaki «canı. Menzili. Sırayı. Kimin ne yaptığını.» satırının karşılığı bu
+**imza**: tek parametre, o da bir enum. Menzili sorabilmek için bir koordinat,
+sırayı sorabilmek için bir `Team` gerekirdi; ikisi de imzada yok, dolayısıyla
+gövdede de olamaz. «İKİ durum dili — UnitState ve StructureState» satırının
+karşılığı ise aynı dosyada aynı adı taşıyan ikinci aşırı yükleme,
+`CanBeAttacked(StructureState state)` — iki ayrı dil, iki ayrı metot.
+
+**`StructureLifecycle` bu projede** — `Assets/Game/Core/Combat/StructureLifecycle.cs` → `OnHealthDepleted`
+
+```csharp
+State = StructureState.Destroyed;
+remainingSeconds = rubbleWindowSeconds;
+return true;
+```
+
+Kutudaki «██ OLAY DİYE BİR ŞEYİ ██» satırının karşılığı **üçüncü satırdır**.
+Birim ikizinde durum yazıldıktan hemen sonra `StateChanged?.Invoke(next)` geliyor;
+burada onun yerinde bir `return true` var. Cevap yayınlanmıyor, **çağırana geri
+veriliyor** — ve tam bu yüzden bu dosyada ne bir `event` ne de bir `SetState`
+bulunuyor.
+
+**`Battle` bu projede** — `Assets/Game/Battle/Battle.cs` → `RemoveReadyForCleanup`
+
+```csharp
+foreach (KeyValuePair<Unit, Structure> pair in structures)
+{
+    if (pair.Value.IsReadyForCleanup)
+    {
+        removed.Add(pair.Key);
+    }
+}
+```
+
+Kutudaki «Ceset ile enkazı AYIRT ETMEZ.» satırının karşılığı `removed.Add(pair.Key)`
+satırıdır: aynı metotta birkaç satır yukarıda `combatants` için birebir aynı döngü
+duruyor ve o da **aynı** `removed` listesine yazıyor. Listeyi okuyan çağıran,
+elindeki kimliğin ceset mi enkaz mı olduğunu bir daha soramaz — ve sorması da
+gerekmiyor, çünkü ikisinde de yapılacak iş aynı.
+
 ---
 
 ## Neden üç durum: iki olsaydı hangi cümle yazılamazdı
