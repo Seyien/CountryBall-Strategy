@@ -1,8 +1,32 @@
 # Bir askerin düşüşü — olayın dört durağı
 
-> **Nerede geçiyor:** `UnitLifecycle.cs` → `Combatant.cs` → `Battle.cs` → `BoardAdapter.cs`
-> **Kodda nereden geldin:** `Combatant.StateChanged`, `Battle.stateForwarders`, `Battle.UnitStateChanged`
-> **Ne zaman oku:** bu dört üyeden birine dokunmadan önce, ya da "bu sözlük neden var" diye sorduğunda.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Core/Combat/UnitLifecycle.cs` → `Assets/Game/Core/Combat/Combatant.cs`
+> → `Assets/Game/Battle/Battle.cs` → `Assets/Game/Unity/BoardAdapter.cs`
+> → `Assets/Game/Unity/UnitView.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> aşağıdaki üyelerden birine dokunmadan önce, ya da "bu sözlük neden var" diye
+> sorduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/Combat/UnitLifecycle.cs` | `StateChanged` | ✓ |
+| `Assets/Game/Core/Combat/Combatant.cs` | `StateChanged` | ✓ |
+| `Assets/Game/Battle/Battle.cs` | `stateForwarders` · `UnitStateChanged` | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `OnUnitStateChanged` · `ApplyStateVisual` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Unity/UnitView.cs` | `SetState` | ██ HENÜZ YOK ██ |
+| `Assets/Tests/EditMode/Combat/CombatantTests.cs` | `TransitionLog` | ✓ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
+ulaşamazsın, yalnız tersi çalışır. Listeden silmedim; silmek boşluğu görünmez
+kılardı. ██
 
 > ██ **ÖNCE OKU — bu dosya bir GİRİŞ değil, bir BULUŞMA NOKTASI.** ██ Numarası
 > `01` ama üç ayrı ipliğin düğümlendiği yer burası, ve üçünün de tanımı başka
@@ -17,6 +41,12 @@
 > Üçünü de okumadan bu dosya okunur — ama "niye böyle" sorusu cevapsız kalır.
 > Önerilen yol bu dosyayı **onuncu** adıma koyuyor:
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md).
+>
+> ██ **KAYBOLMAZSIN:** yukarıdaki üç hedefin üçü de bölümünün sonunda bir
+> ██ `◀ DÖNÜŞ` ██ satırı taşıyor — nereden gelmiş olabileceğini, dönünce neyi
+> bileceğini ve buraya **hangi bölümden** devam edeceğini yazıyor. Bu dosyanın
+> gövdesinde ayrıca üç `▶ ARA DURAK` var; her birinin **DÖNÜŞ** alanı seni geri
+> getirecek bölümü adıyla söylüyor. ██
 
 ---
 
@@ -63,6 +93,48 @@ hikâyeyi ilginç kılan tam olarak bilmedikleri.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+### ██ KADRO — dört kutu arasındaki ZİNCİR ██
+
+Yukarıdaki dört kutu dört ayrı tipi tanıtıyor ama **aralarındaki oku
+göstermiyor**. O oku okuyucunun kendi kafasından çıkarması gerekiyordu; artık
+gerekmiyor:
+
+```
+UnitLifecycle          sayacı tutar, kimin sayacı olduğunu BİLMEZ
+      │ StateChanged  (tek değer: yeni durum)
+      ▼
+Combatant              can + taraf + profil + yaşam döngüsü; KENDİ KİMLİĞİNİ BİLMEZ
+      │ StateChanged  (iki değer: önceki, sonraki)
+      ▼
+Battle                 kimlik ↔ savaşçı eşlemesi; EKRANI BİLMEZ
+      │ UnitStateChanged  (üç değer: kim, önceki, sonraki)
+      ▼
+BoardAdapter           motor ile savaş arasında çevirmen; KURAL BİLMEZ
+      │
+      ▼  GameObject · Sprite · renk
+```
+
+██ **Koda karşı doğrulandı** ██ — üç olayın imzası sırasıyla
+`Action<UnitState>`, `Action<UnitState, UnitState>` ve
+`Action<Unit, UnitState, UnitState>`: **bir, iki, üç** değer. Her aşağı ok
+kodda tek bir `+=` satırıdır ve üçü de açılabilir.
+
+**Her ok hangi durakta açılıyor:**
+
+| Ok | Bu dosyada nerede | Geçerken ne KAZANIYOR |
+|---|---|---|
+| `UnitLifecycle → Combatant` | [«Birinci durak: sayaç konuşuyor»](#birinci-durak-sayac-konusuyor) | önceki durum |
+| `Combatant → Battle` | [«Üçüncü durak: kayıt memuru…»](#ucuncu-durak-kayit-memuru-kimligi-ekliyor-ve-fatura-burada-kesiliyor) | kimlik — ██ faturanın kesildiği ok ██ |
+| `Battle → BoardAdapter` | [«Dördüncü durak: çevirmen…»](#dorduncu-durak-cevirmen-ekrani-guncelliyor) | hiçbir şey — ekleyecek bir şeyi yok |
+| `BoardAdapter → ekran` | [«Ekran yarısı»](#ekran-yarisi-guncellendi-tek-kelime-degil-uc-halka) | yatıklık + renk |
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/UnitLifecycle.cs` → `StateChanged` ·
+> `Assets/Game/Core/Combat/Combatant.cs` → `StateChanged` ·
+> `Assets/Game/Battle/Battle.cs` → `UnitStateChanged`
+> **BAK:** üç bildirimi üst üste koy; tek değişen şey açılı parantezin
+> içindeki **değer sayısı**. Zincirin tamamı bu üç satırda yazılı.
+> **DÖNÜŞ:** bu dosyanın «Karakterler» bölümü — aşağıdaki cümleyle devam et
+
 En tuhafı ikincisi: **`Combatant` kendi kimliğini bilmiyor.**
 
 Bu bir eksiklik değil, bilinçli bir karar. `Combatant` bir `Unit` alsaydı,
@@ -72,11 +144,12 @@ sadece "ne kadar canı var" sorusuna cevap veriyor.
 
 **Bütün hikâye bu tek karardan doğuyor.** Aklında tut.
 
-> **Önce oku:** [`02-assembly-duvari.md`](02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is)
-> — yukarıdaki cümle bu dosyanın taşıyıcı gerekçesi ve üç tanımsız kavram
-> taşıyor: *klasör*, *ad alanı* ve *assembly* üç **ayrı** şeydir. `02` o kararın
-> bir tercih değil ██ derleyici tarafından uygulanan bir kısıt ██ olduğunu
-> gösteriyor — ve aynı kararı öteki yönden anlatıyor (`02:440`).
+> **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is)
+> **NEDEN:** yukarıdaki cümle bu dosyanın **taşıyıcı gerekçesi** ve üç tanımsız
+> kavram taşıyor: *klasör*, *ad alanı* ve *assembly* üç **ayrı** şeydir. `02` o
+> kararın bir tercih değil ██ derleyici tarafından uygulanan bir kısıt ██
+> olduğunu gösteriyor — ve aynı kararı öteki yönden anlatıyor (`02:440`).
+> **DÖNÜŞ:** bu dosyanın [«Birinci durak: sayaç konuşuyor»](#birinci-durak-sayac-konusuyor) bölümü
 
 ---
 
@@ -95,6 +168,13 @@ Bu bağırış çok fakir. Sadece **yeni durumu** taşıyor. Kim olduğu yok, ne
 geldiği yok. Çünkü `UnitLifecycle` gerçekten de bunları bilmiyor — o sadece bir
 sayaç.
 
+> **▶ ARA DURAK:** [05-yasam-dongusu.md](05-yasam-dongusu.md#neden-uc-durum-iki-olsaydi-hangi-cumle-yazilamazdi)
+> **NEDEN:** `Downed` bu dosyada **tanımsız** kullanılıyor ve zincirin ilk
+> halkası tam olarak o değeri taşıyor. `Downed`'ın neden `Dead`'den ayrı bir
+> değer olduğunu bilmeden "bağırışın fakirliği" bir eksiklik gibi okunur;
+> oysa sayacın taşıdığı tek kelime **üç değerli** bir kümeden geliyor.
+> **DÖNÜŞ:** bu dosyanın [«İkinci durak: savaşçı zenginleştiriyor»](#ikinci-durak-savasci-zenginlestiriyor) bölümü
+
 Kim dinliyor? `Combatant`, ve şöyle abone olmuş:
 
 ```csharp
@@ -102,6 +182,13 @@ lifecycle.StateChanged += OnLifecycleStateChanged;    // ① METOT ADI
 ```
 
 **Bu detayı işaretle.** Metot adı. Lambda değil. Birazdan önemli olacak.
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/UnitLifecycle.cs` → `SetState`, sonra
+> `Assets/Game/Core/Combat/Combatant.cs` → kurucusunun **son** satırı
+> **BAK:** `SetState` durumu **önce yazıyor**, `Invoke`'u sonra çağırıyor —
+> yayın anında `State` zaten yeni değerde. Karşı tarafta `Combatant` bu olaya
+> bir **metot adıyla** abone oluyor, lambdayla değil.
+> **DÖNÜŞ:** bu dosyanın «Birinci durak: sayaç konuşuyor» bölümü
 
 ---
 
@@ -199,6 +286,19 @@ private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders;
 ```
 
 **Sözlük bir cep.** İçinde "ne oldu" değil, "kimi çıkaracağım" yazıyor.
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/Battle.cs` → `stateForwarders` alanı, sonra
+> `AddUnit` ve `RemoveUnit`
+> **BAK:** `AddUnit` kapanışı üretip **hem** olaya abone ediyor **hem** sözlüğe
+> yazıyor; `RemoveUnit` önce sözlükten `TryGetValue` ile **aynı nesneyi** geri
+> alıyor, `-=` onunla çağrılıyor, sonra sözlükten siliniyor. Üç satır aynı
+> nesneyi gezdiriyor — sözlüğün var olma sebebi bu tur.
+> **DÖNÜŞ:** bu dosyanın «Ve işte sözlüğün doğduğu an» bölümü
+
+> **◀ DÖNÜŞ:** [../dil/04-delege-olay-ve-kapanis.md](../dil/04-delege-olay-ve-kapanis.md#dorduncu-durak-kapanis-kimligi---neye-bakiyor) — «Dördüncü durak: kapanış kimliği»nden
+> geldiysen artık şunu biliyorsun: `-=`'in bakmadığı kimliği bu projede tutan yer
+> `Battle.stateForwarders`'tır — dilin kuralı burada bir **alana** dönüşüyor ·
+> oraya dön ve kapanış kimliğinden devam et
 
 ---
 
@@ -363,6 +463,12 @@ Ve en sinsi tarafı: `-=` yanlış nesneyle çağrılırsa **hata vermez**. Derl
 susar, testler yeşil kalır, liste olduğu gibi durur. `stateForwarders`'ın var olma
 sebebi tam olarak bu sessizliği önlemek.
 
+> **◀ DÖNÜŞ:** [../dil/07-bellek-canlilik-ve-yikim.md](../dil/07-bellek-canlilik-ve-yikim.md#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) — «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»dan
+> geldiysen artık şunu biliyorsun: aynı eksik `-=` **iki ayrı fatura** kesiyor —
+> burada gördüğün **davranış** faturası (silinmiş birimin görseli aranır), orada
+> ölçülen **bellek** faturası (yedi hop, bütün savaş erişilebilir kalır) ·
+> oraya dön ve sökme yerinden devam et
+
 ### ③ Bir abone FIRLARSA — sökülme değil, yayın faturası
 
 Yukarıdaki iki dal **sökülmemiş** bir aboneyi anlatıyor. Üçüncü bir dal var ve
@@ -395,9 +501,14 @@ engeller" der. Ayrışan iki şey: *hatanın kaynağı* ile *hatanın faturasın
 
 **Bugün neden görünmüyor:** üç olayın da üretimde **birer** abonesi var ve
 hiçbiri fırlatmıyor. Önem kazanacağı gün ölçülebilir: `Battle.UnitStateChanged`'e
-ikinci bir abone (ses, skor, başarım) eklendiği gün. Mekanizmanın tamamı ve
-aynı dosyadan **karşı örneği** (`TryRevive`'da aynı şeklin neden zararsız olduğu):
-[`dil/06` — İstisna tuzağı](../dil/06-delege-arka-taraf.md#istisna-tuzagi).
+ikinci bir abone (ses, skor, başarım) eklendiği gün.
+
+> **▶ ARA DURAK:** [../dil/06-delege-arka-taraf.md](../dil/06-delege-arka-taraf.md#istisna-tuzagi)
+> **NEDEN:** yukarıdaki paragrafın taşıyıcı gerekçesi — `Invoke`'un bir
+> `try`/`catch` **taşımaması** — bu dosyada iddia edilip kanıtlanmıyor.
+> Mekanizmanın tamamı ve aynı dosyadan **karşı örneği** (`TryRevive`'da aynı
+> şeklin neden zararsız olduğu) orada.
+> **DÖNÜŞ:** bu dosyanın [«③ Bir abone FIRLARSA»](#3-bir-abone-firlarsa-sokulme-degil-yayin-faturasi) bölümü
 
 ---
 
@@ -431,3 +542,15 @@ kendisini ve reddedilen alternatifi söylüyor, zinciri anlatmıyor. Zincir bura
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`../dil/04-delege-olay-ve-kapanis.md`](../dil/04-delege-olay-ve-kapanis.md) — okuma yolunun **11.** adımı,
+> hemen ardından [`../dil/06-delege-arka-taraf.md`](../dil/06-delege-arka-taraf.md) (bu sıra **zorunlu**, `06` kendi başında yazıyor)
+> **NEDEN ORASI:** bu dosya zincirin **ne yaptığını** gösterdi; `dil/04` aynı
+> malzemenin **ne vaat ettiğini** anlatıyor, `dil/06` ise `+=` çalıştığında
+> derleyicide **ne olduğunu**. Zinciri önce gör, sözleşmeyi sonra oku — tersi,
+> malzemeyi hiç kullanmadan öğrenmek olurdu.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

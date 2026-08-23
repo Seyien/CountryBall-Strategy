@@ -1,12 +1,38 @@
 # Delege, olay ve kapanış — bir fonksiyonu değişkende tutmak
 
-> **Nerede geçiyor:** `UnitLifecycle.StateChanged`, `Combatant.StateChanged`,
-> `Battle.stateForwarders`, `Battle.UnitStateChanged`,
-> `BoardAdapter.OnEnable`/`OnDisable`
-> **Kodda nereden geldin:** `Action<T>`, `event`, `?.Invoke`, lambda
-> `(p, n) => …`, metot grubu `+= OnFoo`
-> **Ne zaman oku:** bir `event` bildirmeden önce, ya da bir `-=` yazıp
-> "aboneliği kaldırdım" dediğinde.
+> **HANGİ DİL ARACI** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `Action<T>` · `event` · `?.Invoke` · lambda `(p, n) => …` · metot grubu `+= OnFoo`
+>
+> **NEREDE GEÇİYOR** — *bu araçların bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Core/Combat/UnitLifecycle.cs` | `StateChanged` |
+> | `Assets/Game/Core/Combat/Combatant.cs` | `StateChanged` |
+> | `Assets/Game/Battle/Battle.cs` | `stateForwarders` · `UnitStateChanged` |
+> | `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` · `OnDisable` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir `event` bildirmeden önce, ya da bir `-=` yazıp "aboneliği kaldırdım"
+> dediğinde.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki yerlerin **yorumunda** bu belgeye bir
+`DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
+██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Tests/EditMode/Combat/CombatantTests.cs` | `StateChanged_CarriesBothTheOldAndTheNewState` | ✓ |
+| `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs` | `StateChanged_FiresOnceWhenHealthIsDepleted` | ✓ |
+| yukarıdaki dört üretim dosyası | `StateChanged` · `stateForwarders` · `UnitStateChanged` · `OnEnable`/`OnDisable` | ██ HENÜZ YOK ██ |
+
+██ **Ölçüldü:** bu belgeye giden **iki** kod işaretçisi de **test** dosyalarında.
+Üretim kodundan buraya gelinemiyor — o dört yerin `DİL:` satırı
+[`06-delege-arka-taraf.md`](06-delege-arka-taraf.md)'yi gösteriyor, bu dosyayı
+değil. ██ İş bölümü doğru (`04` sözleşme, `06` makine) ama giriş kapısı eksik:
+sözleşmeyi okumadan makineye girilmemesi gerekirken kod doğrudan makineye
+yönlendiriyor. ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** dil
 özelliklerini anlatıyor. `Action<T>` .NET'ten, `event` ve lambda C#'ın
@@ -90,6 +116,17 @@ bir nesne üretir.
 abone eklendikten sonra iki `Tick` geçiyor ve `seen` hâlâ boş. Yani `+=` satırı
 `Add`'i çağırmadı, **sakladı**. Aynı testte `OnHealthDepleted()` çağrılsaydı
 liste dolardı.
+
+> **◀ DÖNÜŞ:** [06-delege-arka-taraf.md](06-delege-arka-taraf.md#birinci-durak-delegenin-ici-target-method) — `06`'nın başındaki
+> ara duraktan geldiysen artık şunu biliyorsun: `+=`'in sağındaki parantezsiz ad
+> bir **nesne** üretiyor, çağrı değil — `06` o nesnenin içini açıp iki alanını
+> (`Target` + `Method`) gösterecek · oraya dön ve delegenin içinden devam et
+
+> **◀ DÖNÜŞ:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#ve-iste-sozlugun-dogdugu-an) — `01`'in başındaki
+> künye tablosundan («`Action<…>`, `event`, `?.Invoke`'un ne vaat ettiği»)
+> geldiysen artık şunu biliyorsun: `+=` bir çağrı değil bir **saklama**, ve
+> saklanan şey bir nesne — ██ `Battle`'ın sözlüğü tam olarak o nesneyi elde
+> tutmak için var ██ · oraya dön ve sözlüğün doğduğu andan devam et
 
 ### `Action<…>` nasıl okunur
 
@@ -203,6 +240,21 @@ Projedeki üç olayın üçü de `event`: `UnitLifecycle.StateChanged`,
 `Combatant.StateChanged`, `Battle.UnitStateChanged`. Düz `Action` alanı olarak
 bildirilmiş **tek bir olay yok**.
 
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/UnitLifecycle.cs` → `StateChanged`,
+> `Assets/Game/Core/Combat/Combatant.cs` → `StateChanged`,
+> `Assets/Game/Battle/Battle.cs` → `UnitStateChanged`
+> **BAK:** üç bildirimin üçünde de `event` kelimesi var, ve üçünün açılı
+> parantezindeki değer sayısı **bir, iki, üç** diye artıyor. Aynı dosyalarda
+> `Battle.stateForwarders`'a da bak: orada `Action` var ama `event` **yok** —
+> çünkü o bir olay değil, sözlüğün değer tipi.
+> **DÖNÜŞ:** bu dosyanın «İkinci durak: `event` ile düz `Action` alanı farkı» bölümü
+
+> **◀ DÖNÜŞ:** [../konular/08-motor-cagri-dongusu.md](../konular/08-motor-cagri-dongusu.md#private-void-awake-motor-bunu-nasil-buluyor) — «Birinci durak: `Awake` bir `event` DEĞİLDİR»den
+> geldiysen artık şunu biliyorsun: `event`'in tek işi **dışarıdan `=` yazılmasını
+> derleme zamanında imkânsız kılmak** — yani bir abonelik sözleşmesi; Unity mesaj
+> geri çağrısında ise abonelik diye bir şey yok, ██ ada göre bulunma var ██ ·
+> oraya dön ve motorun adı nasıl çözdüğünden devam et
+
 ### Ama her `Action` alanı olay değil
 
 ```csharp
@@ -313,6 +365,13 @@ Buradan iki kural düşüyor:
 metot grubu    += / -= OnFoo       ① aynı `this`  ② aynı OnFoo   ──► EŞİT ✓
 yeni lambda    -= (p, n) => …      ① BAŞKA örnek  ② BAŞKA metot  ──► EŞİT DEĞİL ✗
 ```
+
+> **▶ ARA DURAK:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#ve-iste-sozlugun-dogdugu-an)
+> **NEDEN:** yukarıdaki kural dil düzeyinde bir olgu; bu projede o olgunun
+> **bedeli** bir alana dönüşmüş ve o alan burada anlatılmıyor. `Battle`'ın
+> `stateForwarders` sözlüğü tam olarak ②'nin faturası: sökülecek nesneyi elde
+> tutmanın tek yolu. ██ Kuralı burada gör, faturasını orada. ██
+> **DÖNÜŞ:** bu dosyanın [«Dördüncü durak: kapanış kimliği — `-=` neye bakıyor»](#dorduncu-durak-kapanis-kimligi---neye-bakiyor) bölümü
 
 Ve `Remove` eşleşme bulamazsa: listeyi **olduğu gibi** geri verir.
 
@@ -458,3 +517,16 @@ bölümünde ölçülerek tartışılıyor.
 
 Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İkisi
 çelişirse kod kazanır — orası çalışan metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`06-delege-arka-taraf.md`](06-delege-arka-taraf.md) — okuma yolunun **11.** adımının ikinci yarısı
+> **NEDEN ORASI:** ██ Bu sıra bir tercih değil, zincirdeki **tek açık ön koşul
+> beyanı**: ██ `06` kendi başında *"Orayı okumadan buraya girme; burada hiçbiri
+> tekrar edilmiyor"* diyor. Bölüşme tek cümlelik — bu dosya `+=`'in ne **vaat
+> ettiğini** anlattı, `06` `+=` **çalıştığında** ne olduğunu anlatacak: nesne,
+> `Target`/`Method`, çağrı listesi. `06`'da koşturulabilir bir ölçü de var
+> (`DescribeSubscribers()`): ██ yaz, ölç, sil ██.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

@@ -1,13 +1,37 @@
 # Değişmezlik anahtar kelimeleri — hangisi neyi dondurur
 
-> **Nerede geçiyor:** `TurnState.cs` (beşin dördü tek dosyada), `UnitGrid.cells`,
-> `Health.Max`, `Unit.Name`, `Combatant.ReviveHealthDivisor`,
-> `UnitLifecycle.DefaultDownedWindowSeconds`, on dört `sealed class`
-> **Kodda nereden geldin:** `private readonly`, `static readonly`, `const`,
-> `{ get; }`, `sealed`
-> **Ne zaman oku:** bir alana `readonly` yazmak üzereyken, bir sayının `const` mı
-> `static readonly` mı olacağına karar verirken, ya da `sealed` görüp "demek ki bu
-> tip güvenli" diye düşündüğünde.
+> **HANGİ DİL ARACI** — *bu dosyanın anlattığı, ödünç alınmış beş kelime:*
+> `private readonly` · `static readonly` · `const` · `{ get; }` · `sealed`
+>
+> **NEREDE GEÇİYOR** — *bu beş kelimenin bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Battle/TurnState.cs` | `DefaultTurnOrder` · `FirstTurnNumber` — ██ beşin dördü tek dosyada ██ |
+> | `Assets/Game/Core/UnitGrid.cs` | `cells` |
+> | `Assets/Game/Core/Combat/Health.cs` | `Max` |
+> | `Assets/Game/Core/Unit.cs` | `Name` |
+> | `Assets/Game/Core/Combat/Combatant.cs` | `ReviveHealthDivisor` |
+> | `Assets/Game/Core/Combat/UnitLifecycle.cs` | `DefaultDownedWindowSeconds` · `downedWindowSeconds` · `remainingSeconds` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir alana `readonly` yazmak üzereyken, bir sayının `const` mı `static readonly`
+> mı olacağına karar verirken, ya da `sealed` görüp "demek ki bu tip güvenli" diye
+> düşündüğünde.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki yerin **yorumunda** bu belgeye bir
+`DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
+██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Tests/EditMode/Battle/TurnRulesTests.cs` | `MoveAndAttack_ShareOneBudgetToday` | ✓ |
+| yukarıdaki altı üretim dosyasının hiçbiri | — | ██ HENÜZ YOK ██ |
+
+██ **Ölçüldü:** bu belgeye giden **tek** kod işaretçisi bir **test** dosyasında.
+Beş kelimenin yaşadığı altı üretim dosyasının hiçbirinden buraya gelinemez;
+yalnız tersi çalışır. Bu bir kusur ve gizlenmiyor. ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı dil
 özelliklerini** anlatıyor. Bu beş kelimeyi biz tasarlamadık; C# derleyicisi
@@ -156,6 +180,17 @@ private readonly Unit[,] cells;
 (CS0191). Altındaki `cells[x, y] = unit;` satırını sil → derlenir, testler patlar.
 Derleyicinin nöbet tuttuğu kapı ile oyunun geçtiği kapı aynı kapı değil.
 
+> **⌨ KODU AÇ:** `Assets/Game/Core/UnitGrid.cs` → `cells` alanı ve `PlaceUnit`
+> **BAK:** alan `private readonly`, ama `PlaceUnit`'in gövdesi hücreye **yazıyor**
+> ve derleniyor. İki satır arasındaki mesafe, `readonly`'nin sözünün tam olarak
+> nerede bittiğini gösteriyor.
+> **DÖNÜŞ:** bu dosyanın «Birinci durak: `readonly` — slot kilitli, içerik serbest» bölümü
+
+> **◀ DÖNÜŞ:** [../konular/03-tahta-sahipligi.md](../konular/03-tahta-sahipligi.md#ucuncu-durak-sahipligi-ayakta-tutan-uc-katman) — «İkinci durak: `readonly` burada hiçbir şey korumuyor»dan
+> geldiysen artık şunu biliyorsun: `readonly` **slotu** kilitler, **oku** değil —
+> yani `return board;` satırına hiç bakmıyor; koruma başka bir yerden gelmek
+> zorunda · oraya dön ve sahipliği ayakta tutan üç katmandan devam et
+
 ### `readonly` yazmanın hâlâ serbest olduğu iki yer
 
 ```
@@ -172,9 +207,14 @@ birincide. Aradaki fark üslup değil: `board`'un değeri kurucuya gelen `width`
 ### Bu projede `readonly`'nin gerçekten koruduğu bir şey var mı
 
 `Battle.board` için **yok** — ve orada koruma başka bir yerden geliyor.
-Tekrarlamıyorum, gerekçesi ve üç katmanlı haritası burada:
-`Docs/deep/konular/03-tahta-sahipligi.md` → *"İkinci durak: `readonly` burada
-hiçbir şey korumuyor"*.
+Tekrarlamıyorum, gerekçesi ve üç katmanlı haritası şurada:
+
+> **▶ ARA DURAK:** [../konular/03-tahta-sahipligi.md](../konular/03-tahta-sahipligi.md#ikinci-durak-readonly-burada-hicbir-sey-korumuyor)
+> **NEDEN:** "`readonly` burada hiçbir şey korumuyor" cümlesinin taşıyıcı
+> gerekçesi bu dosyada **kasten** tekrarlanmıyor — korumanın gerçek kaynağı
+> (dışarıda hiç referans olmaması) ve onu ayakta tutan üç katman orada. Bu
+> cümlenin proje tarafını görmeden aşağıdaki karşı örnek yarım kalır.
+> **DÖNÜŞ:** bu dosyanın [«Bu projede `readonly`'nin gerçekten koruduğu bir şey var mı»](#bu-projede-readonlynin-gercekten-korudugu-bir-sey-var-mi) bölümü
 
 Gerçekten koruduğu yer, ucu **zaten değişmez olan** alanlar:
 
@@ -296,6 +336,13 @@ Kalan üçü — `TurnRules.MaxActionsPerTurn`, `TurnState.FirstTurnNumber`,
 `Combatant.ReviveHealthDivisor` — hiçbir sabit-bağlamda kullanılmıyor. `static
 readonly` olsalardı da derlenirlerdi. `const` seçilmesi bir tercih.
 
+> **▶ ARA DURAK:** [../konular/02-assembly-duvari.md](../konular/02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is)
+> **NEDEN:** aşağıdaki bedelin tamamı "assembly sınırı" kavramının üstünde
+> duruyor ve bu dosya onu tanımlamıyor. Sınır bir klasör sınırı **değil**, bir ad
+> alanı sınırı da **değil** — `.asmdef`'in çizdiği ayrı bir derleme birimi
+> sınırı. Üçü ayrışmadan aşağıdaki iki DLL kutusu okunamaz.
+> **DÖNÜŞ:** bu dosyanın [«Serbest seçim olan üçü ve `const`'un assembly sınırında yaptığı şey»](#serbest-secim-olan-ucu-ve-constun-assembly-sinirinda-yaptigi-sey) bölümü
+
 Tercihin bedeli assembly sınırında ödenir:
 
 ```
@@ -333,6 +380,13 @@ ezberlemekten daha kullanışlı.
 `ReviveHealthDivisor` ayrıca `public` ama tek okuyucusu kendi dosyası
 (`health.Heal(health.Max / ReviveHealthDivisor);`). `public` olması bir kullanım
 değil, **kuralın adını görünür kılma** kararı.
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/TurnState.cs` → `DefaultTurnOrder` ve hemen
+> altındaki `FirstTurnNumber`
+> **BAK:** iki bildirim yan yana. Biri `static readonly`, öteki `const` — ve fark
+> üslup değil: birincinin sağ tarafı bir `new`, `const` böyle bir ifadeyi kabul
+> etmez. Projedeki **tek** `static readonly` bu satır.
+> **DÖNÜŞ:** bu dosyanın «Serbest seçim olan üçü ve `const`'un assembly sınırında yaptığı şey» bölümü
 
 ---
 
@@ -596,3 +650,15 @@ o cümlenin sahibi hep karşı taraftaki tipin kendi yazılışı.
 
 Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İkisi
 çelişirse kod kazanır — orası çalışan metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`../konular/05-yasam-dongusu.md`](../konular/05-yasam-dongusu.md) — okuma yolunun **5.** adımı
+> **NEDEN ORASI:** `03` + `dil/01` çifti "kim yazabilir" sorusunu kapattı; sırada
+> "ne yazılabilir" var. `05` iki dosyanın (`06` ve `01`) ön koşulu: `06` sıfırıncı
+> enum değerini `05`'ten ödünç alıyor, `01` üç durumun **adını** kullanıyor ama
+> anlamını vermiyor. Bu dosyada gördüğün `UnitLifecycle`'ın iki `float` alanı
+> (`downedWindowSeconds` ve `remainingSeconds`) orada bir **pencereye** dönüşecek.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

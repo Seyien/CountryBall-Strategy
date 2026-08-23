@@ -1,8 +1,35 @@
 # Assembly duvarı — kim kimi göremez, ve bunun bedeli ne
 
-> **Nerede geçiyor:** `GridStrategy.Core.asmdef` · `GridStrategy.Combat.asmdef` · `GridStrategy.Battle.asmdef` · `GridStrategy.Unity.asmdef` → `AttackResolver.cs` → `MoveOutcome.cs` → `Battle.cs` → `BoardAdapter.cs`
-> **Kodda nereden geldin:** `AttackResolver.IsWithinRange`'in `distance` parametresi, `MoveOutcome.RejectedActorCannotAct`, `MoveProfile`'ın Core'da durması, `Battle` sınıfının var olma sebebi, `BoardAdapter`'daki `using Battle = global::…` satırı
-> **Ne zaman oku:** bir asmdef'in `references` dizisine bir ad eklemeye niyetlendiğinde, yeni bir tipi hangi klasöre koyacağını sorduğunda, ya da derleyici sana CS0118 dediğinde.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar.* Önce dört
+> `.asmdef` — ██ duvarın tamamı bu dört JSON dosyasında yazılı ██:
+> `Assets/Game/Core/GridStrategy.Core.asmdef` · `Assets/Game/Core/Combat/GridStrategy.Combat.asmdef`
+> · `Assets/Game/Battle/GridStrategy.Battle.asmdef` · `Assets/Game/Unity/GridStrategy.Unity.asmdef`
+> sonra faturayı ödeyen `.cs` dosyaları, akış sırasıyla:
+> `Assets/Game/Core/Combat/AttackResolver.cs` → `Assets/Game/Core/MoveOutcome.cs`
+> → `Assets/Game/Battle/Battle.cs` → `Assets/Game/Unity/BoardAdapter.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir `asmdef`'in `references` dizisine bir ad eklemeye niyetlendiğinde, yeni bir
+> tipi hangi klasöre koyacağını sorduğunda, ya da derleyici sana CS0118 dediğinde.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/Combat/AttackResolver.cs` | `IsWithinRange` (`distance` parametresi) | ✓ |
+| `Assets/Game/Core/Combat/AttackAction.cs` | `Execute` | ✓ |
+| `Assets/Game/Core/Combat/AttackProfile.cs` | `AttackProfile` (tip başlığı) | ✓ |
+| `Assets/Game/Core/MoveOutcome.cs` | `MoveOutcome` (tip başlığı; anlatılan değer `RejectedActorCannotAct`) | ✓ |
+| `Assets/Game/Core/MoveProfile.cs` | `MoveProfile` (tip başlığı — Core'da durma kararı) | ✓ |
+| `Assets/Game/Battle/Battle.cs` | `Battle` (tip başlığı — var olma sebebi) | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `using Battle = global::…` alias satırı | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o satır burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir işaretçi yok** — o satırdan yola çıkıp bu
+belgeye ulaşamazsın, yalnız tersi çalışır. ██
 
 ---
 
@@ -126,6 +153,25 @@ yazılı olduğu gibi, o dosyayı `Combat/` klasörüne taşımak **tek başına
 şeyi bozmaz**. Bozan şey ad alanının ya da asmdef'in değişmesi olur. Klasör bir
 etiket, asmdef bir kilit.
 
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/AttackProfile.cs` → dosyanın en üstündeki
+> `namespace` satırı; sonra yanındaki `Assets/Game/Core/Combat/GridStrategy.Combat.asmdef`
+> → `references` dizisi
+> **BAK:** dosya `Core/` klasörünün **içinde** duruyor, ad alanı `GridStrategy.Combat`
+> diyor, asmdef `references: []` diyor. Üç cevap, üç ayrı soru — ve ikisi
+> birbiriyle çelişiyor.
+> **DÖNÜŞ:** bu dosyanın «Üç ayrı şey, üç ayrı iş» bölümü
+
+> **◀ DÖNÜŞ:** [01-olay-zinciri.md](01-olay-zinciri.md#birinci-durak-sayac-konusuyor) — «Karakterler»den
+> geldiysen artık şunu biliyorsun: `Combatant`'ın kendi kimliğini bilmemesi bir
+> üslup tercihi değil — `GridStrategy.Combat`'in `references` dizisi boş olduğu
+> için `Unit` adı orada **yazılamıyor** · oraya dön ve sayaçtan devam et
+
+> **◀ DÖNÜŞ:** [../dil/01-degismezlik-anahtar-kelimeleri.md](../dil/01-degismezlik-anahtar-kelimeleri.md#serbest-secim-olan-ucu-ve-constun-assembly-sinirinda-yaptigi-sey) — «`const`'un assembly sınırında yaptığı şey»den
+> geldiysen artık şunu biliyorsun: "assembly sınırı" bir klasör sınırı **değil**,
+> `.asmdef`'in çizdiği ayrı bir derleme birimi sınırı — `const`'un pişirdiği
+> değerin öteki tarafa **kopyalanmasının** sebebi bu · oraya dön ve serbest seçim
+> olan üçünden devam et
+
 ---
 
 ## Duvarın engellediği şey: görünürlük
@@ -164,6 +210,28 @@ Oklar **tek yönlü**. Yukarıdaki kutu aşağıyı görür, aşağıdaki yukar�
 
 Bu duvarın kestiği dört fatura var. Üçünü şimdi oku; dördüncüsü — duvarın en
 sessizi — kendi bölümünde.
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/GridStrategy.Battle.asmdef` → `references`,
+> yanında `Assets/Game/Core/GridStrategy.Core.asmdef` → `references`
+> **BAK:** `Battle`'ınki `Core` ile `Combat`'ı **sayıyor**, `Core`'unki hiçbir şey
+> saymıyor. Okun tek yönlü olması bu iki JSON dosyasındaki iki dizi farkından
+> ibaret — başka hiçbir yerde yazılı değil.
+> **DÖNÜŞ:** bu dosyanın «Duvarın engellediği şey: görünürlük» bölümü
+
+> **◀ DÖNÜŞ:** [04-karar-sirasi.md](04-karar-sirasi.md#birinci-durak-cizginin-kendisi) — «Karakterler»den
+> geldiysen artık şunu biliyorsun: `AttackRules`'un sırayı, `MoveAction`'ın durumu
+> **soramaması** nezaket değil — o tiplerin adı o assembly'de aranabilir bile
+> değil · oraya dön ve çizginin kendisinden devam et
+
+> **◀ DÖNÜŞ:** [03-tahta-sahipligi.md](03-tahta-sahipligi.md#besinci-durak-tahtanin-kendi-ic-sozlesmesi) — «Dördüncü durak: garantinin bittiği çizgi»den
+> geldiysen artık şunu biliyorsun: `internal`'ın çizdiği çember **bu duvarla
+> aynı** çember — "aynı assembly" cümlesindeki assembly tam olarak burada
+> tanımlanan şey · oraya dön ve tahtanın kendi iç sözleşmesinden devam et
+
+> **◀ DÖNÜŞ:** [07-tiklamadan-eyleme.md](07-tiklamadan-eyleme.md#faturanin-adi-editmodeda-sinanabilirlik) — «Dördüncü durak: duvar»dan
+> geldiysen artık şunu biliyorsun: duvarın yasakladığı şey **veri** değil, o
+> verinin adının aranabilirliği — `Vector3`'ün duvarı geçememesi de bu tek
+> kuraldan · oraya dön ve faturanın adından devam et
 
 ---
 
@@ -271,6 +339,17 @@ Core'dan çıkmadığını tutuyor.
      asmdef'e Combat referansı eklenirse birinci koruma AYNI GÜN düşer
      ve kuralı tutan tek şey test kalır.
 ```
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/MoveOutcome.cs` → `RejectedActorCannotAct`
+> **BAK:** değer `Core`'da **bildirilmiş** ama `Core`'da hiçbir kod onu
+> üretemiyor; üreten tek yer duvarın öteki tarafındaki `BattleActions.Move`.
+> Bir enum değerinin sahibi ile üreticisi burada ayrışıyor.
+> **DÖNÜŞ:** bu dosyanın «İkinci fatura: bir enum, sahibinin üretemediği bir değer taşıyor» bölümü
+
+> **◀ DÖNÜŞ:** [06-sonuc-enumlari.md](06-sonuc-enumlari.md#iki-koruma-iki-farkli-kirilma) — «Bir asmdef bir enum değerini nasıl yasaklar»dan
+> geldiysen artık şunu biliyorsun: yasağı koyan şey enum'un kendisi değil,
+> `references` dizisi — ve o dizi değiştiği gün yasak **testten** başka hiçbir
+> şeye dayanmıyor · oraya dön ve iki korumadan devam et
 
 ---
 
@@ -402,6 +481,14 @@ Bu yüzden `using` ile alias örtüşmüyor, **bölüşüyor**:
   ██ İkisi de gerekli: using silinirse alttaki ikisi kırılır,
      alias silinirse üstteki kırılır. ██
 ```
+
+> **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → dosyanın başındaki
+> `using Battle = global::GridStrategy.Battle.Battle;` satırı ve hemen üstündeki
+> düz `using` satırları
+> **BAK:** iki satır yan yana duruyor ve **aynı işi yapmıyorlar**. Alias yalnız
+> `Battle` adını kurtarıyor; `BattleActions` ile `PlacementOutcome` düz `using`
+> ile geliyor. Birini sil, hangi tarafın kırıldığını derleyiciye sor.
+> **DÖNÜŞ:** bu dosyanın «Tuzağın kapsamı: tek kelime» bölümü
 
 ---
 
@@ -656,3 +743,16 @@ görünürlüğün, sonuncusu ad çözümlemenin.
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`03-tahta-sahipligi.md`](03-tahta-sahipligi.md) — okuma yolunun **3.** adımı
+> **NEDEN ORASI:** `03`'ün üç katmanlı figürünün **orta katmanı** (`internal Board`)
+> doğrudan bu duvara dayanıyor ve `03` *"Sözleşme assembly duvarında biter"*
+> diyor — o cümle ancak bu dosya okunduktan sonra okunabilir hâle geldi. ██ Bu
+> adımdan önce ██ [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> **DURMA NOKTASI 1**'i geç: testleri koştur, sonra test `asmdef`'inin
+> `references` dizisine gözünle bak.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

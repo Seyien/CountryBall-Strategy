@@ -1,8 +1,36 @@
 # Aynı tıklama, dört ayrı ret — sıranın gözlenebilir olduğu yer
 
-> **Nerede geçiyor:** `BattleActions.cs` → `AttackAction.cs` / `MoveAction.cs` → `AttackRules.cs` / `TargetingRules.cs` / `TurnRules.cs`
-> **Kodda nereden geldin:** `BattleActions` sınıf başlığındaki ADIM 0-7 zinciri, `AttackAction.Execute`'un erken çıkış merdiveni, `MoveAction.Execute`'un SEVİYE 1-3 tablosu, `PlacementOutcome`'un dördüncü-değer bloğu
-> **Ne zaman oku:** bir `if` bloğunu yukarı ya da aşağı taşımadan önce, ya da "bu iki ret zaten aynı, sırası ne fark eder" diye sorduğunda.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Core/Combat/AttackAction.cs`
+> / `Assets/Game/Core/MoveAction.cs` → `Assets/Game/Core/Combat/AttackRules.cs`
+> / `Assets/Game/Core/Combat/TargetingRules.cs` / `Assets/Game/Battle/TurnRules.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir `if` bloğunu yukarı ya da aşağı taşımadan önce, ya da "bu iki ret zaten
+> aynı, sırası ne fark eder" diye sorduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Battle/BattleActions.cs` | `BattleActions` (tip başlığı — ADIM 0-7 zinciri) · `Attack` · `PlaceStructure` | ✓ |
+| `Assets/Game/Battle/TurnRules.cs` | `CanAct` | ✓ |
+| `Assets/Game/Core/Combat/AttackRules.cs` | `CanAttack` | ✓ |
+| `Assets/Game/Core/Combat/TargetingRules.cs` | `CanBeAttacked(UnitState, Team, Team)` | ✓ |
+| `Assets/Game/Core/MoveOutcome.cs` | `RejectedCellOccupied` | ✓ |
+| `Assets/Game/Core/Combat/AttackAction.cs` | `Execute` (erken çıkış merdiveni) | ██ HENÜZ YOK ██ |
+| `Assets/Game/Core/MoveAction.cs` | `Execute` (SEVİYE 1-3 tablosu) | ██ HENÜZ YOK ██ |
+| `Assets/Game/Battle/PlacementOutcome.cs` | dördüncü-değer bloğu | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok**. Üçünün de yorumunda başka bir
+belgeye işaretçi var (`AttackAction.Execute` → `konular/02`,
+`MoveAction.Execute` → `dil/03`, `PlacementOutcome` → `konular/06`); yani
+işaretçi eksikliği değil, ██ bu belgeye giden işaretçinin yokluğu ██. Listeden
+silmedim; silmek boşluğu görünmez kılardı. ██
 
 ---
 
@@ -81,10 +109,11 @@ taşıyan tip o assembly'den görünmüyor.
 katmana iner; inemediği yerde bir üst katmanda kalır. Ret sırası da tam olarak
 "hangi kural hangi katmanda yaşayabildi" sorusunun tortusu.
 
-> **Önce oku:** [`02-assembly-duvari.md`](02-assembly-duvari.md#duvarin-engelledigi-sey-gorunurluk)
-> — yukarıdaki iki körlüğün tamamı `.asmdef` dosyalarının `references` dizisine
-> dayanıyor ve bu dosya `asmdef`'i tanımlamıyor. "`TurnState` başka bir
+> **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#duvarin-engelledigi-sey-gorunurluk)
+> **NEDEN:** yukarıdaki iki körlüğün tamamı `.asmdef` dosyalarının `references`
+> dizisine dayanıyor ve bu dosya `asmdef`'i tanımlamıyor. "`TurnState` başka bir
 > assembly'de, adı yazılamaz" cümlesinin **neden** derleme hatası ürettiği orada.
+> **DÖNÜŞ:** bu dosyanın [«Birinci durak: çizginin kendisi»](#birinci-durak-cizginin-kendisi) bölümü
 >
 > **İki ileri işaretçi de burada dursun:** hangi **istisna tipinin** ne zaman
 > seçileceği bu dosyanın işi değil —
@@ -136,6 +165,18 @@ teknik olarak doğru bir metindir — hasar zaten inmiştir.
 Kanıtı yazılı: `Attack_WhenItIsNotTheAttackersTurn_IsRejectedAndDealsNoDamage`.
 Testin adındaki ikinci yarım tesadüf değil — sıranın reddedildiğini ölçmek
 yetmiyor, **hasarın inmediğini** de ölçmek gerekiyor.
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/BattleActions.cs` → `Attack`
+> **BAK:** sınıf başlığındaki ADIM 0-7 zinciri bir liste değil, bir **çizgi**:
+> altıncı satırın üstündeki her `if` bir soru, altındaki her satır bir olgu.
+> `Attack`'ın gövdesinde sıra sorusunun hasar satırından **kaç satır önce**
+> durduğunu kendin say.
+> **DÖNÜŞ:** bu dosyanın «Birinci durak: çizginin kendisi» bölümü
+
+> **◀ DÖNÜŞ:** [07-tiklamadan-eyleme.md](07-tiklamadan-eyleme.md#altinci-durak-niyet-ile-gecerlilik) — «Altıncı durak: niyet ile geçerlilik»ten
+> geldiysen artık şunu biliyorsun: `BoardAdapter` bir **niyet** üretiyor,
+> geçerliliği sormuyor — geçerlilik sorusu bu çizginin **üst** yarısında,
+> `BattleActions`'ın içinde soruluyor · oraya dön ve niyet tablosundan devam et
 
 ---
 
@@ -229,6 +270,21 @@ ikinci ölçüt devreye giriyor: **menzil sorusu** çağıranın zaten verdiği
 sayılara bakan saf bir aritmetiktir, **doluluk sorusu** ise tahtayı okur. Ucuz
 ve yerel olan önce sorulur.
 
+> **▶ ARA DURAK:** [06-sonuc-enumlari.md](06-sonuc-enumlari.md#ret-degerlerini-birlestirmenin-bedeli)
+> **NEDEN:** iki ölçütün üstünde duran **üçüncü** bir ölçüt var ve bu dosya onu
+> kurmuyor, yalnız **uyguluyor**: *"ayıraç sebep sayısı değil, DAVRANIŞ sayısı."*
+> Sıra kararının anlamlı olması için ret değerlerinin **zaten doğru sayıda**
+> olması gerekir — ayrılmamış iki sebebin sırası diye bir şey yok. ██ `06` o
+> ölçütü on bir ret değeri üzerinde kuruyor; ikisi birbirini anmıyor. ██
+> **DÖNÜŞ:** bu dosyanın [«Dördüncü durak: sıra iner, ama aynı sırayla iner»](#dorduncu-durak-sira-iner-ama-ayni-sirayla-iner) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/MoveAction.cs` → `Execute`
+> **BAK:** SEVİYE 1-3 tablosu gövdenin kendisinde. Üç `if` yukarıdan aşağı, ve
+> sırayı savunan testlerin adı `Prefers` kelimesini taşıyor:
+> `Assets/Tests/EditMode/` altında ara. ██ Her `Prefers` testi bir SIRA
+> KARARINI tutuyor. ██
+> **DÖNÜŞ:** bu dosyanın «Üçüncü durak: iki ölçüt — ve biri sustuğunda konuşan öteki» bölümü
+
 Ve kazandırdığı şey performans değil:
 
 ```
@@ -308,6 +364,13 @@ okuyorlar ama iki ayrı fiilin kuralılar; bugün aynı satırı taşımaları
 (`CanAttack`, `CanMove`, `CanRevive` — üçü de `== Alive`) bir tesadüf ve
 `CanAttack_AndCanMove_StillAgree_WhichIsWhyTheyMustStaySeparate` tam olarak o
 tesadüfü kayda geçiriyor.
+
+> **▶ ARA DURAK:** [05-yasam-dongusu.md](05-yasam-dongusu.md#ama-hedef-olmakla-eyleyen-olmak-ayri-eksenler)
+> **NEDEN:** "eyleyen kuralı ile hedef kuralı bilerek çelişir" cümlesinin taşıyıcı
+> gerekçesi bu dosyada değil: **`Downed`** iki eksende **zıt** cevap veren tek
+> değer, ve o asimetri `05`'in iki metotluk tablosundan doğuyor. O tabloyu
+> görmeden buradaki çelişki bir tutarsızlık gibi okunur.
+> **DÖNÜŞ:** bu dosyanın [«Beşinci durak: aynı iskelet, dört farklı yürüyüş»](#besinci-durak-ayni-iskelet-dort-farkli-yuruyus) bölümü
 
 ---
 
@@ -644,3 +707,18 @@ alan taşımaması. Adı, doğuran baskısı ve neden Command olmadığı:
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`07-tiklamadan-eyleme.md`](07-tiklamadan-eyleme.md) — okuma yolunun **8.** adımı
+> **NEDEN ORASI:** duvar (`02`), sahiplik (`03`), durum (`05`) ve ret (`06`, bu
+> dosya) kapandı; `07` hepsini ██ tek bir tıklamada ██ birleştiriyor. Daha erken
+> okunsaydı birleştirecek bir şey yoktu. ██ Bu adımdan önce ██
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> **DURMA NOKTASI 3**'ü geç: dört `Prefers` testini aç ve `04`'ün *"bunu ölçen
+> bir test yok, ve olmaması doğru"* cümlesinin hangi çifte ait olduğunu bul.
+> ██ Ve `07`'ye girmeden **DURMA NOKTASI 4**'ün uyarısını oku: o oturumda
+> Play'de bir şey KIRILACAK ve bu senin hatan değil. ██
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

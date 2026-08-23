@@ -1,11 +1,30 @@
 # Koleksiyonlar ve "salt okunur" sözünün kapsamı
 
-> **Nerede geçiyor:** `TurnState.DefaultTurnOrder`, `TurnState.TurnOrder`,
-> `Battle.combatants`/`structures`/`stateForwarders`, `UnitGrid.cells`
-> **Kodda nereden geldin:** `IReadOnlyList<Team>`, `Array.AsReadOnly`,
-> `Dictionary<,>`, `foreach`, `KeyValuePair<,>`
-> **Ne zaman oku:** bir koleksiyonu dışarıya açarken, ya da
-> `IReadOnlyList` görüp "demek ki değişmez" diye düşündüğünde.
+> **HANGİ BCL TİPİ** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `IReadOnlyList<T>` · `Array.AsReadOnly` · `Dictionary<,>` · `foreach` · `KeyValuePair<,>`
+>
+> **NEREDE GEÇİYOR** — *bu tiplerin bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Battle/TurnState.cs` | `DefaultTurnOrder` · `TurnOrder` |
+> | `Assets/Game/Battle/Battle.cs` | `combatants` · `structures` · `stateForwarders` |
+> | `Assets/Game/Core/UnitGrid.cs` | `cells` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir koleksiyonu dışarıya açarken, ya da `IReadOnlyList` görüp "demek ki
+> değişmez" diye düşündüğünde.
+
+**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
+işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
+belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
+koda gidilir, koddan buraya gelinmez.
+
+██ Buraya belgeden gelen iki yol var ve ikisi de canlı:
+[`konular/08`](../konular/08-motor-cagri-dongusu.md) `IEnumerator`'un birinci
+hayatı için, [`dil/07`](07-bellek-canlilik-ve-yikim.md) `object Current` için.
+Kısalığın sebebi kapsam değil, **iş bölümü**. ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** tipleri
 anlatıyor. Onların kodunu biz yazmadık; ama neyi vaat ettiklerini bilmeden
@@ -294,3 +313,18 @@ indeksleme açık, tahsis bir kez.
 
 Kodda **karar**, burada **ödünç alınan tipin sözleşmesi**. İkisi çelişirse kod
 kazanır — orası çalışan metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) · [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
+> açılmak. Bu dosyanın *"salt okunur ≠ değişmez"* cümlesi `dil/05`'in "aynı"
+> ölçülerine, `dil/03` ise sınırın aşıldığı anda hangi istisnanın atılacağına
+> bağlanıyor.
+> **BU DOSYA KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL:** ölçüldü — `dil/README.md`'nin
+> saydığı beş konunun **beşi de** burada. ██ Konusu küçük, dosya değil ██;
+> [`konular/08`](../konular/08-motor-cagri-dongusu.md) ve [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) buna **dayanıyor** ve tekrar etmiyor.
+> **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

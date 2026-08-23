@@ -1,12 +1,29 @@
 # "Hayır" demenin dört yolu — ret değerlerinin anatomisi
 
-> **Nerede geçiyor:** `MoveOutcome.cs` · `AttackOutcome.cs` · `PlacementOutcome.cs` ·
-> `ReviveOutcome.cs` → `BattleActions.cs` → `BoardAdapter.cs`
-> **Kodda nereden geldin:** `MoveOutcome.RejectedActorCannotAct`,
-> `AttackOutcome.HitAndDestroyed`, `PlacementOutcome.Placed`, `ReviveOutcome.Revived`,
-> `BoardAdapter.ReactToMove`, `BoardAdapter.ReactToAttack`
-> **Ne zaman oku:** bu dört enum'dan birine yeni bir değer eklemeden önce, ya da
-> "bunlar neden tek bir tip değil" diye sorduğunda.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar.* Önce dört
+> enum — ██ ikisi `Core`/`Combat` tarafında, ikisi `Battle` tarafında; bu bölünme
+> bu dosyanın konusudur ██:
+> `Assets/Game/Core/MoveOutcome.cs` · `Assets/Game/Core/Combat/AttackOutcome.cs` ·
+> `Assets/Game/Battle/PlacementOutcome.cs` · `Assets/Game/Battle/ReviveOutcome.cs`
+> sonra tüketiciler: `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Unity/BoardAdapter.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bu dört enum'dan birine yeni bir değer eklemeden önce, ya da "bunlar neden tek
+> bir tip değil" diye sorduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/MoveOutcome.cs` | `MoveOutcome` (tip başlığı; anlatılan değer `RejectedActorCannotAct`) | ✓ |
+| `Assets/Game/Core/Combat/AttackOutcome.cs` | `AttackOutcome` (tip başlığı) · `HitAndDestroyed` | ✓ |
+| `Assets/Game/Battle/PlacementOutcome.cs` | `PlacementOutcome` (tip başlığı; anlatılan değer `Placed`) | ✓ |
+| `Assets/Game/Battle/ReviveOutcome.cs` | `ReviveOutcome` (tip başlığı; anlatılan değer `Revived`) | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `ReactToMove` · `ReactToAttack` | ✓ |
+| `Assets/Game/Battle/BattleActions.cs` | `Move` · `PlaceStructure` (üretici taraf) | ✓ |
 
 ---
 
@@ -396,6 +413,20 @@ Yasak, enum'un içinde yazılı değil — enum bütün değerlerini herkese aç
 
 Yani asmdef bir değeri değil, o değeri **hak etmenin yolunu** kapatıyor.
 
+> **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#ikinci-fatura-bir-enum-sahibinin-uretemedigi-bir-deger-tasiyor)
+> **NEDEN:** yukarıdaki yasağın taşıyıcı gerekçesi `asmdef` kelimesinin
+> üstünde duruyor ve bu dosya `asmdef`'i tanımlamıyor. `02` aynı `MoveOutcome`
+> değerini **öteki yönden** anlatıyor: burada "enum ne kaybetti", orada "duvar ne
+> kesti". ██ Aynı satır, iki fatura. ██
+> **DÖNÜŞ:** bu dosyanın [«İki koruma, iki farklı kırılma»](#iki-koruma-iki-farkli-kirilma) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/MoveOutcome.cs` → `RejectedActorCannotAct`,
+> sonra `Assets/Game/Core/MoveAction.cs` → `Execute`
+> **BAK:** değer birinci dosyada **bildirilmiş**; ikinci dosyada onu döndürecek
+> tek bir satır bile yok — çünkü kanıtı üreten `MovementRules` adı orada
+> aranamıyor. Değer erişilebilir, kanıt değil.
+> **DÖNÜŞ:** bu dosyanın «Bir asmdef bir enum değerini nasıl yasaklar» bölümü
+
 ### İki koruma, iki farklı kırılma
 
 Bu söz — "bu değer Core'dan çıkmaz" — tek bir mekanizmayla tutulmuyor:
@@ -494,6 +525,11 @@ Kaybedilen şey enum'un içinde değil, **çağıranın kaybettiği daldadır:**
 Son satır bütün tabloyu okutan satır. Ayıraç **sebep sayısı değil, DAVRANIŞ
 sayısı.** `MoveOutcome` üç ret sebebini bilerek ayırdı ve aynı dosyada üç sebebi
 bilerek birleştirdi — zıt görünen iki karar, tek ölçüt.
+
+> **◀ DÖNÜŞ:** [04-karar-sirasi.md](04-karar-sirasi.md#dorduncu-durak-sira-iner-ama-ayni-sirayla-iner) — «Üçüncü durak: iki ölçüt»ten
+> geldiysen artık şunu biliyorsun: aynı ölçüt (*"ayıraç sebep sayısı değil,
+> DAVRANIŞ sayısı"*) iki dosyada iki kez kuruluyor — ██ burada **kurulur**, orada
+> bir **sıra kararına uygulanır** ██ · oraya dön ve dördüncü duraktan devam et
 
 ### Ayrımın doğacağı gün, ve tetiği
 
@@ -712,3 +748,15 @@ ikisi ona atıfta bulunuyor. Assembly duvarının tamamı `MoveOutcome.cs`'te,
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan metin,
 burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`04-karar-sirasi.md`](04-karar-sirasi.md) — okuma yolunun **7.** adımı
+> **NEDEN ORASI:** ██ numara sırası `04 → 06` diyor; bağımlılık **tersini**
+> diyor ██ ve sen doğru olanı izledin. Bu dosya ölçütü **kurdu** (dört enum, on
+> bir ret değeri, tam tablo); `04` onu bir **sıra kararına uyguluyor**. Ayrıca
+> `04`'ün iki körlüğü (`AttackRules` sırayı soramaz, `MoveAction` durumu soramaz)
+> doğrudan **2. adımda** kapattığın duvara dayanıyor — iki ön koşulun da hazır.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

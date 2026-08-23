@@ -1,14 +1,43 @@
 # Bellek, canlılık ve yıkım — bir nesne ne zaman gerçekten biter
 
-> **Nerede geçiyor:** `Battle.AddUnit`/`RemoveUnit`, `Battle.stateForwarders`,
-> `Combatant` kurucusu, `BoardAdapter.OnEnable`/`OnDisable`/`DespawnView`,
-> `UnitView.authoredColor`, `TurnState.DefaultTurnOrder`,
-> `DamageRulesAllocationTests`
-> **Kodda nereden geldin:** `Destroy`, `DestroyImmediate`, `GC.KeepAlive`,
-> `Not.AllocatingGCMemory`, `-=`, `static readonly`
-> **Ne zaman oku:** bir aboneliği sökmeyi düşünürken; `Destroy` çağırdığın hâlde
-> nesnenin hâlâ orada durduğunu gördüğünde; ya da birine "bu değer stack'te
-> durur" demeden hemen önce.
+> **HANGİ ÇALIŞMA ZAMANI ARACI** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `Destroy` · `DestroyImmediate` · `GC.KeepAlive` · `Not.AllocatingGCMemory` ·
+> `-=` · `static readonly`
+>
+> **NEREDE GEÇİYOR** — *bu araçların bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Battle/Battle.cs` | `AddUnit` · `RemoveUnit` · `stateForwarders` |
+> | `Assets/Game/Core/Combat/Combatant.cs` | `Combatant(...)` kurucusu |
+> | `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` · `OnDisable` · `DespawnView` |
+> | `Assets/Game/Unity/UnitView.cs` | `authoredColor` |
+> | `Assets/Game/Battle/TurnState.cs` | `DefaultTurnOrder` — ██ projenin tek statik alanı ██ |
+> | `Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs` | tahsis ölçümü |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir aboneliği sökmeyi düşünürken; `Destroy` çağırdığın hâlde nesnenin hâlâ
+> orada durduğunu gördüğünde; ya da birine "bu değer stack'te durur" demeden
+> hemen önce.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
+██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Battle/Battle.cs` | `RemoveUnit` (`-=` satırının hemen üstü) | ✓ |
+| `Assets/Game/Battle/TurnState.cs` | `DefaultTurnOrder` | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `DespawnView` (`Destroy` satırının hemen üstü) | ✓ |
+| `Assets/Game/Unity/UnitView.cs` | `authoredColor` | ✓ |
+| `Assets/Game/Battle/Battle.cs` | `AddUnit` · `stateForwarders` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Core/Combat/Combatant.cs` | kurucu | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok** — ikisinin de `DİL:` satırı
+[`06-delege-arka-taraf.md`](06-delege-arka-taraf.md)'yi gösteriyor, bu dosyayı
+değil. ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** çalışma
 zamanı davranışını anlatıyor: C#'ın çöp toplayıcısını ve Unity'nin ikinci ömrünü.
@@ -344,18 +373,28 @@ Battle.cs:338-342
                 // tuttuğu için o birim çöp de olamazdı.
 ```
 
-> **Bu aboneliğin dört durağı ve sökülmezse ÖNCE neyin patladığı (yanlış
-> görsel araması, `LogError`):**
-> [`konular/01`](../konular/01-olay-zinciri.md#sokulmezse-ne-olur-ok-yonune-dikkat).
-> Orada anlatılan **davranış** hatası; burada anlatılan **bellek** hatası. Aynı
-> eksik `-=`, iki ayrı fatura — ve davranış faturası her zaman önce gelir.
+> **▶ ARA DURAK:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#sokulmezse-ne-olur-ok-yonune-dikkat)
+> **NEDEN:** yukarıdaki `-=`'in **ikinci** faturası burada anlatılmıyor. Orası
+> aboneliğin dört durağını ve sökülmezse ÖNCE neyin patladığını veriyor: silinmiş
+> birimin görseli aranır, `LogError` düşer. ██ Aynı eksik `-=`, iki ayrı fatura —
+> ve davranış faturası her zaman önce gelir. ██ Bellek faturası ancak davranış
+> faturası ödendikten sonra anlam kazanıyor.
+> **DÖNÜŞ:** bu dosyanın [«Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»](#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) bölümü
 
-> **Delege nesnesinin `Target`/`Method` ikilisinin içi, `-=`'in kimliği neye
-> göre karşılaştırdığı:**
-> [`dil/06`](06-delege-arka-taraf.md#birinci-durak-delegenin-ici-target-method).
-> Sözleşme tarafı için
+> **▶ ARA DURAK:** [06-delege-arka-taraf.md](06-delege-arka-taraf.md#birinci-durak-delegenin-ici-target-method)
+> **NEDEN:** bu bölümün taşıyıcı cümlesi *"delege `Battle`'ı tutuyor"* — ama
+> **hangi alan** tuttuğunu bu dosya söylemiyor. Adı `Target`, ve `-=`'in kimliği
+> neye göre karşılaştırdığı da orada. ██ Burada yalnız **tutma** var, mekanizma
+> orada. ██ Sözleşme tarafı için:
 > [`dil/04`](04-delege-olay-ve-kapanis.md#dorduncu-durak-kapanis-kimligi---neye-bakiyor).
-> Burada yalnız **tutma** var, mekanizma orada.
+> **DÖNÜŞ:** bu dosyanın [«Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»](#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/Battle.cs` → `RemoveUnit`
+> **BAK:** `-=` satırı ile `stateForwarders.Remove` satırı **yan yana** duruyor
+> ve sırası önemli: sözlükten silmeden önce sökülmek zorunda, çünkü sökülecek
+> nesneyi veren tek yer o sözlük. Aynı metotta `combatants.Remove` da var —
+> ██ üç silme, tek tur ██.
+> **DÖNÜŞ:** bu dosyanın «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var» bölümü
 
 ### Sökülmediği hâlde sızıntı OLMAYAN abonelik — karşı örnek
 
@@ -751,3 +790,18 @@ Assets/Game/Battle/Battle.cs:353          combatants.Remove(unit);
 Assets/Game/Battle/TurnState.cs:51        public const int FirstTurnNumber = 1;
 Assets/Game/Core/Combat/Combatant.cs:90   this.lifecycle.StateChanged += OnLifecycleStateChanged;
 ```
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımı, ██ sıra serbest ██
+> **NEDEN ORASI:** üçü de **referans** belge: baştan sona okunabilirler ama asıl
+> işlevleri bir soru doğduğunda açılmak. `dil/05` bu dosyanın açık ön koşuluydu —
+> depolama bölümünde sıkıştıysan borç orada kapanıyor. `dil/02` kısa (296 satır)
+> ve bu bir eksiklik değil: ██ konusu küçük, dosya değil ██; `konular/08` ile bu
+> dosya ona **dayanıyor** ve tekrar etmiyor.
+> **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, okuma yolunun **14.** ve
+> son adımı. ██ Desenlerin ADI orada ██, ve "bu projede hangi desenleri
+> kullandın" sorusunun cevabı da.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

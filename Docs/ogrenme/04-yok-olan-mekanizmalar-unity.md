@@ -239,7 +239,7 @@ var, o da savaşı **kuran** tiptir; `Battle.Instance` diye bir şey yok ve
 kimsenin ona ihtiyacı olmadı. Bunun kazandırdığı üç şey:
 
 ① **`width` ve `height`'ın nereden geldiği görünür** — ikisi de
-`[SerializeField, Min(1)]` alanı (`:109`, `:110`). `Instance` olsaydı savaşın
+`[SerializeField, Min(1)]` alanı (`BoardAdapter.cs:113`, `:114`). `Instance` olsaydı savaşın
 boyutunu kimin verdiği çağrı yerinden okunamazdı.
 
 ② **`GridStrategy.Battle` motoru hiç tanımıyor** (`asmdef` `noEngineReferences:
@@ -375,7 +375,7 @@ hiçbiri değil — ve olmadıkları için soru da doğmuyor.
 ### ⑤ NE KIRAR
 
 ① **`Awake`'in demo satırları ikinci kez koşar.** `BoardAdapter.Awake` sahne
-yüklendiğinde iki birim doğuruyor (`:260-261`). Adaptör kalıcı yapılsaydı ve
+yüklendiğinde iki birim doğuruyor (`BoardAdapter.cs:267-268`). Adaptör kalıcı yapılsaydı ve
 sahne yeniden yüklenseydi, kalıcı adaptörün **yanına** yeni sahnenin adaptörü
 düşerdi: iki adaptör, iki savaş, dört birim.
 
@@ -480,8 +480,8 @@ Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 ```
 
 ██ ÖLÇÜ ██ — `TryReadPointerCell` `Camera.main`'i çağrı başına **iki kez** okuyor
-ve iki çağıranı var: `HandleClick` (`:762`, tıklama başına) ve `UpdatePlacement`
-(`:404`) — ikincisi **yerleştirme kipindeyken her karede** koşuyor. Okumanın
+ve iki çağıranı var: `HandleClick` (`BoardAdapter.cs:773`, tıklama başına) ve `UpdatePlacement`
+(`:415`) — ikincisi **yerleştirme kipindeyken her karede** koşuyor. Okumanın
 motor içinde önbelleklenip önbelleklenmediği bu turda **doğrulanmadı**; yerel
 belge önbellekten söz etmiyor. ██ Zaten konumuz o değil: maliyet bilinmiyor,
 görünmezlik ölçülmüş — ⑤'te. ██
@@ -531,26 +531,26 @@ Bağımlılıklar bugün üç yoldan geliyor ve **sayıldı**:
 
 | Yol | Sayı | Nerede |
 |---|---|---|
-| Serileştirilmiş alan | **13** | `BoardAdapter.cs` — `:109 :110 :113 :120 :131 :134 :137 :146 :156 :164 :167 :170 :174` |
+| Serileştirilmiş alan | **13** | `BoardAdapter.cs` — `:113 :114 :117 :124 :135 :138 :141 :150 :160 :168 :171 :174 :178` |
 | Serileştirilmiş alan | **3** | `UnitView.cs` — `:51` · `:59` · `:66` |
 | Kurucu parametresi | — | `Combatant.cs:59` (4 bağımlılık) · `Structure.cs:51` · `PointerGesture.cs:127` · `new Battle(width, height)` |
 | `GetComponent` (kendi nesnesinde) | **2** | `BoardAdapter.cs:237` (`Grid`) · `UnitView.cs:125` (`SpriteRenderer`) |
-| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:597` ve `:592` — `Camera.main` |
+| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:597` ve `:603` — `Camera.main` |
 | Tip taraması (`Find*`) | **0** | — |
 
 ██ İki `GetComponent`, bir `Find` DEĞİLDİR ██ — `GetComponent` **bu nesnenin**
-bileşen listesinde arar, sahnede değil; kodda yazılı (`:227-229`): "bileşen
+bileşen listesinde arar, sahnede değil; kodda yazılı (`BoardAdapter.cs:234-236`): "bileşen
 listesinde arar ... Listede bir Grid bulunacağını RequireComponent garanti eder."
 Kapsam farkı ölçülebilir: `GetComponent<Grid>()` için aday sayısı bu
 GameObject'in bileşen sayısı (**3**), `FindObjectOfType<Grid>()` için yüklü
-bileşenlerin tamamı (**~46**). Ve `[RequireComponent(typeof(Grid))]` (`:105`)
+bileşenlerin tamamı (**~46**). Ve `[RequireComponent(typeof(Grid))]` (`:109`)
 birincisine bir **garanti** ekliyor; ikincisine böyle bir garanti veren hiçbir
 etiket yok.
 
 ### ⑤ NE KIRAR
 
 ① **Inspector kapıları düşer.** Bugün üç `LogError` var ve üçü de `Awake`'te,
-yani **kullanımdan önce**: `unitPrefab` (`:265`), `placementGhost` (`:243`),
+yani **kullanımdan önce**: `unitPrefab` (`BoardAdapter.cs:272`), `placementGhost` (`:250`),
 `selectionOverlay` (`UnitView.cs:99`). Bir `Find` bu kapıların hiçbirini
 üretemez — "atanmamış" diye bir hâl yoktur, yalnız "bulunamadı" vardır ve o da
 çağrı anında öğrenilir.
@@ -859,7 +859,7 @@ private void OnDisable() { battle.UnitStateChanged -= OnUnitStateChanged; ... }
 ```
 
 ██ İyi haber: bu çift havuzda bozulmaz. ██ Kötü haber: onu simetrik tutan şey
-derleyici değil, kodda adı konmuş bir disiplin (`:275-276`). Havuz o disiplini
+derleyici değil, kodda adı konmuş bir disiplin (`BoardAdapter.cs:282-283`). Havuz o disiplini
 **çoğaltır**: bir nesne yüz kez alınıp bırakılırsa disiplin yüz kez sınanır.
 
 **Ölçüsüz havuz erken iyileştirmedir.** Tetikleyicisi ve kanıt sınırı `02`'nin
@@ -954,7 +954,7 @@ penceresi kayar · `unitViews` üçüncü bir hâl kazanır). ██ Üzerine ko
 tanesi: ██
 
 ① **Ebeveyn eski kullanımdan kalır.** `Instantiate`'in ikinci parametresi bugün
-bir yaşam döngüsü kararı — `:724-725`: "ikinci parametre ebeveyni verir, böylece
+bir yaşam döngüsü kararı — `BoardAdapter.cs:735-736`: "ikinci parametre ebeveyni verir, böylece
 tahta yok olunca birimler de gider." Havuzdan gelen nesnenin `transform.parent`'ı
 **önceki** kullanımdan kalır, ve bu projede tam bir anlamı var: ebeveyn yanlışsa
 "tahtayı yok et" tek çağrısı artık o nesneyi kapsamaz.

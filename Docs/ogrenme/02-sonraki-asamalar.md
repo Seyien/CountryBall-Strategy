@@ -49,7 +49,7 @@ Assets/Game/Unity/BoardAdapter.cs:178   structureMaxHealth = 50
 ```
 
 ve tanım nesneleri her doğuşta yeniden kuruluyor
-(`BoardAdapter.cs:756-760`, `:543`). Yani bugün "tasarımcı dosyası" diye bir
+(`BoardAdapter.cs:756-760`, `BoardAdapter.cs:554`). Yani bugün "tasarımcı dosyası" diye bir
 şey yok; tek yazma yolu Inspector'daki bir bileşendir.
 
 ██ Kararın kendisi kodda zaten adı konmuş ██ — `AttackProfile.cs:13-14`:
@@ -130,10 +130,10 @@ Assets/Game/Unity/BoardAdapter.cs:667   new GameObject($"Cell_{x}_{y}")      ←
 Assets/Game/Unity/BoardAdapter.cs:568   new GameObject($"Structure_{x}_{y}") ← yapı görseli
 ```
 
-██ ÖLÇÜ ██ — `Instantiate`'in tek çağıranı `SpawnUnit` (`:709`), onun da tek
-çağıranları `Awake` içindeki iki satır (`:260`, `:261`). Yani **kare başına
+██ ÖLÇÜ ██ — `Instantiate`'in tek çağıranı `SpawnUnit` (`BoardAdapter.cs:720`), onun da tek
+çağıranları `Awake` içindeki iki satır (`:267`, `:268`). Yani **kare başına
 sıfır** birim doğuyor. `Destroy` yalnızca ceset süresi dolduğunda çalışıyor
-(`AdvanceBattleTime :614` → `DespawnView :972`). Bugün havuzun azaltacağı bir
+(`AdvanceBattleTime :625` → `DespawnView :983`). Bugün havuzun azaltacağı bir
 maliyet **ölçülebilir değil**, çünkü maliyet yok.
 
 Buna karşılık projede tahsis bilinci **zaten var** ve havuzsuz uygulanmış:
@@ -166,8 +166,8 @@ parçacık ve animasyon, olay abonelikleri, çift bırakma, yabancı nesne reddi
 kapasite ve sahne boşaltma).
 
 **C · İLK ADIM** — Değişecek ilk dosya `Assets/Game/Unity/BoardAdapter.cs`,
-ve tek bir satır: `:728`'deki `Instantiate` bir `Get()` çağrısına döner.
-Ama **ikinci** satır asıl karardır: `:992`'deki `Destroy`, `Release(view)`'a
+ve tek bir satır: `BoardAdapter.cs:739`'daki `Instantiate` bir `Get()` çağrısına döner.
+Ama **ikinci** satır asıl karardır: `BoardAdapter.cs:1007`'deki `Destroy`, `Release(view)`'a
 dönerken görsel durumun sıfırlanması gerekir — ve bu projede sıfırlanacak durum
 `UnitView`'da yazılı: `UnitView.cs:93` (`SetState(UnitState.Alive)`) ve
 `UnitView.cs:107` (`SetSelected(false)`). Yani sıfırlama sözleşmesinin metni
@@ -188,8 +188,8 @@ bunu bilmezse yanlış yerde arar.
 
 ③ **Bugünkü sadelik gider.** `unitViews` sözlüğü (`BoardAdapter.cs:199`) bugün
 "tabloda varsa ekranda var" demek. Havuzla birlikte üçüncü bir hâl doğar:
-"nesne yaşıyor ama havuzda bekliyor" — ve `TryGetView`'ın (`:1050`) `LogError`
-kararı (`:1057`) o gün yanlış alarm üretmeye başlar.
+"nesne yaşıyor ama havuzda bekliyor" — ve `TryGetView`'ın (`:1065`) `LogError`
+kararı (`:1072`) o gün yanlış alarm üretmeye başlar.
 
 **E · ÖN KOŞUL** — İki kavram önce kapanmalı: **profil çıkarma kanıt sınırı**
 (Aşama 6 — ölçüsüz havuz kurulamaz) ve **Unity mesaj geri çağrıları**
@@ -251,7 +251,7 @@ mevcut: (a) çağıran bir **değer** istiyorsa — `TurnRules.CanAct`
 yayıncının yerel dinleyicileri varsa — düz `event` daha keşfedilebilirdir.
 
 **C · İLK ADIM** — Değişecek ilk dosya `Assets/Game/Battle/Battle.cs`, ve
-`:172`'deki `UnitStateChanged` olayı. Ama asıl ilk adım bir **kapsam
+`:179`'daki `UnitStateChanged` olayı. Ama asıl ilk adım bir **kapsam
 kararıdır**: veri yolu hangi alanla sınırlı (savaş mı, bütün oyun mu), kim
 kuruyor, kim söküyor, yükün sahibi kim. Kapsamsız bir yol, tek bir global
 `GameEvents` sınıfına dönüşür ve o gün olay sahipliği, yük tipi ve dinleyici
@@ -265,8 +265,8 @@ hikâye olarak anlatabiliyor. Veri yolu geldiğinde yayıncı ile abone arasınd
 "Find All References" boş döner ve yolu ancak çalışma zamanında izleyebilirsin.
 
 İkinci kırılma daha sinsi: **abonelik ömrü**. Bugün abonelik `OnEnable`/
-`OnDisable` çiftinde (`BoardAdapter.cs:288`/`:282`) ve simetriyi **disiplin**
-tutuyor — eksik bir `-=` tek bir uyarı bile üretmez (`:275`). Veri yolu bu
+`OnDisable` çiftinde (`BoardAdapter.cs:288`/`BoardAdapter.cs:293`) ve simetriyi **disiplin**
+tutuyor — eksik bir `-=` tek bir uyarı bile üretmez (`:282-283`). Veri yolu bu
 sorunu çözmez, **çoğaltır**: ölü bir abone artık bir nesnede değil, merkezî
 bir listede yaşar ve sahne yeniden yüklendiğinde de orada kalır.
 
@@ -334,8 +334,8 @@ başına açıkça bağlanan bir servistir.
 
 **C · İLK ADIM** — Değişecek ilk dosya bir tip **değil**, bir yer: kurulum
 kökü. Bugün o kök `Assets/Game/Unity/BoardAdapter.cs:232`'teki `Awake` — savaşı
-kuran (`:231`), jesti kuran (`:236`), zemini kuran (`:252`) ve iki demo birimi
-doğuran (`:260-261`) satırlar orada. Sahne ötesi bir bağımlılık geldiği gün ilk
+kuran (`BoardAdapter.cs:238`), jesti kuran (`:243`), zemini kuran (`:259`) ve iki demo birimi
+doğuran (`BoardAdapter.cs:267-268`) satırlar orada. Sahne ötesi bir bağımlılık geldiği gün ilk
 soru "nereye `static` koyayım" değil, "bu kök kimin" olur.
 
 **D · NE KIRAR** — İki şey, ikisi de ölçülebilir:
@@ -431,7 +431,7 @@ BoardAdapter.cs:267   SpawnUnit("Vanguard", Team.Player, 1, 2);
 BoardAdapter.cs:268   SpawnUnit("Raider", Team.Enemy, 1, 3);
 ```
 
-`Battle.Tick` (`:366`) kare başına iki `Combatant`
+`Battle.Tick` (`Battle.cs:377`) kare başına iki `Combatant`
 ve sıfır `Structure` dolaşıyor. ECS'in kazandığı şey, on binlerce varlığın kare
 başına aynı işi yapması durumunda ortaya çıkar. Sıra tabanlı bir oyunda kare
 başına yapılan iş genellikle **sıfırdır**: hiçbir şey olmayan bir karede
@@ -443,7 +443,7 @@ denemez.
 
 **C · İLK ADIM** — Değişecek ilk dosya `Assets/Game/Battle/Battle.cs`. Sebebi
 `Unit` değil: `Unit` zaten neredeyse bir kimlikten ibaret. Asıl değişecek şey
-**depo**: `:56`, `:63` ve `:74`'teki üç `Dictionary`, indeksle erişilen bitişik
+**depo**: `:59`, `:66` ve `:81`'deki üç `Dictionary`, indeksle erişilen bitişik
 dizilere döner ve `Unit` bir nesne olmaktan çıkıp bir indekse dönüşür. O gün
 `Unit.cs:51-55`'te yazılı olan "anahtar referans eşitliğidir" cümlesi geçersiz
 olur.

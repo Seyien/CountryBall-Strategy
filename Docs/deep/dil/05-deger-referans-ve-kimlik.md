@@ -1,13 +1,34 @@
 # Değer, referans ve kimlik — "aynı" sözcüğünün dört ayrı ölçüsü
 
-> **Nerede geçiyor:** `MoveAction.Execute`, `Battle.TryGetPosition`,
-> `BoardAdapter.HandleOccupiedCellClick`/`DespawnView`, `AttackProfile`,
-> `UnitGrid.TryGetUnit`/`Width`, `TurnState.Current`/`EndTurn`,
-> `UnitView.TintFor`, `Battle.stateForwarders`
-> **Kodda nereden geldin:** `ReferenceEquals`, `out`, `enum`, `=>`, `switch`, `%`
-> **Ne zaman oku:** iki şeyin "aynı" olup olmadığını soran bir satır yazarken;
-> `==` yazıp cevabın neden `false` geldiğini anlamadığında; ya da bir `switch`'e
-> yeni bir `case` eklerken.
+> **HANGİ DİL ARACI** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `ReferenceEquals` · `out` · `enum` · `=>` · `switch` · `%`
+>
+> **NEREDE GEÇİYOR** — *bu araçların bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Core/MoveAction.cs` | `Execute` |
+> | `Assets/Game/Battle/Battle.cs` | `TryGetPosition` · `stateForwarders` |
+> | `Assets/Game/Unity/BoardAdapter.cs` | `HandleOccupiedCellClick` · `DespawnView` |
+> | `Assets/Game/Core/Combat/AttackProfile.cs` | `AttackProfile` (tip başlığı) |
+> | `Assets/Game/Core/UnitGrid.cs` | `TryGetUnit` · `Width` |
+> | `Assets/Game/Battle/TurnState.cs` | `Current` · `EndTurn` |
+> | `Assets/Game/Unity/UnitView.cs` | `TintFor` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> iki şeyin "aynı" olup olmadığını soran bir satır yazarken; `==` yazıp cevabın
+> neden `false` geldiğini anlamadığında; ya da bir `switch`'e yeni bir `case`
+> eklerken.
+
+**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
+işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
+belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
+koda gidilir, koddan buraya gelinmez.
+
+██ Buraya belgeden gelen yol canlı: [`dil/07`](07-bellek-canlilik-ve-yikim.md)
+bu dosyayı **açık ön koşul** sayıyor (`dil/05` semantiği anlatır, `dil/07`
+depolamayı). ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** dil
 özelliklerini anlatıyor. Bunların hiçbirini biz tasarlamadık; ama ne vaat
@@ -658,3 +679,17 @@ switch yerine if-else zinciri  → değişen bir şey yok; C# bu boşluğu ne
 
 Kodda **karar**, burada **ödünç alınan özelliğin sözleşmesi**. İkisi çelişirse
 kod kazanır — orası çalışan metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
+> açılmak. Bu dosya "aynı" sözcüğünün dört ölçüsünü verdi — `dil/02` aynı soruyu
+> **koleksiyon** üzerinde soruyor (`IReadOnlyList` ≠ değişmez), `dil/03` ise
+> "yanlış" olduğunda hangi kelimeyle bağıracağını.
+> **BORÇ KAPANDI:** [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) bu dosyayı açık ön koşul sayıyordu;
+> orada depolama bölümünde sıkıştıysan ██ artık geri dönebilirsin ██.
+> **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

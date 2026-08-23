@@ -1,12 +1,30 @@
 # Bir tıklamanın yolculuğu — pikselden savaş kuralına
 
-> **Nerede geçiyor:** `BoardAdapter.cs` → `PointerGesture.cs` → `BattleActions.cs` → `UnitView.cs`
-> **Kodda nereden geldin:** `BoardAdapter.FeedGesture`, `BoardAdapter.HandleClick`,
-> `BoardAdapter.CommitPlacement`, `PointerGesture.MoveTo`, `PointerGesture.Release`,
-> `PointerGesture.Phase`
-> **Ne zaman oku:** giriş akışına yeni bir jest eklemeden önce (uzun basma, çift
-> tıklama, sağ tık), ya da "bu üç `Input` sorgusundan biri fazla değil mi" diye
-> sorduğunda.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Unity/BoardAdapter.cs` → `Assets/Game/Core/PointerGesture.cs`
+> → ██ duvar ██ → `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Unity/UnitView.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> giriş akışına yeni bir jest eklemeden önce (uzun basma, çift tıklama, sağ tık),
+> ya da "bu üç `Input` sorgusundan biri fazla değil mi" diye sorduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Unity/BoardAdapter.cs` | `Update` · `FeedGesture` · `HandleOccupiedCellClick` | ✓ |
+| `Assets/Game/Core/PointerGesture.cs` | `PointerGesture` (tip başlığı) · `MoveTo` · `Release` | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `HandleClick` · `CommitPlacement` · `TryReadPointerCell` · `UpdatePlacement` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Core/PointerGesture.cs` | `Phase` · `Press` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Unity/UnitView.cs` | `SetSelected` | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
+ulaşamazsın, yalnız tersi çalışır. Listeden silmedim; silmek boşluğu görünmez
+kılardı. ██
 
 ---
 
@@ -317,6 +335,20 @@ REDDEDILEN — hepsi TEK zincirde
 Duvarın altında **"sol fare düğmesi" diye bir kavram yok.** Dokunmatik, atanmış
 bir tuş, ya da kayıttan oynatılan bir girdi aynı üç metoda aynı şekilde girer.
 
+> **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#duvarin-engelledigi-sey-gorunurluk)
+> **NEDEN:** yukarıdaki figürün ortasındaki çizgi bu dosyanın taşıyıcı
+> gerekçesi ve burada tanımlanmıyor. `"noEngineReferences": true` satırının
+> **neden** `Vector2`'yi bile yasakladığı, ve yasağın bir üslup kuralı değil
+> ██ derleyici tarafından uygulanan bir görünürlük kısıtı ██ olduğu orada.
+> **DÖNÜŞ:** bu dosyanın [«Faturanın adı: EditMode'da sınanabilirlik»](#faturanin-adi-editmodeda-sinanabilirlik) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → `FeedGesture`, sonra
+> `Assets/Game/Core/PointerGesture.cs` → `Press` · `MoveTo` · `Release`
+> **BAK:** birinci dosyada `Input.GetMouseButtonDown` var; ikinci dosyada `Input`
+> kelimesi **hiç** geçmiyor. Duvarı geçen tek şey iki `float`. `PointerGesture`
+> dosyasında `using UnityEngine;` satırını ara — ██ yok ██.
+> **DÖNÜŞ:** bu dosyanın «Dördüncü durak: duvar» bölümü
+
 ### Duvarın yasakladığı şey VERİ değil, CİHAZ BİLGİSİ
 
 Ayrım ince ve dosyanın kendisi karşı örneğini taşıyor: `dragThreshold` de
@@ -554,6 +586,15 @@ kalır. Bu yüzden kararı üreten kare ile tüketen kare aynı olmak zorunda de
 ---
 
 ## Altıncı durak: niyet ile geçerlilik
+
+> **▶ ARA DURAK:** [04-karar-sirasi.md](04-karar-sirasi.md#birinci-durak-cizginin-kendisi)
+> **NEDEN:** bu bölümün taşıyıcı ayrımı — **niyet** ayrı soru, **geçerlilik**
+> ayrı soru — ancak geçerliliğin nerede sorulduğu bilinirse anlam kazanıyor.
+> Aşağıdaki ağaç bir niyet üretiyor ve hiçbir dalında sınır, doluluk ya da sıra
+> kontrolü **yok**; o üç soru `BattleActions`'ın çizgisinin üst yarısında
+> soruluyor. ██ `04` o çizgiyi kuruyor; bu dosya çizginin yalnız giriş ucunu
+> gösteriyor. ██
+> **DÖNÜŞ:** bu dosyanın [«Altıncı durak: niyet ile geçerlilik»](#altinci-durak-niyet-ile-gecerlilik) bölümü — aşağıdaki niyet ağacından devam et
 
 Kip kapalıyken tıklama `HandleClick`'e gidiyor ve orada bambaşka bir ayrım var.
 
@@ -977,3 +1018,18 @@ yolculuğu anlatmıyor. Yolculuk burada.
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`08-motor-cagri-dongusu.md`](08-motor-cagri-dongusu.md) — okuma yolunun **9.** adımı
+> **NEDEN ORASI:** bu dosya `Update`'in **içini** anlattı; `08` `Update`'i
+> **kimin çağırdığını** anlatıyor. Bölüşmeyi `08` kendisi yazıyor. Ayrıca `08`
+> zincirin **en iyi bağlanmış** dosyası (23 çıkış bağlantısı + bir `## İlgili`
+> bölümü): oradan sonra kaybolmazsın. ██ Bu adımdan önce ██
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> **DURMA NOKTASI 4**'ü geç — Unity'de Play, dört dalı yürüt, sonra `B` ile
+> yerleştirme kipini dene: ██ patlayacak, ve bu senin hatan değil ██. Gerekçesi
+> yukarıdaki [«BUGÜNKÜ SINIR»](#bugunku-sinir-bu-yol-playde-bastan-sona-kosmuyor) bölümünde.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

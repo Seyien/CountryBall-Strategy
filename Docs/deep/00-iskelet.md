@@ -602,3 +602,24 @@ dosyanın tanımı: harita, arazi değil. Bir figürün ayrıntısını merak et
 Otorite sırası her yerde aynı: **kod kazanır.** Bu dosya ile üç ağaç çelişirse
 ağaçlar; ağaçlarla kod çelişirse kod. Buradaki her sayı yazılırken kaynağa karşı
 doğrulandı — doğrulanmamış bir sayı üslup hatası değil, kusurdur.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+Bu dosya okuma yolunun **1. adımıydı**. Sıradaki adım
+[`konular/02-assembly-duvari.md`](konular/02-assembly-duvari.md) —
+██ `konular/01` DEĞİL. ██
+
+> **NEDEN 02:** `01`'in taşıyıcı gerekçesi (*"`Combatant` bir `Unit` alsaydı
+> `GridStrategy.Combat` ad alanı `GridStrategy.Core`'a bağlanırdı"*) `02`'de
+> tanımlanan üç kavrama dayanıyor: *klasör*, *ad alanı* ve *assembly* üç **ayrı**
+> şey. `01`'i önce okursan en kritik cümlesi havada kalır.
+>
+> **DOSYA NUMARALARI SIRA DEĞİL, KİMLİKTİR.** Yeniden numaralandırma dört makine
+> kapısını ve otuzdan fazla çapayı kırardı. Sıranın tamamı ve her adımın ön
+> koşulu: [`../ogrenme/00-okuma-sirasi.md`](../ogrenme/00-okuma-sirasi.md)
+> — 15 adım, 5 oturum, 6 koşturma noktası.
+
+`konular/01` o yolda **onuncu** sırada durur: üç ipliğin düğümlendiği yer, giriş
+değil.

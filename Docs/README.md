@@ -11,9 +11,15 @@ birinin diğerini bulabilmesi için var.
 | `Assets/Tests/EditMode/Combat/` | Davranış testleri + tahsis (allocation) testleri |
 | `Tools/run-editmode-tests.ps1` | Testleri Editor'e dokunmadan komut satırından koşar |
 | `Tools/.test-results/` | Koşu çıktıları (XML + Unity log) |
+| `Tools/check-curriculum-coverage.py` | Kavram borç defterinin kapısı — sahipsiz, uydurma ya da bayat satır bırakmaz |
+| `Tools/check-doc-code-refs.py` | Belgelerdeki `Dosya.cs:SATIR` atıflarını çözer; kendi körlüğünü her koşumda basar |
+| `Tools/check-navigation-loops.py` | Her ara durağın bir dönüşü var mı — gidiş var dönüş yok durumunu yakalar |
 | `Docs/comment-diagram-debt/` | Yorum-diyagram borcu: devir paketi, envanter, JSON state |
 | `Docs/deep/kod/` | Ayna belgeler — her tipin gerekçeleri ([indeks](deep/kod/README.md)) |
 | `Docs/deep/konular/` | Mekanizma anlatıları — çok dosyayı kat eden konular |
+| `Docs/deep/dil/` | Ödünç alınan BCL tipleri ve C# özellikleri ([indeks](deep/dil/README.md)) |
+| `Docs/ogrenme/` | Öğrenme defteri — **nereden başlanır**, hangi desen kodda var, hangisi yok, hangi kavram borçlu ([indeks](ogrenme/README.md)) |
+| `Docs/ogrenme/00-okuma-sirasi.md` | ██ Buradan başla ██ — 15 adım, 5 oturum; dosya numaraları sıra değil kimliktir |
 | `Docs/ogrenme/` | Öğrenme defteri — hangi desen kodda var, hangisi yok, hangi kavram borçlu ([indeks](ogrenme/README.md)) |
 | `Tools/check-curriculum-coverage.py` | Kavram borç defterinin kapısı — sahipsiz, uydurma ya da bayat satır bırakmaz |
 

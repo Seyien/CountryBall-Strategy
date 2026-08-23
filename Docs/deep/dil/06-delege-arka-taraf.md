@@ -1,18 +1,49 @@
 # Delegenin arka tarafı — `+=` derleyicide neye dönüşür
 
-> **Nerede geçiyor:** `Combatant` kurucusunun son iki satırı,
-> `UnitLifecycle.StateChanged`, `Combatant.StateChanged`,
-> `Battle.UnitStateChanged`, `BoardAdapter.OnEnable`/`OnDisable`
-> **Kodda nereden geldin:** `this.lifecycle.StateChanged += OnLifecycleStateChanged;`
-> **Ne zaman oku:** bir `+=` satırını bir KURUCUNUN içine yazarken; bir olaya
-> ikinci abone eklerken; ya da "abone olmak neyi hayatta tutuyor" diye
-> sorduğunda.
+> **HANGİ DİL ARACI** — *bu dosyanın anlattığı, ödünç alınmış makine:*
+> `+=` / `-=`'in indiği `Delegate.Combine` / `Delegate.Remove` · `Target` +
+> `Method` · derleyicinin `event` için ürettiği `add_`/`remove_` metotları · çağrı
+> listesi ve `Invoke`
+>
+> **NEREDE GEÇİYOR** — *bu makinenin bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Core/Combat/Combatant.cs` | `Combatant(...)` kurucusunun **son iki satırı** · `StateChanged` |
+> | `Assets/Game/Core/Combat/UnitLifecycle.cs` | `StateChanged` · `SetState` |
+> | `Assets/Game/Battle/Battle.cs` | `stateForwarders` · `UnitStateChanged` |
+> | `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` · `OnDisable` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir `+=` satırını bir KURUCUNUN içine yazarken; bir olaya ikinci abone
+> eklerken; ya da "abone olmak neyi hayatta tutuyor" diye sorduğunda.
 
-[`04-delege-olay-ve-kapanis.md`](04-delege-olay-ve-kapanis.md) bu malzemenin
-**sözleşmesini** anlatıyor: `Action<…>` nasıl okunur, `Func` neden hiç yok,
-`event` ile düz alanın farkı, abonesi olmayan olayın neden `null` olduğu, iki
-kapanışın neden eşit olmadığı. Orayı okumadan buraya girme; burada hiçbiri
-tekrar edilmiyor. Bu dosya bir alt kat:
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
+██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/Combat/Combatant.cs` | `Combatant(...)` kurucusu (son iki satır) | ✓ |
+| `Assets/Game/Core/Combat/UnitLifecycle.cs` | `SetState` (`?.Invoke` satırı) | ✓ |
+| `Assets/Game/Battle/Battle.cs` | `stateForwarders` | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` | ✓ |
+
+██ Bu dosya `dil/` ağacının **en iyi bağlanmış** belgesi: dört üretim
+dosyasından dördüne de kod işaretçisi var. Ama dikkat — o dört işaretçi
+`04`'ü **atlıyor** ve doğrudan buraya geliyor; oysa `04` okunmadan buraya
+girilmemesi gerekiyor (aşağıdaki paragraf bunu yazıyor). ██
+
+> **▶ ARA DURAK:** [04-delege-olay-ve-kapanis.md](04-delege-olay-ve-kapanis.md#birinci-durak-delege-metoda-isaret-eden-nesne)
+> **NEDEN:** ██ zincirdeki **tek açık ön koşul beyanı** budur. ██ `04` bu
+> malzemenin **sözleşmesini** anlatıyor: `Action<…>` nasıl okunur, `Func` neden
+> hiç yok, `event` ile düz alanın farkı, abonesi olmayan olayın neden `null`
+> olduğu, iki kapanışın neden eşit olmadığı. ██ Orayı okumadan buraya girme;
+> burada hiçbiri tekrar edilmiyor. ██
+> **DÖNÜŞ:** bu dosyanın [«Birinci durak: delegenin İÇİ — `Target` + `Method`»](#birinci-durak-delegenin-ici-target-method) bölümü
+
+Bu dosya bir alt kat:
 
 ```
 04 sorar:  "+= ne VAAT EDİYOR"          ── sözleşme
@@ -175,6 +206,11 @@ ne olur" bölümünde; buradaki katkı oku çizen alanın **adı**: `Target`.
 **Kapsam — bu projede yön neden zararsız:** `Combatant` `lifecycle`'ın sahibi;
 ikisi birlikte doğar, birlikte ölür, ok bir sahiplik sınırını geçmiyor.
 ██ Sınırı geçen tek abonelik `Battle.AddUnit`'teki ██ ve orada bırakma zorunlu.
+
+> **◀ DÖNÜŞ:** [07-bellek-canlilik-ve-yikim.md](07-bellek-canlilik-ve-yikim.md#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) — «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»dan
+> geldiysen artık şunu biliyorsun: oku çizen alanın **adı** `Target`, ve o alan
+> delegenin **içinde** duruyor — ██ yayıncı aboneyi tutar, sezginin tersi ██ ·
+> oraya dön ve sökme yerinden devam et
 
 ---
 
@@ -346,6 +382,19 @@ gelir: görsel mi önce güncellenir ses mi önce çalar, ve bunu belirleyen şe
 `OnEnable` sıralaması — yani Unity'nin bileşen sırası. (2) Yeni abone fırlattığı
 gün `BoardAdapter` görseli **hiç** güncellenmez ve yukarıdaki `remainingSeconds`
 hasarı üretimde görünür. İkisini de görünür kılan koşul aynı satırdır.
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/UnitLifecycle.cs` → `OnHealthDepleted`,
+> sonra aynı dosyada `TryRevive`
+> **BAK:** iki metodun **şekli aynı** — `SetState(...)` çağrısı, ardından bir
+> alan ataması. Biri bir **değişmez** kuruyor (pencerenin süresi), öteki zaten
+> sağlanmış bir şeyi tekrar yazıyor. ██ Aynı şekil, iki ayrı risk. ██
+> **DÖNÜŞ:** bu dosyanın «██ İSTİSNA TUZAĞI ██» bölümü
+
+> **◀ DÖNÜŞ:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#3-bir-abone-firlarsa-sokulme-degil-yayin-faturasi) — «③ Bir abone FIRLARSA»dan
+> geldiysen artık şunu biliyorsun: `Invoke`'un `try`/`catch` taşımaması bir
+> gözden kaçış değil, `MulticastDelegate`'in tanımı — ██ hatanın kaynağı ile
+> faturasını ödeyen ayrışıyor ██, ve aynı dosyadaki `TryRevive` bunun zararsız
+> ikizini taşıyor · oraya dön ve kaldığın yerden devam et
 
 ---
 
@@ -567,12 +616,13 @@ Aradaki fark iki farklı mekanizma olduğunun kanıtıdır. İkinci ölçü `pri
 üstünden: `OnEnable` `private`'dır ve motor onu yine de çağırır — çağıran taraf
 C# erişim kurallarından geçmiyor.
 
-> **SINIR — sahibi başka bir dosya:** Unity yaşam döngüsünün kendisi
-> (`Awake` → `OnEnable` → `Start` → `Update` → `OnDisable` → `OnDestroy` sırası,
-> `OnEnable`/`OnDisable` çiftinin neden `Awake`/`OnDestroy` çiftine tercih
-> edildiği) bu dosyanın işi değil:
-> [`konular/08-motor-cagri-dongusu.md`](../konular/08-motor-cagri-dongusu.md#ikinci-durak-cagri-sirasi-sahipleriyle-ezberle-degil).
-> Burada yalnız **fark** var.
+> **▶ ARA DURAK:** [../konular/08-motor-cagri-dongusu.md](../konular/08-motor-cagri-dongusu.md#ikinci-durak-cagri-sirasi-sahipleriyle-ezberle-degil)
+> **NEDEN:** yukarıdaki farkın **sağ sütunu** burada tanımlanmıyor. Unity yaşam
+> döngüsünün kendisi (`Awake` → `OnEnable` → `Start` → `Update` → `OnDisable` →
+> `OnDestroy` sırası, ve `OnEnable`/`OnDisable` çiftinin neden `Awake`/`OnDestroy`
+> çiftine tercih edildiği) o dosyanın işi. ██ Burada yalnız **fark** var, sıra
+> değil. ██
+> **DÖNÜŞ:** bu dosyanın [«Altıncı durak: `event` ile Unity mesaj geri çağrıları aynı şey değil»](#altinci-durak-event-ile-unity-mesaj-geri-cagrilari-ayni-sey-degil) bölümü
 
 ---
 
@@ -737,3 +787,18 @@ daha var: dil ve BCL davranışı için son söz **derleyicinin ve çalışma
 zamanının**. Yukarıdaki her iddia ya bir derleyici hata koduna (CS0070, CS0103)
 ya da koşturulabilir bir deneye bağlı; bağlanmamış bir iddia varsa o bir
 kusurdur, üslup değil.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) — okuma yolunun **12.** adımı
+> **NEDEN ORASI:** bu dosya oku çizen alanın **adını** verdi (`Target`); `dil/07`
+> o okun **bellek faturasını** ölçüyor — yedi hop, ve tek bir `Combatant`
+> referansı bütün savaşı erişilebilir tutuyor. ██ Aynı eksik `-=`, iki ayrı
+> fatura: `konular/01` davranış faturasını, `dil/07` bellek faturasını veriyor. ██
+> **UYARI:** `dil/07` kendi başında `dil/05`'i ön koşul sayıyor (`05` semantiği,
+> `07` depolamayı anlatır). `dil/05`'i henüz okumadıysan `07`'nin dört soruluk
+> figürü yine de ayakta; ██ depolama bölümünde sıkışırsan `dil/05`'e geç, sonra
+> dön ██.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

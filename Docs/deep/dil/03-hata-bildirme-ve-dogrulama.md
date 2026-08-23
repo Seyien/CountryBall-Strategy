@@ -1,14 +1,41 @@
 # Hata bildirme ve doğrulama — kime söylüyorsun, hangi kelimeyle
 
-> **Nerede geçiyor:** `DamageRules.ResolveRemaining`, `HealingRules.ResolveRestored`,
-> `UnitGrid.ThrowIfOutsideGrid`, `PointerGesture` kurucusu,
-> `BattleActions.RequireCombatant`, `Battle.ThrowIfCannotJoin`, `GridDistance.Between`
-> **Kodda nereden geldin:** `nameof`, `ArgumentNullException`,
-> `ArgumentOutOfRangeException`, `ArgumentException`, `InvalidOperationException`,
-> `Math.Max` / `Math.Min`
-> **Ne zaman oku:** bir `throw` satırı yazarken; `nameof(x)` görüp "bu neden düz
-> dize değil" diye düşündüğünde; ya da üç `Argument*` tipinden hangisini
-> seçeceğine karar veremediğinde.
+> **HANGİ DİL / BCL ARACI** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `nameof` · `ArgumentNullException` · `ArgumentOutOfRangeException` ·
+> `ArgumentException` · `InvalidOperationException` · `Math.Max` / `Math.Min`
+>
+> **NEREDE GEÇİYOR** — *bu araçların bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Core/Combat/DamageRules.cs` | `ResolveRemaining` |
+> | `Assets/Game/Core/Combat/HealingRules.cs` | `ResolveRestored` |
+> | `Assets/Game/Core/UnitGrid.cs` | `ThrowIfOutsideGrid` |
+> | `Assets/Game/Core/PointerGesture.cs` | `PointerGesture(float)` (kurucu) |
+> | `Assets/Game/Battle/BattleActions.cs` | `RequireCombatant` |
+> | `Assets/Game/Battle/Battle.cs` | `ThrowIfCannotJoin` |
+> | `Assets/Game/Core/GridDistance.cs` | `Between` |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir `throw` satırı yazarken; `nameof(x)` görüp "bu neden düz dize değil" diye
+> düşündüğünde; ya da üç `Argument*` tipinden hangisini seçeceğine karar
+> veremediğinde.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
+██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/MoveAction.cs` | `Execute` | ✓ |
+| `Assets/Game/Core/PointerGesture.cs` | `PointerGesture(float)` (kurucu) | ✓ |
+| `Assets/Tests/EditMode/Combat/MovementRulesTests.cs` | `CanMove_TakesStateAloneAndHasNoTeamOverload` | ✓ |
+| `DamageRules` · `HealingRules` · `UnitGrid` · `BattleActions` · `Battle` · `GridDistance` | yukarıdaki üyeler | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
+ulaşamazsın, yalnız tersi çalışır. ██
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** dil ve BCL
 araçlarını anlatıyor. Onların kodunu biz yazmadık; ama neyi vaat ettiklerini
@@ -630,3 +657,17 @@ dönüşün üstünde, ve hiçbiri Unity'ye bağımlı değil.
 
 Kodda **karar**, burada **ödünç alınan aracın sözleşmesi**. İkisi çelişirse kod
 kazanır — orası çalışan metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
+> açılmak. Bu dosya "yanlış" olduğunda hangi kelimeyle bağıracağını verdi;
+> `dil/05` "aynı" sözcüğünün dört ölçüsünü, `dil/02` "salt okunur"un kapsamını.
+> **AYRICA:** [`konular/04`](../konular/04-karar-sirasi.md) bu dosyayı bir **ileri işaretçi** olarak anıyor —
+> ██ hangi istisna tipinin ne zaman seçileceği `04`'ün işi değil, buranın ██.
+> `04`'ü okurken o soruyu askıya aldıysan cevabı yukarıda.
+> **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

@@ -1,12 +1,31 @@
 # Erişim ve sözleşme — kim görebilir, kim değiştirebilir
 
-> **Nerede geçiyor:** `Battle.cs` (projenin tek `internal`i) · dört `.asmdef` ·
-> `BattleActions.cs` · `AttackAction.cs` · `Structure.cs` · `CombatantTests.cs`
-> **Kodda nereden geldin:** `internal UnitGrid Board => board;`, `public sealed class`,
-> `public static class`, bir üyeye `private` mi `public` mi yazacağını sorduğun an
-> **Ne zaman oku:** bir üyeye erişim belirteci yazarken, "burada bir `interface`
-> olmalı mıydı" diye sorduğunda, ya da `internal` görüp "aynı klasör demek" diye
-> okuduğunda.
+> **HANGİ DİL ARACI** — *bu dosyanın anlattığı, ödünç alınmış adlar:*
+> `public` · `private` · `internal` · `protected` · `public sealed class` ·
+> `public static class` · bir üyeye `private` mi `public` mi yazacağını sorduğun an
+>
+> **NEREDE GEÇİYOR** — *bu araçların bu projede yaşadığı yerler:*
+>
+> | dosya | üye |
+> |---|---|
+> | `Assets/Game/Battle/Battle.cs` | `Board` — ██ `internal UnitGrid Board => board;` · projenin **tek** `internal`i ██ |
+> | dört `.asmdef` | `Assets/Game/Core/GridStrategy.Core.asmdef` · `Assets/Game/Core/Combat/GridStrategy.Combat.asmdef` · `Assets/Game/Battle/GridStrategy.Battle.asmdef` · `Assets/Game/Unity/GridStrategy.Unity.asmdef` |
+> | `Assets/Game/Battle/BattleActions.cs` | `BattleActions` (`public static class`) |
+> | `Assets/Game/Core/Combat/AttackAction.cs` | `AttackAction` (`public static class`) |
+> | `Assets/Game/Core/Combat/Structure.cs` | `Structure` (`public sealed class`) |
+> | `Assets/Tests/EditMode/Combat/CombatantTests.cs` | erişimin testten görünüşü |
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> bir üyeye erişim belirteci yazarken, "burada bir `interface` olmalı mıydı" diye
+> sorduğunda, ya da `internal` görüp "aynı klasör demek" diye okuduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
+işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
+belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
+koda gidilir, koddan buraya gelinmez — ██ `Battle.Board`'un yorumundaki işaretçi
+bile [`konular/03`](../konular/03-tahta-sahipligi.md)'ü gösteriyor, bu dosyayı
+değil. ██
 
 Bu dosya iki soruyu birden sahipleniyor ve ikisi aynı sorunun iki ucu:
 
@@ -985,3 +1004,17 @@ Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İk
 - Desen adları — saf kural sınıfı, bileşim, kimlik + yan tablo:
   [`ogrenme/01`](../../ogrenme/01-koda-gomulu-desenler.md)
 - Bu ağacın yönlendirmesi: [`dil/README.md`](README.md)
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** ██ Bu dosya 14 adımlık okuma yolunda **yok** ██ —
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md) yazıldığında henüz sıraya girmemişti. Yolda bir
+> yer arıyorsan doğru komşusu **4. adım**: [`01-degismezlik-anahtar-kelimeleri.md`](01-degismezlik-anahtar-kelimeleri.md)
+> ("kim YAZABİLİR") ile bu dosya ("kim GÖREBİLİR") aynı sorunun iki ucu.
+> **NEDEN ORASI:** bu dosyanın taşıyıcı örneği `Battle.Board`'un `internal`i, ve
+> onun proje tarafı [`konular/03`](../konular/03-tahta-sahipligi.md)'te — okuma yolunun **3.** adımı. `internal`in
+> çizdiği çemberin `.asmdef` sınırıyla **aynı** çember olduğu ise
+> [`konular/02`](../konular/02-assembly-duvari.md)'de, **2.** adımda.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

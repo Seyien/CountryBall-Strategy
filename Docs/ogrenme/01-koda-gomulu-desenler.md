@@ -353,10 +353,10 @@ kalmaz, dosya başındaki sıradan bir `using` yeterdi.
 
 **██ BU BİR GoF ADAPTER DEĞİL ██** — GoF Adapter bir tipin arayüzünü **başka
 bir arayüze** çevirir; ölçüsü, çevrilen hedef arayüzün var olmasıdır. Burada
-`BoardAdapter` hiçbir arayüz uygulamıyor (`:106` — yalnız `MonoBehaviour`'dan
+`BoardAdapter` hiçbir arayüz uygulamıyor (`BoardAdapter.cs:110` — yalnız `MonoBehaviour`'dan
 türüyor) ve çevirdiği şey bir arayüz değil, iki **dünya**. Doğru ad "katman
 sınırı çevirmeni". Dosya bunu kendisi de itiraf ediyor: künyesi
-`BoardAdapter.cs:68` "KARMA — ÇEVİRMEN + VARLIK" diyor ve `:79-84`'te bir **koku
+`BoardAdapter.cs:68` "KARMA — ÇEVİRMEN + VARLIK" diyor ve `:83-88`'de bir **koku
 notu** taşıyor — eşiğin aşıldığı yazılı, silinmemiş.
 
 **ÜÇ OYUN** — Slay the Spire: kart üstündeki sayı ile ekrandaki animasyon ayrı
@@ -409,9 +409,9 @@ reddediyor: baraka devralacağı üyelerin yarısına uymaz — `TryRevive`, `Do
 hâli, zorunlu `AttackProfile`, on saniyelik kurtarma penceresi.
 
 İhlal edilseydi hangi dosya değişirdi: `Assets/Game/Core/Combat/Combatant.cs`
-kendisi. `TryRevive` (`:186`) bir barakada anlamsız olduğu için `virtual` olmak
+kendisi. `TryRevive` (`:190`) bir barakada anlamsız olduğu için `virtual` olmak
 ve `Structure` içinde `return false;` diye ezilmek zorunda kalırdı; aynı şey
-`ReviveHealthDivisor` (`:42`) ve `RemainingSeconds` (`:152`) için de geçerli.
+`ReviveHealthDivisor` (`:42`) ve `RemainingSeconds` (`:156`) için de geçerli.
 Kalıtım **seçmeli değildir** — `sealed` bu satıra karşı sıfır koruma sağlar
 (`Structure.cs:20`).
 
@@ -562,7 +562,7 @@ numaralanırdı.
 çağrıda anlamsız kalırdı (`AttackOutcome.cs:21-24`).
 
 İhlal edilseydi hangi dosya değişirdi: `Assets/Game/Unity/BoardAdapter.cs`.
-Oradaki `ReactToMove` (`:893`) ve saldırı ikizi `ReactToAttack` (`:843`),
+Oradaki `ReactToMove` (`:904`) ve saldırı ikizi `ReactToAttack` (`:854`),
 beş ret sebebi tek bir `bool`'a inseydi, sebebi **yeniden hesaplamak** zorunda
 kalırdı — yani `MoveAction`'ın kurallarını ikinci kez yazardı.
 
@@ -768,8 +768,8 @@ Aşağıdakilerin hiçbiri bu projede **yok**. Yokluk bir eksiklik değil, bir
 | Service Locator | Kayıt defteri yok; bağımlılıklar kurucudan ya da `[SerializeField]`'den geliyor |
 | Decorator | Sarmalanacak sabit bir sözleşme (arayüz/soyut tip) yok |
 | MVP / MVC | `UnitView.cs:43` edilgen bir görünüm, ama karşısında bir sunucu (presenter) tipi yok; niyet çevirisi `BoardAdapter` içinde <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil --> |
-| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:739`) ve `Destroy` (`:992`) doğrudan çağrılıyor |
-| ScriptableObject | `Assets/` altında hiçbir tip `ScriptableObject`'ten türemiyor; tek geçtiği yer `AttackProfile.cs:13` ve `:40`, ikisi de **karar notu** |
+| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:739`) ve `Destroy` (`BoardAdapter.cs:1007`) doğrudan çağrılıyor |
+| ScriptableObject | `Assets/` altında hiçbir tip `ScriptableObject`'ten türemiyor; tek geçtiği yer `AttackProfile.cs:13` ve `:44`, ikisi de **karar notu** |
 | Olay veri yolu | Ortak bir yayın noktası yok; üç `event` doğrudan zincir hâlinde bağlı (8. desen) |
 | Coroutine / `async` | `Assets/Game/` altında `IEnumerator`, `yield`, `async`, `Task`, `Awaitable` kelimelerinin hiçbiri geçmiyor |
 

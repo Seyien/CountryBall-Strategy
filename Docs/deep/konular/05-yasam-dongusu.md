@@ -1,12 +1,34 @@
 # Ölmek bir an değil bir süreç — üç durum ve yapının ikizi
 
-> **Nerede geçiyor:** `UnitState.cs` → `UnitLifecycle.cs` → `TargetingRules.cs` → `Battle.cs`
-> ikizi: `StructureState.cs` → `StructureLifecycle.cs`
-> **Kodda nereden geldin:** `UnitLifecycle.Tick`, `UnitLifecycle.OnHealthDepleted`,
-> `UnitLifecycle.TryRevive`, `TargetingRules.CanBeAttacked`, `TargetingRules.CanBeRevived`,
-> `Battle.RemoveReadyForCleanup`
-> **Ne zaman oku:** `UnitState`'e dördüncü bir değer eklemeden önce, ya da "yapının
-> neden `TryRevive`'ı yok" diye sorduğunda.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Core/Combat/UnitState.cs` → `Assets/Game/Core/Combat/UnitLifecycle.cs`
+> → `Assets/Game/Core/Combat/TargetingRules.cs` → `Assets/Game/Battle/Battle.cs`
+> **ikizi:** `Assets/Game/Core/Combat/StructureState.cs` → `Assets/Game/Core/Combat/StructureLifecycle.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> `UnitState`'e dördüncü bir değer eklemeden önce, ya da "yapının neden
+> `TryRevive`'ı yok" diye sorduğunda.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Core/Combat/UnitState.cs` | `UnitState` (tip başlığı) | ✓ |
+| `Assets/Game/Core/Combat/UnitLifecycle.cs` | `OnHealthDepleted` · `Tick` | ✓ |
+| `Assets/Game/Core/Combat/UnitLifecycle.cs` | `TryRevive` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Core/Combat/TargetingRules.cs` | `CanBeAttacked(UnitState)` · `CanBeAttacked(StructureState)` | ✓ |
+| `Assets/Game/Core/Combat/TargetingRules.cs` | `CanBeRevived` | ██ HENÜZ YOK ██ |
+| `Assets/Game/Core/Combat/StructureLifecycle.cs` | `StructureLifecycle` (tip başlığı) | ✓ |
+| `Assets/Game/Battle/Battle.cs` | `RemoveReadyForCleanup` | ✓ |
+| `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs` | `Revived_ThenDownedAgain_StartsAFullWindow` | ✓ |
+
+██ **"HENÜZ YOK" ne demek:** o üye bu dosyanın konusudur ve burada gerçekten
+anlatılıyor, ama **kodun yorumunda buraya geri getiren bir satır yok** — yani o
+üyeden yola çıkarak bu belgeye ulaşamazsın, yalnız tersi çalışır. Listeden
+silmedim, çünkü silmek boşluğu görünmez kılardı. ██
 
 ---
 
@@ -113,6 +135,17 @@ kaybediyor:
 Üçüncü durum bir konfor değil: **`Downed`'ın var olma sebebi tam olarak
 `Downed → Alive` geri okudur.** O ok silinirse `Downed`, `Dead`'in uzun yazılışı
 olur ve enum üç değere gerek duymaz.
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/UnitState.cs` → `UnitState`
+> **BAK:** üç değer, ve sıfırıncısı `Alive`. Dosyanın tamamı üç satırlık bir
+> enum; bu belgenin 700 satırı o üç satırın **neden üç** olduğunu anlatıyor.
+> **DÖNÜŞ:** bu dosyanın «Neden üç durum: iki olsaydı hangi cümle yazılamazdı» bölümü
+
+> **◀ DÖNÜŞ:** [01-olay-zinciri.md](01-olay-zinciri.md#ikinci-durak-savasci-zenginlestiriyor) — «Birinci durak: sayaç konuşuyor»dan
+> geldiysen artık şunu biliyorsun: sayacın bağırdığı tek kelime **üç değerli** bir
+> kümeden geliyor ve `Downed` o kümenin geri oku olan tek değeri — bu yüzden
+> "önceki durum" bilgisi ekranda gerçekten bir fark yaratıyor · oraya dön ve
+> savaşçının zenginleştirdiği yerden devam et
 
 ---
 
@@ -233,6 +266,19 @@ Aynı `Downed` birim, **eyleyen** olarak sorulduğunda her kapıdan geri dönüy
 Yerdeki asker vuramaz, yürüyemez, arkadaşını kaldıramaz — ama vurulabilir ve
 kaldırılabilir. Sol blok üç ayrı dosyaya (`MovementRules`, `AttackRules`,
 `ReviveRules`) dağılmış; sağ blok tek dosyada (`TargetingRules`) iki metot.
+
+> **⌨ KODU AÇ:** `Assets/Game/Core/Combat/TargetingRules.cs` → `CanBeAttacked` ve
+> `CanBeRevived`
+> **BAK:** iki metot aynı `UnitState`'i alıyor ve **`Downed`'da ikisi de `true`**
+> dönüyor. Kesişimin tek elemanı orada. Sınayan test —
+> `Assets/Tests/EditMode/Combat/TargetingRulesTests.cs` → `Downed_IsTheOnlyStateBothAbilitiesAccept`
+> — ██ adı doğrudan kesişimi söylüyor ██.
+> **DÖNÜŞ:** bu dosyanın «Ama hedef olmakla eyleyen olmak ayrı eksenler» bölümü
+
+> **◀ DÖNÜŞ:** [04-karar-sirasi.md](04-karar-sirasi.md#besinci-durak-ayni-iskelet-dort-farkli-yuruyus) — «Eyleyen kuralı ile hedef kuralı bilerek çelişir»den
+> geldiysen artık şunu biliyorsun: "eyleyen" ile "hedef" **iki ayrı eksen**, ve
+> `Downed` ikisinde zıt cevap veriyor — `04`'ün asimetrisi bu tablodan doğuyor,
+> bir üslup tercihinden değil · oraya dön ve beşinci duraktan devam et
 
 ---
 
@@ -722,3 +768,18 @@ iki ayrı niyet olarak görünecek.
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`06-sonuc-enumlari.md`](06-sonuc-enumlari.md) — okuma yolunun **6.** adımı
+> **NEDEN ORASI:** `06` sıfırıncı enum değerini **bu dosyadan** ödünç alıyor —
+> `UnitState.Alive`'ın sıfırıncı hücrede durması orada bir kurala dönüşecek. Ve
+> ██ `06`, `04`'ten ÖNCE okunur ██: ikisi de aynı ölçütü kuruyor (*"ayıraç sebep
+> sayısı değil, DAVRANIŞ sayısı"*), `06` onu **kurar**, `04` bir sıra kararına
+> **uygular**; kuran önce okunur. ██ Bu adımdan önce ██
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> **DURMA NOKTASI 2**'yi geç: `Downed_IsTheOnlyStateBothAbilitiesAccept` testini
+> aç ve gövdesini oku.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

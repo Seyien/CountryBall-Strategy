@@ -558,6 +558,26 @@ görürsün, `Awake` ve `Start` **tekrar etmez**.
 
 # ██ OTURUM 5 · DÜĞÜM VE DEFTER ██  (~2 saat · 2.243+ satır)
 
+### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1479)
+
+**NEDEN BU SIRADA:** ADIM 9 *"ne oluyor"*u kapattı — çağrı sırası, sahipleri,
+`Awake`'in bir `event` olmadığı. Bu dosya ██ *"neden ve teknik olarak nasıl"* ██
+açıyor: yönetilen C# ile yerel motorun sınırı, `Vector3` neden `struct`,
+PlayerLoop'un faz ağacı, serileştirmenin C#'ın `[Serializable]`'ı **olmadığı**,
+`.meta`/GUID kimliği, ve ad tabanlı geri çağrının bedeli — `void Awakee()`
+derlenir, uyarı çıkmaz, hiçbir zaman çağrılmaz.
+
+**ÖN KOŞUL:** ADIM 2 (duvar) ve ADIM 9. **YANINDA AÇIK:** `Assets/Game/Unity/BoardAdapter.cs`
+
+██ Bu dosyanın sonunda 8 adımlık bir **Editor geçiş listesi** var. ██ Kod
+tarafını bitirdikten sonra Unity tarafına oradan geçilir — her adımda nereye
+tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazılı.
+
+**BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
+> *"`GameObject` bir C# nesnesi mi? `transform.position.x = 5` neden derlenmiyor?"*
+
+---
+
 ### ADIM 10 · [`konular/01-olay-zinciri.md`](../deep/konular/01-olay-zinciri.md) — tamamı (336)
 
 **NEDEN EN SONDA — ██ ve numarası `01` olmasına rağmen ██:** Üç ipliğin
@@ -673,6 +693,18 @@ yedi adımlık kalıbı tam. Konusu küçük, dosya değil. Ayrıca `konular/08:
 - [`03-kavram-borc-defteri.md`](03-kavram-borc-defteri.md)
 - [`02-sonraki-asamalar.md`](02-sonraki-asamalar.md)
 
+Sonra ██ dört tamamlayıcı dosya ██ — sıra serbest, ama `07` ile `06` bu sırada
+en iyi okunur (önce dörtlünün **adı**, sonra ilkelerin adı):
+
+- [`07-oop-dortlusu.md`](07-oop-dortlusu.md) (1034) — kapsülleme · kalıtım ·
+  soyutlama · **çok biçimlilik**; polimorfizmin üç türü sayımla ayrılıyor
+- [`06-ilkeler-ve-kokenleri.md`](06-ilkeler-ve-kokenleri.md) (1463) — dokuz ilke,
+  kökeni, projedeki karşılığı, ve ██ ilkeler çatıştığında hangisinin kazandığı ██
+- [`04-yok-olan-mekanizmalar-unity.md`](04-yok-olan-mekanizmalar-unity.md) (1106)
+  — `Instance` · `DontDestroyOnLoad` · `Find*` · `ScriptableObject` · nesne havuzu
+- [`05-yok-olan-mekanizmalar-csharp.md`](05-yok-olan-mekanizmalar-csharp.md) (852)
+  — `yield` ve `await`'in derleyici çıktısı, IL'den ölçülmüş
+
 ██ Bu ağaç zincirin **güvenilirlik bakımından en sağlam** parçası. ██ Ölçüldü:
 11 rastgele `.cs:satır` atfı elle doğrulandı, **11'i de** tam olarak adlandırdığı
 yapıya düştü. Ayrıca `ogrenme/03` bir makine kapısıyla bağlı.
@@ -743,11 +775,34 @@ olduğunu **kendin işaretle**. Defterin işi bu. ██
 
 ---
 
+### ADIM 15 · [`ogrenme/09-ecs-dots-yol-haritasi.md`](09-ecs-dots-yol-haritasi.md) (1402)
+
+██ ADIM 14'ten SONRA. `01`/`02`/`03` okunmadan açılmaz — bu dosya üçüne de geri
+bağlanıyor. ██
+
+**NEDEN EN SONDA:** ECS, Job System ve Burst ██ üç ayrı şey ██ ve üçü de bu
+projede **yok**. Bu dosya onları mekanizma olarak anlatır, eşiği sayıyla ölçer
+(3×5 tahta, 2 birim — ECS'in kazandığı eşik binlerce varlık), ve projeyi
+genişletmek için **yedi basamaklı bir merdiven** verir. Beş basamak mevcut koda
+hiç dokunmadan yapılabilir.
+
+**YANINDA AÇIK:** `Assets/Game/Battle/Battle.cs` · `Assets/Game/Core/Unit.cs`
+
+██ Ölçülmüş sınır: Entities 1.0 Unity 2022.3+ istiyor, bu depo 2021.3.45f2 —
+yani ECS örnek kodu bu projede **derlenmez**. Dosya bu yüzden örnek kod yazmıyor
+ve hiçbir hızlanma oranı vermiyor. ██
+
+**BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
+> *"ECS ne zaman kazanır, ve bu oyun neden o eşiğe hiç ulaşmıyor?"*
+
+---
+
 # ██ SEÇİLEN / REDDEDİLEN ██
 
 ## SEÇİLEN
 `00 → 02 → 03 → dil/01 → 05 → 06 → 04 → 07 → 08 → 01 → dil/04 → dil/06 → dil/07
-→ dil/05,02,03 → ogrenme/01,03,02`
+→ dil/05,02,03 → ogrenme/01,03,02 → ogrenme/07,06,04,05 → ogrenme/09`
+(ve `08` ADIM 9b olarak `konular/08`in hemen ardında)
 
 ██ İki **bağımsız** yöntem aynı başlangıcı verdi: ██
 ① **Kenar sayımı** — `02`'nin 6 gelen kenarı var, `00-iskelet`'in 0.

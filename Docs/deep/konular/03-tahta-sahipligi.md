@@ -1,8 +1,24 @@
 # Tahtanın tek sahibi — ikinci yazarın nasıl doğmadığı
 
-> **Nerede geçiyor:** `Battle.cs` → `UnitGrid.cs` → `BoardAdapter.cs` → `BattleActions.cs`
-> **Kodda nereden geldin:** `Battle.board`, `Battle.Board`, `Battle(int, int)`, `BoardAdapter.battle`, `BattleActions.Move`
-> **Ne zaman oku:** `Battle`'ın kurucusuna bir `UnitGrid` parametresi eklemek istediğinde, `Board`'u `public` yapmayı düşündüğünde, ya da "zaten `readonly`, koruma var" dediğinde.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Battle/Battle.cs` → `Assets/Game/Core/UnitGrid.cs`
+> → `Assets/Game/Unity/BoardAdapter.cs` → `Assets/Game/Battle/BattleActions.cs`
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> `Battle`'ın kurucusuna bir `UnitGrid` parametresi eklemek istediğinde, `Board`'u
+> `public` yapmayı düşündüğünde, ya da "zaten `readonly`, koruma var" dediğinde.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Battle/Battle.cs` | `board` (alan) · `Battle(int, int)` (kurucu) · `Board` (üye) | ✓ |
+| `Assets/Game/Core/UnitGrid.cs` | `PlaceUnit` · `TryGetUnit` | ✓ |
+| `Assets/Game/Battle/BattleActions.cs` | `Move` — ██ `battle.Board`'un tüm projedeki tek çağırısı ██ | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `battle` (alan — silinen `UnitGrid` alanının yeri) | ✓ |
 
 ---
 
@@ -175,6 +191,25 @@ private readonly UnitGrid board;
 `readonly` yine de yazılı, çünkü ölçüsüz bir maliyeti yok ve niyeti belgeliyor.
 Ama korumayı ona yüklemek, bu dosyadaki en pahalı yanlış okuma olurdu.
 
+> **⌨ KODU AÇ:** `Assets/Game/Battle/Battle.cs` → `board` alanı, sonra aynı
+> dosyada `Board` üyesi
+> **BAK:** alan `private readonly`, üye ise dışarıya **aynı oku** veriyor.
+> `readonly` ikinci satırı hiç görmüyor — kilitlediği şey slot, verdiği şey ok.
+> **DÖNÜŞ:** bu dosyanın «İkinci durak: `readonly` burada hiçbir şey korumuyor» bölümü
+
+> **▶ ARA DURAK:** [../dil/01-degismezlik-anahtar-kelimeleri.md](../dil/01-degismezlik-anahtar-kelimeleri.md#birinci-durak-readonly-slot-kilitli-icerik-serbest)
+> **NEDEN:** yukarıdaki figür `readonly`'nin **neyi** kilitlemediğini gösteriyor
+> ama **neden** kilitlemediğini dil düzeyinde vermiyor — "slot" ile "içerik"
+> ayrımı bu dosyanın değil, C#'ın kararı. Aynı dosya `readonly`'nin bu projede
+> gerçekten koruduğu tek yeri de ölçüyor (`UnitLifecycle`'ın iki `float` alanı).
+> **DÖNÜŞ:** bu dosyanın [«Üçüncü durak: sahipliği ayakta tutan üç katman»](#ucuncu-durak-sahipligi-ayakta-tutan-uc-katman) bölümü
+
+> **◀ DÖNÜŞ:** [../dil/01-degismezlik-anahtar-kelimeleri.md](../dil/01-degismezlik-anahtar-kelimeleri.md#bu-projede-readonlynin-gercekten-korudugu-bir-sey-var-mi) — «Bu projede `readonly`'nin gerçekten koruduğu bir şey var mı»dan
+> geldiysen artık şunu biliyorsun: `Battle.board`'daki korumanın kaynağı
+> `readonly` değil, **dışarıda hiç referans olmaması** olgusu — ve o olguyu üç
+> katman birlikte ayakta tutuyor · oraya dön ve gerçekten koruduğu iki `float`
+> alanından devam et
+
 ---
 
 ## Üçüncü durak: sahipliği ayakta tutan üç katman
@@ -269,6 +304,19 @@ Test assembly'si bile göremiyor: `GridStrategy.Battle.EditModeTests`
 yok, dolayısıyla `internal` üyeler testlerin de dışında kalıyor.
 
 **Sözleşme assembly duvarında biter.** Bunun ötesi dikkat.
+
+> **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#duvarin-engelledigi-sey-gorunurluk)
+> **NEDEN:** bu bölümün taşıyıcı cümlesi **assembly** kelimesinin üstünde
+> duruyor: garantiyi bitiren çizgi klasör sınırı da değil, ad alanı sınırı da
+> değil — `.asmdef`'in çizdiği görünürlük sınırı. O sınırın ne olduğu bu dosyada
+> tanımlanmıyor.
+> **DÖNÜŞ:** bu dosyanın [«Beşinci durak: tahtanın kendi iç sözleşmesi»](#besinci-durak-tahtanin-kendi-ic-sozlesmesi) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Battle/BattleActions.cs` → `Move`
+> **BAK:** `battle.Board` ifadesi **tüm projede** yalnız burada geçiyor. Sayarak
+> doğrula: `grep -n 'battle.Board' Assets/Game/Battle/BattleActions.cs` tek satır
+> döndürmeli. "Tek yol" cümlesinin ölçüsü bu tek satır.
+> **DÖNÜŞ:** bu dosyanın «Dördüncü durak: garantinin bittiği çizgi» bölümü
 
 ---
 
@@ -501,3 +549,14 @@ Zincirin tamamı — silinen alandan `MoveAction`'ın imzasına kadar — burada
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`../dil/01-degismezlik-anahtar-kelimeleri.md`](../dil/01-degismezlik-anahtar-kelimeleri.md) — okuma yolunun **4.** adımı
+> **NEDEN ORASI:** bu dosyanın ikinci durağı `readonly`'nin **korumadığı** şeyi
+> gösterdi ama **neden** korumadığını dil düzeyinde vermedi. `dil/01` veriyor —
+> ve o dosya zaten buraya geri işaret ediyor. ██ İki dosya bilerek bölüşmüş:
+> `03` kararı, `dil/01` kelimenin sözleşmesini. ██
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

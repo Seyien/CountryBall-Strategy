@@ -1,11 +1,34 @@
 # Motorun çağrı döngüsü — kimse çağırmadığı hâlde koşan metotlar
 
-> **Nerede geçiyor:** `BoardAdapter.cs` → `UnitView.cs` → ██ duvar ██ → `Battle.cs`
-> **Kodda nereden geldin:** `BoardAdapter.Awake`, `BoardAdapter.OnEnable`,
-> `BoardAdapter.OnDisable`, `BoardAdapter.Update`, `UnitView.Awake`
-> **Ne zaman oku:** `Assets/Game/Unity/` altına üçüncü bir `MonoBehaviour`
-> eklemeden önce, "bu satır neden `Start`'ta değil de `Awake`'te" diye
-> sorduğunda, ya da ilk `StartCoroutine`'i yazmaya kalktığında.
+> **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
+> `Assets/Game/Unity/BoardAdapter.cs` → `Assets/Game/Unity/UnitView.cs`
+> → ██ duvar ██ → `Assets/Game/Battle/Battle.cs`
+> ayrıca motor ayarı: `ProjectSettings/EditorSettings.asset` (`m_EnterPlayModeOptionsEnabled`)
+>
+> **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
+> `Assets/Game/Unity/` altına üçüncü bir `MonoBehaviour` eklemeden önce, "bu satır
+> neden `Start`'ta değil de `Awake`'te" diye sorduğunda, ya da ilk
+> `StartCoroutine`'i yazmaya kalktığında.
+
+**BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
+`DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz. ██
+
+| dosya | üye | koddan işaretçi |
+|---|---|---|
+| `Assets/Game/Unity/BoardAdapter.cs` | `Awake` | ✓ |
+| `Assets/Game/Unity/UnitView.cs` | `Awake` | ✓ |
+| `Assets/Game/Core/PointerGesture.cs` | `Reset` — ██ Unity mesaj ADI taşıyor, mesaj DEĞİL ██ | ✓ |
+| `Assets/Game/Core/Combat/UnitLifecycle.cs` | `Tick` — ██ motorun `Update`'i DEĞİL, elle çevrilen sayaç ██ | ✓ |
+| `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs` | `IEnumerator`'un reddedildiği blok | ✓ |
+| `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` · `OnDisable` · `Update` | ██ HENÜZ YOK ██ |
+
+██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
+yorumunda buraya geri getiren bir satır yok**. Üçünün de yorumunda başka bir
+belgeye işaretçi var (`OnEnable`/`OnDisable` → `dil/06`, `Update` → `konular/07`);
+yani işaretçi eksikliği değil, ██ bu belgeye giden işaretçinin yokluğu ██.
+Listeden silmedim; silmek boşluğu görünmez kılardı. ██
 
 ---
 
@@ -170,6 +193,20 @@ BoardAdapter.cs:288   private void OnEnable()
 
 Olayın kendi zinciri: [01-olay-zinciri.md](01-olay-zinciri.md).
 
+> **▶ ARA DURAK:** [../dil/04-delege-olay-ve-kapanis.md](../dil/04-delege-olay-ve-kapanis.md#ikinci-durak-event-ile-duz-action-alani-farki)
+> **NEDEN:** yukarıdaki yedi satırlık tablonun **sol sütunu** tanımsız. "`event`
+> DEĞİLDİR" cümlesi ancak `event`'in ne **olduğu** bilinirse bir şey söylüyor —
+> ve bu dosya onu tanımlamıyor, bilerek tekrar etmiyor. Sol sütunun beş satırı
+> (`+=`, çağrı listesi, `Target`+`Method`, `?.Invoke`, sızıntı) orada kuruluyor.
+> **DÖNÜŞ:** bu dosyanın [«`private void Awake()` — motor bunu nasıl buluyor»](#private-void-awake-motor-bunu-nasil-buluyor) bölümü
+
+> **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → `OnEnable`
+> **BAK:** metodun **kendisi** bir Unity mesajı (motor onu adıyla bulur),
+> **gövdesindeki** satır ise bir C# `event` aboneliği (`+=` sen yazarsın). İki
+> mekanizma iki satır arayla yan yana duruyor — ██ tablonun iki sütunu tek
+> ekranda ██.
+> **DÖNÜŞ:** bu dosyanın «Birinci durak: `Awake` bir `event` DEĞİLDİR» bölümü
+
 ### `private void Awake()` — motor bunu nasıl buluyor
 
 Cevap **her karede yansımayla arama yapmak değil**; ada göre bir kez çözüp
@@ -291,7 +328,11 @@ basınç doğmadığı için** eklenmedi.
 | `OnDisable` | etkin-ve-açıklıktan çıkan her geçişte; `OnDestroy`'dan önce | "nesne öldü" demek olduğu — çoğu zaman **sadece kapandı** | `OnEnable`'ın simetriği: abonelik bırakma, kip iptali |
 | `OnDestroy` | `Awake`'i koşmuş bir nesne yok edildiğinde | `Awake`'i hiç koşmamış nesnede çağrıldığı | son temizlik: yönetilmeyen kaynak, dışarıya verilmiş kayıt |
 
-### ██ En pahalı karışıklık: `Awake` KENDİNİ kurar, `Start` BAŞKASINA güvenir ██
+> **◀ DÖNÜŞ:** [../dil/06-delege-arka-taraf.md](../dil/06-delege-arka-taraf.md#altinci-durak-event-ile-unity-mesaj-geri-cagrilari-ayni-sey-degil) — «Altıncı durak: `event` ile Unity mesaj geri çağrıları aynı şey değil»den
+> geldiysen artık şunu biliyorsun: `OnEnable`/`OnDisable` çiftinin **sırası** bu
+> tablodan geliyor, senin yazdığın bir sözleşmeden değil — ██ `OnEnable` tekrar
+> eder, `Start` etmez ██, ve abonelik simetrisi tam olarak bu tekrarın üstüne
+> kurulu · oraya dön ve delegenin arka tarafından devam et
 
 "Neden iki tane kurulum geri çağrısı var" sorusunun cevabı tek cümle:
 
@@ -964,3 +1005,18 @@ duvarın öte yanında, motor diye bir şeyin varlığından habersiz yaşıyor.
 - Üye başına gerekçeler: [../kod/Unity/BoardAdapter.md](../kod/Unity/BoardAdapter.md) ·
   [../kod/Unity/UnitView.md](../kod/Unity/UnitView.md)
 - Bu ağacın yönlendirmesi: [../README.md](../README.md)
+
+---
+
+## ██ SIRADAKİ ADIM ██
+
+> **▶ SIRADA:** [`01-olay-zinciri.md`](01-olay-zinciri.md) — okuma yolunun **10.** adımı
+> **NEDEN ORASI:** ██ numarası `01` ama okuma yolunun sonlarında ██ — çünkü bir
+> GİRİŞ değil, bir **DÜĞÜM**: üç ipliğin bağlandığı yer. İkisini artık kapattın
+> (`konular/02` 2. adımda, `konular/05` 5. adımda); üçüncüsü (`dil/04`) bilerek
+> **sonraya** bırakıldı — `01` delegenin ne **yaptığını** gösteriyor, `dil/04` ne
+> **vaat ettiğini**. Zinciri önce gör, sözleşmeyi sonra oku. ██ Bu adımdan önce ██
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> **DURMA NOKTASI 5**'i geç: iki bileşenli günlük deneyini kendin koştur, sonra
+> geçici script'i **sil**.
+> **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)
