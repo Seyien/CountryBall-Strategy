@@ -86,6 +86,29 @@ namespace GridStrategy.Tests.EditMode.Combat
         [Test]
         public void CanMove_TakesStateAloneAndHasNoTeamOverload()
         {
+            // ÖDÜNÇ ALINAN — `System.Reflection` (`typeof`, `GetMethods`,
+            // `BindingFlags`, `MethodInfo`, `ParameterInfo`) artı `System.Linq`:
+            // tipi DERLENDİKTEN SONRA sorgular. Ne çağırır ne de davranış ölçer;
+            // aldığı tek şey ŞEKİL — hangi üyeler var, imzaları ne.
+            // `BindingFlags` bir SIRA değil bir KÜME filtresidir ve iki çiftten
+            // birer üye ZORUNLUDUR: örnek/statik ve açık/gizli. `Static`
+            // yazılmasaydı (ve `Instance` da yazılmasaydı) sonuç boş dönerdi —
+            // "her ikisi de" değil, "hiçbiri" demektir.
+            // `DeclaredOnly` ise bu iddiayı BUGÜN çevirmez: alttaki ad süzgeci
+            // `object`ten miras kalan üyeleri zaten eliyor. Kaldırılırsa test
+            // yine yeşil kalır; ad süzgeci kaldırılırsa kalmaz.
+            // ÖLÇÜ: MovementRules'a ikinci bir CanMove aşırı yüklemesi ekle ve
+            // hiçbir gövdeyi değiştirme — aşağıdaki ilk iddia kırmızıya döner,
+            // dosyadaki davranış testlerinin hepsi yeşil kalır. Şekil ile
+            // davranışın ayrıldığı tek nokta budur.
+            //
+            // ÖDÜNÇ ALINAN — `nameof(MovementRules.CanMove)`: adı düz metin
+            // yerine DERLEYİCİYE yazdırır ve yalnız SON parçayı verir
+            // ("CanMove", nitelenmiş ad değil). Metot yeniden adlandırılırsa bu
+            // satır derlenmez; `"CanMove"` yazılsaydı liste sessizce boşalır ve
+            // uzunluk iddiası 1 yerine 0 görürdü — yani kırmızı olur ama YANLIŞ
+            // sebebi gösterirdi.
+            // DİL: Docs/deep/dil/03-hata-bildirme-ve-dogrulama.md
             MethodInfo[] canMoveOverloads = typeof(MovementRules)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Where(method => method.Name == nameof(MovementRules.CanMove))

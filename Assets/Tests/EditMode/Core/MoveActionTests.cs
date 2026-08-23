@@ -320,6 +320,27 @@ namespace GridStrategy.Tests.EditMode.Core
         [Test]
         public void Move_DoesNotAskAboutUnitState_BecauseCoreCannotSeeCombat()
         {
+            // ÖDÜNÇ ALINAN — `System.Reflection.Assembly` ve
+            // `GetReferencedAssemblies()`: derlenmiş DLL'in ÜSTVERİSİNİ okur,
+            // asmdef dosyasını değil. Aradaki fark bu testin bütün ölçüsüdür —
+            // derleyici KULLANILMAYAN bir referansı üstveriye yazmaz.
+            // ÖLÇÜ, iki adım ve ikisi ayrı sonuç verir: (a) Core'un asmdef'ine
+            // GridStrategy.Combat referansını ekle ama hiçbir Combat tipini
+            // yazma -> aşağıdaki liste BOŞ kalır, test yeşil; (b) tek bir
+            // `UnitState` parametresi ekle -> liste dolar ve test kırmızı olur.
+            // Yani ölçülen şey "izin var mı" değil, "gerçekten geçildi mi".
+            //
+            // ÖDÜNÇ ALINAN — `typeof(int).Assembly`: temel sınıf kütüphanesini
+            // ADIYLA yazmadan gösterir. `int` orada yaşadığı için o assembly
+            // "BCL" demektir; adı sürüme ve çalışma zamanına göre değişir
+            // (mscorlib, netstandard, System.Private.CoreLib) ve düz metin
+            // yazılsaydı bu iddia Unity sürümü değiştiği gün sessizce çöpe
+            // giderdi.
+            //
+            // ÖDÜNÇ ALINAN — `StringComparison.Ordinal`: karşılaştırmayı
+            // KÜLTÜRDEN çıkarır, bayt bayt yapar. Assembly adı bir kimliktir,
+            // bir kelime değil; kültüre duyarlı karşılaştırma Türkçe yerelinde
+            // noktasız/noktalı i yüzünden farklı cevap verebilirdi.
             Assembly core = typeof(MoveAction).Assembly;
 
             string[] siblingGameAssemblies = core.GetReferencedAssemblies()

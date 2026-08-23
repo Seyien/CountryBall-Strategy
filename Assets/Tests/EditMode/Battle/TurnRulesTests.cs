@@ -105,6 +105,17 @@ namespace GridStrategy.Tests.EditMode.Battle
         public void MoveAndAttack_ShareOneBudgetToday()
         {
             Assert.That(TurnRules.MaxActionsPerTurn, Is.EqualTo(1));
+            // ÖDÜNÇ ALINAN — `const`: sayıyı ÇAĞIRAN assembly'ye derleme anında
+            // KOPYALAR, çağrı anında okumaz. MaxActionsPerTurn `public const int`
+            // olduğu için yukarıdaki satırın bu test DLL'inin IL'inde aldığı biçim
+            // şudur — iki taraf da literal:
+            //     Assert.That(1, Is.EqualTo(1));
+            // ÖLÇÜ: TurnRules'taki sayıyı 2 yap, YALNIZ onun assembly'sini derle ve
+            // eski test DLL'ini koru; satır hâlâ yeşil kalır. Unity bağımlı
+            // assembly'yi de yeniden derlediği için bugün oluşamaz; kelime `static
+            // readonly` olsaydı hiç oluşamazdı. Bu satır bir kusur DEĞİL, kusurun
+            // nerede doğabileceğinin kaydı.
+            // DİL: Docs/deep/dil/01-degismezlik-anahtar-kelimeleri.md
 
             // İlk eylem harcandı. Turun geri kalanında hiçbir eylem kalmadı —
             // ne ikinci bir hareket, ne bir saldırı.
@@ -119,8 +130,8 @@ namespace GridStrategy.Tests.EditMode.Battle
                 () => TurnRules.CanAct(Team.Player, Team.Player, actionsUsedThisTurn: -1));
         }
 
-        // Kuralin girdisi bir DEGER; bu test o degeri TurnState'ten aliyor ve
-        // ikisinin arasinda baska hicbir tipe ihtiyac olmadigini gosteriyor.
+        // Kuralın girdisi bir DEĞER; bu test o değeri TurnState'ten alıyor ve
+        // ikisinin arasında başka hiçbir tipe ihtiyaç olmadığını gösteriyor.
         [Test]
         public void CanAct_FollowsTurnStateThroughAFullRound()
         {

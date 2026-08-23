@@ -114,10 +114,19 @@ namespace GridStrategy.Tests.EditMode.Unity
         [Test]
         public void SetState_ThreeStates_ProduceThreeDistinctVisuals()
         {
-            // BU TEST, MADDE #9'UN KENDİSİNİ KORUYOR: "üç durum, iki görsel"
-            // hatasının geri gelmesi tam olarak burada kırmızıya döner.
-            // Bir görsel = (yönelim, renk) İKİLİSİ; üç ikili birbirinden farklı
-            // olmak zorunda ve hangi eksende ayrıştıkları önemli değil.
+            // BU TEST "ÜÇ DURUM, İKİ GÖRSEL" HATASINI KORUYOR: hatanın geri
+            // gelmesi tam olarak burada kırmızıya döner. Bir görsel =
+            // (yönelim, renk) İKİLİSİ; üç ikili birbirinden farklı olmak
+            // zorunda ve hangi eksende ayrıştıkları önemli değil.
+            //
+            // ÖLÇÜ, üç ikili bugün şöyle: Alive (flipY false, yazılı renk),
+            // Downed (flipY true, bir tint), Dead (flipY true, BAŞKA bir tint).
+            // Alive her iki eksende ayrışıyor, Downed ile Dead yalnız renkte —
+            // yani üç iddiadan yalnız sonuncusu tek eksene dayanıyor.
+            //
+            // (Bu satır eskiden "MADDE #9" diye numaralı bir maddeye atıf
+            // yapıyordu; o numaranın karşılığı bu depoda YOK — ne kodda ne
+            // Docs altında. Numara yerine hatanın kendi adı yazıldı.)
             view.SetState(UnitState.Alive);
             bool aliveFlip = body.flipY;
             Color aliveColor = body.color;

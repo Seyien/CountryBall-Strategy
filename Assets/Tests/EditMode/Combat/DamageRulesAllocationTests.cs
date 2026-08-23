@@ -144,6 +144,19 @@ namespace GridStrategy.Tests.EditMode.Combat
         /// olsaydı burada görünürdü. Görünmüyorsa "temiz ayrım pahalıdır"
         /// itirazının bu vaka için karşılığı yok demektir.
         /// </summary>
+        // ÖLÇÜ, tam olarak ne iddia ediliyor: Health.TakeDamage 1000 kez
+        // çağrılıyor ve o çağrıların İÇİNDE DamageRules.ResolveRemaining
+        // çalışıyor; kaydedicinin gördüğü GC.Alloc miktarı 0 byte. Karşılaştırma
+        // noktası ÖLÇÜLMEDİ — formülün Health içinde private kaldığı bir sürüm
+        // artık yok, dolayısıyla "0'dan 0'a" bir kıyas değil, tek bir okuma.
+        // İddia edilebilecek tek şey şu: ayrıştırılmış hâl tahsis yapmıyor.
+        //
+        // ÖLÇÜNÜN SINIRI, dürüstçe: burada ölçülen tek eksen TAHSİS. Ayrı sınıf
+        // kararının SÜRE bedeli ölçülmedi ve bu dosya onu ölçemez; süre makineye
+        // göre oynar, tahsis oynamaz — dosyanın en başındaki gerekçe budur. İki
+        // tip aynı assembly'de olduğu için çağrı bir `call` komutundan ibaret;
+        // ama "ibaret" bir çıkarımdır, ölçüm değil. Süreyi iddia etmek isteyen
+        // bir gün profil kaydına ihtiyaç duyar, bu kısıta değil.
         [Test]
         public void TakeDamage_Ayri_Siniftaki_Formulu_Cagirirken_Tahsis_Yapmaz()
         {

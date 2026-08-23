@@ -47,7 +47,51 @@ namespace GridStrategy.Tests.EditMode.Combat
         // kontrolü durumdan önce ve ondan bağımsız çalışıyor, durum kuralı da
         // kopyalanmıyor.
         //
-        // REDDEDILEN - TargetingRulesTests.cs:68 yerine:
+        // ── ARAMA SIRASI: üç parametreli sürüm İKİ soruyu SIRAYLA sorar ──
+        // İlki hayır derse ikincisine HİÇ gelinmez; matrisin çarpılmamasının
+        // sebebi bu erken çıkıştır.
+        //
+        //   SEVİYE 1  takım kapısı — saldıran tarafsız mı, iki taraf aynı mı
+        //             dokuz çiftin BEŞİ burada biter: None→herhangi (üç çift),
+        //             P→P, E→E
+        //             ██ ARAMA BİTTİ ██ durum kuralı hiç sorulmaz
+        //   SEVİYE 2  durum kuralı — tek parametreli sürüme SORULUR, kopyalanmaz
+        //             kalan dört çift buraya gelir: P→E, E→P, P→None, E→None
+        //
+        // ÖLÇÜ: tam çarpım 27 satır olurdu; 15'i SEVİYE 1'de biter, kalan
+        // 12'nin 8'i (Alive ile Downed sütunları) birbirinin kopyasıdır.
+        // Bugünkü üç test aynı iki seviyeyi eksiksiz sabitliyor:
+        //
+        //   CanBeAttacked_TeamPlane_OnAliveTarget    9 satır  SEVİYE 1'in tamamı
+        //   CanBeAttacked_AllStates                  3 satır  SEVİYE 2'nin tamamı
+        //   TeamRule_DoesNotOverrideStateRule        1 satır  iki seviyenin EKLEMİ
+        //
+        // İKİ SAYI, İKİ FARKLI ŞEY: aşağıdaki KIRILAN 18 diyor ve o sayı 27-9,
+        // yani dokuz satırlık tablonun ÜSTÜNE binecek fazlalık. Buradaki 15 ise
+        // kapıda BİTEN satır sayısı. İkisi de doğru, aynı şeyi saymıyorlar.
+        //
+        // ── KAPSAM: kural yalnız "kapı + kural" biçimindeki metotlara özel ──
+        // KARŞI ÖRNEK aynı dosyadan: CanBeRevived_TeamPlane_OnDownedTarget de
+        // dokuz satır yazıyor ve bu bir tekrar DEĞİL, çünkü diriltmenin takım
+        // kuralı saldırınınkinin aynası değil: aynı takım ister ve tarafsızı
+        // İKİ tarafta da kapatır. Orası ikinci bir kapının kendi tam tablosu.
+        //
+        // ── İŞ BÖLÜMÜ: silindiğinde ne KALIR, sayarak ──
+        // Takım düzlemi silinse SEVİYE 1 yine de korunur: yapı sürümünün dokuz
+        // satırlık ikiz tablosu AYNI IsHostilePairing'i soruyor. Durum tablosu
+        // silinse SEVİYE 2 yine korunur: Downed_IsTheOnlyStateBothAbilitiesAccept
+        // ve DeadUnitAndDestroyedStructure_AreNotTheSameQuestion aynı üç cevabı
+        // başka açıdan sabitliyor. TEK SAHİPLİ olan yalnız eklem:
+        // TeamRule_DoesNotOverrideStateRule silinirse, üç parametreli sürümün
+        // kapıdan sonra durum kuralını SORMAYI bıraktığı (kapı açıksa doğrudan
+        // true döndüğü) gün başka hiçbir satır kırmızıya dönmez.
+        //
+        // O testin AYIRMADIĞI şey de burada yazılı olsun: kuralı sormak yerine
+        // KOPYALAYAN bir gövde (`return state != UnitState.Dead`) bugün aynı
+        // cevabı verir ve eklem testi yeşil kalır. Kopyayı yakalayan tek şey
+        // kopyanın asıldan ayrıştığı gündür, ve o gün henüz gelmedi.
+        //
+        // REDDEDILEN - TargetingRulesTests.cs:109 yerine:
         //     [TestCase(UnitState.Alive, Team.Player, Team.Player, ExpectedResult = false)]
         //     [TestCase(UnitState.Downed, Team.Player, Team.Player, ExpectedResult = false)]
         //     ... 27 satır: üç durum × üç saldıran × üç hedef

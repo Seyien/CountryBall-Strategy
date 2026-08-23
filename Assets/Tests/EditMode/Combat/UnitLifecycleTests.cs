@@ -67,9 +67,14 @@ namespace GridStrategy.Tests.EditMode.Combat
             var lifecycle = NewLifecycle();
             lifecycle.OnHealthDepleted();
 
-            // REDDEDILEN - UnitLifecycleTests.cs:84 yerine:
+            // REDDEDILEN - UnitLifecycleTests.cs:89 yerine:
             //     [UnityTest] public IEnumerator ... {
             //         yield return new WaitForSeconds(10.1f);
+            // Üstteki iki satırın taşıdığı üç ödünç ad (motorun test
+            // özniteliği, .NET'in gezinme arayüzü, motorun bekleme nesnesi)
+            // bu projede YALNIZCA reddedilen blokların içinde geçiyor; sayımı
+            // ve niçin böyle olduğu şurada:
+            // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md
             // KIRILAN  : test EditMode'dan PlayMode'a düşer; dosyanın süresi
             //            milisaniyeden dakikaya çıkar.
             //            kare süresi 0,1 saniyeyi aşar -> "hâlâ Downed" iddiası
@@ -194,6 +199,13 @@ namespace GridStrategy.Tests.EditMode.Combat
         //
         // Bu test o kararı SABİTLİYOR: biri ileride "kaldığı yerden devam
         // etsin" diye değiştirirse, tercih sessizce kaymaz, burası kırmızı olur.
+        //
+        // ÖLÇÜ, okuyucunun kafasında koşturabileceği hâliyle: aynı tipe
+        // OnHealthDepleted -> Tick(7) -> TryRevive -> OnHealthDepleted sırasını
+        // uygula. Tek alanlı uygulamada RemainingSeconds 10 döner; "kalanı
+        // hatırlayan" uygulamada 3 döner. Aradaki 7 saniye, ikinci bir alanın
+        // ve onu ne zaman sıfırlayacağını söyleyen ikinci bir kuralın fiyatı.
+        // DERİN ANLATIM: Docs/deep/konular/05-yasam-dongusu.md
         [Test]
         public void Revived_ThenDownedAgain_StartsAFullWindow()
         {
@@ -205,7 +217,7 @@ namespace GridStrategy.Tests.EditMode.Combat
             lifecycle.OnHealthDepleted();       // tekrar dustu
 
             Assert.That(lifecycle.State, Is.EqualTo(UnitState.Downed));
-            // REDDEDILEN - UnitLifecycleTests.cs:222 yerine:
+            // REDDEDILEN - UnitLifecycleTests.cs:234 yerine:
             //     Assert.That(lifecycle.RemainingSeconds, Is.EqualTo(3f),
             //         "Kalan sure devralinir.");
             // KIRILAN  : "kaldığı yerden devam" tek sayaçla YAZILAMAZ.
@@ -236,6 +248,16 @@ namespace GridStrategy.Tests.EditMode.Combat
         {
             var lifecycle = new UnitLifecycle();
             var seen = new List<UnitState>();
+            // ÖDÜNÇ ALINAN — metot grubu (`seen.Add`): parantez yok, yani
+            // çağrı değil; derleyici `seen` ALICISINI de saran bir delege
+            // üretiyor ve olay listesine giren şey o çifttir. Kayıt kabı bu
+            // yüzden ayrı bir sınıf istemiyor — List'in kendi metodu yetiyor.
+            // DİL: Docs/deep/dil/04-delege-olay-ve-kapanis.md
+            //
+            // ÖDÜNÇ ALINAN — NUnit `Is.EqualTo` bir KOLEKSİYONA verildiğinde
+            // referans değil, ELEMAN SIRASI karşılaştırır; List ile dizi bu
+            // yüzden eşit sayılabiliyor. Ölçüsü: aşağıdaki dizi bir List'e
+            // çevrilse iddia yine geçer, ama eleman sırası değişirse geçmez.
             lifecycle.StateChanged += seen.Add;
 
             lifecycle.OnHealthDepleted();

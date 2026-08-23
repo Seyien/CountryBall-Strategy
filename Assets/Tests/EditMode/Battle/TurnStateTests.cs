@@ -107,7 +107,32 @@ namespace GridStrategy.Tests.EditMode.Battle
             Assert.That(turn.TurnNumber, Is.EqualTo(1));
         }
 
-        // REDDEDILEN - TurnStateTests.cs:134 yerine (üçüncü giriş hiç
+        // ── ÖLÇÜ: üçüncü girişin AYIRDIĞI iki uygulama ───────────────────
+        // Gerçek uygulama (TurnState.EndTurn): index bir ilerler, dizilim
+        // uzunluğuna göre sarmalanır, index sıfıra döndüyse TurnNumber artar.
+        // Yarışan uygulama: "her ikinci devirde TurnNumber artar". EndTurn'ün
+        // dönüş değeri iki dizilimde:
+        //
+        //   dizilim / uygulama      1. çağrı   2. çağrı   3. çağrı
+        //   ────────────────────────────────────────────────────────
+        //   [P, E]   sarmal          false      true       false
+        //   [P, E]   her-ikinci      false      true       false   ← AYNI
+        //   ────────────────────────────────────────────────────────
+        //   [P,E,E]  sarmal          false      false      true
+        //   [P,E,E]  her-ikinci      false      true       false   ← AYRILDI
+        //
+        // ██ Aşağıdaki test tam olarak alt bloğun üst satırını iddia ediyor ██
+        //
+        // ── BU TESTİN AYIRMADIĞI ŞEY, dürüstçe ──────────────────────────
+        // Sarmal koşulunu `index != 0` yerine `Current != Team.Player` diye
+        // yazan bir uygulama bu DOSYADAKİ hiçbir testi kırmızıya döndürmez:
+        // buradaki her dizilim Player ile başlıyor, yani iki koşul aynı
+        // satırları seçiyor. Ayıracak veri, Player'ın ikinci kez geçtiği bir
+        // dizilim olurdu ([P, E, P]) ve öyle bir vaka YOK. Üçüncü giriş
+        // "uzunluğa bağlı sayma" iddiasını ayırır, "sıfırıncı indeks" ile
+        // "ilk takım" iddialarını ayırmaz.
+        //
+        // REDDEDILEN - TurnStateTests.cs:159 yerine (üçüncü giriş hiç
         //              sınanmaz, dosya yalnızca iki girişli dizilimle çalışır):
         //     var turn = TwoSided();
         //     turn.EndTurn();

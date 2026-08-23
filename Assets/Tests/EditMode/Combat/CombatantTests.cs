@@ -231,6 +231,20 @@ namespace GridStrategy.Tests.EditMode.Combat
         // olayı ("hangi duruma") burada iki değerli hâle geliyor ("nereden
         // nereye"). Geçişlerin kendisi UnitLifecycleTests'te zaten sınanıyor;
         // burada tekrarlanmıyor.
+        //
+        // ── HARİTA: çevirinin hangi durakta olduğu ──────────────────
+        //   UnitLifecycle.StateChanged   Action<UnitState>          1 değer
+        //             │  += OnLifecycleStateChanged  (metot grubu)
+        //             ▼
+        //   Combatant.StateChanged       Action<UnitState,UnitState> 2 değer
+        //             │  += log.Record               (metot grubu)   ◄── BU BÖLÜM
+        //             ▼
+        //   TransitionLog                iki paralel liste
+        //
+        // Bir üstteki durak (Battle'ın kimliği ekleyişi) bu dosyada YOK; onun
+        // testleri BattleTests'te. Ölçü: aşağıdaki testlerin hiçbiri bir Unit
+        // kurmuyor — kimlik bu katmanda henüz yok.
+        // DERİN ANLATIM: Docs/deep/konular/01-olay-zinciri.md
 
         // Geçişleri sırasıyla biriktiren en küçük kap. İki paralel liste
         // yerine tek tip: hangi "nereden"in hangi "nereye" ile geldiği
@@ -262,6 +276,13 @@ namespace GridStrategy.Tests.EditMode.Combat
         {
             var combatant = NewCombatant(maxHealth: 10);
             var log = new TransitionLog();
+            // ÖDÜNÇ ALINAN — metot grubu (`log.Record`): parantez YOK, yani
+            // çağrı değil. Derleyici `log` ALICISINI de içine alan bir delege
+            // üretiyor; olay listesinde duran şey `Record` metodu değil, "şu
+            // log nesnesinin Record'u" çiftidir. Aşağıdaki
+            // StateChanged_IsPerCombatant_NotShared testi tam bu çiftin
+            // örneğe bağlı olduğunu ölçüyor.
+            // DİL: Docs/deep/dil/04-delege-olay-ve-kapanis.md
             combatant.StateChanged += log.Record;
 
             combatant.TakeDamage(10);   // Alive -> Downed
@@ -332,6 +353,19 @@ namespace GridStrategy.Tests.EditMode.Combat
             // abone olabilmiş kimse zaten yoktur. Test bunu dolaylı olarak
             // sabitliyor: kurulumdan hemen sonra abone olan bir dinleyici,
             // gerçekten bir şey olana kadar sessiz kalmalı.
+            //
+            // BU TESTİN KORUMADIĞI ŞEY, dürüstçe: Combatant kurucusu aboneliği
+            // BÜTÜN null denetimlerinden SONRA kuruyor ve bu bir karardır —
+            // denetimlerden biri patlarsa geriye abone olunmuş bir UnitLifecycle
+            // kalmamalı. Buradaki test o sırayı ölçmez, çünkü kurucu zaten
+            // başarılı: ölçtüğü şey "başlangıç olay yaymaz". Sıra kararını
+            // ölçecek test, patlayan bir kurucudan SONRA lifecycle'ın hâlâ
+            // abonesiz olduğunu iddia ederdi; bu dosyada Constructor_NullPart_Throws
+            // yalnızca istisnanın tipini görüyor. Aynı kararın Battle
+            // katmanındaki ikizi KORUNUYOR — BattleTests'teki
+            // AddUnit_OutsideTheGrid_ThrowsAndRegistersNothing reddedilen bir
+            // eklemeden sonra sözlüğün boş kaldığını iddia ediyor. Boşluk
+            // burada, ve bilerek kayda geçiyor.
             var combatant = NewCombatant(maxHealth: 10);
             var log = new TransitionLog();
 
