@@ -227,26 +227,26 @@ Zincir `OnUnitStateChanged`'de **bitmiyor**. Rengin gerçekten değiştiği yere
 kadar üç halka daha var, ve üçü de kodda açılabilir:
 
 ```
-  BoardAdapter.cs:277   private void OnEnable()
-  BoardAdapter.cs:279       battle.UnitStateChanged += OnUnitStateChanged;
-  BoardAdapter.cs:282   private void OnDisable()
-  BoardAdapter.cs:284       battle.UnitStateChanged -= OnUnitStateChanged;
+  BoardAdapter.cs:288   private void OnEnable()
+  BoardAdapter.cs:290       battle.UnitStateChanged += OnUnitStateChanged;
+  BoardAdapter.cs:293   private void OnDisable()
+  BoardAdapter.cs:295       battle.UnitStateChanged -= OnUnitStateChanged;
         │  ██ Abonelik ÇİFTİ burada; sökme sözü tutan tek şey DİSİPLİN ██
         ▼
-  BoardAdapter.cs:299   OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
-  BoardAdapter.cs:301       ApplyStateVisual(unit, to);
+  BoardAdapter.cs:310   private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+  BoardAdapter.cs:312       ApplyStateVisual(unit, to);
         │  ██ AYRIŞMA NOKTASI ██ olay ÜÇ değer taşıyor, kullanılan İKİ
         │     `from` bugün okunmuyor — eksiklik değil, adı hazır bir alan
         ▼
-  BoardAdapter.cs:943   ApplyStateVisual(Unit unit, UnitState state)
-  BoardAdapter.cs:945       if (!TryGetView(unit, out UnitView view)) return;
-  BoardAdapter.cs:953       view.SetState(state);
+  BoardAdapter.cs:954       private void ApplyStateVisual(Unit unit, UnitState state)
+  BoardAdapter.cs:956-959       if (!TryGetView(unit, out UnitView view))
+  BoardAdapter.cs:964       view.SetState(state);
         │  ██ ÇEVİRİ YOK ██ durum OLDUĞU GİBİ geçiyor. Bir zamanlar burada
         │     üç değer ikiye iniyordu ve Downed ile Dead ekranda aynı görünüyordu
         ▼
-  UnitView.cs:166       public void SetState(UnitState state)
-  UnitView.cs:175           bodyRenderer.flipY = state != UnitState.Alive;
-  UnitView.cs:183           bodyRenderer.color = authoredColor * TintFor(state);
+  UnitView.cs:173       public void SetState(UnitState state)
+  UnitView.cs:182           bodyRenderer.flipY = state != UnitState.Alive;
+  UnitView.cs:190           bodyRenderer.color = authoredColor * TintFor(state);
         │
         ▼
   ██ ASKER EKRANDA YATIK VE SOLGUN ██
@@ -372,7 +372,7 @@ onun tetiği sökme değil: bir abonenin **istisna fırlatması**. `Invoke` bir
 çalışmaz.** Bu projede o satırın ne olduğu tuzağı soyut olmaktan çıkarıyor:
 
 ```csharp
-// UnitLifecycle.cs:138-139 — OnHealthDepleted'in son iki satırı
+// UnitLifecycle.cs:142-143 — OnHealthDepleted'in son iki satırı
 SetState(UnitState.Downed);              // ← içinde StateChanged?.Invoke var
 remainingSeconds = downedWindowSeconds;  // ██ BİR ABONE FIRLARSA ÇALIŞMAZ ██
 ```

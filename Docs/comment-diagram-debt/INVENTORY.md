@@ -93,7 +93,7 @@
 
 | Dosya:satır | Konu | Tarih |
 |---|---|---|
-| `Assets/Game/Unity/BoardAdapter.cs:9-97` | CS0118 ad çözümleme sırası, alias yerleşimi, `global::` | 2026-08-21 |
-| `Assets/Game/Battle/Battle.cs:43-126` | tahta sahipliği, referans paylaşımı, `readonly` yanılgısı | 2026-08-21 |
+| `Assets/Game/Unity/BoardAdapter.cs:13-101` | CS0118 ad çözümleme sırası, alias yerleşimi, `global::` | 2026-08-21 |
+| `Assets/Game/Battle/Battle.cs:46-133` | tahta sahipliği, referans paylaşımı, `readonly` yanılgısı | 2026-08-21 |
 
 Bu ikisi **yeniden açılmaz**. Şablon olarak okunur, üstünde çalışılmaz.

@@ -34,7 +34,7 @@ combatant.StateChanged += forwarder;
 null-koşullu çağrı, bir abonelik işleci. Hiçbiri projeye ait değil, hepsi C#'ın.
 
 Ve bu lambda **projedeki tek lambda**. Ölçü: `Assets/Game/` altında `) =>` ara —
-tek eşleşme `Battle.cs:220`. Geri kalan bütün abonelikler metot adıyla yazılmış.
+tek eşleşme `Battle.cs:227`. Geri kalan bütün abonelikler metot adıyla yazılmış.
 Bu tek istisnanın neden istisna olduğu, bu dosyanın omurgası.
 
 ---

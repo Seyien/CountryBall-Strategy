@@ -349,7 +349,7 @@ tek argümanlı ve `nameof` besliyor.
 geçiyor, üçü de "fırlatılmadığını" anlatmak için:
 
 ```
-Battle.cs:413              foreach sırasında Dictionary değiştirilirse .NET
+Battle.cs:424              foreach sırasında Dictionary değiştirilirse .NET
                            bunu fırlatır → RemoveReadyForCleanup'ın iki
                            geçiş yapmasının sebebi
                            (mekanizma: dil/02-koleksiyonlar-ve-salt-okunur.md)

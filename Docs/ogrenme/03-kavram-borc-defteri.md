@@ -84,16 +84,16 @@ denetliyor — depo dışına uzanan bir yol, taşındığı gün sessizce kır�
 | `sealed` — tip ağacını keser, nesne grafiğini kesmez | `Docs/deep/dil/01-degismezlik-anahtar-kelimeleri.md:428` | KAPALI | Neyin vaat edilmediği :500 |
 | Koleksiyonlar ve "salt okunur"un kapsamı | `Docs/deep/dil/02-koleksiyonlar-ve-salt-okunur.md:55` | KAPALI | `IReadOnlyList` ≠ değişmez; projede neden güvenli :82 |
 | `IEnumerator` — iki hayat | `Docs/deep/konular/08-motor-cagri-dongusu.md:559` | KAPALI | "Beşinci durak: `IEnumerator`'un İKİ AYRI HAYATI". Numaralandırıcı yarısı ayrıca `Docs/deep/dil/02-koleksiyonlar-ve-salt-okunur.md:164` |
-| Kutulama (boxing) ve tahsis maliyeti | `Docs/deep/dil/07-bellek-canlilik-ve-yikim.md:490` | KAPALI | "Beşinci durak: bu projenin tahsis gerçeği — ÖLÇÜLMÜŞ". `Dictionary`/`KeyValuePair` tarafı `Docs/deep/dil/02-koleksiyonlar-ve-salt-okunur.md:216`; uygulaması `Assets/Game/Battle/Battle.cs:368` |
+| Kutulama (boxing) ve tahsis maliyeti | `Docs/deep/dil/07-bellek-canlilik-ve-yikim.md:490` | KAPALI | "Beşinci durak: bu projenin tahsis gerçeği — ÖLÇÜLMÜŞ". `Dictionary`/`KeyValuePair` tarafı `Docs/deep/dil/02-koleksiyonlar-ve-salt-okunur.md:216`; uygulaması `Assets/Game/Battle/Battle.cs:379` |
 | Delege, `event` ve `?.Invoke` | `Docs/deep/dil/04-delege-olay-ve-kapanis.md:74` | KAPALI | Düz `Action` alanı ile `event` farkı :152; abonesiz olayın `null` olması :221. Derleyicinin ürettiği arka taraf `Docs/deep/dil/06-delege-arka-taraf.md:181` |
-| Kapanış kimliği ve `-=` neye bakar | `Docs/deep/dil/04-delege-olay-ve-kapanis.md:274` | KAPALI | İki delegenin ne zaman eşit olduğu `Docs/deep/dil/04-delege-olay-ve-kapanis.md:292`; uygulaması `Assets/Game/Battle/Battle.cs:74` |
+| Kapanış kimliği ve `-=` neye bakar | `Docs/deep/dil/04-delege-olay-ve-kapanis.md:274` | KAPALI | İki delegenin ne zaman eşit olduğu `Docs/deep/dil/04-delege-olay-ve-kapanis.md:292`; uygulaması `Assets/Game/Battle/Battle.cs:81` |
 | Hata bildirme: dört istisna tipi ve `nameof` | `Docs/deep/dil/03-hata-bildirme-ve-dogrulama.md:108` | KAPALI | Seçim ölçüsü "orta argümanı doldurabiliyor musun" :261; argüman sırası tuzağı :321 |
 | `Math.Max` / `Math.Min` kelepçesi | `Docs/deep/dil/03-hata-bildirme-ve-dogrulama.md:403` | KAPALI | Neden `if` değil :415; her `Math.Max`'in kelepçe olmadığı karşı örneği :458 |
 | İstisna mı sonuç değeri mi | `Docs/deep/konular/06-sonuc-enumlari.md:82` | KAPALI | Sıfırıncı hücre kararı; ret değerlerini birleştirmenin bedeli :466 |
-| Bellek, canlılık ve nesne yıkımı | `Docs/deep/dil/07-bellek-canlilik-ve-yikim.md:93` | KAPALI | "Birinci durak: dört ayrı soru, dört ayrı cevap"; Unity'nin iki ömrü :389. Koddaki işaretçi `Assets/Game/Unity/BoardAdapter.cs:988` — "null gibi ama null değil" hâli |
+| Bellek, canlılık ve nesne yıkımı | `Docs/deep/dil/07-bellek-canlilik-ve-yikim.md:93` | KAPALI | "Birinci durak: dört ayrı soru, dört ayrı cevap"; Unity'nin iki ömrü :389. Koddaki işaretçi `Assets/Game/Unity/BoardAdapter.cs:999` — "null gibi ama null değil" hâli |
 | Generic tipler ve kısıtlar | `AŞAMA: sahipsiz — ilk generic tipin yazıldığı gün yeni bir Docs/deep/dil/ dosyası` | HENÜZ YOK | Üretim kodunda tek generic kullanımı hazır BCL tipleri (`Dictionary`, `List`, `Action`); kendi yazdığımız generic tip yok |
 | Nullable referans tipleri | `AŞAMA: sahipsiz — proje nullable bağlamını açtığı gün yeni bir Docs/deep/dil/ dosyası` | HENÜZ YOK | Bugün `null` denetimi elle yapılıyor (`Assets/Game/Core/Combat/Combatant.cs:70`); derleyici desteği kapalı |
-| LINQ ve kapanış maliyeti | `AŞAMA: sahipsiz — ilk LINQ ifadesinin sıcak yola girdiği gün` | HENÜZ YOK | Üretim kodunda `System.Linq` hiç kullanılmıyor; döngüler elle yazılı (`Assets/Game/Battle/Battle.cs:427`) |
+| LINQ ve kapanış maliyeti | `AŞAMA: sahipsiz — ilk LINQ ifadesinin sıcak yola girdiği gün` | HENÜZ YOK | Üretim kodunda `System.Linq` hiç kullanılmıyor; döngüler elle yazılı (`Assets/Game/Battle/Battle.cs:438`) |
 | `async` / `Task` / `Awaitable` — coroutine karşılaştırması | `AŞAMA: sahipsiz — ilk eşzamansız işin (yükleme, ağ) doğduğu gün` | HENÜZ YOK | `Assets/Game/` altında `async`, `Task`, `Awaitable`, `IEnumerator`, `yield` kelimelerinin hiçbiri geçmiyor; karşılaştırılacak taraf henüz yok |
 
 ---
@@ -122,12 +122,12 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | Saf kural sınıfı (stateless policy) | `Docs/ogrenme/01-koda-gomulu-desenler.md:31` | KAPALI | Dokuz tip, hepsi `static class`, hiçbirinde alan yok |
 | Akış sahibi (transaction script) | `Docs/ogrenme/01-koda-gomulu-desenler.md:102` | KAPALI | `MoveAction`, `AttackAction`, `BattleActions`; ret sırası bir karar olarak yazılı |
 | Durum makinesi — enum tabanlı | `Docs/ogrenme/01-koda-gomulu-desenler.md:190` | KAPALI | Üç makine, yasak geçişler, beyaz liste biçimi |
-| Katman sınırı çevirmeni | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KAPALI | Duvar dört `.asmdef`'te, kapı `Assets/Game/Unity/BoardAdapter.cs:106` |
+| Katman sınırı çevirmeni | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KAPALI | Duvar dört `.asmdef`'te, kapı `Assets/Game/Unity/BoardAdapter.cs:110` |
 | Bileşim ve kalıtımın reddi | `Docs/ogrenme/01-koda-gomulu-desenler.md:364` | KAPALI | 33 üretim dosyasında `abstract`/`virtual`/`override` hiç geçmiyor |
 | Sonuç değeri kanalı (result enum) | `Docs/ogrenme/01-koda-gomulu-desenler.md:513` | KAPALI | Dört enum; sıfırıncı değer kararı dördünde de aynı |
 | Gözlemci (Observer) | `Docs/ogrenme/01-koda-gomulu-desenler.md:580` | KAPALI | Dört duraklı zincir; hikâyesi `Docs/deep/konular/01-olay-zinciri.md:63` |
 | Kimlik + yan tablo | `Docs/ogrenme/01-koda-gomulu-desenler.md:665` | KAPALI | `Unit` + üç sözlük; anahtarı ayakta tutan şey `Equals`'in YOKLUĞU |
-| Flyweight — paylaşılan değişmez tanım | `Docs/ogrenme/01-koda-gomulu-desenler.md:439` | KISMİ | İç durum yarısı var (`AttackProfile`, `MoveProfile` değişmez). EKSİK: paylaşımı yöneten havuz/fabrika; bugün her birim kendi profilini alıyor `Assets/Game/Unity/BoardAdapter.cs:748` |
+| Flyweight — paylaşılan değişmez tanım | `Docs/ogrenme/01-koda-gomulu-desenler.md:439` | KISMİ | İç durum yarısı var (`AttackProfile`, `MoveProfile` değişmez). EKSİK: paylaşımı yöneten havuz/fabrika; bugün her birim kendi profilini alıyor `Assets/Game/Unity/BoardAdapter.cs:759` |
 | Command | `Docs/ogrenme/01-koda-gomulu-desenler.md:102` | KISMİ | Neden bu projede olmadığı ve neyin yanlış hatırlandığı yazılı. EKSİK: tetikleyici koşulu — hamle geçmişi, tekrar izleme ya da geri alma özelliği doğmadı |
 | GoF State — hâl başına sınıf | `Docs/ogrenme/01-koda-gomulu-desenler.md:190` | KISMİ | Enum tabanlı makine kapalı; GoF biçimiyle farkı yazılı. EKSİK: hâl başına onlarca satır davranış biriktiğinde geçiş eşiği ölçülmedi |
 | GoF Adapter — arayüz dönüştürücü | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KISMİ | Katman çevirmeni ile farkı yazılı. EKSİK: gerçek bir arayüz dönüştürme örneği yok, çünkü projede `interface` hiç yok |
@@ -142,7 +142,7 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | ScriptableObject sınırı | `Docs/ogrenme/02-sonraki-asamalar.md:26` | KAPALI | En sık hata (varlığın çalışma zamanı durumu taşıması) adıyla yazılı |
 | ECS / DOTS | `Docs/ogrenme/02-sonraki-asamalar.md:379` | KAPALI | Dört farkın tablosu; sıra tabanlı oyunda eşiğin neden çok yüksek olduğu ölçüyle |
 | Clean Architecture — bağımlılık yönü | `Docs/deep/konular/02-assembly-duvari.md:131` | KAPALI | Duvarın engellediği ve engellemediği şeyler ayrı ayrı; dört somut fatura :452 |
-| Kompozisyon kökü (composition root) | `Assets/Game/Unity/BoardAdapter.cs:225` | KISMİ | `Awake` bugün fiilen kompozisyon kökü: savaşı, jesti, zemini ve iki demo birimi orada kuruyor. EKSİK: bu rolün adı kodda geçmiyor ve ikinci bir kök doğduğunda ne olacağı yazılı değil |
+| Kompozisyon kökü (composition root) | `Assets/Game/Unity/BoardAdapter.cs:232` | KISMİ | `Awake` bugün fiilen kompozisyon kökü: savaşı, jesti, zemini ve iki demo birimi orada kuruyor. EKSİK: bu rolün adı kodda geçmiyor ve ikinci bir kök doğduğunda ne olacağı yazılı değil |
 | Veriye dayalı tasarım (data-driven) | `Docs/deep/kod/Unity/BoardAdapter.md:269` | KISMİ | "Bir sayı üç dosyadan birinde yaşayabilir" haritası kapalı. EKSİK: tasarımcı tarafı, yani kod derlemeden değişebilen veri; bkz. Aşama 1 |
 
 ---
@@ -155,14 +155,14 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | Ad çözümleme ve `using` alias | `Docs/deep/kod/Unity/BoardAdapter.md:78` | KAPALI | Arama seviyeleri haritası; alias'ın yerinin kuralın kendisi olması |
 | Serileştirme — `[SerializeField]` ve alan tipi | `Docs/deep/kod/Unity/BoardAdapter.md:258` | KISMİ | Sayının hangi dosyada yaşayacağı kararı ve üç attribute'ün üç ayrı işi :308 kapalı. EKSİK: Unity hangi tipleri serileştirir, `[SerializeReference]`, özel çizici; `.meta` GUID tarafı ayrı satırda |
 | `.meta` dosyası ve GUID sahipliği | `AŞAMA: sahipsiz — ilk prefab/asset taşıma işi yapıldığı gün` | HENÜZ YOK | Bugün tek değinme `Docs/deep/README.md:44` — `Assets/` altındaki bir `.md`'nin `.meta` üretmesi; kavram olarak anlatılmıyor |
-| Unity mesaj geri çağrıları (`Awake`/`OnEnable`/`Update`) | `Docs/deep/konular/08-motor-cagri-dongusu.md:125` | KAPALI | "Birinci durak: `Awake` bir `event` DEĞİLDİR"; çağrı sırası sahipleriyle :248. Koddaki karar `Assets/Game/Unity/BoardAdapter.cs:269` |
-| Tembel `GetComponent` ve `Awake`'in EditMode'da çalışmaması | `Assets/Game/Unity/UnitView.cs:106` | KAPALI | Ölçülmüş sebep: `Awake` EditMode'da hiç çalışmaz, orada kurulan referans tipi sahnesiz sınanamaz kılardı |
+| Unity mesaj geri çağrıları (`Awake`/`OnEnable`/`Update`) | `Docs/deep/konular/08-motor-cagri-dongusu.md:125` | KAPALI | "Birinci durak: `Awake` bir `event` DEĞİLDİR"; çağrı sırası sahipleriyle :248. Koddaki karar `Assets/Game/Unity/BoardAdapter.cs:276` |
+| Tembel `GetComponent` ve `Awake`'in EditMode'da çalışmaması | `Assets/Game/Unity/UnitView.cs:113` | KAPALI | Ölçülmüş sebep: `Awake` EditMode'da hiç çalışmaz, orada kurulan referans tipi sahnesiz sınanamaz kılardı |
 | Domain Reload ve sahne yeniden yükleme | `Docs/deep/konular/08-motor-cagri-dongusu.md:718` | KAPALI | "Altıncı durak: Domain Reload — sessiz kanıt kirleticisi". `static` durumun Domain Reload kapalıyken hayatta kalması ayrıca Aşama 4'te |
-| Zamanın dışarıdan verilmesi (`Time.deltaTime` sınırı) | `Assets/Game/Core/Combat/UnitLifecycle.cs:159` | KAPALI | Ölçülmüş: EditMode'da `Time.deltaTime` sıfır değil 0,017675 döner; zamanı içeriden okuyan tasarım sessizce anlamsız yürür |
-| Girdi okuma — üç fare sorgusu | `Docs/deep/konular/07-tiklamadan-eyleme.md:178` | KAPALI | Motorun üç sorusu; üçlünün yalnız bir akışta gerektiği ölçüsü `Assets/Game/Unity/BoardAdapter.cs:46` |
-| Koordinat çevirisi — motor `Grid` bileşeni | `Docs/deep/konular/07-tiklamadan-eyleme.md:133` | KAPALI | Tek çeviri iki çağıran; motor `Grid`'inin yalnız koordinat çevirmeni olduğu `Assets/Game/Unity/BoardAdapter.cs:176` |
-| Prefab, varyant ve `Instantiate` sözleşmesi | `AŞAMA: sahipsiz — ikinci prefab türü ya da ilk varyant doğduğu gün` | HENÜZ YOK | Bugün tek prefab var (`Assets/Game/Unity/BoardAdapter.cs:120`) ve tek `Instantiate` çağrısı :728; karşılaştırılacak ikinci durum yok |
-| `MonoBehaviour` ile düz C# sınıfı arasındaki sınır | `Docs/deep/konular/02-assembly-duvari.md:408` | KAPALI | Duvarın ürünü olarak `Battle`'ın var olmak zorunda kalması; `new` ile kurulamayan tiplerin listesi `Assets/Game/Unity/BoardAdapter.cs:72` |
+| Zamanın dışarıdan verilmesi (`Time.deltaTime` sınırı) | `Assets/Game/Core/Combat/UnitLifecycle.cs:163` | KAPALI | Ölçülmüş: EditMode'da `Time.deltaTime` sıfır değil 0,017675 döner; zamanı içeriden okuyan tasarım sessizce anlamsız yürür |
+| Girdi okuma — üç fare sorgusu | `Docs/deep/konular/07-tiklamadan-eyleme.md:178` | KAPALI | Motorun üç sorusu; üçlünün yalnız bir akışta gerektiği ölçüsü `Assets/Game/Unity/BoardAdapter.cs:50` |
+| Koordinat çevirisi — motor `Grid` bileşeni | `Docs/deep/konular/07-tiklamadan-eyleme.md:133` | KAPALI | Tek çeviri iki çağıran; motor `Grid`'inin yalnız koordinat çevirmeni olduğu `Assets/Game/Unity/BoardAdapter.cs:180` |
+| Prefab, varyant ve `Instantiate` sözleşmesi | `AŞAMA: sahipsiz — ikinci prefab türü ya da ilk varyant doğduğu gün` | HENÜZ YOK | Bugün tek prefab var (`Assets/Game/Unity/BoardAdapter.cs:124`) ve tek `Instantiate` çağrısı :739; karşılaştırılacak ikinci durum yok <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil --> |
+| `MonoBehaviour` ile düz C# sınıfı arasındaki sınır | `Docs/deep/konular/02-assembly-duvari.md:408` | KAPALI | Duvarın ürünü olarak `Battle`'ın var olmak zorunda kalması; `new` ile kurulamayan tiplerin listesi `Assets/Game/Unity/BoardAdapter.cs:76` <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil --> |
 
 ---
 
@@ -186,13 +186,13 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 
 | KAVRAM | SAHİP DOSYA | DURUM | KANIT |
 |---|---|---|---|
-| Izgara mesafesi — Chebyshev kararı | `Assets/Game/Core/GridDistance.cs:25` | KAPALI | Mesafenin tek sahibi; çapraz komşu Chebyshev'de 1, Manhattan'da 2 — `Assets/Game/Battle/BattleActions.cs:115` |
-| Sözlük ve anahtar seçimi | `Assets/Game/Battle/Battle.cs:56` | KAPALI | Anahtar nesnenin kendisi, hücre değil: hücreyle anahtarlansaydı her hareket anahtarı bozardı |
+| Izgara mesafesi — Chebyshev kararı | `Assets/Game/Core/GridDistance.cs:25` | KAPALI | Mesafenin tek sahibi; çapraz komşu Chebyshev'de 1, Manhattan'da 2 — `Assets/Game/Battle/BattleActions.cs:118` |
+| Sözlük ve anahtar seçimi | `Assets/Game/Battle/Battle.cs:59` | KAPALI | Anahtar nesnenin kendisi, hücre değil: hücreyle anahtarlansaydı her hareket anahtarı bozardı |
 | İki boyutlu dizi ve sınır sahipliği | `Assets/Game/Core/UnitGrid.cs:26` | KAPALI | Ölçünün tek sahibi dizinin kendisi :49; sınır sorgusu tahtada kalıyor :65 |
-| Tarama maliyeti ve karmaşıklık | `Assets/Game/Battle/Battle.cs:517` | KISMİ | `TryGetPosition` tahtayı `Width × Height` tarıyor ve maliyet gerekçede adı konmuş. EKSİK: karmaşıklık gösterimi ve ölçüm; bugün tahta 15 hücre |
+| Tarama maliyeti ve karmaşıklık | `Assets/Game/Battle/Battle.cs:528` | KISMİ | `TryGetPosition` tahtayı `Width × Height` tarıyor ve maliyet gerekçede adı konmuş. EKSİK: karmaşıklık gösterimi ve ölçüm; bugün tahta 15 hücre |
 | Belirlenimci kural ve saf fonksiyon | `Assets/Game/Core/Combat/DamageRules.cs:19` | KAPALI | Formülün girdi uzayı sahibininkinden geniş; negatif yollar da sınanabiliyor |
 | Yol bulma (A\*) ve engel maliyeti | `AŞAMA: sahipsiz — birim adım adım yürümeye başladığı gün` | HENÜZ YOK | Bugün hareket ışınlanma: `Assets/Game/Core/MoveAction.cs:27` yolun üzerinde ne olduğunu bilmediğini açıkça yazıyor |
-| Rastgelelik ve tohum (seed) | `AŞAMA: sahipsiz — ilk rastgele karar doğduğu gün` | HENÜZ YOK | Üretim kodunda `Random` hiç geçmiyor; zemin deseni bile sabit bir formül `Assets/Game/Unity/BoardAdapter.cs:691` |
+| Rastgelelik ve tohum (seed) | `AŞAMA: sahipsiz — ilk rastgele karar doğduğu gün` | HENÜZ YOK | Üretim kodunda `Random` hiç geçmiyor; zemin deseni bile sabit bir formül `Assets/Game/Unity/BoardAdapter.cs:702` |
 
 ---
 

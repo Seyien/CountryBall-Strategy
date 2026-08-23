@@ -103,7 +103,7 @@ projede iki satırda çalışıyor (ayrıntısı üçüncü mekanizmada). Bir me
 `Combatant` iki ayrı `Health` taşır. `static` alan **hiçbir örneğin içinde
 değildir** — tipin kendi deposundadır, ömrü tipin yüklü olduğu uygulama alanına
 bağlıdır. Ölçüsü projede duruyor: hiçbir `Battle` kurmadan
-`TurnState.DefaultTurnOrder` (`TurnState.cs:40`) okunabilir, `Turn.Current`
+`TurnState.DefaultTurnOrder` (`TurnState.cs:44`) okunabilir, `Turn.Current`
 okunamaz. Depolama tarafının tamamı
 [../deep/dil/07-bellek-canlilik-ve-yikim.md](../deep/dil/07-bellek-canlilik-ve-yikim.md)'de.
 
@@ -159,7 +159,7 @@ sınırlayan **hiçbir dil kuralı yoktur**. İki sahne nesnesi iki `Awake`
 koşturur; ikincisi ya birinciyi ezer ya kendini yok eder — ikisi de **elle
 yazılmış** davranıştır.
 
-Karşılaştır: `AttackProfile.cs:55-58`'deki `range < 1` kelepçesi gerçekten
+Karşılaştır: `AttackProfile.cs:59-62`'deki `range < 1` kelepçesi gerçekten
 zorlanıyor, ama gücü kurucuda olmasından değil **tek kapı** olmasından geliyor —
 profil üretmenin başka yolu yok, dolayısıyla `Range < 1` bir profil **doğamaz**.
 `Instance` için böyle bir tek kapı yoktur: her `Awake`, her test kurulumu, her
@@ -167,7 +167,7 @@ editör betiği ona yazabilir. Kelepçeyi koyan derleyici değil, yazan kişidir
 
 **Test yalıtımı.** Statik durum test metotları **arasında taşınır**; testler ayrı
 ayrı yeşil, birlikte kırmızı olur ve sıra bağımlı bir hata doğar. Riskin bugün
-sıfır olmasının sebebi kodda yazılı — `Battle.cs:136`: "static bir alana konsaydı
+sıfır olmasının sebebi kodda yazılı — `Battle.cs:143`: "static bir alana konsaydı
 durum test metotları arasında sızardı."
 
 `HENÜZ YOK → Unity attribute` — `[RuntimeInitializeOnLoadMethod]`, statik durumu
@@ -201,7 +201,16 @@ Reload Domain KAPATILIRSA
 ```
 
 **(b) İkilik deneyi.** Sahnedeki `Board` nesnesini çoğalt. Bugün ne olur kodda
-yazılı — `BoardAdapter.cs:65-67`: "paylaşılan tek bir static alan YOK", yani iki
+yazılı:
+
+```
+BoardAdapter.cs:69-71
+    // kimlik : var — ölçüsü şu: aynı sahneye İKİ BoardAdapter koy, İKİ AYRI
+    //          savaş doğar; battle, unitViews ve selectedUnit'in üçü de örnek
+    //          alanıdır, paylaşılan tek bir static alan YOK
+```
+
+Yani iki
 adaptör iki ayrı `new Battle(width, height)` kurar. `Instance` olsaydı ikinci
 `Awake` birinciyi ezerdi ve **hangisinin kazandığı çağrı sırasına bağlı**
 olurdu — o sıranın neden garanti edilmediği
@@ -217,10 +226,10 @@ koştur — ikincisi kırmızı. Ölçü testin kendisi değil, testleri **ayır
 `Battle`'ın sahibi tek bir yer — bir alan ve bir satır:
 
 ```csharp
-// BoardAdapter.cs:187
+// BoardAdapter.cs:191
 private Battle battle;
 
-// BoardAdapter.cs:231   (Awake'in içinde)
+// BoardAdapter.cs:238   (Awake'in içinde)
 battle = new Battle(width, height);
 ```
 
@@ -247,8 +256,8 @@ konusu; `Instance` o zincire ikinci bir giriş kapısı açardı.
 
 | Bugün duran karar | `static Instance` geldiğinde |
 |---|---|
-| `BoardAdapter.cs:65-67` — iki adaptör iki ayrı savaş | Çöker: ikisi tek savaşı paylaşır ya da biri diğerini ezer |
-| `Battle.cs:136` — "static alana konsaydı testler arasında sızardı" | Yazılı gerekçe geçersizleşir; sızıntı gerçek olur |
+| `BoardAdapter.cs:69-71` — iki adaptör iki ayrı savaş | Çöker: ikisi tek savaşı paylaşır ya da biri diğerini ezer |
+| `Battle.cs:143` — "static alana konsaydı testler arasında sızardı" | Yazılı gerekçe geçersizleşir; sızıntı gerçek olur |
 | 26 EditMode dosyasının `new` ile kurulumu | Her testin başında `Instance = null;` disiplini doğar — tek unutuş sıra bağımlı bir hata üretir |
 | Domain Reload temizliğinin **bedava** olması | Ayar artık bir tercih değil, bir **bağımlılık** olur |
 | Kök kümesinin bugün küçük olması | Savaşın tamamı oyun ömrü boyunca erişilebilir kalır |
@@ -299,7 +308,7 @@ bir nesne ebeveyninin sahnesinde yaşar, ve bu projede `CreateCellVisual` tam
 olarak buna güveniyor:
 
 ```csharp
-// BoardAdapter.cs:660-662
+// BoardAdapter.cs:671-673
 // Amaç konum değil TOPLU YAŞAM DÖNGÜSÜ: tahtayı yok etmek tek çağrıyla
 // 15 hücreye uygulanır.
 cell.transform.SetParent(transform, worldPositionStays: false);
@@ -371,7 +380,7 @@ sahne yeniden yüklenseydi, kalıcı adaptörün **yanına** yeni sahnenin adapt
 düşerdi: iki adaptör, iki savaş, dört birim.
 
 ② **`OnEnable`/`OnDisable` simetrisinin dayanağı değişir.** Bugün simetriyi
-disiplin tutuyor ve bu kodda yazılı — `BoardAdapter.cs:275-276`: "eksik bir `-=`
+disiplin tutuyor ve bu kodda yazılı — `BoardAdapter.cs:282-283`: "eksik bir `-=`
 tek bir uyarı bile üretmez". Risk bugün küçük çünkü nesne sahneyle birlikte yok
 oluyor; kalıcı bir nesnede aynı eksiklik **oturum boyu** yaşar.
 
@@ -427,7 +436,7 @@ hesaplanabilir, çünkü sahne ve prefab dosyaları okundu:
 ```
 Awake bittiğinde sahnede kaç GameObject var:
   sahnede yazılı olanlar        2   Main Camera · Board
-  BuildCellVisuals              15  3 × 5   (BoardAdapter.cs:643-649)
+  BuildCellVisuals              15  3 × 5   (BoardAdapter.cs:654-660)
   iki birim × prefab başına 2   4   Unit + SelectionOverlay çocuğu
                               ────
                                21  GameObject   (~46 bileşen)
@@ -460,7 +469,7 @@ that is tagged "MainCamera" (Read Only)."* — *ilk* · *etkin* · *etiketi eşl
 Bu bir aramadır; ölçütü tip değil **etikettir**.
 
 ```csharp
-// BoardAdapter.cs:586-592
+// BoardAdapter.cs:597-603
 if (Camera.main == null)
 {
     Debug.LogError("[Board] No camera tagged MainCamera in the Scene.", this);
@@ -501,7 +510,7 @@ hatanın **ne zaman** göründüğüne bak:
 ```
 serileştirilmiş alan silinir  ►  Inspector'da boş kutu GÖRÜNÜR, ve Awake'te
                                  LogError yazılabilir — bu projede yazılıyor:
-                                 BoardAdapter.cs:265 "unitPrefab is not assigned"
+                                 BoardAdapter.cs:272 "unitPrefab is not assigned"
                                  ██ hata, ihtiyaç duyulmadan ÖNCE bildirilir ██
 Find çağrısı boş döner        ►  hiçbir yerde görünmez. Hata o metot ÇAĞRILDIĞI
                                  anda doğar — belki hiç, belki üçüncü dakikada,
@@ -525,8 +534,8 @@ Bağımlılıklar bugün üç yoldan geliyor ve **sayıldı**:
 | Serileştirilmiş alan | **13** | `BoardAdapter.cs` — `:109 :110 :113 :120 :131 :134 :137 :146 :156 :164 :167 :170 :174` |
 | Serileştirilmiş alan | **3** | `UnitView.cs` — `:51` · `:59` · `:66` |
 | Kurucu parametresi | — | `Combatant.cs:59` (4 bağımlılık) · `Structure.cs:51` · `PointerGesture.cs:127` · `new Battle(width, height)` |
-| `GetComponent` (kendi nesnesinde) | **2** | `BoardAdapter.cs:230` (`Grid`) · `UnitView.cs:118` (`SpriteRenderer`) |
-| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:586` ve `:592` — `Camera.main` |
+| `GetComponent` (kendi nesnesinde) | **2** | `BoardAdapter.cs:237` (`Grid`) · `UnitView.cs:125` (`SpriteRenderer`) |
+| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:597` ve `:592` — `Camera.main` |
 | Tip taraması (`Find*`) | **0** | — |
 
 ██ İki `GetComponent`, bir `Find` DEĞİLDİR ██ — `GetComponent` **bu nesnenin**
@@ -542,7 +551,7 @@ etiket yok.
 
 ① **Inspector kapıları düşer.** Bugün üç `LogError` var ve üçü de `Awake`'te,
 yani **kullanımdan önce**: `unitPrefab` (`:265`), `placementGhost` (`:243`),
-`selectionOverlay` (`UnitView.cs:92`). Bir `Find` bu kapıların hiçbirini
+`selectionOverlay` (`UnitView.cs:99`). Bir `Find` bu kapıların hiçbirini
 üretemez — "atanmamış" diye bir hâl yoktur, yalnız "bulunamadı" vardır ve o da
 çağrı anında öğrenilir.
 
@@ -651,7 +660,7 @@ durağının konusu.
 
 `HENÜZ YOK → Editor aracı` — `OnValidate`: Inspector'da bir değer değiştiğinde
 çağrılan, **yalnız Editor'de** koşan bir mesaj. Bu projede sıfır satır; ama adı
-kodda geçiyor ve bir gerekçenin parçası (`AttackProfile.cs:40`).
+kodda geçiyor ve bir gerekçenin parçası (`AttackProfile.cs:44`).
 
 ### ② SAHİP ETİKETİ
 
@@ -692,7 +701,7 @@ turda koşturulmadı; sonuç doğrulanmadı. ██
 `ScriptableObject` `new` ile kurulamaz, `CreateInstance` ile kurulur, ve
 `CreateInstance` parametre almaz — yani kurucu **hiç çağrılmaz**. Doğrulama
 `OnValidate`'e kayar, `OnValidate` yalnız Editor'de koşar, koddan üretilen profil
-hiç sınanmaz. Bu, `AttackProfile.cs:38-42`'de **zaten yazılı** olan gerekçenin
+hiç sınanmaz. Bu, `AttackProfile.cs:42-46`'de **zaten yazılı** olan gerekçenin
 ölçüsüdür. ██ SAYILDI ██ — kaç satır kırılır: `new AttackProfile` testlerde
 **16**, üretimde **1**; `new MoveProfile` testlerde **7**, üretimde **1**.
 
@@ -718,7 +727,7 @@ assembly'nin içinde (`noEngineReferences: true` — `GridStrategy.Core` ve
 **██ KOD SORUSU — doğrulandı ██**
 
 ```csharp
-// BattleActions.cs:175   (Move metodunun İÇİNDE)
+// BattleActions.cs:178   (Move metodunun İÇİNDE)
 var profile = new MoveProfile(moveRange);
 ```
 
@@ -733,7 +742,7 @@ her Move çağrısında kurulan MoveProfile sayısı       ◄── 1
 ```
 
 Aynısı bir adım hafifiyle `AttackProfile` için de geçerli: `NewCombatant` her
-birime kendi profilini kuruyor (`BoardAdapter.cs:748`) — iki birim, iki profil,
+birime kendi profilini kuruyor (`BoardAdapter.cs:759`) — iki birim, iki profil,
 aynı `damage`, aynı `attackRange`, iki ayrı nesne.
 [6. desen](01-koda-gomulu-desenler.md#6-paylasilan-degismez-tanim-flyweightin-ic-durum-yarisi)
 iç durum yarısının var olduğunu zaten yazıyor; borç defteri de "paylaşımı yöneten
@@ -755,7 +764,7 @@ motoru hiç davet etmez. `ScriptableObject`'in satın aldığı şey paylaşım 
 | Bugün duran karar | `ScriptableObject` geldiğinde |
 |---|---|
 | `GridStrategy.Core` ve `GridStrategy.Combat`'ın `noEngineReferences: true` sınırı | Tanım motora bağlandığı gün düşer; ayrıntısı `02` Aşama 1'in **C** alanında |
-| Kurucudaki doğrulama (`AttackProfile.cs:55-58`) | `CreateInstance` kurucuyu çağırmaz; doğrulama `OnValidate`'e kayar ve yalnız Editor'de koşar |
+| Kurucudaki doğrulama (`AttackProfile.cs:59-62`) | `CreateInstance` kurucuyu çağırmaz; doğrulama `OnValidate`'e kayar ve yalnız Editor'de koşar |
 | `new AttackProfile(...)` — 16 test + 1 üretim | 17 satır yeniden yazılır |
 | `new MoveProfile(...)` — 7 test + 1 üretim | 8 satır |
 | `AttackProfile.cs:30-34` — "`readonly struct` olsaydı paylaşım yalan olurdu" | Yeni bir sahip kazanır: paylaşımı artık **dosya kimliği** garanti eder, tip seçimi değil |
@@ -844,7 +853,7 @@ arka tarafın tamamı
 durağında.
 
 ```csharp
-// BoardAdapter.cs:277-284
+// BoardAdapter.cs:288-295
 private void OnEnable()  { battle.UnitStateChanged += OnUnitStateChanged; }
 private void OnDisable() { battle.UnitStateChanged -= OnUnitStateChanged; ... }
 ```
@@ -884,7 +893,7 @@ var ve gri tonu bir alanda yazılı (`deadTint`, `UnitView.cs:66`). Bir birimi
 sıfırlama sözleşmesi eksiktir. Bugün o sözleşmenin metni **var** ama yanlış yerde:
 
 ```csharp
-// UnitView.cs:86 ve :100   (İKİSİ DE Awake'in içinde)
+// UnitView.cs:93 ve :100   (İKİSİ DE Awake'in içinde)
 SetState(UnitState.Alive);
 SetSelected(false);
 ```
@@ -905,11 +914,11 @@ kontrolü (`:69`).
 
 ```
 ÜRETİM KODU (Assets/Game/)
-Instantiate       1 çağrı yeri   BoardAdapter.cs:728  Instantiate(unitPrefab, transform)
+Instantiate       1 çağrı yeri   BoardAdapter.cs:739  Instantiate(unitPrefab, transform)
                                  tek çağıranı SpawnUnit (:709); onun tek
                                  çağıranları :260 · :261 (Awake)
                                  ██ ömür boyu toplam 2 çağrı ██
-Destroy           1 çağrı yeri   BoardAdapter.cs:992  Destroy(view.gameObject)
+Destroy           1 çağrı yeri   BoardAdapter.cs:1007  Destroy(view.gameObject)
 new GameObject    2 çağrı yeri   :656 Cell_{x}_{y} ► 15 kez · :557 Structure_{x}_{y}
 AddComponent      2 çağrı yeri   :671 (hücre) · :561 (yapı)
 DestroyImmediate  0              (yalnız testlerde: 2 satır)
@@ -918,7 +927,7 @@ DestroyImmediate  0              (yalnız testlerde: 2 satır)
 ```
 
 Buna karşılık **tahsis bilinci** projede zaten var ve havuzsuz uygulanmış — kap
-yeniden kullanılıyor (`BoardAdapter.cs:201-206`, `cleanupBuffer`): "her karede
+yeniden kullanılıyor (`BoardAdapter.cs:205-210`, `cleanupBuffer`): "her karede
 yeni bir List kurmak kare başına çöp üretirdi." ██ Bu, `ListPool<T>`'nin elle
 yazılmış ve tek kullanıcılı hâlidir; ██ havuzun çözdüğü problemin en küçük örneği
 zaten burada ve doğru çözülmüş.
@@ -926,7 +935,7 @@ zaten burada ve doğru çözülmüş.
 **██ KOD SORUSU — doğrulandı ██.** Yapı görselinin bir sahibi yok:
 
 ```csharp
-// BoardAdapter.cs:552-553
+// BoardAdapter.cs:563-564
 // GÖRSEL BİR TABLOYA KAYDEDİLMİYOR: bugün onu tekrar bulması
 // gereken hiçbir çağıran yok.
 ```
@@ -953,7 +962,7 @@ tahta yok olunca birimler de gider." Havuzdan gelen nesnenin `transform.parent`'
 ② **Hierarchy yalan söyler.** Bir sonraki satır adı yazıyor:
 
 ```csharp
-// BoardAdapter.cs:729
+// BoardAdapter.cs:740
 view.name = $"Unit_{unit.Name}_{x}_{y}";
 ```
 
@@ -1047,7 +1056,7 @@ Doğrulananlar bu dosyanın başka yerlerinde: `Assets/` altındaki sayımlar,
    Ölçü: Assets/Game/ altında değiştirilebilir static alan sayısı 0, ama
          bir savaşta bir tahta olması GERÇEK bir değişmez ve Battle onu
          SAHİPLENEREK sağlıyor; iki BoardAdapter iki ayrı savaş üretiyor
-         (BoardAdapter.cs:65-67). ██ Teklik VAR, `static` YOK. ██
+         (BoardAdapter.cs:69-71). ██ Teklik VAR, `static` YOK. ██
 
 "FindObjectOfType kötüdür çünkü yavaştır"
    YANLIŞ SEBEP. Bu projede tarama 21 GameObject üzerinde biter; maliyet
@@ -1088,6 +1097,32 @@ Havuz YOK             ►  doğrudan Instantiate/Destroy, mümkünse hiç doğur
 **ölçülmüş bir baskının** cevabıdır; baskı yoksa mekanizma bir maliyetten
 ibarettir — öğrenilmesi, yazılması, sınanması ve bozulduğunda anlaşılması gereken
 bir maliyet.
+
+---
+
+## Alıntı çapaları
+
+Aşağıdaki satırlar bu belgede geçen satır numaralarının **çapasıdır**. Her satır
+`Tools/check-doc-code-refs.py`'nin ALINTI katmanına, o numarada duran kodun
+BİREBİR metnini verir. Ölçüldü: ALINTI katmanı 3 satırlık kaymayı bile %100
+yakalıyor, YAKIN AD katmanı 6 satırlık kaymanın %1'ini. Tablo hücrelerindeki ve
+cümle içindeki atıflar alıntı biçimine giremez — o biçim atfın satır BAŞINDA
+olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı gün bu
+belgede geçen aynı numaraların hepsi elden geçirilir.
+
+```
+Assets/Game/Unity/BoardAdapter.cs:191         private Battle battle;
+Assets/Game/Unity/BoardAdapter.cs:237         unityGrid = GetComponent<Grid>();
+Assets/Game/Unity/BoardAdapter.cs:597         if (Camera.main == null)
+Assets/Game/Unity/BoardAdapter.cs:654         for (int x = 0; x < battle.Width; x++)
+Assets/Game/Unity/BoardAdapter.cs:740         view.name = $"Unit_{unit.Name}_{x}_{y}";
+Assets/Game/Unity/BoardAdapter.cs:759         new AttackProfile(damage, attackRange),
+Assets/Game/Core/Combat/AttackProfile.cs:59   if (range < 1)
+Assets/Game/Battle/BattleActions.cs:178       var profile = new MoveProfile(moveRange);
+Assets/Game/Unity/UnitView.cs:93              SetState(UnitState.Alive);
+Assets/Game/Unity/UnitView.cs:125             body = GetComponent<SpriteRenderer>();
+```
+
 
 ## İlgili
 

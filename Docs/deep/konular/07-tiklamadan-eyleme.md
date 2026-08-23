@@ -643,35 +643,43 @@ Parameter name: unit
 Sebebi tam olarak yukarıdaki alıntının ikinci satırı:
 
 ```
-BoardAdapter.cs:491   Unit placer = selectedUnit;
-BoardAdapter.cs:493   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), …)
+BoardAdapter.cs:502   Unit placer = selectedUnit;
+BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
                                                           ▲
                       ██ YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR ██
         │
         ▼
-BattleActions.cs:362  battle.AddStructure(unit, structure, x, y);
+BattleActions.cs:365  battle.AddStructure(unit, structure, x, y);
         │
         ▼
-Battle.cs:280         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
-Battle.cs:282             throw new ArgumentException("The unit is already in this battle.", …);
+Battle.cs:287         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
+Battle.cs:289             throw new ArgumentException("The unit is already in this battle.", nameof(unit));
 ```
 
 `selectedUnit` **tanım gereği** `combatants` sözlüğünde: `TryEnterPlacementMode`
-(`BoardAdapter.cs:350`) `selectedUnit == null` ise kipe hiç girmiyor, ve seçim
-ancak dolu bir hücreye tıklanarak doğuyor.
+`selectedUnit == null` ise kipe hiç girmiyor, ve seçim ancak dolu bir hücreye
+tıklanarak doğuyor.
+
+```
+BoardAdapter.cs:361   if (selectedUnit == null)
+```
 
 ██ Hangi hücrede ne olduğu ölçüldü — üç dal, ve **sağlıklı** iki dalı ret
 değeri döndürüyor: ██
 
 ```
-  tahta DIŞI hücre  ──► BattleActions.cs:344  RejectedInvalidCell    ✓ ret, istisna yok
-  DOLU hücre        ──► BattleActions.cs:354  RejectedCellOccupied   ✓ ret, istisna yok
-  tahta içi + BOŞ   ──► BattleActions.cs:362  AddStructure           ██ HER SEFERİNDE İSTİSNA ██
+  tahta DIŞI hücre  ──► BattleActions.cs:347  RejectedInvalidCell    ✓ ret, istisna yok
+  DOLU hücre        ──► BattleActions.cs:357  RejectedCellOccupied   ✓ ret, istisna yok
+  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure           ██ HER SEFERİNDE İSTİSNA ██
 ```
 
 Yani **başarılı olması gereken tek dal** patlıyor:
 ██ `PlacementOutcome.Placed` arayüzden ULAŞILAMAZ ve `CreateStructureVisual`
-(`BoardAdapter.cs:555`) üretimde HİÇ çağrılmaz. ██
+üretimde HİÇ çağrılmaz. ██
+
+```
+BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
+```
 
 **Testler neden yeşil:** `BattleActionsTests` her çağrıda **taze bir kimlik**
 veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir testte

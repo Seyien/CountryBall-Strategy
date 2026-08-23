@@ -346,7 +346,7 @@ Arama merdiveni — ve nerede durduğu:
              BoardAdapter, UnitView                          ✗ yok
                  │
   SEVİYE 1b  namespace GÖVDESİNDEKİ using / alias    ◄── ALIAS BURADA
-                 │                                       (BoardAdapter.cs:44)
+                 │                                       (BoardAdapter.cs:48)
   SEVİYE 2   GridStrategy'nin ÜYELERİ
              Battle, Combat, Core, Unity                     ✓ BULDU
              ██ ARAMA BİTTİ ██ bulunan şey bir AD ALANI, tip değil

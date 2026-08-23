@@ -34,22 +34,22 @@ kullanan herkes **aynı** dosyayı gösterir.
 tipleri düz C# sınıfı:
 
 ```
-Assets/Game/Core/Combat/AttackProfile.cs:36   sealed class · Damage :68 · Range :74
-Assets/Game/Core/MoveProfile.cs:39            sealed class · Range :64
+Assets/Game/Core/Combat/AttackProfile.cs:40   sealed class · Damage :68 · Range :74
+Assets/Game/Core/MoveProfile.cs:42            sealed class · Range :64
 ```
 
 Sayılar bugün Unity katmanında, `[SerializeField]` alanları olarak yaşıyor:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:131   maxHealth = 30
-Assets/Game/Unity/BoardAdapter.cs:134   damage = 10
-Assets/Game/Unity/BoardAdapter.cs:137   attackRange = 1
-Assets/Game/Unity/BoardAdapter.cs:146   moveRange = 1
-Assets/Game/Unity/BoardAdapter.cs:174   structureMaxHealth = 50
+Assets/Game/Unity/BoardAdapter.cs:135   maxHealth = 30
+Assets/Game/Unity/BoardAdapter.cs:138   damage = 10
+Assets/Game/Unity/BoardAdapter.cs:141   attackRange = 1
+Assets/Game/Unity/BoardAdapter.cs:150   moveRange = 1
+Assets/Game/Unity/BoardAdapter.cs:178   structureMaxHealth = 50
 ```
 
 ve tanım nesneleri her doğuşta yeniden kuruluyor
-(`BoardAdapter.cs:745-749`, `:543`). Yani bugün "tasarımcı dosyası" diye bir
+(`BoardAdapter.cs:756-760`, `:543`). Yani bugün "tasarımcı dosyası" diye bir
 şey yok; tek yazma yolu Inspector'daki bir bileşendir.
 
 ██ Kararın kendisi kodda zaten adı konmuş ██ — `AttackProfile.cs:13-14`:
@@ -60,7 +60,7 @@ rol değişmez." Bu, bekleyen bir borcun **yazılı** hâli.
 
 - Kod derlemeden değer değiştirmek gerektiğinde. Bugün `damage`'ı 10'dan 12'ye
   çekmek Inspector'dan mümkün, ama **birim türü başına** farklı değer vermek
-  değil: `NewCombatant` (`BoardAdapter.cs:738`) her birime **aynı** üç sayıyı
+  değil: `NewCombatant` (`BoardAdapter.cs:749`) her birime **aynı** üç sayıyı
   veriyor. İkinci bir birim türü doğduğu gün bu kırılır.
 - Aynı tanımı **iki sahnenin** paylaşması gerektiğinde. Bugün tek sahne var;
   ikinci sahne, beş `[SerializeField]` alanının ikinci kopyasını doğurur.
@@ -80,10 +80,10 @@ ayakta tutar; birincisi yıkar.
 
 **D · NE KIRAR** — İki şey, ve ikisi de kodda ölçülmüş:
 
-① **Doğrulama kaybolur.** `AttackProfile.cs:38-43` bunu adıyla yazmış: tip
+① **Doğrulama kaybolur.** `AttackProfile.cs:42-47` bunu adıyla yazmış: tip
 `ScriptableObject`'ten türeseydi doğrulama `OnValidate`'e kayar, **yalnızca
 Inspector'da** çalışır ve koddan üretilen profil hiç sınanmazdı. Bugün
-`AttackProfile.cs:55-58`'deki `range < 1` kelepçesi profil hangi yoldan gelirse
+`AttackProfile.cs:59-62`'deki `range < 1` kelepçesi profil hangi yoldan gelirse
 gelsin geçerli — kod, test, gelecekteki bir yükleyici.
 
 ② **██ EN SIK HATA ██ Bir varlık, çalışma zamanı durumu taşımaya başlar.**
@@ -94,7 +94,7 @@ paylaşır — ve daha kötüsü, değer Editor'de **kalıcı** olur: oyunu kapa
 açtığında son savaşın canı hâlâ oradadır.
 
 Bu projede o sınır bugün **doğru** çizilmiş durumda ve ölçüsü var: can
-`Health.cs:29`'da, hâl `UnitLifecycle.cs:82`'de, taraf `Combatant.cs:141`'de —
+`Health.cs:29`'da, hâl `UnitLifecycle.cs:82`'de, taraf `Combatant.cs:145`'de —
 hiçbiri tanımın içinde değil. `AttackProfile.cs:25-26` de aynı çizgiyi yazıyor:
 "Neyi TUTMAZ: kimin saldırdığını, kime saldırıldığını, o anki bekleme süresini."
 
@@ -124,10 +124,10 @@ biri gerektiğinde **onu geri vermek**. Kazancı yaratma/yok etme maliyetini ve
 **A · BUGÜNKÜ KARŞILIĞI** — Doğrudan yaratma ve doğrudan yok etme:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:728   Instantiate(unitPrefab, transform)   ← birim görseli
-Assets/Game/Unity/BoardAdapter.cs:992   Destroy(view.gameObject)             ← temizlik
-Assets/Game/Unity/BoardAdapter.cs:656   new GameObject($"Cell_{x}_{y}")      ← zemin, Awake'te
-Assets/Game/Unity/BoardAdapter.cs:557   new GameObject($"Structure_{x}_{y}") ← yapı görseli
+Assets/Game/Unity/BoardAdapter.cs:739   Instantiate(unitPrefab, transform)   ← birim görseli
+Assets/Game/Unity/BoardAdapter.cs:1007   Destroy(view.gameObject)             ← temizlik
+Assets/Game/Unity/BoardAdapter.cs:667   new GameObject($"Cell_{x}_{y}")      ← zemin, Awake'te
+Assets/Game/Unity/BoardAdapter.cs:568   new GameObject($"Structure_{x}_{y}") ← yapı görseli
 ```
 
 ██ ÖLÇÜ ██ — `Instantiate`'in tek çağıranı `SpawnUnit` (`:709`), onun da tek
@@ -139,13 +139,13 @@ maliyet **ölçülebilir değil**, çünkü maliyet yok.
 Buna karşılık projede tahsis bilinci **zaten var** ve havuzsuz uygulanmış:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:206   cleanupBuffer — her karede yeni List kurmamak için alan
-Assets/Game/Battle/Battle.cs:418        RemoveReadyForCleanup(List<Unit>) — tamponu ÖNCE temizler
-Assets/Game/Battle/Battle.cs:372        Dictionary üzerinde DOĞRUDAN foreach — kutulama yok
-Assets/Game/Battle/TurnState.cs:60      orderView — salt okunur görünüm bir KEZ kuruluyor
+Assets/Game/Unity/BoardAdapter.cs:210   cleanupBuffer — her karede yeni List kurmamak için alan
+Assets/Game/Battle/Battle.cs:429        RemoveReadyForCleanup(List<Unit>) — tamponu ÖNCE temizler
+Assets/Game/Battle/Battle.cs:383        Dictionary üzerinde DOĞRUDAN foreach — kutulama yok
+Assets/Game/Battle/TurnState.cs:64      orderView — salt okunur görünüm bir KEZ kuruluyor
 ```
 
-`Battle.cs:362-365` bunun gerekçesini yazıyor: küme `IEnumerable` olarak dışarı
+`Battle.cs:373-376` bunun gerekçesini yazıyor: küme `IEnumerable` olarak dışarı
 açılsaydı numaralandırıcı arayüz ardında **kutulanır** ve her `Update` bir
 tahsis yapardı.
 
@@ -169,8 +169,8 @@ kapasite ve sahne boşaltma).
 ve tek bir satır: `:728`'deki `Instantiate` bir `Get()` çağrısına döner.
 Ama **ikinci** satır asıl karardır: `:992`'deki `Destroy`, `Release(view)`'a
 dönerken görsel durumun sıfırlanması gerekir — ve bu projede sıfırlanacak durum
-`UnitView`'da yazılı: `UnitView.cs:86` (`SetState(UnitState.Alive)`) ve
-`UnitView.cs:100` (`SetSelected(false)`). Yani sıfırlama sözleşmesinin metni
+`UnitView`'da yazılı: `UnitView.cs:93` (`SetState(UnitState.Alive)`) ve
+`UnitView.cs:107` (`SetSelected(false)`). Yani sıfırlama sözleşmesinin metni
 bugün **`Awake` içinde** duruyor; havuz geldiği gün o metnin `Awake`'ten çıkıp
 çağrılabilir bir metoda taşınması gerekir, çünkü havuzdan çıkan nesnede `Awake`
 **tekrar çalışmaz**.
@@ -178,7 +178,7 @@ bugün **`Awake` içinde** duruyor; havuz geldiği gün o metnin `Awake`'ten ç�
 **D · NE KIRAR** — Üç şey:
 
 ① **`Awake` bir daha çalışmaz.** Havuzdan dönen nesnede `Awake` ve `OnDestroy`
-tetiklenmez; `OnEnable`/`OnDisable` tetiklenir. `UnitView.cs:79`'daki `Awake`
+tetiklenmez; `OnEnable`/`OnDisable` tetiklenir. `UnitView.cs:86`'daki `Awake`
 bugün doğan her birimi ayakta ve seçimsiz başlatıyor — havuz o garantiyi
 sessizce kaldırır ve önceki birimin gri tonu yeni birimde görünür.
 
@@ -186,7 +186,7 @@ sessizce kaldırır ve önceki birimin gri tonu yeni birimde görünür.
 yapar. O tahsis "kare başına sıfır" iddiasını bozmaz ama ölçümü yapan kişi
 bunu bilmezse yanlış yerde arar.
 
-③ **Bugünkü sadelik gider.** `unitViews` sözlüğü (`BoardAdapter.cs:195`) bugün
+③ **Bugünkü sadelik gider.** `unitViews` sözlüğü (`BoardAdapter.cs:199`) bugün
 "tabloda varsa ekranda var" demek. Havuzla birlikte üçüncü bir hâl doğar:
 "nesne yaşıyor ama havuzda bekliyor" — ve `TryGetView`'ın (`:1050`) `LogError`
 kararı (`:1057`) o gün yanlış alarm üretmeye başlar.
@@ -217,12 +217,12 @@ bilmez, abone "kim yayınladı" bilmez.
 
 ```
 ① Assets/Game/Core/Combat/UnitLifecycle.cs:80   event Action<UnitState>
-② Assets/Game/Core/Combat/Combatant.cs:107      event Action<UnitState, UnitState>
+② Assets/Game/Core/Combat/Combatant.cs:111      event Action<UnitState, UnitState>
    çevirici :114 · abonelik :86
-③ Assets/Game/Battle/Battle.cs:172              event Action<Unit, UnitState, UnitState>
+③ Assets/Game/Battle/Battle.cs:179              event Action<Unit, UnitState, UnitState>
    kapanış üretimi :219 · abonelik :221
    yönlendirici sözlüğü :74 · sökme :336-340
-④ Assets/Game/Unity/BoardAdapter.cs:277/:282    += / -=  (OnEnable / OnDisable)
+④ Assets/Game/Unity/BoardAdapter.cs:288/:282    += / -=  (OnEnable / OnDisable)
    dinleyici :299
 ```
 
@@ -231,7 +231,7 @@ Her durakta bilgi **kazanılıyor**: ① yeni durum, ② önceki durum, ③ kiml
 yol görünür. Hikâyesi:
 [../deep/konular/01-olay-zinciri.md](../deep/konular/01-olay-zinciri.md).
 
-`Battle.cs:74`'teki `stateForwarders` sözlüğü bu zincirin faturasıdır: abone
+`Battle.cs:81`'teki `stateForwarders` sözlüğü bu zincirin faturasıdır: abone
 edilen şey birim başına ayrı bir **kapanış** olduğu için, sökmek üzere tam o
 örneğin saklanması gerekiyor.
 
@@ -265,7 +265,7 @@ hikâye olarak anlatabiliyor. Veri yolu geldiğinde yayıncı ile abone arasınd
 "Find All References" boş döner ve yolu ancak çalışma zamanında izleyebilirsin.
 
 İkinci kırılma daha sinsi: **abonelik ömrü**. Bugün abonelik `OnEnable`/
-`OnDisable` çiftinde (`BoardAdapter.cs:277`/`:282`) ve simetriyi **disiplin**
+`OnDisable` çiftinde (`BoardAdapter.cs:288`/`:282`) ve simetriyi **disiplin**
 tutuyor — eksik bir `-=` tek bir uyarı bile üretmez (`:275`). Veri yolu bu
 sorunu çözmez, **çoğaltır**: ölü bir abone artık bir nesnede değil, merkezî
 bir listede yaşar ve sahne yeniden yüklendiğinde de orada kalır.
@@ -302,20 +302,20 @@ dersin ta kendisi. ██
 kurucudan          Assets/Game/Core/Combat/Combatant.cs:59   Health, UnitLifecycle, AttackProfile, Team
                    Assets/Game/Core/Combat/Structure.cs:51
                    Assets/Game/Core/PointerGesture.cs:127    eşik dışarıdan
-Inspector'dan      Assets/Game/Unity/BoardAdapter.cs:120     unitPrefab
+Inspector'dan      Assets/Game/Unity/BoardAdapter.cs:124     unitPrefab
                    Assets/Game/Unity/UnitView.cs:51          selectionOverlay
-sahibinden         Assets/Game/Battle/Battle.cs:50           tahtayı kendisi kurar, dışarıdan ALMAZ
+sahibinden         Assets/Game/Battle/Battle.cs:53           tahtayı kendisi kurar, dışarıdan ALMAZ
 ```
 
 ██ ÖLÇÜLDÜ ██ — `Assets/Game/` altında **değiştirilebilir hiçbir `static`
-alan yok**. Tek `static` alan `Assets/Game/Battle/TurnState.cs:40`
+alan yok**. Tek `static` alan `Assets/Game/Battle/TurnState.cs:44`
 (`DefaultTurnOrder`) ve o da `readonly` **ve** `Array.AsReadOnly` ile sarılmış
 bir salt okunur görünüm. `Instance`, `DontDestroyOnLoad` ve `FindObjectOfType`
 kelimeleri üretim kodunda **hiç geçmiyor**.
 
-Ret gerekçesi de kodda yazılı. `Battle.cs:136` sıra durumu için şunu diyor:
+Ret gerekçesi de kodda yazılı. `Battle.cs:143` sıra durumu için şunu diyor:
 "static bir alana konsaydı durum test metotları arasında **sızardı**."
-`BoardAdapter.cs:65-67` aynı ölçüyü tersinden veriyor: aynı sahneye iki
+`BoardAdapter.cs:69-71` aynı ölçüyü tersinden veriyor: aynı sahneye iki
 `BoardAdapter` koy, **iki ayrı savaş** doğar — paylaşılan tek bir `static` alan
 yok.
 
@@ -333,7 +333,7 @@ Somut eşik: bir müzik çalar ya da kayıt sistemi geldiğinde ① ve ② doğr
 başına açıkça bağlanan bir servistir.
 
 **C · İLK ADIM** — Değişecek ilk dosya bir tip **değil**, bir yer: kurulum
-kökü. Bugün o kök `Assets/Game/Unity/BoardAdapter.cs:225`'teki `Awake` — savaşı
+kökü. Bugün o kök `Assets/Game/Unity/BoardAdapter.cs:232`'teki `Awake` — savaşı
 kuran (`:231`), jesti kuran (`:236`), zemini kuran (`:252`) ve iki demo birimi
 doğuran (`:260-261`) satırlar orada. Sahne ötesi bir bağımlılık geldiği gün ilk
 soru "nereye `static` koyayım" değil, "bu kök kimin" olur.
@@ -365,7 +365,7 @@ serbest kalır, Unity'nin `Object`'i neden "null gibi ama null değil" olabilir)
 ve **Unity mesaj geri çağrıları**. İkisinin de sahibi artık var; ikisi de
 yukarıdaki iki işaretçide.
 
-Bu projede bir işaretçi zaten var: `BoardAdapter.cs:988-990` "önce tablodan
+Bu projede bir işaretçi zaten var: `BoardAdapter.cs:999-1001` "önce tablodan
 çıkar, sonra sahneden sil" kararını, Unity'nin aşırı yüklenmiş eşitliği
 yüzünden "null gibi ama null değil" hâlinde dolaşan referansla gerekçelendiriyor.
 
@@ -390,13 +390,13 @@ verimli kullanmayı hedefler. **DOTS**, Unity'nin bunu içeren paket ailesi
 
 ```
 varlık gibi   Assets/Game/Core/Unit.cs:41       tek üye Name :56 · başka hiçbir şey yok
-bileşen gibi  Assets/Game/Battle/Battle.cs:56   Dictionary<Unit, Combatant>
-              Assets/Game/Battle/Battle.cs:63   Dictionary<Unit, Structure>
-              Assets/Game/Unity/BoardAdapter.cs:195  Dictionary<Unit, UnitView>
+bileşen gibi  Assets/Game/Battle/Battle.cs:59   Dictionary<Unit, Combatant>
+              Assets/Game/Battle/Battle.cs:66   Dictionary<Unit, Structure>
+              Assets/Game/Unity/BoardAdapter.cs:199  Dictionary<Unit, UnitView>
 sistem gibi   Assets/Game/Core/Combat/TargetingRules.cs:31   durumsuz, girdiyi alır cevabı verir
               Assets/Game/Core/Combat/DamageRules.cs:24
               Assets/Game/Battle/TurnRules.cs:28
-döngü gibi    Assets/Game/Battle/Battle.cs:366  Tick — bütün savaşçıları dolaşır
+döngü gibi    Assets/Game/Battle/Battle.cs:377  Tick — bütün savaşçıları dolaşır
 ```
 
 Veri ile davranış **zaten ayrılmış** durumda: kural tiplerinin hiçbirinde alan
@@ -409,10 +409,10 @@ kazanımlarından birinin bu projede **desen olmadan** elde edilmiş olması dem
 |---|---|
 | Varlık bir **sayı** (indeks + sürüm), nesne değil | `Unit` bir `sealed class`, kimlik referans eşitliğinden gelir (`Unit.cs:51-55`) |
 | Bileşenler **bitişik dizilerde** tutulur | Bileşenler `Dictionary` içinde — dağınık, düğüm başına ayrı ayrılmış |
-| Bir **sistem döngüsü** bileşen kümesine göre iş dağıtır | Döngü elle yazılmış tek bir `foreach` (`Battle.cs:372`, `:383`) ve neyi dolaşacağını sabit biliyor |
+| Bir **sistem döngüsü** bileşen kümesine göre iş dağıtır | Döngü elle yazılmış tek bir `foreach` (`Battle.cs:383`, `:383`) ve neyi dolaşacağını sabit biliyor |
 | Bellek yerleşimi (chunk) performans için tasarlanır | Bellek yerleşimi hiç düşünülmedi; `Dictionary` düğümlerinin yeri çalışma zamanının kararı |
 
-`Battle.cs:368-371` bu tabloya kısmen dokunuyor: sözlük üzerinde **doğrudan**
+`Battle.cs:379-382` bu tabloya kısmen dokunuyor: sözlük üzerinde **doğrudan**
 `foreach` kullanılıyor çünkü `Dictionary<,>.Enumerator` bir `struct` ve arayüz
 ardında saklanmadığı için kutulanmıyor. Yani tahsis bilinci var, **bellek
 yerleşimi bilinci** yok — ve ikisi ayrı şeyler.
@@ -421,9 +421,17 @@ yerleşimi bilinci** yok — ve ikisi ayrı şeyler.
 darboğaz hâline geldiğinde.
 
 ██ Ve bu eşik sıra tabanlı bir tahta oyununda **çok yüksektir** ██ — bu cümle
-yumuşatma değil, ölçü. Bugünkü tahta `3×5`, yani **15 hücre**
-(`BoardAdapter.cs:109-110`) ve tahtadaki parça sayısı iki
-(`BoardAdapter.cs:260-261`). `Battle.Tick` (`:366`) kare başına iki `Combatant`
+yumuşatma değil, ölçü. Bugünkü tahta `3×5`, yani **15 hücre**, ve tahtadaki
+parça sayısı iki:
+
+```
+BoardAdapter.cs:113   [SerializeField, Min(1)] private int width = 3;
+BoardAdapter.cs:114   [SerializeField, Min(1)] private int height = 5;
+BoardAdapter.cs:267   SpawnUnit("Vanguard", Team.Player, 1, 2);
+BoardAdapter.cs:268   SpawnUnit("Raider", Team.Enemy, 1, 3);
+```
+
+`Battle.Tick` (`:366`) kare başına iki `Combatant`
 ve sıfır `Structure` dolaşıyor. ECS'in kazandığı şey, on binlerce varlığın kare
 başına aynı işi yapması durumunda ortaya çıkar. Sıra tabanlı bir oyunda kare
 başına yapılan iş genellikle **sıfırdır**: hiçbir şey olmayan bir karede
@@ -444,7 +452,7 @@ olur.
 
 **D · NE KIRAR** — İki şey, ikisi de büyük:
 
-① **Bugünkü okunabilir nesne modeli.** `Combatant.cs:148`'deki
+① **Bugünkü okunabilir nesne modeli.** `Combatant.cs:152`'deki
 `public UnitState State => lifecycle.State;` gibi satırlar kaybolur; yerlerine
 bileşen aramaları gelir. `Docs/deep/kod/` ağacındaki 33 ayna belgenin tamamı
 tip başına bölünmüş durumda ve o bölünme ECS'te karşılıksız kalır.
@@ -572,6 +580,38 @@ Buradaki hiçbir satır "yapılacak iş" değildir. Altı aşamanın tamamı bug
 **doğru** durumda: yokluk bir eksiklik değil, ölçülmüş bir karar. Bir aşamanın
 tetikleyici koşulu gerçekleştiğinde o satır bir yol haritası satırına dönüşür —
 ve o gün bu dosya güncellenir, kod değil.
+
+---
+
+## Alıntı çapaları
+
+Aşağıdaki satırlar bu belgede geçen satır numaralarının **çapasıdır**. Her satır
+`Tools/check-doc-code-refs.py`'nin ALINTI katmanına, o numarada duran kodun
+BİREBİR metnini verir. Ölçüldü: ALINTI katmanı 3 satırlık kaymayı bile %100
+yakalıyor, YAKIN AD katmanı 6 satırlık kaymanın %1'ini. Tablo hücrelerindeki ve
+cümle içindeki atıflar alıntı biçimine giremez — o biçim atfın satır BAŞINDA
+olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı gün bu
+belgede geçen aynı numaraların hepsi elden geçirilir.
+
+```
+Assets/Game/Unity/BoardAdapter.cs:135      [SerializeField, Min(1)] private int maxHealth = 30;
+Assets/Game/Unity/BoardAdapter.cs:138      [SerializeField, Min(0)] private int damage = 10;
+Assets/Game/Unity/BoardAdapter.cs:141      [SerializeField, Min(1)] private int attackRange = 1;
+Assets/Game/Unity/BoardAdapter.cs:150      [SerializeField, Min(0)] private int moveRange = 1;
+Assets/Game/Unity/BoardAdapter.cs:178      [SerializeField, Min(1)] private int structureMaxHealth = 50;
+Assets/Game/Unity/BoardAdapter.cs:667      var cell = new GameObject($"Cell_{x}_{y}");
+Assets/Game/Unity/BoardAdapter.cs:568      var structureObject = new GameObject($"Structure_{x}_{y}");
+Assets/Game/Unity/BoardAdapter.cs:210      private readonly List<Unit> cleanupBuffer = new List<Unit>();
+Assets/Game/Unity/BoardAdapter.cs:124      [SerializeField] private UnitView unitPrefab;
+Assets/Game/Unity/BoardAdapter.cs:232      private void Awake()
+Assets/Game/Battle/Battle.cs:429           public int RemoveReadyForCleanup(List<Unit> removed)
+Assets/Game/Battle/Battle.cs:377           public void Tick(float deltaSeconds)
+Assets/Game/Battle/TurnState.cs:64         private readonly ReadOnlyCollection<Team> orderView;
+Assets/Game/Core/Combat/Combatant.cs:111   public event Action<UnitState, UnitState> StateChanged;
+Assets/Game/Unity/UnitView.cs:86           private void Awake()
+Assets/Game/Unity/UnitView.cs:107          SetSelected(false);
+```
+
 
 ## İlgili
 

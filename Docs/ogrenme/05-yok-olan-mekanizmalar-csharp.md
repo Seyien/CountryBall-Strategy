@@ -159,7 +159,7 @@ yığın izi ÇAĞIRANI gösterir           ▼   bambaşka bir dosyada)
 
 Bu projedeki karşılığı somut: `UnitLifecycle` kurucusu iki pencereyi hemen
 doğruluyor (`Assets/Game/Core/Combat/UnitLifecycle.cs:50-58`), `Tick` negatif
-zamanı hemen reddediyor (`UnitLifecycle.cs:171-175`). Bu tipler bir gün
+zamanı hemen reddediyor (`UnitLifecycle.cs:178-182`). Bu tipler bir gün
 coroutine'e taşınırsa o doğrulamalar **çağrı anını terk eder**.
 
 **Kaçınma yolunun adı var: ayrık doğrulama.** Doğrulayan bir düz metot, `yield`
@@ -292,7 +292,7 @@ Okunuşu: **ilk** `foreach` — aynı iş parçacığında, henüz kullanılmam�
 üzerinde — fazladan tahsis yapmaz, nesne kendisini verir; **ikinci** `foreach`
 yeni bir nesne doğurur, iş parçacığı farklıysa ilki bile doğurur.
 ██ Bu, bu projenin tahsis kültürüne doğrudan bağlanan bir ölçüdür. ██
-`Assets/Game/Battle/Battle.cs:362-365` savaşçı kümesini `IEnumerable` olarak
+`Assets/Game/Battle/Battle.cs:373-376` savaşçı kümesini `IEnumerable` olarak
 dışarı **açmamayı** seçerken "numaralandırıcı arayüz ardında kutulanır, her
 `Update` bir tahsis yapardı" diyor; yukarıdaki `else` dalı aynı ailenin ikinci
 faturasıdır. Tahsis ölçümü:
@@ -657,15 +657,15 @@ tip kendi okumuyor.
 
 ```
 BoardAdapter.Update()                             ← motor çağırır (Unity katmanı)
-   BoardAdapter.cs:312   AdvanceBattleTime()
-      BoardAdapter.cs:616   battle.Tick(Time.deltaTime)  ◄── ██ Time.deltaTime BURADA BİTER ██
-         Battle.cs:366        Tick(float deltaSeconds)
-            Battle.cs:372/:383  foreach → Combatant.Tick / Structure.Tick
-                                   UnitLifecycle.cs:169   Tick(float deltaSeconds)
+   BoardAdapter.cs:323   AdvanceBattleTime()
+      BoardAdapter.cs:627   battle.Tick(Time.deltaTime)  ◄── ██ Time.deltaTime BURADA BİTER ██
+         Battle.cs:377        Tick(float deltaSeconds)
+            Battle.cs:383/:383  foreach → Combatant.Tick / Structure.Tick
+                                   UnitLifecycle.cs:176   Tick(float deltaSeconds)
                                       ██ Time.deltaTime YOK. Saniye bir ARGÜMAN. ██
 ```
 
-Ölçüsü kodda yazılı (`UnitLifecycle.cs:159-162`): EditMode'da `Time.deltaTime`
+Ölçüsü kodda yazılı (`UnitLifecycle.cs:163-166`): EditMode'da `Time.deltaTime`
 sıfır değil `0,017675` dönüyor — zamanı içeriden okuyan tasarım testte
 **patlamaz**, sessizce anlamsız bir sayıyla yürür.
 
@@ -693,7 +693,7 @@ tek sebebi budur. ██
 | `lock` / `Interlocked` | tek iş parçacığı var; paylaşılan değiştirilebilir durum yok — `static` alan sayısı 1 ve o `readonly` | İkinci bir iş parçacığı **aynı** veriye dokunduğu gün. Sırası önemli: önce iş parçacığı, sonra kilit |
 | `CancellationToken` | iptal edilecek uzun iş yok | İlk `Task` ya da `Awaitable` yazıldığı gün — ██ aynı gün, sonra değil ██ |
 | `IAsyncEnumerable` | eşzamansız akış yok (kapı açık: derleniyor) | Bir kaynağın **parça parça** ve zamana yayılarak geldiği gün (akışlı indirme, satır satır dosya) |
-| `ArrayPool<T>` | kare başına dizi tahsisi yok; tamponlar bir kez kuruluyor (`BoardAdapter.cs:206`) | Kare başına **boyutu değişen** geçici dizi ihtiyacı ölçüldüğü gün |
+| `ArrayPool<T>` | kare başına dizi tahsisi yok; tamponlar bir kez kuruluyor (`BoardAdapter.cs:210`) | Kare başına **boyutu değişen** geçici dizi ihtiyacı ölçüldüğü gün |
 
 ---
 
@@ -791,7 +791,7 @@ DERLEYİCİNİN ÜRETTİĞİ MAKİNE            BU PROJENİN ELLE YAZDIĞI MAKİ
 ────────────────────────────            ───────────────────────────────
 '<>1__state'  (int, gizli)              UnitLifecycle.cs:82   State (UnitState enum)
 '<adim>5__1'  (gizli alan)              UnitLifecycle.cs:44   remainingSeconds
-MoveNext()    (motor çağırır)           UnitLifecycle.cs:169  Tick(float deltaSeconds)
+MoveNext()    (motor çağırır)           UnitLifecycle.cs:176  Tick(float deltaSeconds)
                                                               ██ ÇAĞIRAN DIŞARIDA ██
 adı okunmaz, ayıklanamaz                adı okunur, testte doğrudan çağrılabilir
 kare süresine bağlı                     ██ saniye bir ARGÜMAN ██

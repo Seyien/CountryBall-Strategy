@@ -136,7 +136,7 @@ Yazılırken kaynakta doğrulanan, okuyucuyu yanlış yöne götürecek üç şe
    DEĞİL. İkisi de `static class` ve tek bir alanı yok. Command bir eylemi
    NESNEYE bağlar; nesne olmadan kuyruğa alma, geri alma ve tekrar oynatma
    diye bir şey de yoktur. Doğru ad: akış sahibi.
-   Ölçü: Assets/Game/Core/MoveAction.cs:39 ve
+   Ölçü: Assets/Game/Core/MoveAction.cs:42 ve
          Assets/Game/Core/Combat/AttackAction.cs:36 — ikisinde de `static class`.
 
 "Kural sınıfları birer Strategy'dir"
@@ -149,7 +149,7 @@ Yazılırken kaynakta doğrulanan, okuyucuyu yanlış yöne götürecek üç şe
    TAM DEĞİL. GoF Adapter bir tipin arayüzünü BAŞKA bir arayüze çevirir;
    burada çevrilen bir arayüz yok, çevrilen şey iki DÜNYA — piksel/kare/sahne
    ile hücre/tur/kural. Doğru ad: katman sınırı çevirmeni.
-   Ölçü: Assets/Game/Unity/BoardAdapter.cs:106 — `MonoBehaviour`'dan türüyor,
+   Ölçü: Assets/Game/Unity/BoardAdapter.cs:110 — `MonoBehaviour`'dan türüyor,
          hiçbir arayüz uygulamıyor.
 ```
 

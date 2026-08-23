@@ -185,7 +185,7 @@ Assets/Game/Unity/GridStrategy.Unity.asmdef            references: [Core, Combat
 ```
 artı iki `.cs` yeri:
 ```
-Assets/Game/Unity/BoardAdapter.cs:44      using Battle = global::GridStrategy.Battle.Battle;
+Assets/Game/Unity/BoardAdapter.cs:48      using Battle = global::GridStrategy.Battle.Battle;
 Assets/Game/Core/Combat/AttackResolver.cs IsWithinRange(int distance, AttackProfile)
 ```
 
@@ -230,8 +230,8 @@ biteceğini önden vaat ediyor ve `:220-271`'de gerçekten ödüyor.
 ```
 Assets/Game/Battle/Battle.cs      board alanı · internal Board üyesi · kurucu
 Assets/Game/Core/UnitGrid.cs      PlaceUnit · RemoveUnit · TryGetUnit · ThrowIfOutsideGrid
-Assets/Game/Battle/BattleActions.cs:204
-                                  MoveAction.Execute(battle.Board, unit, …)
+Assets/Game/Battle/BattleActions.cs:207
+    MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
                                   ██ Board'un TEK çağırısı — tüm projede ██
 ```
 ██ O tek satırı **kendin say**: ██ `grep -n 'battle.Board' Assets/Game/Battle/BattleActions.cs`
@@ -256,7 +256,9 @@ okumaktır. ██
 
 **AÇIK OLACAK KOD:**
 ```
-Assets/Game/Battle/TurnState.cs:39-49          beş kelimenin dördü üst üste
+Assets/Game/Battle/TurnState.cs:43-53
+    public static readonly IReadOnlyList<Team> DefaultTurnOrder =
+        ◄── beş kelimenin dördü üst üste
 Assets/Game/Core/UnitGrid.cs                   private readonly Unit[,] cells
 Assets/Game/Core/Combat/UnitLifecycle.cs       downedWindowSeconds (readonly)
                                                vs remainingSeconds (DEĞİL)
@@ -454,33 +456,40 @@ söylemiyor. ██
 **Sebebi — koda karşı doğrulandı, üç sıçrama:**
 
 ```
-BoardAdapter.cs:491   Unit placer = selectedUnit;
-BoardAdapter.cs:493   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
+BoardAdapter.cs:502   Unit placer = selectedUnit;
+BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
                                                           ▲
                       ██ YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR ██
         │
         ▼
-BattleActions.cs:362  battle.AddStructure(unit, structure, x, y);
+BattleActions.cs:365  battle.AddStructure(unit, structure, x, y);
         │
         ▼
-Battle.cs:280         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
-Battle.cs:282             throw new ArgumentException("The unit is already in this battle.", …);
+Battle.cs:287         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
+Battle.cs:289             throw new ArgumentException("The unit is already in this battle.", nameof(unit));
 ```
 
 `selectedUnit` **tanım gereği** `combatants` sözlüğünde:
-`TryEnterPlacementMode` (`BoardAdapter.cs:350`) `selectedUnit == null` ise kipe
-hiç girmiyor, ve seçim ancak **dolu** bir hücreye tıklanarak doğuyor.
+`TryEnterPlacementMode` `selectedUnit == null` ise kipe hiç girmiyor, ve seçim
+ancak **dolu** bir hücreye tıklanarak doğuyor:
+
+```
+BoardAdapter.cs:361   if (selectedUnit == null)
+```
 
 **██ HANGİ HÜCREDE NE OLUYOR — üç dal, ölçüldü: ██**
 ```
-  tahta DIŞI hücre  ──► BattleActions.cs:344  RejectedInvalidCell    ✓ ret, istisna YOK
-  DOLU hücre        ──► BattleActions.cs:354  RejectedCellOccupied   ✓ ret, istisna YOK
-  tahta içi + BOŞ   ──► BattleActions.cs:362  AddStructure  ██ HER SEFERİNDE İSTİSNA ██
+  tahta DIŞI hücre  ──► BattleActions.cs:347  RejectedInvalidCell    ✓ ret, istisna YOK
+  DOLU hücre        ──► BattleActions.cs:357  RejectedCellOccupied   ✓ ret, istisna YOK
+  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure  ██ HER SEFERİNDE İSTİSNA ██
 ```
 
 ██ Yani **başarılı olması gereken tek dal** patlıyor. `PlacementOutcome.Placed`
-arayüzden ULAŞILAMAZ; `CreateStructureVisual` (`BoardAdapter.cs:555`) üretimde
-HİÇ çağrılmaz. ██
+arayüzden ULAŞILAMAZ; `CreateStructureVisual` üretimde HİÇ çağrılmaz. ██
+
+```
+BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
+```
 
 **Testler neden yeşil:** `BattleActionsTests` her çağrıda **taze bir kimlik**
 veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir testte
@@ -509,12 +518,14 @@ bölümü): buradan sonrasında kaybolmazsın.
 
 **AÇIK OLACAK KOD:**
 ```
-Assets/Game/Unity/BoardAdapter.cs:225   Awake     (private — ve motor yine çağırıyor)
-Assets/Game/Unity/BoardAdapter.cs:277   OnEnable
-Assets/Game/Unity/BoardAdapter.cs:279       battle.UnitStateChanged += …   ◄── C# event
-Assets/Game/Unity/BoardAdapter.cs:282   OnDisable
-Assets/Game/Unity/BoardAdapter.cs:306   Update
-Assets/Game/Unity/UnitView.cs:79        Awake
+Assets/Game/Unity/BoardAdapter.cs:232   private void Awake()
+        ◄── private, ve motor yine çağırıyor
+Assets/Game/Unity/BoardAdapter.cs:288   private void OnEnable()
+Assets/Game/Unity/BoardAdapter.cs:290   battle.UnitStateChanged += OnUnitStateChanged;
+        ◄── C# event
+Assets/Game/Unity/BoardAdapter.cs:293   private void OnDisable()
+Assets/Game/Unity/BoardAdapter.cs:317   private void Update()
+Assets/Game/Unity/UnitView.cs:86        private void Awake()
 Assets/Game/Core/PointerGesture.cs      public void Reset()   ◄── Unity mesaj ADI, sıfır anlam
 ProjectSettings/EditorSettings.asset    m_EnterPlayModeOptionsEnabled: 0
 ```
@@ -564,13 +575,18 @@ oku — tersi, malzemeyi hiç kullanmadan öğrenmek olurdu.
 
 **AÇIK OLACAK KOD — zincirin dört durağı, sonra ekran yarısı:**
 ```
-Assets/Game/Core/Combat/UnitLifecycle.cs:80    event Action<UnitState> StateChanged
-Assets/Game/Core/Combat/Combatant.cs:86        += OnLifecycleStateChanged  (kurucunun SON satırı)
-Assets/Game/Core/Combat/Combatant.cs:107       event Action<UnitState, UnitState>
-Assets/Game/Battle/Battle.cs:74                stateForwarders sözlüğü
-Assets/Game/Battle/Battle.cs:172               event Action<Unit, UnitState, UnitState>
-Assets/Game/Unity/BoardAdapter.cs:279 / :284   += / -=
-Assets/Game/Unity/BoardAdapter.cs:299 → :943 → UnitView.cs:166   ◄── ekran yarısı
+Assets/Game/Core/Combat/UnitLifecycle.cs:80    public event Action<UnitState> StateChanged;
+Assets/Game/Core/Combat/Combatant.cs:90        this.lifecycle.StateChanged += OnLifecycleStateChanged;
+        ◄── kurucunun SON satırı
+Assets/Game/Core/Combat/Combatant.cs:111       public event Action<UnitState, UnitState> StateChanged;
+Assets/Game/Battle/Battle.cs:81                private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
+Assets/Game/Battle/Battle.cs:179               public event Action<Unit, UnitState, UnitState> UnitStateChanged;
+Assets/Game/Unity/BoardAdapter.cs:290          battle.UnitStateChanged += OnUnitStateChanged;
+Assets/Game/Unity/BoardAdapter.cs:295          battle.UnitStateChanged -= OnUnitStateChanged;
+        ◄── ekran yarısı: 310 → 954 → UnitView.cs:173
+Assets/Game/Unity/BoardAdapter.cs:310          private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+Assets/Game/Unity/BoardAdapter.cs:954          private void ApplyStateVisual(Unit unit, UnitState state)
+Assets/Game/Unity/UnitView.cs:173              public void SetState(UnitState state)
 ```
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
@@ -696,12 +712,12 @@ olduğunu **kendin işaretle**. Defterin işi bu. ██
 ```
  OTURUM 1  ─ BÜTÜNÜ KUR ─────────────────────────────────── 1.262 satır ─ ~2 sa
    1  deep/00-iskelet.md              604   kod: yok
-   2  konular/02-assembly-duvari      658   kod: 4 × .asmdef + BoardAdapter.cs:44
+   2  konular/02-assembly-duvari      658   kod: 4 × .asmdef + BoardAdapter.cs:48
    ██ DUR ██  run-editmode-tests.ps1  ·  test asmdef'inin references dizisi
 
  OTURUM 2  ─ SAHİPLİK VE DURUM ─────────────────────────── 1.825 satır ─ ~2 sa
-   3  konular/03-tahta-sahipligi      503   kod: Battle.cs · UnitGrid.cs · BattleActions.cs:204
-   4  dil/01-degismezlik              598   kod: TurnState.cs:39-49 · UnitGrid.cs
+   3  konular/03-tahta-sahipligi      503   kod: Battle.cs · UnitGrid.cs · BattleActions.cs:207
+   4  dil/01-degismezlik              598   kod: TurnState.cs:43-53 · UnitGrid.cs
    5  konular/05-yasam-dongusu        724   kod: UnitLifecycle · StructureLifecycle · TargetingRules
    ██ DUR ██  Downed_IsTheOnlyStateBothAbilitiesAccept testini aç ve OKU
 

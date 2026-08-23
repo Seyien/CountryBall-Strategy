@@ -259,7 +259,7 @@ tahtayı uzatamazsa hareket hiç çözülemez. `Board` o uzatmanın tek sebebi.
 Ölçülebilir hâli: `Board` üyesinin üretimde **tam olarak bir çağıranı** var.
 
 ```
-BattleActions.cs:204
+BattleActions.cs:207
     MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
     ██ Board'un tek çağırısı — tüm projede ██
 ```

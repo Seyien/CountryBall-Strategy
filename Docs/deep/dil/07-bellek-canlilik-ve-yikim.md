@@ -133,7 +133,7 @@ kapsamın ortasında ölü ilan edebilir.
 
 ### Bu projeden dört cevap, tek metotta
 
-`BoardAdapter.DespawnView` (BoardAdapter.cs:972-995) dördünü tek ekranda gösteriyor:
+`BoardAdapter.DespawnView` (BoardAdapter.cs:983-1010) dördünü tek ekranda gösteriyor:
 
 ```csharp
 private void DespawnView(Unit unit)
@@ -184,7 +184,7 @@ onu SARAN şeye göre üç ayrı yerde yaşar. Üçü de bu projeden, üçü de 
        onu yakalamıyor. Yönetilen yığında bir karşılığı YOK.
 
 ② SINIF ALANI — YÖNETİLEN YIĞINDA, sarmalayan nesnenin İÇİNDE
-   UnitView.cs:77
+   UnitView.cs:81
        private Color authoredColor = Color.white;
                      ▲
        `Color` bir struct, yani DEĞER TİPİ. Ama bu değer bir
@@ -211,7 +211,7 @@ onu SARAN şeye göre üç ayrı yerde yaşar. Üçü de bu projeden, üçü de 
 Kelime dört yerde geçiyor ve dördü de ya **reddedilen alternatif** ya bir BCL
 tipi hakkında not: `AttackProfile.cs:31` (*"`readonly struct` olsaydı her alan
 okumasında ve her parametre geçişinde yeni bir kopya doğar"*), `MoveProfile.cs:15`
-(*"SINIF, struct DEĞİL"*), `AttackOutcome.cs:22`, ve `Battle.cs:369`
+(*"SINIF, struct DEĞİL"*), `AttackOutcome.cs:22`, ve `Battle.cs:380`
 (*"`Dictionary<,>.Enumerator` bir struct'tır"* — BCL'in tipi, projenin değil).
 
 Bu yüzden yukarıdaki ② örneği `Color` üstünden verildi: `Color` Unity'nin
@@ -224,7 +224,7 @@ yığında duruyor.
 ### Statik depo — ve bu projedeki tek örneği
 
 ```csharp
-// TurnState.cs:40
+// TurnState.cs:44
 public static readonly IReadOnlyList<Team> DefaultTurnOrder =
     Array.AsReadOnly(new[] { Team.Player, Team.Enemy });
 ```
@@ -234,7 +234,7 @@ public static readonly IReadOnlyList<Team> DefaultTurnOrder =
 değil — ve bu, üçüncü durağın konusu: **statik bir referans bir KÖKtür.**
 
 Karşı örnek aynı dosyada: `TurnState.FirstTurnNumber` bir `const`
-(TurnState.cs:47) ve `const`'un çalışma zamanında **depolaması yoktur**; değer
+(TurnState.cs:51) ve `const`'un çalışma zamanında **depolaması yoktur**; değer
 her çağrı yerine derleme anında kopyalanır (`Combatant.ReviveHealthDivisor` de
 öyle, Combatant.cs:42). Bu kopyalamanın assembly sınırındaki bedeli
 [`dil/01`](01-degismezlik-anahtar-kelimeleri.md)'in konusu.
@@ -276,7 +276,7 @@ sözlük de içindekiler de topluca erişilemez olur.
 
 ### ██ Bu projedeki canlı örnek: `Battle.stateForwarders` ve okun yönü ██
 
-`Battle.AddUnit` her savaşçı için bir kapanış üretip abone ediyor (Battle.cs:219-222):
+`Battle.AddUnit` her savaşçı için bir kapanış üretip abone ediyor (Battle.cs:226-229):
 
 ```csharp
 Action<UnitState, UnitState> forwarder =
@@ -313,7 +313,7 @@ olur" bir etiket; ölçüsü işte bu zincir — yedi hop ve savaşın tamamı.
 
 ### Kod bunu GERÇEKTE ne yapıyor: sökme yeri var
 
-`Battle.RemoveUnit` (Battle.cs:329-343) aboneliği söküyor:
+`Battle.RemoveUnit` (Battle.cs:336-354) aboneliği söküyor:
 
 ```csharp
 if (wasCombatant)
@@ -327,12 +327,22 @@ if (wasCombatant)
 }
 ```
 
-`RemoveReadyForCleanup` (Battle.cs:456-459) her adayı bu metottan geçiriyor, yani
-temizlik yolu sökmeyi **atlayamıyor**. Kodun kendi cümlesi iki faturayı yan yana
-koyuyor (Battle.cs:331-335):
-*"Yalnız sözlükten silmek, çağıranın elinde kalan Combatant üzerinden savaşta
-OLMAYAN bir birim için kimlikli olay yayılmasına izin verirdi; delege bu savaşı
-tuttuğu için o birim çöp de olamazdı."*
+`RemoveReadyForCleanup` her adayı bu metottan geçiriyor, yani temizlik yolu
+sökmeyi **atlayamıyor**:
+
+```
+Battle.cs:467-470   for (int i = 0; i < removed.Count; i++)
+```
+
+Kodun kendi cümlesi iki faturayı yan yana koyuyor:
+
+```
+Battle.cs:338-342
+                // ABONELİK BURADA BIRAKILIYOR. Yalnız sözlükten silmek, çağıranın
+                // elinde kalan Combatant üzerinden savaşta OLMAYAN bir birim için
+                // kimlikli olay yayılmasına izin verirdi; delege bu savaşı
+                // tuttuğu için o birim çöp de olamazdı.
+```
 
 > **Bu aboneliğin dört durağı ve sökülmezse ÖNCE neyin patladığı (yanlış
 > görsel araması, `LogError`):**
@@ -350,7 +360,7 @@ tuttuğu için o birim çöp de olamazdı."*
 ### Sökülmediği hâlde sızıntı OLMAYAN abonelik — karşı örnek
 
 `Combatant` kurucusu abone oluyor ve **hiçbir yerde sökmüyor**
-(Combatant.cs:86):
+(Combatant.cs:90):
 
 ```csharp
 this.lifecycle.StateChanged += OnLifecycleStateChanged;
@@ -381,7 +391,7 @@ Combatant → Battle      sınır GEÇER  (iki ayrı ömür)      → ██ SÖ
 battle → BoardAdapter   sınır GEÇER  (motor ile çekirdek) → ██ SÖKMEK ŞART ██
 ```
 
-Üçüncü satır `BoardAdapter.OnEnable`/`OnDisable` (BoardAdapter.cs:277-290) ve kodun
+Üçüncü satır `BoardAdapter.OnEnable`/`OnDisable` (BoardAdapter.cs:288-301) ve kodun
 oradaki uyarısı bu dosyanın da uyarısı: *"Simetriyi derleyici değil disiplin
 tutuyor: eksik bir `-=` tek bir uyarı bile üretmez."*
 
@@ -393,7 +403,7 @@ tutuyor: eksik bir `-=` tek bir uyarı bile üretmez."*
 C# temsili ve onunla ilişkili yerel motor durumu. İkisinin ömrü ayrı yönetilir.
 
 ```
-BoardAdapter.cs:992     Destroy(view.gameObject);
+BoardAdapter.cs:1007    Destroy(view.gameObject);
        ┌─────────────────────┴──────────────────────┐
        ▼                                            ▼
 YEREL TARAF                              YÖNETİLEN TARAF
@@ -430,7 +440,7 @@ Burada tekrar edilmiyor; buradaki katkı tek cümle: **fark bir kaprisin değil,
 iki ayrı ömrün gözlemlenebilir izidir.** `==` "yerel taraf yaşıyor mu" diye
 sorar, `ReferenceEquals` "yönetilen kutu aynı kutu mu" diye.
 
-`BoardAdapter.DespawnView`'daki sıra (BoardAdapter.cs:991-992) tam olarak bunun
+`BoardAdapter.DespawnView`'daki sıra (BoardAdapter.cs:1002-1007) tam olarak bunun
 sonucu: önce `unitViews.Remove(unit)`, sonra `Destroy`. Tersi olsaydı tabloda
 "null gibi ama null değil" bir referans kalırdı — sözlükte duran, `== null`
 diyen, `ReferenceEquals` ile bulunabilen bir hayalet.
@@ -439,13 +449,13 @@ diyen, `ReferenceEquals` ile bulunabilen bir hayalet.
 
 ```
 ÜRETİM KODU (Assets/Game/)
-   Destroy(...)            ► 1 çağrı    BoardAdapter.cs:992
+   Destroy(...)            ► 1 çağrı    BoardAdapter.cs:1007
    DestroyImmediate(...)   ► 0 çağrı
-   OnDestroy()             ► 0 tanım    (yalnız BoardAdapter.cs:272'de
+   OnDestroy()             ► 0 tanım    (yalnız BoardAdapter.cs:279'de
                                          REDDEDİLEN alternatif olarak anılıyor)
-   Instantiate(...)        ► 1 çağrı    BoardAdapter.cs:728
-   new GameObject(...)     ► 2 çağrı    BoardAdapter.cs:557, 656
-   AddComponent<...>()     ► 2 çağrı    BoardAdapter.cs:561, 671
+   Instantiate(...)        ► 1 çağrı    BoardAdapter.cs:739
+   new GameObject(...)     ► 2 çağrı    BoardAdapter.cs:568, 656
+   AddComponent<...>()     ► 2 çağrı    BoardAdapter.cs:572, 671
 
 TEST KODU (Assets/Tests/)
    DestroyImmediate(...)   ► 2 çağrı    UnitViewTests.cs:76
@@ -454,13 +464,18 @@ TEST KODU (Assets/Tests/)
 
 **Yaratan ile serbest bırakan simetrisi tek yerde tam:** birim görselleri —
 `Instantiate` (728) ↔ `Destroy` (992), aradaki tabloyu `unitViews` tutuyor.
-**Simetrinin eksik olduğu yer:** `CreateStructureVisual` (BoardAdapter.cs:555)
+**Simetrinin eksik olduğu yer:** `CreateStructureVisual` (BoardAdapter.cs:566)
 bir `GameObject` doğuruyor ama hiçbir tabloya yazmıyor — kodun kendi notu bunu
 bilerek söylüyor: *"GÖRSEL BİR TABLOYA KAYDEDİLMİYOR: bugün onu tekrar bulması
 gereken hiçbir çağıran yok."* Oysa `RemoveReadyForCleanup` enkaz süresi dolan
-yapıları da aynı tampona yazıyor (Battle.cs:445-451) ve `AdvanceBattleTime` her
-biri için `DespawnView` çağırıyor (BoardAdapter.cs:623-626); o çağrı `unitViews`'te
-bir şey bulamaz ve `TryGetView` `LogError` basıp döner (BoardAdapter.cs:1057).
+yapıları da aynı tampona yazıyor ve `AdvanceBattleTime` her
+biri için `DespawnView` çağırıyor (BoardAdapter.cs:634-637); o çağrı `unitViews`'te
+bir şey bulamaz ve `TryGetView` `LogError` basıp döner (BoardAdapter.cs:1072).
+
+```
+Battle.cs:456-462   foreach (KeyValuePair<Unit, Structure> pair in structures)
+```
+
 **Yapı görselinin serbest bırakan tarafı yazılmamış.** Dürüst sınır: bu yol bugün
 baştan sona koşmuyor (yerleştirme çalışma anında bir istisnayla kesiliyor; bir kod
 kusuru olarak ayrıca raporlandı), yani sahnede biriken bir yapı görseli bugün YOK
@@ -482,7 +497,7 @@ Dört ayrı mekanizma var; bu proje bugün **ikisine** dokunuyor:
 | Mekanizma | Bu projede | Hangi aşama getirir |
 |---|---|---|
 | Yönetilen GC | **VAR** — üç olay aboneliği, iki sözlük, kapanış nesneleri | — |
-| Unity `Destroy` | **VAR** — tek çağrı, BoardAdapter.cs:992 | — |
+| Unity `Destroy` | **VAR** — tek çağrı, BoardAdapter.cs:1007 | — |
 | Açık yerel konteyner elden çıkarma (`NativeArray<T>` + `Dispose`) | **HENÜZ YOK** (ölçü: `IDisposable`, `using (`, `NativeArray` → Assets altında sıfır satır) | Jobs/Burst ile bir yol hesabı ya da toplu görünürlük hesabı geldiği gün |
 | Varlık (asset) boşaltma (`Resources.UnloadUnusedAssets`, Addressables) | **HENÜZ YOK** (ölçü: `Resources.` ve `SceneManager` → sıfır satır; sprite'lar Inspector referansı) | İkinci bir sahne ya da çalışma anında yüklenen ilk varlık geldiği gün |
 
@@ -534,10 +549,10 @@ Kodda tahsis hakkında **iddia** taşıyan ama hiçbir testi olmayan dört yorum
 
 | Yer | İddia | Durum |
 |---|---|---|
-| `Battle.cs:362-365` | küme `IEnumerable` olarak açılsaydı numaralandırıcı kutulanır ve her `Update` bir tahsis yapardı | **ÖLÇÜLMEDİ** |
-| `Battle.cs:368-371` | `Dictionary<,>.Enumerator` bir `struct` olduğu için doğrudan `foreach`'te kutulanmaz | **ÖLÇÜLMEDİ** |
-| `BoardAdapter.cs:201-206` | `cleanupBuffer` alan olmasaydı her karede yeni bir `List` kare başına çöp üretirdi | **ÖLÇÜLMEDİ** |
-| `TurnState.cs:56-59` | her okumada `Array.AsReadOnly` çağırmak yeni bir sarmalayıcı üretir ve çöp toplayıcıyı besler | **ÖLÇÜLMEDİ** |
+| `Battle.cs:373-376` | küme `IEnumerable` olarak açılsaydı numaralandırıcı kutulanır ve her `Update` bir tahsis yapardı | **ÖLÇÜLMEDİ** |
+| `Battle.cs:379-382` | `Dictionary<,>.Enumerator` bir `struct` olduğu için doğrudan `foreach`'te kutulanmaz | **ÖLÇÜLMEDİ** |
+| `BoardAdapter.cs:205-210` | `cleanupBuffer` alan olmasaydı her karede yeni bir `List` kare başına çöp üretirdi | **ÖLÇÜLMEDİ** |
+| `TurnState.cs:60-63` | her okumada `Array.AsReadOnly` çağırmak yeni bir sarmalayıcı üretir ve çöp toplayıcıyı besler | **ÖLÇÜLMEDİ** |
 
 Ayrıca **hiç ölçülmemiş katmanlar**: `GridStrategy.Battle` ve `GridStrategy.Unity`
 assembly'lerinde tek bir tahsis testi yok (ölçü: `AllocatingGCMemory` ya da
@@ -562,9 +577,9 @@ sabitlenmemeli, çünkü bayt toplamları Editor Mono'ya ve 64 bite özgüdür. 
 
 | Oyun | Sahneden ne çıkıyor, ne sıklıkta | Bu projedeki karşılığı |
 |---|---|---|
-| **Slay the Spire** | Oynanan kart elden ayrılır, yığına gider. Savaş boyunca aynı küçük deste kimlikleri dolaşır; yeni kimlik yalnız ödül ekranında doğar. Çıkan şey sahneden çıkar, oyundan çıkmaz. | **VAR ve birebir.** `Battle.combatants` ve `unitViews` sabit, küçük bir kimlik kümesi taşıyor; `Awake` iki demo birim doğuruyor (BoardAdapter.cs:260-261), varsayılan tahta 3×5 = 15 hücre (BoardAdapter.cs:109-110). Doğum nadir, çıkış nadir. |
-| **Vampire Survivors** | ██ EŞLEŞMİYOR — ve en öğretici satır bu ██ Saniyede onlarca düşman doğar ve ölür; ekranda aynı anda binlercesi olabilir. Çıkan her varlığın belleği **aynı karenin bütçesi içinde** çözülmek zorunda. | **YOK, ve yokluğu bir karar değil bir ÖLÇEK farkı.** Bu projede `Destroy` tek bir yerde, tek bir çağrı (BoardAdapter.cs:992) ve tetikleyicisi bir ceset sayacı. Doğum hızı yükseldiği gün ilk düşen şey `Destroy`-ve-unut yaklaşımı olur: her `Instantiate`/`Destroy` çifti yeni yönetilen nesne ve yeni yerel nesne demektir. **HENÜZ YOK → birim havuzu**, ve önem kazanacağı koşul yazılabilir: aynı karede birden fazla birim doğduğu gün. |
-| **Stardew Valley** | Gün biter, harita ve içindeki her şey değişir. Envanter ve çiftliğin durumu geçişten **sağ çıkar**; sahnedeki her şey çıkmaz. İki ayrı ömür: kaydedilen ve kaydedilmeyen. | **HENÜZ YOK.** Bu projede tek sahne var, sahne geçişi yok, kayıt/yükleme yok. `Battle` `BoardAdapter.Awake`'te doğuyor (BoardAdapter.cs:231) ve hiçbir yere yazılmıyor. **HENÜZ YOK → sahne geçişi ya da kayıt sistemi**; o gün "hangi nesne geçişten sağ çıkar" sorusu doğar ve statik alanların (bugün tek örnek: `TurnState.DefaultTurnOrder`) sahne geçişinde SIFIRLANMADIĞI ilk kez önem kazanır. |
+| **Slay the Spire** | Oynanan kart elden ayrılır, yığına gider. Savaş boyunca aynı küçük deste kimlikleri dolaşır; yeni kimlik yalnız ödül ekranında doğar. Çıkan şey sahneden çıkar, oyundan çıkmaz. | **VAR ve birebir.** `Battle.combatants` ve `unitViews` sabit, küçük bir kimlik kümesi taşıyor; `Awake` iki demo birim doğuruyor (BoardAdapter.cs:267-268), varsayılan tahta 3×5 = 15 hücre (BoardAdapter.cs:113-114). Doğum nadir, çıkış nadir. <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil. 113-114 ve 267-268'in alıntılı çapası Docs/ogrenme/02-sonraki-asamalar.md'de. --> |
+| **Vampire Survivors** | ██ EŞLEŞMİYOR — ve en öğretici satır bu ██ Saniyede onlarca düşman doğar ve ölür; ekranda aynı anda binlercesi olabilir. Çıkan her varlığın belleği **aynı karenin bütçesi içinde** çözülmek zorunda. | **YOK, ve yokluğu bir karar değil bir ÖLÇEK farkı.** Bu projede `Destroy` tek bir yerde, tek bir çağrı (BoardAdapter.cs:1007) ve tetikleyicisi bir ceset sayacı. Doğum hızı yükseldiği gün ilk düşen şey `Destroy`-ve-unut yaklaşımı olur: her `Instantiate`/`Destroy` çifti yeni yönetilen nesne ve yeni yerel nesne demektir. **HENÜZ YOK → birim havuzu**, ve önem kazanacağı koşul yazılabilir: aynı karede birden fazla birim doğduğu gün. |
+| **Stardew Valley** | Gün biter, harita ve içindeki her şey değişir. Envanter ve çiftliğin durumu geçişten **sağ çıkar**; sahnedeki her şey çıkmaz. İki ayrı ömür: kaydedilen ve kaydedilmeyen. | **HENÜZ YOK.** Bu projede tek sahne var, sahne geçişi yok, kayıt/yükleme yok. `Battle` `BoardAdapter.Awake`'te doğuyor (BoardAdapter.cs:238) ve hiçbir yere yazılmıyor. **HENÜZ YOK → sahne geçişi ya da kayıt sistemi**; o gün "hangi nesne geçişten sağ çıkar" sorusu doğar ve statik alanların (bugün tek örnek: `TurnState.DefaultTurnOrder`) sahne geçişinde SIFIRLANMADIĞI ilk kez önem kazanır. |
 
 Üç satırın ortak dersi: **temizlik stratejisini oyunun kendisi değil, oyunun
 DOĞUM HIZI seçer.** Bu proje bugün birinci satırda oturuyor.
@@ -586,15 +601,15 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
        │  GC: kökten yürü, ulaşabildiklerini tut
        │
        │  ██ AYRIŞMA #1: bu projede zinciri koparan yer BELLİ ██
-       │     Battle.RemoveUnit  →  StateChanged -= forwarder  (Battle.cs:338)
-       │     Battle.RemoveUnit  →  combatants.Remove(unit)    (Battle.cs:342)
-       │     BoardAdapter       →  unitViews.Remove(unit)     (BoardAdapter.cs:991)
+       │     Battle.RemoveUnit  →  StateChanged -= forwarder  (Battle.cs:349)
+       │     Battle.RemoveUnit  →  combatants.Remove(unit)    (Battle.cs:353)
+       │     BoardAdapter       →  unitViews.Remove(unit)     (BoardAdapter.cs:1002)
        ▼
   yönetilen bellek geri alınır ────► NE ZAMAN: GC bilir, sen bilmezsin
        │
        │  ██ AYRIŞMA #2: UnityEngine.Object burada İKİYE bölünür ██
        ▼
-  KAYNAK ÖMRÜ ─────────────────────► Destroy(view.gameObject)  (BoardAdapter.cs:992)
+  KAYNAK ÖMRÜ ─────────────────────► Destroy(view.gameObject)  (BoardAdapter.cs:1007)
        ├─► YEREL taraf    : sıraya girer, güncelleme döngüsünden sonra yıkılır
        └─► YÖNETİLEN taraf: yerinde durur, "yıkılmış" işaretlenir
                             == null ► true   ██ ama null DEĞİL ██
@@ -689,7 +704,7 @@ IDisposable                 NEDEN YOK: projede tek bir IDisposable yok; eklemek
 
 Destroy yerine havuz      → yok etme, kapat ve listeye geri koy; iki taraf da
 (pooling)                   HİÇ ölmez.
-                            NEDEN YOK: doğum hızı iki (BoardAdapter.cs:260-261);
+                            NEDEN YOK: doğum hızı iki (BoardAdapter.cs:267-268);
                             havuz ölçülmemiş bir soruna yazılmış kod olurdu.
                             HENÜZ YOK → Vampire Survivors satırındaki koşul
 
@@ -698,7 +713,7 @@ zamanlamayı ele almak       erişilebilirliği DEĞİŞTİRMEZ — tutan zincir
                             koparmaz. Sızıntının çaresi `-=`'dir
 
 WeakReference ile         → NEDEN YOK: bu projede sökme yeri VAR ve tek satır
-sökmeyi gereksizleştirmek   (Battle.cs:338); zayıf referans, var olan bir satırı
+sökmeyi gereksizleştirmek   (Battle.cs:349); zayıf referans, var olan bir satırı
                             belirsiz bir zamanlamayla değiştirmek olurdu
 ```
 
@@ -708,3 +723,31 @@ Kodda **karar**, burada **ödünç alınan çalışma zamanının sözleşmesi**
 çelişirse kod kazanır — orası çalışan metin, burası anlatı. Ve bu dosyadaki her
 sayı koda karşı doğrulandı; doğrulanamayan her iddianın yanında "ÖLÇÜLMEDİ"
 yazıyor.
+
+---
+
+## Alıntı çapaları
+
+Aşağıdaki satırlar bu belgede geçen satır numaralarının **çapasıdır**. Her satır
+`Tools/check-doc-code-refs.py`'nin ALINTI katmanına, o numarada duran kodun
+BİREBİR metnini verir. Ölçüldü: ALINTI katmanı 3 satırlık kaymayı bile %100
+yakalıyor, YAKIN AD katmanı 6 satırlık kaymanın %1'ini. Tablo hücrelerindeki ve
+cümle içindeki atıflar alıntı biçimine giremez — o biçim atfın satır BAŞINDA
+olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı gün bu
+belgede geçen aynı numaraların hepsi elden geçirilir.
+
+```
+Assets/Game/Unity/BoardAdapter.cs:983     private void DespawnView(Unit unit)
+Assets/Game/Unity/BoardAdapter.cs:1002    unitViews.Remove(unit);
+Assets/Game/Unity/BoardAdapter.cs:1007    Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:288     private void OnEnable()
+Assets/Game/Unity/BoardAdapter.cs:238     battle = new Battle(width, height);
+Assets/Game/Unity/BoardAdapter.cs:566     private void CreateStructureVisual(int x, int y)
+Assets/Game/Unity/BoardAdapter.cs:572     var renderer = structureObject.AddComponent<SpriteRenderer>();
+Assets/Game/Unity/BoardAdapter.cs:634     for (int i = 0; i < cleanupBuffer.Count; i++)
+Assets/Game/Battle/Battle.cs:226          Action<UnitState, UnitState> forwarder =
+Assets/Game/Battle/Battle.cs:349          combatants[unit].StateChanged -= forwarder;
+Assets/Game/Battle/Battle.cs:353          combatants.Remove(unit);
+Assets/Game/Battle/TurnState.cs:51        public const int FirstTurnNumber = 1;
+Assets/Game/Core/Combat/Combatant.cs:90   this.lifecycle.StateChanged += OnLifecycleStateChanged;
+```

@@ -19,8 +19,8 @@ Kural artık skill katmanında yazılı:
 ## Altın standart — bu iki blok referanstır, kopyalanacak şablon budur
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:9-97     CS0118 / ad çözümleme  (KAPALI)
-Assets/Game/Battle/Battle.cs:43-126        tahta sahipliği        (KAPALI)
+Assets/Game/Unity/BoardAdapter.cs:13-101     CS0118 / ad çözümleme  (KAPALI)
+Assets/Game/Battle/Battle.cs:46-133        tahta sahipliği        (KAPALI)
 ```
 
 Her worker işe başlamadan ÖNCE bu ikisini okur. Şablon şu üç zorunlu bölümdür:

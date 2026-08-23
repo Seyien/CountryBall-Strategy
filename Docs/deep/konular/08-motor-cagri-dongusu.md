@@ -29,8 +29,13 @@ hiç dokunmuyorlar:
 yazar, yani `UnitLifecycle`'ın yaşadığı assembly `UnityEngine.dll`'i **hiç
 görmez**. `BoardAdapter.cs` ise beşinci satırında `using UnityEngine;` yazar.
 
-İkisi tek bir noktada buluşur: `BoardAdapter.cs:616`,
-`battle.Tick(Time.deltaTime)`. Motorun karesi orada saniyeye çevrilir ve duvarın
+İkisi tek bir noktada buluşur:
+
+```
+BoardAdapter.cs:627   battle.Tick(Time.deltaTime);
+```
+
+Motorun karesi orada saniyeye çevrilir ve duvarın
 öte yanına *yalnızca bir sayı olarak* geçer.
 
 Oyunun durum makinesi için: [05-yasam-dongusu.md](05-yasam-dongusu.md).
@@ -154,8 +159,10 @@ onun.
 İkisini aynı projede, arka arkaya iki satırda görebilirsin:
 
 ```
-BoardAdapter.cs:279   battle.UnitStateChanged += OnUnitStateChanged;   ← C# event
-BoardAdapter.cs:277   private void OnEnable()                          ← Unity mesajı
+BoardAdapter.cs:290   battle.UnitStateChanged += OnUnitStateChanged;
+                      ▲ C# event
+BoardAdapter.cs:288   private void OnEnable()
+                      ▲ Unity mesajı
                       ▲                     ▲
                       │                     └─ bu metodu MOTOR bulur
                       └─ bu satırı SEN yazarsın, motorun haberi yoktur
@@ -209,7 +216,7 @@ koşturulacak bir deney değil, hâlihazırda koşan bir kanıt.
 Karşı örnek aynı repoda ve bilerek orada:
 
 ```
-Assets/Game/Core/PointerGesture.cs:278
+Assets/Game/Core/PointerGesture.cs:281
     public void Reset()
 ```
 
@@ -224,8 +231,12 @@ PointerGesture → MonoBehaviour'dan TÜREMİYOR
                → motor bu tipi hiç TARAMAZ
 ```
 
-Sonuç: `Reset()` yalnızca `TryEnterPlacementMode` onu çağırdığı için koşar —
-`BoardAdapter.cs:371`, `gesture.Reset();`.
+Sonuç: `Reset()` yalnızca `TryEnterPlacementMode` onu çağırdığı için koşar:
+
+```
+BoardAdapter.cs:382   gesture.Reset();
+```
+
 **Ölçüsü:** o tek satırı sil, metot ölü koda döner. Aynı deneyi
 `BoardAdapter.Awake` için **kuramazsın** — silinecek bir çağrı yok.
 
@@ -381,11 +392,11 @@ Sayarak. Uydurma örnek yok.
 
 | # | Geri çağrı | Yeri | Ne yapıyor |
 |---|---|---|---|
-| 1 | `Awake` | `Assets/Game/Unity/BoardAdapter.cs:225` | `GetComponent<Grid>()`, `new Battle(w,h)`, `new PointerGesture(eşik)`, hayaleti kapatır, zemini kurar, iki demo birim doğurur |
-| 2 | `OnEnable` | `Assets/Game/Unity/BoardAdapter.cs:277` | `battle.UnitStateChanged += OnUnitStateChanged` — tek satır |
-| 3 | `OnDisable` | `Assets/Game/Unity/BoardAdapter.cs:282` | aynı aboneliği bırakır **ve** `CancelPlacement()` çağırır |
-| 4 | `Update` | `Assets/Game/Unity/BoardAdapter.cs:306` | zaman ilerletme + kip ayrımı + üç girdi sorgusu |
-| 5 | `Awake` | `Assets/Game/Unity/UnitView.cs:79` | `SetState(Alive)`, sonra `SetSelected(false)` — doğan birimi normalleştirir |
+| 1 | `Awake` | `Assets/Game/Unity/BoardAdapter.cs:232` | `GetComponent<Grid>()`, `new Battle(w,h)`, `new PointerGesture(eşik)`, hayaleti kapatır, zemini kurar, iki demo birim doğurur |
+| 2 | `OnEnable` | `Assets/Game/Unity/BoardAdapter.cs:288` | `battle.UnitStateChanged += OnUnitStateChanged` — tek satır |
+| 3 | `OnDisable` | `Assets/Game/Unity/BoardAdapter.cs:293` | aynı aboneliği bırakır **ve** `CancelPlacement()` çağırır |
+| 4 | `Update` | `Assets/Game/Unity/BoardAdapter.cs:317` | zaman ilerletme + kip ayrımı + üç girdi sorgusu |
+| 5 | `Awake` | `Assets/Game/Unity/UnitView.cs:86` | `SetState(Alive)`, sonra `SetSelected(false)` — doğan birimi normalleştirir |
 
 **Toplam: 5.** Başka `MonoBehaviour` yok, başka geri çağrı yok.
 
@@ -436,7 +447,7 @@ kendisinin sürekli koşan bir sınavı.
 
 `BoardAdapter.Awake` sonunda `SpawnUnit` çağırıyor, o da
 `Instantiate(unitPrefab, transform)` yapıyor. `Instantiate` yeni bir GameObject
-doğurur ve doğan nesnenin `Awake`'i (`UnitView.cs:79`) beklemeye alınmaz —
+doğurur ve doğan nesnenin `Awake`'i (`UnitView.cs:86`) beklemeye alınmaz —
 **çağrı dönmeden** koşar:
 
 ```
@@ -531,9 +542,14 @@ public sealed class Battle : MonoBehaviour
 - `GridStrategy.Battle.asmdef` içindeki `noEngineReferences: true` **düşer**;
   assembly `UnityEngine.dll`'e bağlanır ve duvarın dört faturasının dayanağı
   yok olur.
-- `BoardAdapter.cs:231`'deki `new Battle(width, height)` **derleme hatasıdır** —
-  `MonoBehaviour` `new` ile kurulamaz. Yerine bir GameObject +
-  `AddComponent<Battle>()` gerekir; kurucu argümanları hiçbir yerden geçirilemez.
+- `BoardAdapter.Awake`'teki şu satır **derleme hatasıdır** — `MonoBehaviour`
+  `new` ile kurulamaz. Yerine bir GameObject + `AddComponent<Battle>()` gerekir;
+  kurucu argümanları hiçbir yerden geçirilemez.
+
+  ```
+  BoardAdapter.cs:238   battle = new Battle(width, height);
+  ```
+
 - Kurucunun yerine ikinci bir `Init(w, h)` metodu doğar, onunla birlikte **yeni
   bir yasak durum**: "kurulmuş ama Init edilmemiş `Battle`". Bugün böyle bir
   durum yok, çünkü kurucu geçilemez.
@@ -544,7 +560,7 @@ public sealed class Battle : MonoBehaviour
   `WaitForSeconds` beklemeye düşer ve kırmızılığı kurala değil o günkü kare
   süresine bağlanırdı — bu tuzağın adı o dosyada zaten REDDEDİLEN olarak yazılı.
 - `Time.deltaTime`'ı içeriden okuyan tasarım testte **patlamaz**, sessizce
-  anlamsız bir sayıyla yürür: `UnitLifecycle.cs:160` ölçmüş — EditMode'da
+  anlamsız bir sayıyla yürür: `UnitLifecycle.cs:164` ölçmüş — EditMode'da
   `Time.deltaTime` sıfır değil, `0,017675` döner.
 
 **KAZANIRDI:** savaşın kendisi **kare kare canlandırma yürüten** bir şey
@@ -752,8 +768,8 @@ karar birinci satırda veriliyor.
 Sayıldı: `Assets/Game/` altında tek bir statik alan var —
 
 ```
-Assets/Game/Battle/TurnState.cs:40
-    public static readonly IReadOnlyList<Team> DefaultTurnOrder = ...
+Assets/Game/Battle/TurnState.cs:44
+    public static readonly IReadOnlyList<Team> DefaultTurnOrder =
 ```
 
 `static readonly`, içeriği değişmez. Değiştirilebilir statik alan sayısı: **0**.
@@ -919,16 +935,16 @@ duvarın öte yanında, motor diye bir şeyin varlığından habersiz yaşıyor.
 
 ## Bunu okuduktan sonra kodda ne göreceksin
 
-- `BoardAdapter.cs:225` — `private void Awake()`. Artık `private`'ın motoru
+- `BoardAdapter.cs:232` — `private void Awake()`. Artık `private`'ın motoru
   durdurmadığını ve bu metodu hiçbir satırın çağırmadığını biliyorsun.
-- `BoardAdapter.cs:277` ve `:279` — arka arkaya iki satır, **iki bambaşka
+- `BoardAdapter.cs:288` ve `:290` — arka arkaya iki satır, **iki bambaşka
   mekanizma**: biri motorun ada göre bulduğu bir mesaj, öteki senin elinle
   yazdığın bir C# olay aboneliği.
-- `BoardAdapter.cs:616` — `battle.Tick(Time.deltaTime)`. Motor tarafının son
+- `BoardAdapter.cs:627` — `battle.Tick(Time.deltaTime)`. Motor tarafının son
   satırı; bundan sonrası duvarın öte yanı.
-- `Assets/Game/Core/PointerGesture.cs:278` — `public void Reset()`. Bir Unity
+- `Assets/Game/Core/PointerGesture.cs:281` — `public void Reset()`. Bir Unity
   mesaj adı taşıyor ve motor bu tipi hiç görmüyor.
-- `Assets/Game/Battle/TurnState.cs:40` — projenin **tek** statik alanı, ve
+- `Assets/Game/Battle/TurnState.cs:44` — projenin **tek** statik alanı, ve
   `readonly`. Domain Reload durağının neden bugün sakin olduğunun sebebi.
 - `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs:71` — `IEnumerator`
   kelimesinin geçtiği iki yerden biri, ve **reddedilmiş** olanı.

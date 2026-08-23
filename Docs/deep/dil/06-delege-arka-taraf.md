@@ -233,7 +233,7 @@ bir `+=`'i dengeler, iki `+=`'i değil. Simetriyi tutan şey derleyici değil,
 çağıranın disiplini.
 
 **Bu projede bugün ölçüsü:** üretimdeki üç `+=` üç ayrı dosyada ve her biri bir
-kez çalışıyor (`Combatant.cs:86`, `Battle.cs:221`, `BoardAdapter.cs:279`).
+kez çalışıyor (`Combatant.cs:90`, `Battle.cs:228`, `BoardAdapter.cs:290`).
 ██ Önem kazanacağı gün: ██ `BoardAdapter.OnEnable` bir `OnDisable` görmeden
 ikinci kez çağrıldığı gün — Unity'de bu, bileşen kapatılıp açıldığında
 olağandır; simetriyi bugün tutan tek şey `OnDisable`'daki eşleşen `-=` satırı.
@@ -336,7 +336,7 @@ bir şeyi mi tekrar yazdığı.
 **Bu projede bugün kaç abone var:** üç olayın da üretimde **birer** abonesi var
 ve hiçbiri fırlatmıyor. `Battle.UnitStateChanged`'in ikinci abonesi hiç olmadı:
 tek dinleyici `BoardAdapter.OnEnable` ve `BoardAdapter.Awake` kendi `Battle`'ını
-kendisi kuruyor (`BoardAdapter.cs:231`), yani bir savaşa ikinci adaptör
+kendisi kuruyor (`BoardAdapter.cs:238`), yani bir savaşa ikinci adaptör
 bağlanamıyor. Testlerde de her `[Test]` kendi `Battle`'ını kurup tek bir `+=`
 yazıyor (`BattleTests.cs:804, 845, 874, 897`).
 

@@ -63,9 +63,15 @@ gibi görünür — ama `const`'tur, yani durum değil metin.
 **SOLID KARŞILIĞI** — **S** (tek sorumluluk). Ölçüsü şu: `TargetingRules`
 değişmek için tek bir sebep taşır — "kime uygulanır" kuralının değişmesi.
 İhlal edilseydi, yani kural `Combatant`'ın bir property'si olsaydı, kuralı tek
-bir satır için sınamak `Assets/Game/Core/Combat/Health.cs:31`,
-`UnitLifecycle.cs:46` ve `AttackProfile.cs:45` kurucularının üçünü birden
-çalıştırmayı gerektirirdi — üç dosya, tek kural için.
+bir satır için sınamak şu üç kurucunun üçünü birden çalıştırmayı gerektirirdi —
+üç dosya, tek kural için:
+
+```
+Assets/Game/Core/Combat/Health.cs:31   public Health(int max)
+UnitLifecycle.cs:46                    public UnitLifecycle(
+AttackProfile.cs:49                    public AttackProfile(int damage, int range)
+```
+
 `TargetingRules.cs:38-41` bu faturayı zaten yazmış durumda.
 
 Ayrıca **D** (bağımlılık tersine çevirme) — ama arayüzle değil, **veri
@@ -120,13 +126,13 @@ akış sahibi (`BattleActions`) tam olarak bu yüzden doğdu
 **KODDA NEREDE**
 
 ```
-Assets/Game/Core/MoveAction.cs:39             Execute :60 (int menzil) · :164 (MoveProfile)
+Assets/Game/Core/MoveAction.cs:42             Execute :60 (int menzil) · :164 (MoveProfile)
 Assets/Game/Core/Combat/AttackAction.cs:36    Execute :52 (Combatant) · :127 (Structure)
-Assets/Game/Battle/BattleActions.cs:47        Attack :58 · Move :158 · Revive :228
+Assets/Game/Battle/BattleActions.cs:50        Attack :58 · Move :158 · Revive :228
                                               PlaceStructure :320
 ```
 
-Sıranın kendisi bir karar ve kodda yazılı: `MoveAction.cs:103-110` üç ret
+Sıranın kendisi bir karar ve kodda yazılı: `MoveAction.cs:106-113` üç ret
 sebebinin sırasını (SINIR ► MENZİL ► DOLULUK) ve neden bu sırada olduklarını
 anlatıyor. `BattleActions.cs:20-24` aynı iskeleti dört eylem için tanımlıyor:
 önce çağıran hataları (istisna), sonra kurallar (sonuç değeri), en sonda tek
@@ -141,7 +147,7 @@ yazılabilir mi" sorusuna iki zıt cevap verirdi (`PlaceUnit` şikâyetsiz yazar
 `TryMoveUnit` reddederdi). Değişmek zorunda kalan dosya
 `Assets/Game/Core/UnitGrid.cs` olurdu ve `GridDistance` ile `MoveOutcome`'ı
 tanımak zorunda kalır, Chebyshev kararı içinde donardı. Gerekçe
-`MoveAction.cs:41-46`'da yazılı.
+`MoveAction.cs:44-49`'da yazılı.
 
 **REDDEDİLEN** — `AttackAction.Execute`'un iki aşırı yüklemesi yerine, ortak
 bir arayüz arkasında tek gövde:
@@ -171,7 +177,7 @@ döner.
 **██ BU BİR COMMAND DEĞİL ██** — Command deseni bir eylemi **nesneye** bağlar;
 nesnenin var olma sebebi eylemi saklamak, kuyruğa almak, geri almak ya da
 yeniden oynatmaktır. Buradaki üç tip de `static class`
-(`MoveAction.cs:39`, `AttackAction.cs:36`, `BattleActions.cs:47`) ve hiçbirinin
+(`MoveAction.cs:42`, `AttackAction.cs:36`, `BattleActions.cs:50`) ve hiçbirinin
 tek bir alanı yok. Saklanabilecek bir nesne olmadığı için geri alma da tekrar
 oynatma da yoktur. Command'ın **ne zaman** doğru olacağı
 [02-sonraki-asamalar.md](02-sonraki-asamalar.md) kapsamında değil; bu projede
@@ -224,7 +230,7 @@ Assets/Game/Core/PointerGesture.cs:96             Idle → Pressed → Dragging 
    geçiş yolu   Press :188 · MoveTo :212 · Release :248 · Reset :278
 ```
 
-Yasak geçişlerin somut hâli: `UnitLifecycle.cs:133`'teki `if (State !=
+Yasak geçişlerin somut hâli: `UnitLifecycle.cs:137`'teki `if (State !=
 UnitState.Alive) return;` satırı, düşmüş bir birime tekrar vurmanın onu **anında
 öldürmesini** engeller. `StructureLifecycle.cs:105`'teki ikizi ise ikinci
 vuruşun enkaz sayacını **sıfırlamasını** engeller — sıfırlasaydı yıkık binaya
@@ -293,20 +299,20 @@ Assets/Game/Battle/GridStrategy.Battle.asmdef         references: [Core, Combat]
 Assets/Game/Unity/GridStrategy.Unity.asmdef           references: [Core, Combat, Battle]   noEngineReferences: false
 ```
 
-Kapı tek dosya: `Assets/Game/Unity/BoardAdapter.cs:106`. Motor tarafında kalan
+Kapı tek dosya: `Assets/Game/Unity/BoardAdapter.cs:110`. Motor tarafında kalan
 ve duvarın altına **inmeyen** her şey burada:
 
 ```
-Time.deltaTime      okunur   BoardAdapter.cs:616   → battle.Tick(...)
-Instantiate         çağrılır BoardAdapter.cs:728
-Destroy             çağrılır BoardAdapter.cs:992
-Input               okunur   BoardAdapter.cs:324 ve Update/UpdatePlacement gövdeleri
-Grid (motor bileşeni) BoardAdapter.cs:180, hücre→dünya çevirisi :701
+Time.deltaTime      okunur   BoardAdapter.cs:627   → battle.Tick(...)
+Instantiate         çağrılır BoardAdapter.cs:739
+Destroy             çağrılır BoardAdapter.cs:1007
+Input               okunur   BoardAdapter.cs:335 ve Update/UpdatePlacement gövdeleri
+Grid (motor bileşeni) BoardAdapter.cs:184, hücre→dünya çevirisi :701
 ```
 
-Duvarın altında ne olduğu da ölçülü: `UnitLifecycle.cs:169`'daki `Tick` saniyeyi
+Duvarın altında ne olduğu da ölçülü: `UnitLifecycle.cs:176`'daki `Tick` saniyeyi
 **dışarıdan** alır ve içeride `Time.deltaTime` yoktur. Sebebi ölçülmüş ve
-`UnitLifecycle.cs:159-162`'de yazılı: EditMode'da `Time.deltaTime` sıfır **değil**,
+`UnitLifecycle.cs:163-166`'de yazılı: EditMode'da `Time.deltaTime` sıfır **değil**,
 0,017675 döner — zamanı içeriden okuyan tasarım testte patlamaz, sessizce
 anlamsız bir sayıyla yürür.
 
@@ -322,7 +328,7 @@ kurmak gerekirdi ve `Assets/Tests/EditMode/Combat/` altındaki testlerin tamamı
 PlayMode'a taşınırdı. Duvarı kuran şeyin `noEngineReferences` **değil**,
 asmdef'in boş `references` listesi olduğu `AttackResolver.cs:31-35`'te yazılı.
 
-**REDDEDİLEN** — `BoardAdapter.cs:44`'teki ad takması (alias) yerine, dosya
+**REDDEDİLEN** — `BoardAdapter.cs:48`'teki ad takması (alias) yerine, dosya
 başına taşınmış hâli:
 
 ```csharp
@@ -339,7 +345,7 @@ namespace GridStrategy.Unity
 ad SEVİYE 1b'de yakalanır ve arama SEVİYE 2'ye hiç çıkmaz; dosyanın başına
 taşındığında SEVİYE 3'e düşer ve arama önce `GridStrategy` üyelerini bulur —
 `Battle` bir **ad alanı** olarak çözülür ve CS0118 geri gelir. Metin harfi
-harfine aynı, sonuç zıt. Harita `BoardAdapter.cs:9-43`'te çizili.
+harfine aynı, sonuç zıt. Harita `BoardAdapter.cs:13-47`'te çizili.
 
 **KAZANIRDI:** `GridStrategy.Battle` ad alanı ile `Battle` sınıfının adları
 çakışmasaydı — yani sınıfın adı `BattleState` olsaydı. O gün takma ada hiç gerek
@@ -350,7 +356,7 @@ bir arayüze** çevirir; ölçüsü, çevrilen hedef arayüzün var olmasıdır.
 `BoardAdapter` hiçbir arayüz uygulamıyor (`:106` — yalnız `MonoBehaviour`'dan
 türüyor) ve çevirdiği şey bir arayüz değil, iki **dünya**. Doğru ad "katman
 sınırı çevirmeni". Dosya bunu kendisi de itiraf ediyor: künyesi
-`BoardAdapter.cs:64` "KARMA — ÇEVİRMEN + VARLIK" diyor ve `:79-84`'te bir **koku
+`BoardAdapter.cs:68` "KARMA — ÇEVİRMEN + VARLIK" diyor ve `:79-84`'te bir **koku
 notu** taşıyor — eşiğin aşıldığı yazılı, silinmemiş.
 
 **ÜÇ OYUN** — Slay the Spire: kart üstündeki sayı ile ekrandaki animasyon ayrı
@@ -386,14 +392,14 @@ Assets/Game/Core/Combat/Structure.cs:37
     Team       :75 · AttackProfile :78 (isteğe bağlı — ctor :51)
 ```
 
-`Combatant.cs:148`'deki `public UnitState State => lifecycle.State;` satırı
+`Combatant.cs:152`'deki `public UnitState State => lifecycle.State;` satırı
 bileşimin görünen yüzü: dışarıya tek bir tip görünüyor, cevabı parça veriyor.
 
 ██ ÖLÇÜLDÜ ██ — `Assets/Game/` altındaki 33 üretim dosyasının hiçbirinde
 `abstract`, `virtual` ve `override` kelimeleri **geçmiyor**; `interface` de
 geçmiyor. Yani bu
 projede kalıtım bir seçenek olarak değil, **hiç** kullanılmıyor. Motor tarafında
-tek kalıtım var ve zorunlu: `BoardAdapter.cs:106` ile `UnitView.cs:43`
+tek kalıtım var ve zorunlu: `BoardAdapter.cs:110` ile `UnitView.cs:43`
 `MonoBehaviour`'dan türüyor.
 
 **SOLID KARŞILIĞI** — **L** (Liskov). Ölçüsü şu: bir alt tip üst tipin yerine
@@ -449,8 +455,8 @@ birim habersiz etkilenirdi (`AttackProfile.cs:22-23`).
 **KODDA NEREDE**
 
 ```
-Assets/Game/Core/Combat/AttackProfile.cs:36   sealed class · ctor :45 · Damage :68 · Range :74
-Assets/Game/Core/MoveProfile.cs:39            sealed class · ctor :47 · Range :64
+Assets/Game/Core/Combat/AttackProfile.cs:40   sealed class · ctor :45 · Damage :68 · Range :74
+Assets/Game/Core/MoveProfile.cs:42            sealed class · ctor :47 · Range :64
 ```
 
 İkisinde de `set` yok, alan yok, doğrulama kurucuda. `AttackProfile.cs:6-11`
@@ -458,8 +464,8 @@ paylaşımın ölçüsünü de yazmış: ölçü `==` **değil** (Equals yazılm
 karşılaştırma `false` döner), ölçü **yerine geçebilirlik**.
 
 Karşı yönü de kodda: örneğe özel değişen durum tanımın içine **girmiyor**.
-Can `Health.cs:29`'da, hâl `UnitLifecycle.cs:82`'de, taraf `Combatant.cs:141`'de
-yaşıyor. `AttackProfile.cs:64-66` zırhın, direncin ve kritik çarpanının neden
+Can `Health.cs:29`'da, hâl `UnitLifecycle.cs:82`'de, taraf `Combatant.cs:145`'de
+yaşıyor. `AttackProfile.cs:68-70` zırhın, direncin ve kritik çarpanının neden
 buraya eklenmediğini yazıyor: tanım sessizce bir **formüle** dönerdi.
 
 **SOLID KARŞILIĞI** — **S**. `AttackProfile` değişmek için tek bir sebep taşır:
@@ -470,7 +476,7 @@ bu tipe girseydi — değişmek zorunda kalan dosya
 kazanç (formülün girdi uzayı sahibininkinden geniş olduğu için negatif yolların
 da sınanabilmesi) kaybolurdu.
 
-**REDDEDİLEN** — `MoveProfile.cs:39`'daki `sealed class` yerine `readonly struct`:
+**REDDEDİLEN** — `MoveProfile.cs:42`'daki `sealed class` yerine `readonly struct`:
 
 ```csharp
 public readonly struct MoveProfile
@@ -496,10 +502,16 @@ maliyeti bir `int` kadar olurdu.
 
 **██ TAM BİR FLYWEIGHT DEĞİL ██** — Flyweight deseninin iki yarısı var: (a)
 paylaşılan değişmez **iç durum**, (b) o paylaşımı yöneten bir **havuz/fabrika**.
-Bu projede (a) var, (b) yok — profilleri üreten yer düz bir `new`
-(`BoardAdapter.cs:748`) ve iki demo birimin ikisi de **kendi** profilini alıyor
-(`BoardAdapter.cs:738` her çağrıda yeni bir `AttackProfile` kuruyor). Yani
-paylaşım bugün **mümkün** ama **yapılmıyor**.
+Bu projede (a) var, (b) yok — profilleri üreten yer düz bir `new`, ve iki demo
+birimin ikisi de **kendi** profilini alıyor: `NewCombatant` her çağrıda yeni bir
+`AttackProfile` kuruyor.
+
+```
+BoardAdapter.cs:749   private Combatant NewCombatant(Team team)
+BoardAdapter.cs:759   new AttackProfile(damage, attackRange),
+```
+
+Yani paylaşım bugün **mümkün** ama **yapılmıyor**.
 `HENÜZ YOK → 02-sonraki-asamalar.md · Aşama 1 (ScriptableObject)`.
 
 **ÜÇ OYUN** — Slay the Spire: aynı kartın iki kopyası aynı metni ve aynı
@@ -524,7 +536,7 @@ doğardı (`MoveOutcome.cs:16-21`).
 
 İkinci ve daha ince baskı: hangi cevabın istisna, hangisinin sonuç değeri
 olacağı. Ölçü kodda yazılı: ret sebebi çağıranın **yapabileceği** bir şeyi
-göstermelidir ve "kodun bozuk" bunlardan biri değildir (`MoveAction.cs:89-95`).
+göstermelidir ve "kodun bozuk" bunlardan biri değildir (`MoveAction.cs:92-98`).
 
 **KODDA NEREDE**
 
@@ -599,24 +611,24 @@ bir unutma değil. Oradaki tek geçiş (ayakta → yıkık) her zaman bir hasar
 ① Assets/Game/Core/Combat/UnitLifecycle.cs:80
    public event Action<UnitState> StateChanged;              taşıdığı: YENİ durum
 
-② Assets/Game/Core/Combat/Combatant.cs:107
+② Assets/Game/Core/Combat/Combatant.cs:111
    public event Action<UnitState, UnitState> StateChanged;   kazandığı: ÖNCEKİ durum
    çevirici :114 · önceki durumu tutan alan :52
    abonelik kurucunun EN SONUNDA :86
 
-③ Assets/Game/Battle/Battle.cs:172
+③ Assets/Game/Battle/Battle.cs:179
    public event Action<Unit, UnitState, UnitState> UnitStateChanged;  kazandığı: KİMLİK
    kapanış (closure) üretimi :219 · abonelik :221 · sözlük :74
 
-④ Assets/Game/Unity/BoardAdapter.cs:277 OnEnable  += · :282 OnDisable  -=
-   dinleyici :299 → ApplyStateVisual :943 → UnitView.SetState (UnitView.cs:166)
+④ Assets/Game/Unity/BoardAdapter.cs:288 OnEnable  += · :282 OnDisable  -=
+   dinleyici :299 → ApplyStateVisual :943 → UnitView.SetState (UnitView.cs:173)
 ```
 
-`Battle.cs:74`'teki `stateForwarders` sözlüğü bu desenin en pahalı ayrıntısı:
+`Battle.cs:81`'teki `stateForwarders` sözlüğü bu desenin en pahalı ayrıntısı:
 abone edilen şey her birime özel bir **kapanış** (closure — çevresindeki
 değişkeni içine alan anonim fonksiyon) ve kapanışlar birbirine eşit değildir.
 Aynı metni ikinci kez yazarak abonelik **çözülemez**; sökmek için tam olarak o
-örneğin saklanması gerekir. Sökme yeri `Battle.cs:336-340`.
+örneğin saklanması gerekir. Sökme yeri `Battle.cs:347-351`.
 
 Mekanizmanın tam hikâyesi: [../deep/konular/01-olay-zinciri.md](../deep/konular/01-olay-zinciri.md).
 Delegenin, `event`in ve kapanış kimliğinin dil tarafı:
@@ -632,7 +644,7 @@ Ekranı doğrudan güncellemesi için `UnityEngine`'i tanıması gerekirdi ve
 satırı düşerdi. O gün `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs`
 sahnesiz koşamazdı.
 
-**REDDEDİLEN** — `Combatant.cs:107`'deki kendi olayı yerine, iç olayı `add`/`remove`
+**REDDEDİLEN** — `Combatant.cs:111`'deki kendi olayı yerine, iç olayı `add`/`remove`
 ile dışarı aktarmak:
 
 ```csharp
@@ -684,10 +696,10 @@ sorusu ikiye bölünür (`Unit.cs:20-24`).
 kimlik   Assets/Game/Core/Unit.cs:41       tek alan: Name :56 (get-only) · başka üye yok
 tahta    Assets/Game/Core/UnitGrid.cs:26   Unit[,] cells :28
 yan tablolar
-         Assets/Game/Battle/Battle.cs:56   Dictionary<Unit, Combatant>
-         Assets/Game/Battle/Battle.cs:63   Dictionary<Unit, Structure>
-         Assets/Game/Battle/Battle.cs:74   Dictionary<Unit, Action<UnitState, UnitState>>
-         Assets/Game/Unity/BoardAdapter.cs:195  Dictionary<Unit, UnitView>
+         Assets/Game/Battle/Battle.cs:59   Dictionary<Unit, Combatant>
+         Assets/Game/Battle/Battle.cs:66   Dictionary<Unit, Structure>
+         Assets/Game/Battle/Battle.cs:81   Dictionary<Unit, Action<UnitState, UnitState>>
+         Assets/Game/Unity/BoardAdapter.cs:199  Dictionary<Unit, UnitView>
 sistemler  (durumsuz kural tipleri — 1. desen) · akış sahipleri (2. desen)
 ```
 
@@ -706,20 +718,20 @@ Can ve durum `Unit`'e girseydi `Core`, `Combat`'ı referans etmek zorunda kalır
 — ve o an `MoveProfile.cs:21-23`'te yazılı olan ayrım (hareket menzili tahtaya,
 saldırı menzili savaşa ait) çökerdi.
 
-**REDDEDİLEN** — `Battle.cs:517`'deki `TryGetPosition` yerine bir konum tablosu:
+**REDDEDİLEN** — `Battle.cs:528`'deki `TryGetPosition` yerine bir konum tablosu:
 
 ```csharp
 private readonly Dictionary<Unit, (int x, int y)> positions = new Dictionary<Unit, (int, int)>();
 ```
 
 **KIRILAN:** İkinci bir **doğruluk kaynağı**. `MoveAction.Execute`
-(`MoveAction.cs:60`) tahtayı doğrudan değiştirir; sözlük bunu duymaz ve birim
+(`MoveAction.cs:63`) tahtayı doğrudan değiştirir; sözlük bunu duymaz ve birim
 yaklaşmış olduğu hâlde saldırı "menzil dışı" der. Önbellek bir hız kararı değil,
-ikinci bir doğruluk kaynağı yaratma kararıdır (`Battle.cs:512-515`).
+ikinci bir doğruluk kaynağı yaratma kararıdır (`Battle.cs:523-526`).
 
 **KAZANIRDI:** Tahta boyutu gerçekten ölçülebilir bir darboğaz olduğunda —
-`TryGetPosition` bugün `Width × Height` hücreyi tarıyor (`Battle.cs:524-536`)
-ve tahta `3×5` (`BoardAdapter.cs:109-110`), yani en fazla 15 hücre. Ölçü
+`TryGetPosition` bugün `Width × Height` hücreyi tarıyor (`Battle.cs:535-547`)
+ve tahta `3×5` (`BoardAdapter.cs:113-114`), yani en fazla 15 hücre. Ölçü
 büyüdüğünde ve tarama profilde göründüğünde tablo doğru seçim olur — ama o gün
 **tek yazma kapısı** zorunlu hâle gelir.
 
@@ -749,17 +761,49 @@ Aşağıdakilerin hiçbiri bu projede **yok**. Yokluk bir eksiklik değil, bir
 
 | Aday | Neden yok — ölçü |
 |---|---|
-| Command | `MoveAction.cs:39`, `AttackAction.cs:36`, `BattleActions.cs:47` üçü de `static class`; saklanacak nesne yok, geri alma yok |
+| Command | `MoveAction.cs:42`, `AttackAction.cs:36`, `BattleActions.cs:50` üçü de `static class`; saklanacak nesne yok, geri alma yok |
 | Strategy | Üretim kodunda `interface` kelimesi hiç geçmiyor; aynı çağıranın iki uygulamayı çalıştırdığı tek bir yer yok |
-| Factory | `BoardAdapter.cs:738` `NewCombatant` bir **private yardımcı**; üretim politikası taşımıyor, tip seçmiyor |
-| Singleton | Üretim kodunda değiştirilebilir hiçbir `static` alan yok; tek `static` alan `TurnState.cs:40` ve `readonly` + salt okunur görünüm |
+| Factory | `BoardAdapter.cs:749` `NewCombatant` bir **private yardımcı**; üretim politikası taşımıyor, tip seçmiyor |
+| Singleton | Üretim kodunda değiştirilebilir hiçbir `static` alan yok; tek `static` alan `TurnState.cs:44` ve `readonly` + salt okunur görünüm |
 | Service Locator | Kayıt defteri yok; bağımlılıklar kurucudan ya da `[SerializeField]`'den geliyor |
 | Decorator | Sarmalanacak sabit bir sözleşme (arayüz/soyut tip) yok |
-| MVP / MVC | `UnitView.cs:43` edilgen bir görünüm, ama karşısında bir sunucu (presenter) tipi yok; niyet çevirisi `BoardAdapter` içinde |
-| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:728`) ve `Destroy` (`:992`) doğrudan çağrılıyor |
+| MVP / MVC | `UnitView.cs:43` edilgen bir görünüm, ama karşısında bir sunucu (presenter) tipi yok; niyet çevirisi `BoardAdapter` içinde <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil --> |
+| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:739`) ve `Destroy` (`:992`) doğrudan çağrılıyor |
 | ScriptableObject | `Assets/` altında hiçbir tip `ScriptableObject`'ten türemiyor; tek geçtiği yer `AttackProfile.cs:13` ve `:40`, ikisi de **karar notu** |
 | Olay veri yolu | Ortak bir yayın noktası yok; üç `event` doğrudan zincir hâlinde bağlı (8. desen) |
 | Coroutine / `async` | `Assets/Game/` altında `IEnumerator`, `yield`, `async`, `Task`, `Awaitable` kelimelerinin hiçbiri geçmiyor |
+
+---
+
+## Alıntı çapaları
+
+Aşağıdaki satırlar bu belgede geçen satır numaralarının **çapasıdır**. Her satır
+`Tools/check-doc-code-refs.py`'nin ALINTI katmanına, o numarada duran kodun
+BİREBİR metnini verir. Ölçüldü: ALINTI katmanı 3 satırlık kaymayı bile %100
+yakalıyor, YAKIN AD katmanı 6 satırlık kaymanın %1'ini. Tablo hücrelerindeki ve
+cümle içindeki atıflar alıntı biçimine giremez — o biçim atfın satır BAŞINDA
+olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı gün bu
+belgede geçen aynı numaraların hepsi elden geçirilir.
+
+```
+Assets/Game/Core/MoveAction.cs:42             public static class MoveAction
+Assets/Game/Battle/BattleActions.cs:50        public static class BattleActions
+Assets/Game/Core/Combat/AttackProfile.cs:40   public sealed class AttackProfile
+Assets/Game/Core/MoveProfile.cs:42            public sealed class MoveProfile
+Assets/Game/Unity/BoardAdapter.cs:110         public sealed class BoardAdapter : MonoBehaviour
+Assets/Game/Unity/BoardAdapter.cs:184         private Grid unityGrid;
+Assets/Game/Unity/BoardAdapter.cs:199         private readonly Dictionary<Unit, UnitView> unitViews =
+Assets/Game/Unity/BoardAdapter.cs:627         battle.Tick(Time.deltaTime);
+Assets/Game/Unity/BoardAdapter.cs:739         UnitView view = Instantiate(unitPrefab, transform);
+Assets/Game/Unity/BoardAdapter.cs:749         private Combatant NewCombatant(Team team)
+Assets/Game/Unity/BoardAdapter.cs:1007        Destroy(view.gameObject);
+Assets/Game/Battle/Battle.cs:59               private readonly Dictionary<Unit, Combatant> combatants =
+Assets/Game/Battle/Battle.cs:66               private readonly Dictionary<Unit, Structure> structures =
+Assets/Game/Battle/Battle.cs:81               private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
+Assets/Game/Battle/TurnState.cs:44            public static readonly IReadOnlyList<Team> DefaultTurnOrder =
+Assets/Game/Unity/UnitView.cs:173             public void SetState(UnitState state)
+```
+
 
 ## İlgili
 
