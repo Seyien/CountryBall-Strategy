@@ -1,0 +1,112 @@
+{
+  "packet_version": "2.0",
+  "created": "2026-08-22",
+  "where_to_paste": "Claude Code veya Codex, cwd = C:/Users/green/Desktop/project/Unity-Projects/CountryBall-Strategy",
+  "primary_owner_skill": "unity-expert-code-quality",
+  "companion_skills_to_load": ["work-principles", "expert-code-quality", "unity-game-dev-mentor", "testing-unity"],
+
+  "current_objective": "Gerekce kalitesi zincirini surdurmek: operatorun anlamadigi her yorum/belge pasaji METNE karsi bir hata raporudur; kusuru adlandir, kurali skill katmanina yaz, isli ornek uret, makine kapisi kur, geriye donuk tara.",
+
+  "reading_order": [
+    "Docs/handoff/HANDOFF.md - tek bakista harita, ASCII (ONCE BUNU OKU)",
+    "Docs/handoff/STATE.json - bu dosya, makine-okunur gercek kaynak",
+    "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive - dort kural",
+    "Docs/deep/README.md - uc agacli belge yapisi"
+  ],
+
+  "closed_truths": [
+    "Kod %82 yorumdan %56'ya indi (13.686 -> 5.377 satir); gerekceler Docs/deep/kod/ ayna agacina tasindi, bilgi kaybi yok.",
+    "Uc dik eksen: kod/ (tip basina ayna), konular/ (mekanizma), dil/ (odunc alinan BCL ve C# ozellikleri).",
+    "Dort kural skill katmaninda: Comment Diagram Debt, Claim Needs a Measure, Borrowed Types Owe a Line, Show the Shape You Are Discussing.",
+    "Bes makine kapisi Tools/ altinda; ayrica unity-expert-code-quality/scripts/ altinda tasinabilir kopyalari var.",
+    "15 YANLIS OLCU bulundu ve duzeltildi; ucu dosyanin KENDI icinde celiskiydi (kunye bir sey, summary baska sey soyluyordu).",
+    "Bir kapi DORT kez yanlislikla 'temiz' dedi; ikisini worker'lar buldu. check-doc-links.py artik oz-sinama tasiyor.",
+    "Bir temizleme betigi 209 satir sildi (40 silmesi gerekirken). 8 dosya worker yedeklerinden, 5 dosya ayna belgelerden kurtarildi.",
+    "442/442 EditMode testi geciyor, bes kapi sifir ihlal, .cs CRLF / .md LF tutarli.",
+    "Yeni projede ayni duzeni kurmak icin: rationale-layout-bootstrap.archive + scripts/ (skill katmaninda)."
+  ],
+
+  "open_boundaries": [
+    "P0: 39 dosya commit edilmemis. Bugun bu yuzden veri kaybedildi; git ara hal tasimiyor. Commit operator onayi ister.",
+    "P1: Docs/deep/kod/Battle/BattleActions.md:233 '### Attack: TurnRules.CanAct' iki kusur tasiyor - baslik 'HER SEYDEN ONCE' diyor ama istisna kapilari ondan once; ve operatorun sordugu performans sorusu (RequireCell iki kez tam tahta taramasi yapiyor) hic ele alinmamis.",
+    "P1: Assets/Tests/EditMode/** hic islenmedi - 21 REDDEDILEN blogu, hicbiri kural turlarinden gecmedi.",
+    "P2: 33 ayna belgenin 9'unda capa var ama kodda isaretci yok.",
+    "P2: Tools/resolve-rejected-anchors.py bloklarin cogu koddan ciktigi icin bosa calisiyor; kapsami gozden gecirilmeli ya da emekliye ayrilmali."
+  ],
+
+  "code_questions_untouched": [
+    { "file": "Assets/Game/Unity/BoardAdapter.cs", "issue": "REDDEDILEN blogu var olmayan bir API aniyor: battle.RemoveStructure (Battle'da yalniz RemoveUnit var)" },
+    { "file": "Assets/Game/Core/Combat/Structure.cs", "issue": "'Takim sonradan DEGISMEZ' yorumu bir ifade ASAGI kaymis (Team = team; yerine AttackProfile = attackProfile; ustunde) VE 'readonly' diyor - oysa get-only property" },
+    { "file": "Assets/Game/Core/MoveOutcome.cs", "issue": "RejectedActorCannotAct notu 'uc sebep' diyor, gercekte iki (hareket eden dusmus, sirasi degil)" },
+    { "file": "Assets/Tests/EditMode/Unity/GridStrategy.Unity.EditModeTests.asmdef", "issue": "GridStrategy.Battle'i referans etmiyor; BoardAdapter Battle kullaniyor. Bilincli daraltma mi unutulmus satir mi belirsiz" },
+    { "file": "Assets/Tests/EditMode/Unity/", "issue": "BoardAdapterTests YOK; HandleOccupiedCellClick'in uc niyet dali (SEC/BIRAK/SALDIR) testsiz" },
+    { "file": "Assets/Tests/EditMode/Battle/TurnRulesTests.cs:107", "issue": "const inline'lanmasi yuzunden IL'de Assert.That(1, Is.EqualTo(1))'e dusuyor; onceden derlenmis DLL gonderilirse sahte yesil verir" },
+    { "file": "Assets/Game/Unity/BoardAdapter.cs", "issue": "PickTerrainSprite negatif koordinatta IndexOutOfRangeException uretir; bugun tek cagirani guvenli ama imza bunu vaat etmiyor" }
+  ],
+
+  "rules_in_skill_layer": {
+    "path": "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive",
+    "sections": ["Comment Diagram Debt", "Claim Needs a Measure", "Borrowed Types Owe a Line", "Show the Shape You Are Discussing", "Deep-Narrative Split"],
+    "worked_examples": "references/comment-diagram-debt-patterns.archive",
+    "new_project_bootstrap": "references/rationale-layout-bootstrap.archive",
+    "portable_gates": "scripts/check-*.py (bes adet)",
+    "skill_optimizer_rules": "C:/Users/green/.claude/commands/skill-optimizer/SKILL.md kural 16-18 (kural + isli ornek + reject-gate; yukleme sikligina gore bol; kopyalanan kaynak otorite notu tasir)",
+    "worker_scratchpad_rule": "C:/Users/green/.claude/commands/fresh-session-focus/SKILL.md - her lane'e ozel scratchpad alt dizini"
+  },
+
+  "verification_commands": [
+    "python Tools/check-comment-contract.py",
+    "python Tools/check-comment-language.py",
+    "python Tools/check-cited-names.py",
+    "python Tools/check-cross-file-refs.py",
+    "python Tools/check-doc-links.py",
+    "Tools/run-editmode-tests.ps1"
+  ],
+  "expected_verification_state": "bes kapi sifir ihlal; 442/442 test; .cs CRLF ihlali yok; .md CR sizintisi yok",
+
+  "worker_orchestration_contract": {
+    "main_agent_ownership": "Lane spawn, donuslerin denetimi, yorum-only ve satir-sonu ihlallerinin reddi, tek entegrasyon dogrulamasi. Main agent .cs YAZMAZ, denetler.",
+    "spawn_pattern": "concurrent - tek mesajda coklu Agent cagrisi",
+    "worker_scratchpad_isolation": "HER lane kendi <scratchpad>/lane-<id>/ dizinini kullanir. Olculdu: alti worker ayni apply.py'ye yazdi ve uzerine yazildi (kanit: apply_2.py .. apply_6.py).",
+    "fail_closed_worker_rules": [
+      "HARD: Yorum olmayan tek satira dokunma; git diff'te degisen her satir // veya /// ile baslamali.",
+      "HARD: .cs CRLF, .md LF. Byte duzeyinde yaz, universal-newline donusumu yasak.",
+      "HARD: TOPLU SILME/REGEX BETIGI YASAK. 209 satirlik kayip tam olarak bundan dogdu. Hedefli degistirme yap, count!=1 ise dur.",
+      "HARD: Var olan bir gerekcenin ANLAMINI degistirme. Olcu YANLIS ise duzelt (tek istisna) ve raporla.",
+      "HARD: Kendi lane'in disina yazma."
+    ],
+    "quality_brake": "Worker 'dokunmadigim sayiyi' raporlar. Bu sayi dusukse kural fazla uygulanmistir. Olculdu: SHAPE turunda 215 pasaj tarandi, 9 degisti, 206 dokunulmadi.",
+    "measure_rule": "Her olcu YAZILMADAN ONCE koda karsi dogrulanir. Kaydedilmis metne guvenmek yetmez - bir turda satir numaralari 6 satir kaymisti."
+  },
+
+  "exact_next_honest_action": "Docs/handoff/HANDOFF.md'yi oku, sonra operatore commit onerisi sun (39 dosya, P0). Onay gelirse commit at; gelmezse P1'e gec: BattleActions.md:233 bolumunu duzelt (baslik yaniltici + performans sorusu eksik) ve ardindan LANE E icin worker wave baslat.",
+
+  "next_action_contract": {
+    "branches": [
+      {
+        "precondition": "git status 39 civari degisen dosya gosteriyor ve operator commit konusunda bir sey soylemedi",
+        "action": "Commit kapsamini ve mesajini hazirla, operatore GOSTER, onay bekle. Onay gelmeden islem yapma. Bu arada P1 isini (BattleActions.md:233) yap - commit beklemeyi bloklamaz.",
+        "is_default": true
+      },
+      {
+        "precondition": "operator commit'i onayladi",
+        "action": "Commit at, sonra LANE E worker wave'ini baslat (Assets/Tests/EditMode/**, 21 blok, dort kural birden uygulanacak)."
+      },
+      {
+        "precondition": "operator yeni bir yorum/belge pasaji hakkinda soru sordu",
+        "action": "Once kaynagi oku ve iddiayi koda karsi dogrula. Iddia dogru ama anlatim kusurluysa: pasaji duzelt, kusuru adlandir, kural olarak skill katmanina yaz, sonra ayni kusuru tarayacak worker wave baslat. Iddia yanlissa dogrusunu bul ve duzelt."
+      },
+      {
+        "precondition": "bes kapidan biri ihlal veriyor",
+        "action": "Once kapinin KENDI dogrulugunu sina (negatif test: bilerek ihlal enjekte et, yakaliyor mu). Kapi hataliysa kapiyi onar ve regresyon testi yaz; degilse ihlali duzelt."
+      }
+    ]
+  },
+
+  "fail_closed_prohibitions_HARD": [
+    "git commit / push operator onayi olmadan YAPILMAZ.",
+    "Toplu silme veya regex tabanli yorum duzenleme betigi YAZILMAZ.",
+    "Kod davranisi degistirilmez - butun bu is yorum/belge isidir. Kod sorusu bulunursa raporlanir, duzeltilmez.",
+    "Docs/deep/kod/Core/Combat/Health.cs ve Health.md sablon: uzerinde calisilmaz, ornek olarak okunur."
+  ]
+}

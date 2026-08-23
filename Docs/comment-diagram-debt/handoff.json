@@ -1,0 +1,144 @@
+{
+  "packet_version": "1.0",
+  "created": "2026-08-21",
+  "where_to_paste": "Claude Code veya Codex, cwd = C:/Users/green/Desktop/project/Unity-Projects/CountryBall-Strategy",
+  "primary_owner_skill": "unity-expert-code-quality",
+  "companion_skills_to_load": [
+    "work-principles",
+    "expert-code-quality",
+    "unity-game-dev-mentor",
+    "testing-unity"
+  ],
+  "current_objective": "Repo genelindeki REDDEDILEN/KIRILAN/KAZANIRDI/TEK CUMLE yorum bloklarini Comment Diagram Debt kuralina gore ASCII destekli hale getirmek: HARITA + KAPSAM (karsi ornekle) + IS BOLUMU. Is yorum-only; kod davranisi degismez.",
+
+  "closed_truths": [
+    "Klasorler C# ad agacini kurmaz; yalnizca namespace bildirimleri kurar. Kanit: Assets/Game/Core/Combat/ klasoru Core altinda ama namespace GridStrategy.Combat.",
+    "Assembly (.asmdef) sinirlari ad cozumlemeyi etkilemez; yalnizca referans gorunurlugunu belirler.",
+    "CS0118 tuzagi yalnizca kok ad alaninin alt ad alanlari ile tip adlari kesisimindeki adlar icin dogar. Bu projede kesisim tek elemanli: Battle.",
+    "Aliasin namespace GOVDESINDE olmasi kuralin kendisidir; dosya ustune tasinirsa CS0118 geri gelir.",
+    "global:: hatayi cozmez; alias hedefinin ileride kaymasini engelleyen sigortadir.",
+    "Dosya ustundeki using GridStrategy.Battle silinmez: cakismayan kardes tiplere (BattleActions, PlacementOutcome) hizmet eder. using ile alias ortusmez, bolusur.",
+    "UnitGrid sealed class yani referans tipi; disaridan verilmesi ikinci bir yazar dogurur. readonly bu kirilmaya karsi sifir koruma saglar - alani kilitler, nesneyi degil.",
+    "Battle tahta sahipligi uc katmanla ayakta: kurucuda new, internal Board, private readonly. Garanti assembly duvarinda biter (BattleActions erisebilir).",
+    "Kural skill katmanina yazildi: unity-csharp-quality-flow.archive Comment Diagram Debt bolumu; unity-folder-and-assembly-boundaries.archive Namespace/Type Name Collision bolumu; SKILL.md router satiri guncellendi."
+  ],
+
+  "closed_lanes_this_chain": [
+    { "path": "Assets/Game/Unity/BoardAdapter.cs", "lines": "9-97", "topic": "CS0118 ad cozumleme", "status": "KAPALI - sablon, uzerinde calisilmaz" },
+    { "path": "Assets/Game/Battle/Battle.cs", "lines": "43-126", "topic": "tahta sahipligi", "status": "KAPALI - sablon, uzerinde calisilmaz" }
+  ],
+
+  "open_boundaries": [
+    "48 dosyada yaklasik 166 REDDEDILEN blogu henuz duzyazi; konumsal iliski cizilmemis.",
+    "En kotu borc/cizim orani: Assets/Game/Unity/UnitView.cs - 22 tetikleyici, 0 cizim.",
+    "Test dosyalarindaki bloklar (P2) icin sablonun ne kadarinin gectigi karara baglanmadi; LANE E kendi kapsaminda karara baglar ve raporlar."
+  ],
+
+  "exact_artifact_paths": {
+    "rule_source": "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive -> Comment Diagram Debt",
+    "rule_patterns": "C:/Users/green/.claude/commands/unity-expert-code-quality/references/comment-diagram-debt-patterns.archive",
+    "rule_source_ns": "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-folder-and-assembly-boundaries.archive -> Namespace/Type Name Collision (CS0118)",
+    "golden_standard_1": "Assets/Game/Unity/BoardAdapter.cs:9-97",
+    "golden_standard_2": "Assets/Game/Battle/Battle.cs:43-126",
+    "handoff_overview": "Docs/comment-diagram-debt/HANDOFF.md",
+    "inventory": "Docs/comment-diagram-debt/INVENTORY.md",
+    "verification_command": "Tools/run-editmode-tests.ps1",
+    "comment_validators": [
+      "python Tools/check-comment-contract.py  - blok uzunlugu, numarali liste, TEK CUMLE varligi",
+      "python Tools/check-comment-language.py  - aksansiz Turkce yorum avi",
+      "python Tools/check-cited-names.py       - kodda karsiligi olmayan anilan ad",
+      "python Tools/check-cross-file-refs.py   - capraz dosya satir atfi",
+      "python Tools/resolve-rejected-anchors.py --reanchor --check - REDDEDILEN satir isaretcilerini tazeler"
+    ],
+    "validator_rule": "Her worker kendi lane ini bitirdikten SONRA dort check-*.py calistirir ve ciktisini donusune koyar. Satir isaretcisi tazeleme (resolve-rejected-anchors) KOORDINATOR isidir, worker yapmaz - lane ler ayri ayri tazelerse tutarsizlik dogar."
+  },
+
+  "worker_orchestration_contract": {
+    "main_agent_ownership": "Lane spawn, worker donuslerinin denetimi, satir-sonu ve yorum-only ihlallerinin reddi, tek entegrasyon dogrulamasi. Main agent dosya YAZMAZ; yalnizca denetler ve reddeder.",
+    "spawn_pattern": "concurrent - tek mesajda coklu Agent cagrisi. Sirali tek-lane calistirma Rule 27 ihlalidir.",
+    "worker_lanes": [
+      { "lane": "D",  "scope": "Assets/Game/Unity/**", "blocks": 19, "priority": "P0", "write_owning": true, "exclude": "BoardAdapter.cs:9-97 KAPALI" },
+      { "lane": "A",  "scope": "Assets/Game/Battle/**", "blocks": 35, "priority": "P1", "write_owning": true, "exclude": "Battle.cs:43-126 KAPALI" },
+      { "lane": "B1", "scope": "Assets/Game/Core/Combat/ - Attack*, Targeting*, Damage*, Healing*", "blocks": 27, "priority": "P1", "write_owning": true },
+      { "lane": "B2", "scope": "Assets/Game/Core/Combat/ - Combatant, Health, Structure*, Unit*, Team, Movement*, Revive*", "blocks": 34, "priority": "P1", "write_owning": true },
+      { "lane": "C",  "scope": "Assets/Game/Core/*.cs - Combat/ haric", "blocks": 30, "priority": "P1", "write_owning": true },
+      { "lane": "E",  "scope": "Assets/Tests/EditMode/**", "blocks": 20, "priority": "P2", "write_owning": true, "wave": 2 }
+    ],
+    "required_worker_skills": ["unity-expert-code-quality", "expert-code-quality", "work-principles"],
+    "required_worker_reading_bundle": [
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive - yalniz Comment Diagram Debt bolumu",
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/comment-diagram-debt-patterns.archive - iki islenmis ornek, bolum anatomisi, reject-gate",
+      "Assets/Game/Unity/BoardAdapter.cs satir 9-97",
+      "Assets/Game/Battle/Battle.cs satir 43-126",
+      "Docs/comment-diagram-debt/HANDOFF.md",
+      "Docs/comment-diagram-debt/INVENTORY.md - yalniz kendi lane satirlari"
+    ],
+    "not_alone_rule": "Her worker yalnizca kendi lane scopundaki dosyalara yazar. Baska lanein dosyasini okuyabilir (karsi ornek icin) ama ASLA yazamaz.",
+    "fail_closed_worker_rules": [
+      "HARD: Yorum olmayan tek bir satira dokunma. Kod, imza, erisim belirteci, using satiri, alan bildirimi degismez.",
+      "HARD: Satir sonlari CRLF kalir. Universal-newline donusumu yasak; yazma sonrasi CRLF > 0 ve LF-only == 0 dogrulanacak.",
+      "HARD: Var olan bir gerekcenin ANLAMINI degistirme. Eksigi tamamla, dogruyu yeniden yazma.",
+      "SOFT: Operator ayni repoda paralel calisiyor olabilir; adjacent dosya degisikligi lanei durdurmaz."
+    ],
+    "cost_brake": "Sadece REDDEDILEN veya TEK CUMLE blogu TASIYAN yorumlar genisletilir. Siradan aciklama yorumlari kisa kalir. Sekil gerekceden uzun olacaksa kural reference dosyasina tasinir, koda tek satir link birakilir.",
+    "exact_return_contract": {
+      "format": "JSON",
+      "fields": {
+        "lane": "A|B1|B2|C|D|E",
+        "files_touched": "[{path, blocks_rewritten, lines_before, lines_after, crlf_ok}]",
+        "figures_added": "[{path, line, figure_type: tree|reference-arrows|level-table|step-chain}]",
+        "scope_sections_added": "[{path, line, counter_example}] - her KAPSAM bolumunun AYNI dosyadan gercek karsi ornegi",
+        "division_of_labor_sections": "[{path, line, mechanisms, breaks_if_deleted}]",
+        "chosen_action": "workerin kendi laneinde aldigi atomik karar",
+        "rejected_alternatives": "degerlendirilip reddedilen yaklasimlar ve gerekce",
+        "out_of_scope_findings": "baska lanee ait tespitler - YAZILMADI, sadece raporlandi",
+        "verification": "{crlf_check: pass|fail, non_comment_lines_changed: 0}"
+      },
+      "forbidden_ending": "Donus ASLA operatore veya parent agenta soru ile bitmez. Karar size / hangi yon / onayliyor musunuz yasak. Worker kendi laneinde strategic-decisions merceğiyle karari alir ve raporlar."
+    }
+  },
+
+  "fail_closed_prohibitions_HARD": [
+    "Kod davranisini degistiren hicbir duzenleme yapilmaz - is yorum-only.",
+    "Satir sonlari LFe cevrilmez.",
+    "KAPALI iki blok yeniden yazilmaz: BoardAdapter.cs:9-97 ve Battle.cs:43-126.",
+    "git commit veya push operator onayi olmadan yapilmaz."
+  ],
+
+  "integration_sync_points": [
+    "Her lane bittiginde main agent CRLF ve yorum-only denetimi yapar.",
+    "Tum laneler bittiginde tek sefer Tools/run-editmode-tests.ps1 kosulur.",
+    "Operator paralel duzenleme yapiyorsa senkron son lane sonrasi yapilir; lane baslangicini bloklamaz - SOFT."
+  ],
+
+  "exact_next_honest_action": "LANE D, A, B1, B2, C icin BES workeri TEK mesajda es zamanli spawn et. LANE E (testler, P2) ilk bes lane donup denetimden gectikten sonra ikinci dalgada spawn edilir.",
+
+  "next_action_contract": {
+    "branches": [
+      {
+        "precondition": "Docs/comment-diagram-debt/INVENTORY.md okunabiliyor ve KAPALI iki blok yerinde duruyor",
+        "action": "BES worker es zamanli spawn: D, A, B1, B2, C. Her workera required_worker_reading_bundle ve exact_return_contract verilir.",
+        "is_default": true
+      },
+      {
+        "precondition": "INVENTORY.md sayimlari mevcut dosyalarla celisir - dosya eklenmis veya silinmis",
+        "action": "Once envanteri yeniden olc (grep -c REDDEDILEN), INVENTORY.md yi guncelle, sonra default dalina don. Operatore sorma."
+      },
+      {
+        "precondition": "Bes lane dondu ve denetimden gecti",
+        "action": "LANE Eyi spawn et; ardindan Tools/run-editmode-tests.ps1 kosup sonucu raporla."
+      },
+      {
+        "precondition": "Bir worker donusu fail_closed_worker_rulesi ihlal etti",
+        "action": "O lanei reddet ve sikilastirilmis return contract ile yeniden spawn et. Diger laneler beklemez."
+      }
+    ]
+  },
+
+  "exact_proof_ledger": {
+    "source_proof": "git diff - degisen satirlarin tamami // ile baslar; yorum-olmayan degisen satir sayisi 0",
+    "runtime_proof": "Tools/run-editmode-tests.ps1 yesil",
+    "encoding_proof": "her dokunulan dosyada CRLF > 0 ve LF-only == 0",
+    "rollback_proof": "yorum-only oldugu icin git checkout ile tam geri alinir; kod riski yok"
+  }
+}
