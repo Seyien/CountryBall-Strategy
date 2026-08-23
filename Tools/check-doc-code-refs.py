@@ -26,7 +26,8 @@
 #                     tek basina bir satirdayken ALTINDAKI satir (4 ornek).
 #                     Metin dosyada hic gecmiyorsa bu bir alinti degil (sema,
 #                     elenmis kod, dumen cumlesi) ve denetlenmez -- sahte
-#                     pozitif uretmemek icin.
+#                     pozitif uretmemek icin. Metnin BENZERSIZ olup olmadigi
+#                     ayrica sorulur; asagidaki bloga bak.
 #                     (b) YAKIN AD -- atifin +-2 satirinda gecen ters tirnakli
 #                     tanimlayicilardan EN AZ BIRI, anilan dosyanin N. satirinin
 #                     +-15 satirinda geciyor mu.
@@ -34,6 +35,42 @@
 # ██ KAPSAM ABARTILMAZ ██ Katman 3 her atfa uygulanamaz; uygulanamayanin sayisi
 # ve NEDENI ciktida yazilir. Denetlenmemis bir atfi denetlenmis gibi gostermek
 # kapinin kendisini yalan yapar.
+#
+# ══ ALINTI BENZERSIZ MI ══════════════════════════════════════════════════
+# GATE-KOR SINIF, olculdu 2026-08-24: katman 3a "bu metin dosyada geciyor mu?"
+# diye soruyordu, "bir KEZ mi geciyor?" diye SORMUYORDU. Ikiz span tasiyan bir
+# kaynakta -- Assets/Game/Core/Combat/AttackAction.cs'te 71. ve 145. satir
+# birebir ayni, ayni sey 82/153 ve 87/158 icin de dogru -- YANLIS asiri
+# yuklemeye atif yapan bir belge SESSIZCE YESIL YANARDI: metin dosyada var,
+# kapi memnun, kayma gorunmez.
+#
+# ██ NEDEN IHLAL DEGIL, SAYAC: OLCULDU ██ Denetlenen 393 alintinin dagilimi:
+#     N=1 -> 365   N=2 -> 18   N=3 -> 5   N=4 -> 3   N=5 -> 2
+# Yani 28 alinti coklu esliyor ve ██ 28'inin de anilan satiri eslesmelerden
+# BIRIDIR ██ (bugun sifir yanlis). Demek ki coklu eslesme bir belge kusuru
+# DEGIL; kaynakta ikiz span oldugunu soyler. Ustelik bir kismi BILEREK
+# boyledir: Docs/ogrenme/06-ilkeler-ve-kokenleri.md:577, :579 ve :581 ayni
+# `battle.Turn.EndTurn();` satirinin UC AYRI yerini (143 . 216 . 304) ayri ayri
+# aniyor -- belgenin anlattigi sey zaten tekrarin kendisi. Ayni desen
+# 07-oop-dortlusu.md:78/:80'de iki asiri yukleme icin var.
+# Coklu eslesmeyi DOGRUDAN ihlal yapmak bu 28 DOGRU atfi kizartir, kapiyi 0
+# ihlalden 28 ihlale tasir ve okuyani ihlal listesini gormezden gelmeye egitir.
+# Kapinin kendi doktrini bunu zaten soyluyor: kapsam degil DOGRULUK. Bu yuzden
+# coklu eslesme AYRI BIR SAYAC'tir ve ██ yalnizca anilan satir eslesmelerden
+# HICBIRI degilse ihlaldir ██.
+#
+# ██ BU ALT KATMANIN KENDI KORLUGU ██ Coklu eslesen bir alintinin guvencesi
+# benzersizinkinden ZAYIFTIR: "metin dogru yerde" demez, "metin eslesmelerden
+# birinde" der. Kaynak kayarsa anilan satir OBUR ikizin uzerine dusebilir ve
+# kapi yesil kalir. En zayif ornek bugun BoardAdapter.cs:361 --
+# `if (selectedUnit == null)` dosyada BES kez geciyor (361 . 398 . 804 . 837 .
+# 1031) ve iki belge ona dayaniyor. Bu yuzden coklu sayilanlar ciktida AYRICA
+# basilir: sayi buyurse cozum kapiyi sertlestirmek degil, belgeye ikizi ayirt
+# eden daha uzun bir alinti yazdirmaktir.
+#
+# KISAYOL katmani bu alt katmandan BILEREK muaftir: kisayolun ALINTI'si zaten
+# neredeyse hic olusmuyor (asagida yazili) ve olcumu yok. Olculmemis bir yere
+# katman koymak, kapsami sisirip dogrulugu dusurmek olurdu.
 #
 # ══ KISAYOL KATMANI ══════════════════════════════════════════════════════
 # GATE-KOR SINIF, olculdu 2026-08-23: yukaridaki REF deseni dosya ADI ister.
@@ -361,6 +398,38 @@ def quoted_text(lines, index, ref_text):
     return normalize(below)
 
 
+def quote_verdict(where, low, high):
+    """Alinti kararini veren TEK yer. where: metnin gectigi satirlar (bos degil).
+
+    -> "benzersiz"    : tek eslesme, anilan satir O
+       "kaymis"       : tek eslesme ama anilan satir baska  -> IHLAL (eski dal)
+       "coklu_dogru"  : cok eslesme, anilan satir eslesmelerden BIRI
+       "coklu_yanlis" : cok eslesme, anilan satir HICBIRI DEGIL -> IHLAL
+
+    Neden ayri bir fonksiyon: oz-sinamanin ucuncu yarisi bu fonksiyonu bilerek
+    BOZUK bir surumle degistirip kapinin bunu fark ettigini kanitliyor. Karar
+    audit()'in icine gomulu kalsaydi sabote edilecek tek bir yer olmazdi.
+    """
+    hit = any(low <= w <= high for w in where)
+    if len(where) == 1:
+        return "benzersiz" if hit else "kaymis"
+    return "coklu_dogru" if hit else "coklu_yanlis"
+
+
+def mutant_hep_tek(where, low, high):
+    """SABOTAJ 1: benzersizlik HEP 1 doner -- ikiz span'i hic gormez."""
+    first = where[0]
+    return "benzersiz" if low <= first <= high else "kaymis"
+
+
+def mutant_yumusak(where, low, high):
+    """SABOTAJ 2: coklu-ve-yanlis HIC ihlal uretmez -- hepsini dogru sayar."""
+    hit = any(low <= w <= high for w in where)
+    if len(where) == 1:
+        return "benzersiz" if hit else "kaymis"
+    return "coklu_dogru"
+
+
 def audit(documents, source):
     """documents: [(ad, metin)] . source: Source . -> (ihlaller, sayaclar)
 
@@ -372,6 +441,10 @@ def audit(documents, source):
         "k1": 0, "k1_yok": 0, "k1_coklu": 0,
         "k2": 0, "k2_asim": 0,
         "k3a": 0, "k3a_kayma": 0,
+        # Benzersizlik alt katmani. DEGISMEZ: benzersiz + coklu_dogru +
+        # coklu_yanlis == k3a. Ucu birden basilir, yoksa "393 alinti
+        # denetlendi" satiri okuyana tek bir guvence gibi gorunurdu.
+        "k3a_benzersiz": 0, "k3a_coklu_dogru": 0, "k3a_coklu_yanlis": 0,
         "k3b": 0, "k3b_kayma": 0,
         "k3_yok_ad": 0, "k3_yok_dosyada": 0, "k3_yok_sinir": 0,
         # Kisayol katmani AYRI sayilir: ana katmanin sayilarina karismaz,
@@ -466,12 +539,35 @@ def audit(documents, source):
                         # cumlesi, elenmis kod) ve denetlenmez.
                         stat["k3a"] += 1
                         audited = True
-                        if not any(low <= w <= high for w in where):
+                        verdict = quote_verdict(where, low, high)
+                        if verdict in ("benzersiz", "kaymis"):
+                            stat["k3a_benzersiz"] += 1
+                        elif verdict == "coklu_dogru":
+                            stat["k3a_coklu_dogru"] += 1
+                        else:
+                            stat["k3a_coklu_yanlis"] += 1
+
+                        if verdict == "kaymis":
                             problems.append((name, number, "ALINTI",
                                              "ALINTI KAYMIS: %s -- bu metin %s"
                                              % (ref_text,
                                                 ", ".join(str(w) for w in where)
                                                 + ". satirda")))
+                            stat["k3a_kayma"] += 1
+                        elif verdict == "coklu_yanlis":
+                            # Eslesme satirlarini LISTELEMEK sart: okuyan ancak
+                            # boyle "hangi ikizi kastetmistim" diye sorabilir.
+                            problems.append((name, number, "ALINTI-COKLU",
+                                             "ALINTI COKLU VE YANLIS: %s -- bu "
+                                             "metin dosyada %d kez geciyor "
+                                             "(%s. satirlar) ve anilan satir "
+                                             "bunlardan HICBIRI DEGIL"
+                                             % (ref_text, len(where),
+                                                ", ".join(str(w)
+                                                          for w in where))))
+                            # KAYMA toplamina da yazilir: coklu-ve-yanlis da bir
+                            # kaymadir ve "%d KAYMA" satiri eksik sayarsa kapi
+                            # kendi yakalamasi hakkinda yalan soylemis olur.
                             stat["k3a_kayma"] += 1
 
                 # ── KATMAN 3b: yakin ad ───────────────────────────────────
@@ -644,6 +740,38 @@ SELF_FILES = {
         "    }",                                               # 16
         "}",                                                   # 17
     ] + ["    // dolgu %d" % i for i in range(18, 91)]),        # 18..90
+    # ██ IKIZ SPAN ██ Iki asiri yukleme birebir ayni govdeyi tasiyor:
+    # "if (a < 0)" 7 VE 17'de, "return false;" 9 VE 19'da, "return true;"
+    # 12 VE 22'de. Gercek kaynaktaki desenin (AttackAction.cs 71/145, 82/153,
+    # 87/158) sanal ikizidir; benzersizlik katmani ancak boyle bir dosya
+    # uzerinde sinanabilir.
+    "Assets/Sanal/IkizTip.cs": "\n".join([
+        "namespace Sanal",                                     # 1
+        "{",                                                   # 2
+        "    public static class IkizTip",                     # 3
+        "    {",                                               # 4
+        "        public static bool Once(int a)",              # 5
+        "        {",                                           # 6
+        "            if (a < 0)",                              # 7
+        "            {",                                       # 8
+        "                return false;",                       # 9
+        "            }",                                       # 10
+        "",                                                    # 11
+        "            return true;",                            # 12
+        "        }",                                           # 13
+        "",                                                    # 14
+        "        public static bool Sonra(int a)",             # 15
+        "        {",                                           # 16
+        "            if (a < 0)",                              # 17
+        "            {",                                       # 18
+        "                return false;",                       # 19
+        "            }",                                       # 20
+        "",                                                    # 21
+        "            return true;",                            # 22
+        "        }",                                           # 23
+        "    }",                                               # 24
+        "}",                                                   # 25
+    ]),
     "Assets/Sanal/BirinciTip.cs": "\n".join([
         "namespace Sanal",
         "{",
@@ -672,6 +800,9 @@ IkinciTip.cs:9
             return a > b ? a - b : b - a;
 
 IkinciTip.cs:14   return HesaplaMesafe(a, b) <= Esik;
+
+IkizTip.cs:17
+            if (a < 0)
 """
 
 SELF_BAD = """
@@ -687,6 +818,9 @@ IkinciTip.cs:9
 IkinciTip.cs:12   return a > b ? a - b : b - a;
 
 `HesaplaMesafe` (`IkinciTip.cs:80`) -- ad dosyada var ama cok uzakta.
+
+IkizTip.cs:12
+            if (a < 0)
 """
 
 SELF_MUAF = """
@@ -718,37 +852,61 @@ Bu paragrafta hicbir kaynak dosyasi anilmiyor, yalniz bir kisayol var (`:12`).
 """
 
 
-def self_check():
+def self_check(sabotaj=False):
     """Ayristiricinin CALISTIGINI once kendi uzerinde kanitlar.
 
-    Iki yari da zorunlu. Yalniz iyi ornegi sinayan bir oz-sinama, audit()
+    Uc yari da zorunlu. Yalniz iyi ornegi sinayan bir oz-sinama, audit()
     fonksiyonu bosa dusse (her zaman 0 ihlal donse) bile GECERDI -- bu projede
-    bir kapi tam olarak bu yuzden dort kez yanlislikla "temiz" dedi.
+    bir kapi tam olarak bu yuzden dort kez yanlislikla "temiz" dedi. Ucuncu
+    yari (sabotaj) oz-sinamanin KENDISINI sinar; sabotaj=True ile cagrildiginda
+    o yari atlanir, yoksa sonsuz ozyineleme olurdu.
     """
     source = Source(SELF_FILES)
 
     good, gstat = audit([("iyi", SELF_GOOD)], source)
     if good:
         return "bilinen-iyi ornek ihlal uretti: %s" % (good[0][3],)
-    if gstat["atif"] != 4:
-        return "bilinen-iyi ornekte 4 atif bekleniyordu, %d bulundu" % gstat["atif"]
-    if gstat["k3a"] != 2:
-        return ("bilinen-iyi ornekte alinti katmaninin iki bicimi de calismadi "
-                "(k3a=%d, 2 bekleniyordu: ayni satir + alt satir)" % gstat["k3a"])
+    if gstat["atif"] != 5:
+        return "bilinen-iyi ornekte 5 atif bekleniyordu, %d bulundu" % gstat["atif"]
+    if gstat["k3a"] != 3:
+        return ("bilinen-iyi ornekte alinti katmaninin bicimleri calismadi "
+                "(k3a=%d, 3 bekleniyordu: ayni satir + alt satir + ikiz span)"
+                % gstat["k3a"])
     if gstat["k3b"] < 1:
         return "bilinen-iyi ornekte yakin ad katmani calismadi (k3b=%d)" % gstat["k3b"]
+    # ── BENZERSIZLIK: iki bilinen-iyi durum ──────────────────────────────
+    if gstat["k3a_benzersiz"] != 2:
+        return ("bilinen-iyi ornekte 2 BENZERSIZ alinti bekleniyordu, %d cikti"
+                % gstat["k3a_benzersiz"])
+    # ██ ASIL YARI ██ ikiz span, anilan satir eslesmelerden BIRI: gecerli ama
+    # SAYILIR. Bu sinama olmadan katman ya hepsini ihlal sayardi (28 dogru atif
+    # kizarirdi) ya da coklu eslesmeyi hic saymazdi (borc gorunmez olurdu).
+    if gstat["k3a_coklu_dogru"] != 1:
+        return ("ikiz span'li DOGRU alinti 'coklu-ama-dogru' sayacina dusmedi "
+                "(k3a_coklu_dogru=%d, 1 bekleniyordu)" % gstat["k3a_coklu_dogru"])
+    if gstat["k3a_coklu_yanlis"] != 0:
+        return ("bilinen-iyi ornekte COKLU VE YANLIS uretildi (%d) -- ikiz span "
+                "sahte pozitif veriyor" % gstat["k3a_coklu_yanlis"])
+    if gstat["k3a_benzersiz"] + gstat["k3a_coklu_dogru"] + \
+            gstat["k3a_coklu_yanlis"] != gstat["k3a"]:
+        return "benzersizlik sayaclarinin toplami k3a'ya esit degil"
 
     bad, bstat = audit([("kotu", SELF_BAD)], source)
     kinds = set(kind for _, _, kind, _ in bad)
-    for wanted in ("YOK", "SINIR", "COKLU", "ALINTI", "AD"):
+    for wanted in ("YOK", "SINIR", "COKLU", "ALINTI", "ALINTI-COKLU", "AD"):
         if wanted not in kinds:
             return ("bilinen-kotu ornekte %s YAKALANMADI -- kapi bu katmanda kor "
                     "(yakalananlar: %s)" % (wanted, ", ".join(sorted(kinds)) or "hicbiri"))
-    if bstat["atif"] != 6:
-        return "bilinen-kotu ornekte 6 atif bekleniyordu, %d bulundu" % bstat["atif"]
-    if bstat["k3a_kayma"] != 2:
-        return ("bilinen-kotu ornekte alinti kaymasinin iki bicimi de "
-                "yakalanmadi (k3a_kayma=%d, 2 bekleniyordu)" % bstat["k3a_kayma"])
+    if bstat["atif"] != 7:
+        return "bilinen-kotu ornekte 7 atif bekleniyordu, %d bulundu" % bstat["atif"]
+    if bstat["k3a_kayma"] != 3:
+        return ("bilinen-kotu ornekte alinti kaymasinin uc bicimi de "
+                "yakalanmadi (k3a_kayma=%d, 3 bekleniyordu: ayni satir . alt "
+                "satir . ikiz span yanlis)" % bstat["k3a_kayma"])
+    if bstat["k3a_coklu_yanlis"] != 1:
+        return ("ikiz span'li YANLIS alinti 'COKLU VE YANLIS' sayacina dusmedi "
+                "(k3a_coklu_yanlis=%d, 1 bekleniyordu)"
+                % bstat["k3a_coklu_yanlis"])
 
     muaf, mstat = audit([("muaf", SELF_MUAF)], source)
     if muaf:
@@ -792,6 +950,42 @@ def self_check():
                 "-- sahipsiz kisayol ihlal sayilmis olabilir"
                 % kbstat["ks_ihlal"])
 
+    # ── UCUNCU YARI: SABOTAJ ─────────────────────────────────────────────
+    if not sabotaj:
+        broken = sabotage_check()
+        if broken is not None:
+            return broken
+
+    return None
+
+
+def sabotage_check():
+    """██ UCUNCU YARI ██ Yeni katmani bilerek bozar ve OZ-SINAMANIN BUNU
+    GORDUGUNU kanitlar.
+
+    Ikinci yari "bilinen-kotu ornek yakalandi" der. Ama o ornek kapinin BASKA
+    bir dalindan da yakalanabilir; o zaman benzersizlik katmani bosa dusmus
+    olmasina ragmen oz-sinama YESIL yanardi. Bu yari tam olarak onu kapatir:
+    ██ bozuk bir surumle oz-sinama GECIYORSA, oz-sinamanin kendisi ise
+    yaramiyor demektir ██. Ayni disiplin bu lane'in olcum betiginde de
+    kullanildi: dogrulama komutunun kendisi de bir kapidir ve sinanmalidir.
+
+    Iki mutant, katmanin iki yarisini ayri ayri oldurur -- tek mutant yeterli
+    degil: "hep tek" sayaclari bozar, "yumusak" ihlali bozar; biri gecerken
+    digeri yakalanabilirdi.
+    """
+    global quote_verdict
+    real = quote_verdict
+    for label, mutant in (("benzersizlik hep 1 doner", mutant_hep_tek),
+                          ("coklu-ve-yanlis hic ihlal uretmez", mutant_yumusak)):
+        quote_verdict = mutant
+        try:
+            result = self_check(sabotaj=True)
+        finally:
+            quote_verdict = real
+        if result is None:
+            return ("SABOTAJ GECTI (%s) -- benzersizlik katmani bilerek "
+                    "bozuldu ve oz-sinama BUNU FARK ETMEDI" % label)
     return None
 
 
@@ -836,6 +1030,17 @@ def main(argv):
     print("KATMAN 3 kayma  : %d denetlendi (alinti %d . yakin ad %d) . %d KAYMA"
           % (stat["k3a"] + stat["k3b"], stat["k3a"], stat["k3b"],
              stat["k3a_kayma"] + stat["k3b_kayma"]))
+    # ██ BENZERSIZLIK KENDI SAYISINI KENDI YAZAR ██ Bu satir olmasa "alinti
+    # 393" tek bir guvence gibi okunurdu; oysa 28'i ikiz span uzerinde duruyor
+    # ve orada guvence "metin dogru yerde" degil "metin eslesmelerden birinde".
+    print("                  ALINTI benzersizlik : %d benzersiz . %d "
+          "coklu-ama-dogru . %d COKLU VE YANLIS"
+          % (stat["k3a_benzersiz"], stat["k3a_coklu_dogru"],
+             stat["k3a_coklu_yanlis"]))
+    print("                  SINIR: coklu eslesme bir belge kusuru DEGIL; "
+          "kaynakta ikiz")
+    print("                         span oldugunu soyler. Kapi yalniz YANLIS "
+          "olani kizartir.")
     # Kapinin kendi sinirini SOYLEMESI zorunlu: bu satirlar olmasa cikti
     # "153 atif kayma icin denetlendi" der ve okuyan bunu tek bir guvence
     # sanirdi. Iki sinyalin gucu esit degil ve fark on kattan buyuk.
