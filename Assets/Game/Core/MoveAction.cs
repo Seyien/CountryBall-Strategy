@@ -2,7 +2,7 @@ using System;
 
 namespace GridStrategy.Core
 {
-    // ═══ ROL: KURAL (Policy) ═════════════════════════════════════════
+    // ═══ ROL: AKIŞ SAHİBİ (transaction script) ═══════════════════════
     // kimlik : yok — static; iki Execute çağrısını ayıracak bir şey yoktur
     // hafıza : yok — ama ölçüsü "aynı tahta ve aynı sayılar aynı sonucu
     //          verir" DEĞİL, çünkü vermiyor: 2x2'lik bir tahtada
@@ -36,6 +36,9 @@ namespace GridStrategy.Core
     ///
     /// GEREKÇELER: Docs/deep/kod/Core/MoveAction.md
     /// </summary>
+    // ÖĞRENME: Docs/ogrenme/01-koda-gomulu-desenler.md — bu tipin deseninin adı
+    // AKIŞ SAHİBİ (transaction script) ve ██ bir Command DEĞİL ██: saklanacak bir
+    // nesne yok, dolayısıyla geri alma da yeniden oynatma da yok.
     public static class MoveAction
     {
         // KURAL TAHTAYA TAŞINMAZ: tahta kendiyle çelişirdi. Kural UnitGrid'in

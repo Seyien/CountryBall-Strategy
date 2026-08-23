@@ -275,6 +275,9 @@ namespace GridStrategy.Core
         // edilmiş bir jestin koordinatlarını nesnede bırakmak, bir sonraki
         // hatanın "ölçüm nereden yapıldı" sorusuna yanlış cevap vermesidir.
         // → PointerGesture.md#reset
+        // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — `Reset`
+        // gerçek bir Unity mesaj adıdır, ama bu tip MonoBehaviour'dan TÜREMEDİĞİ
+        // için burada hiçbir motor anlamı yok; metodu yalnız çağıranı çalıştırır.
         public void Reset()
         {
             Phase = PointerPhase.Idle;

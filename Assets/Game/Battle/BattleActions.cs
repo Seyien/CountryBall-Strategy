@@ -4,7 +4,7 @@ using GridStrategy.Core;
 
 namespace GridStrategy.Battle
 {
-    // ═══ ROL: KURAL (Policy) ═════════════════════════════════════════
+    // ═══ ROL: AKIŞ SAHİBİ (transaction script) ═══════════════════════
     // kimlik : yok — static
     // hafıza : yok — ama ölçüsü "aynı çağrı aynı cevabı verir" DEĞİL, çünkü
     //          vermiyor: Attack(battle, a, b)'yi arka arkaya iki kez çağır;
@@ -44,6 +44,9 @@ namespace GridStrategy.Battle
     /// GEREKÇELER: Docs/deep/kod/Battle/BattleActions.md
     /// </summary>
     // DERİN ANLATIM: Docs/deep/konular/04-karar-sirasi.md
+    // HARİTA: Docs/deep/00-iskelet.md — dört eylemin bu dosyada buluşmasının
+    // sebebi sistemin tamamına bakınca görünüyor: hangi tasarım basıncı hangi
+    // parçayı doğurdu ve hangi soru hangi dosyaya gidiyor.
     public static class BattleActions
     {
         /// <summary>

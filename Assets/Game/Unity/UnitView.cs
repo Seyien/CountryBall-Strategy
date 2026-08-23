@@ -74,8 +74,15 @@ namespace GridStrategy.Unity
         // Gövdenin PREFAB'DA YAZILI rengi. Bir oyun durumu değil, TÜREV bir
         // değerin önbelleği; "unutulamaz" olma sebebi Body'nin üstünde.
         // → UnitView.md#authoredcolor
+        // ÖDÜNÇ ALINAN — `Color` bir struct, yani değer tipi; ama depolama yeri
+        // tipin değil SARMALAYANIN sorusudur ve bu alan bir UnitView nesnesinin
+        // içinde, yönetilen yığında yaşıyor.
+        // DİL: Docs/deep/dil/07-bellek-canlilik-ve-yikim.md
         private Color authoredColor = Color.white;
 
+        // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — bu metot
+        // BoardAdapter.Awake'in ORTASINDA, Instantiate satırında koşar; motorun
+        // çağrı sırasındaki beşinci durak burasıdır.
         private void Awake()
         {
             // SIRA BİR KARARDIR: normalizasyon, selectionOverlay kontrolünün

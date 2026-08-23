@@ -39,6 +39,9 @@ namespace GridStrategy.Battle
     /// GEREKÇELER: Docs/deep/kod/Battle/Battle.md
     /// </summary>
     // DERİN ANLATIM: Docs/deep/konular/02-assembly-duvari.md
+    // HARİTA: Docs/deep/00-iskelet.md — oyunun ne olduğu, hangi tasarım basıncının
+    // hangi parçayı doğurduğu ve hangi sorunun hangi dosyaya gittiği; sistemin
+    // tamamı tek sayfada ve bu tip onun ortasında duruyor.
     public sealed class Battle
     {
         // TAHTAYI BU TİP SAHİPLENİR, DIŞARIDAN ALMAZ. Kurucu bir UnitGrid
@@ -71,6 +74,10 @@ namespace GridStrategy.Battle
         // DERİN ANLATIM: Docs/deep/konular/01-olay-zinciri.md — dört durak (sayaç ->
         // savaşçı -> kayıt memuru -> çevirmen), hangi aboneliğin NEDEN sözlük
         // gerektirdiği ve sökülmezse önce neyin patladığı orada hikâye olarak.
+        // ÖDÜNÇ ALINAN — `Delegate`: `+=` ile `-=` derleyicide Combine ve Remove
+        // çağrılarına iner, Remove ise hedef artı metot eşitliğine bakar; üstteki
+        // "kapanışlar birbirine eşit değildir" cümlesinin makinesi orada.
+        // DİL: Docs/deep/dil/06-delege-arka-taraf.md
         private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
             new Dictionary<Unit, Action<UnitState, UnitState>>();
 
@@ -333,6 +340,10 @@ namespace GridStrategy.Battle
                 // kimlikli olay yayılmasına izin verirdi; delege bu savaşı
                 // tuttuğu için o birim çöp de olamazdı.
                 // → Battle.md#removeunitunit
+                // ÖDÜNÇ ALINAN — GC kökü ve OKUN YÖNÜ: ok yayıncıdan aboneye gider,
+                // yani sökülmemiş tek bir abonelikte elde kalan Combatant bu savaşın
+                // tamamını erişilebilir tutar; zinciri koparan satır aşağıdaki `-=`.
+                // DİL: Docs/deep/dil/07-bellek-canlilik-ve-yikim.md
                 if (stateForwarders.TryGetValue(unit, out Action<UnitState, UnitState> forwarder))
                 {
                     combatants[unit].StateChanged -= forwarder;

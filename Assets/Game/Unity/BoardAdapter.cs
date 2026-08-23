@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace GridStrategy.Unity
 {
+    // ██ BURADAN ÖĞRENMEYE BAŞLIYORSAN: Docs/ogrenme/00-okuma-sirasi.md ██
+    // Dosya numaraları SIRA DEĞİL, kimliktir. Doğru sıra orada: 14 adım, 5 oturum.
+    // Burası oyunun motor tarafındaki giriş noktası; okuma sırasının başı değil.
+
     // ═══ ÇIPLAK "Battle" YAZMAK BU DOSYADA DERLEME HATASIDIR (CS0118) ═══
     //
     // ── HARİTA: derleyicinin gördüğü ad ağacı ────────────────────────
@@ -222,6 +226,9 @@ namespace GridStrategy.Unity
         // bağlı mı bağlı değil mi. → BoardAdapter.md#ghostiscarried
         private bool ghostIsCarried;
 
+        // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — bu metodu
+        // hiçbir satır ÇAĞIRMIYOR ve bir C# `event` de değil; motor onu ADINA
+        // bakarak buluyor, çağrı sırası ve koşulları orada ölçüyle yazılı.
         private void Awake()
         {
             // GetComponent bir SORGUdur: bileşen listesinde arar ve bulduğuna
@@ -274,6 +281,10 @@ namespace GridStrategy.Unity
         // dinlemeye devam ederdi ve "kapalı" sözü tam orada düşerdi. Simetriyi
         // derleyici değil disiplin tutuyor: eksik bir `-=` tek bir uyarı bile
         // üretmez. → BoardAdapter.md#onenable-ve-ondisable
+        // ÖDÜNÇ ALINAN — `event`: `+=` ve `-=` derleyicinin ürettiği gizli bir alana
+        // yazar (add_ ve remove_ metotları üstünden), bu yüzden dengesiz kalan bir
+        // `+=` tek bir uyarı bile üretmez — üstteki "disiplin" cümlesinin sebebi bu.
+        // DİL: Docs/deep/dil/06-delege-arka-taraf.md
         private void OnEnable()
         {
             battle.UnitStateChanged += OnUnitStateChanged;
@@ -989,6 +1000,10 @@ namespace GridStrategy.Unity
             // EDİLMİŞ bir görsel referansı kalırdı ve Unity'nin aşırı yüklenmiş
             // eşitliği yüzünden "null gibi ama null değil" hâlde dolaşırdı.
             unitViews.Remove(unit);
+            // ÖDÜNÇ ALINAN — `Destroy`: yalnız motor tarafındaki eşi yıkım sırasına
+            // sokar, yönetilen C# nesnesini geri VERMEZ; `System.Object` ile
+            // `UnityEngine.Object` ayrımı tam bu satırda görünür.
+            // DİL: Docs/deep/dil/07-bellek-canlilik-ve-yikim.md
             Destroy(view.gameObject);
 
             Debug.Log($"[Board] '{unit.Name}' was cleaned up and left the battle.", this);

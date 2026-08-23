@@ -33,6 +33,10 @@ namespace GridStrategy.Combat
     // sessizce yalan olur ve `null` hâli kalmadığı için AttackResolver'daki null
     // koruması anlamsızlaşırdı.
     // → AttackProfile.md#attackprofile-tip
+    // ÖĞRENME: Docs/ogrenme/02-sonraki-asamalar.md — yukarıdaki "paylaşabilir" bir
+    // İMKÂNdır, bugünkü kullanım değil: üretimde profil kuran TEK yer BoardAdapter
+    // içindeki NewCombatant ve her birime yeni bir örnek veriyor, paylaşım sıfır.
+    // Paylaşımı gerçeğe çeviren aşama ScriptableObject; tetikleyici koşulu orada.
     public sealed class AttackProfile
     {
         // DOĞRULAMA KURUCUDA DURUR: profil HANGİ yoldan gelirse gelsin (kod,

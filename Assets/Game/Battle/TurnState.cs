@@ -37,6 +37,10 @@ namespace GridStrategy.Battle
         // TurnState.DefaultTurnOrder okunabilir, Current okunamaz. Savaştan
         // savaşa değişmeyen bir dizilim hiçbir savaşa ait değildir; static
         // olması sızıntı değil, amacın kendisi. → TurnState.md#defaultturnorder
+        // ÖDÜNÇ ALINAN — `static readonly`: bu alan bir GC KÖKÜdür, yani gösterdiği
+        // dizi uygulama boyunca toplanmaz. Aşağıdaki FirstTurnNumber ise `const` ve
+        // çalışma zamanında hiç depolanmaz — ikisi aynı şey görünüp ayrışıyor.
+        // DİL: Docs/deep/dil/07-bellek-canlilik-ve-yikim.md
         public static readonly IReadOnlyList<Team> DefaultTurnOrder =
             Array.AsReadOnly(new[] { Team.Player, Team.Enemy });
 

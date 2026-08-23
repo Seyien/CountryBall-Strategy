@@ -82,6 +82,10 @@ namespace GridStrategy.Combat
             // UnitLifecycle kalmamalı. Aboneliğin çözüldüğü yer yok ve bu ihmal
             // değil; bu tip lifecycle'ının SAHİBİ, abonelik sınır geçmiyor.
             // → Combatant.md#combatant
+            // ÖDÜNÇ ALINAN — `+=`: bir kayıt işlemidir ve kaydedilen şey `this`,
+            // yani kurulmayı henüz bitirmemiş nesnenin kendisi; üstteki "en sonda"
+            // kararı tam olarak bu mekanizmanın üstüne kurulu.
+            // DİL: Docs/deep/dil/06-delege-arka-taraf.md
             lastObservedState = this.lifecycle.State;
             this.lifecycle.StateChanged += OnLifecycleStateChanged;
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace GridStrategy.Combat
 {
-    // ═══ ROL: KURAL (Policy) ═════════════════════════════════════════
+    // ═══ ROL: AKIŞ SAHİBİ (transaction script) ═══════════════════════
     // kimlik : yok — static; iki Execute çağrısını ayıracak bir şey yoktur
     // hafıza : yok — ama ölçüsü "aynı üçlü aynı sonucu verir" DEĞİL, çünkü
     //          vermiyor: Execute hedefi DEĞİŞTİRİR. 20 canlı bir hedefe 10

@@ -99,6 +99,10 @@ namespace GridStrategy.Combat
             }
 
             State = next;
+            // ÖDÜNÇ ALINAN — `?.Invoke`: gizli alanı BİR KEZ okuyup yerele
+            // kopyalar; elle yazılan `if (StateChanged != null)` onu İKİ KEZ okur
+            // ve arada bir boşluk bırakır — farkın tamamı bu.
+            // DİL: Docs/deep/dil/06-delege-arka-taraf.md
             StateChanged?.Invoke(next);
         }
 
@@ -166,6 +170,9 @@ namespace GridStrategy.Combat
         /// bağlanmamasının ve EditMode'da sınanabilmesinin tek sebebi budur.
         /// </summary>
         // DERİN ANLATIM: Docs/deep/konular/05-yasam-dongusu.md
+        // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — üstteki 05
+        // OYUNUN durum makinesini anlatır, o dosya MOTORUN çağrı döngüsünü; iki
+        // ayrı şey aynı adı taşıyor ve saniye duvarı tam bu metotta geçiyor.
         public void Tick(float deltaSeconds)
         {
             if (deltaSeconds < 0f)

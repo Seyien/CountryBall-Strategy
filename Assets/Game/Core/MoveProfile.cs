@@ -36,6 +36,9 @@ namespace GridStrategy.Core
     /// GEREKÇELER: Docs/deep/kod/Core/MoveProfile.md
     /// </summary>
     // DERİN ANLATIM: Docs/deep/konular/02-assembly-duvari.md
+    // ÖĞRENME: Docs/ogrenme/02-sonraki-asamalar.md — yukarıdaki "tek örneği
+    // paylaşabilir" bir İMKÂNdır: üretimde profil kuran TEK yer BattleActions
+    // içindeki Move ve her çağrıda yeni bir örnek doğuyor, paylaşım sıfır.
     public sealed class MoveProfile
     {
         // SIFIR MENZİL GEÇERLİ, negatif değil. AttackProfile'ın "range < 1"
