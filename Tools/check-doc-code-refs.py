@@ -35,6 +35,48 @@
 # ve NEDENI ciktida yazilir. Denetlenmemis bir atfi denetlenmis gibi gostermek
 # kapinin kendisini yalan yapar.
 #
+# ══ KISAYOL KATMANI ══════════════════════════════════════════════════════
+# GATE-KOR SINIF, olculdu 2026-08-23: yukaridaki REF deseni dosya ADI ister.
+# Ama belgeler dosya adini bir kez yazip sonrasini kisaltiyor -- `:992` gibi.
+# Boyle 69 atif vardi, bes belgede, ve HICBIRI hicbir kapinin denetiminde
+# degildi. Kapi 507 atif icin yesil yaniyor ve bu 69'a bakmiyordu.
+#
+# SAHIP KURALI: bir `:N` kisayolunun sahibi, AYNI PARAGRAFTA ve kisayoldan
+# ONCE anilan EN SON .cs dosyasidir.
+#
+# PARAGRAF SINIRI = bos satir . cit satiri (```) . baslik satiri (#) . tablo
+# satiri. Kisayolun kendisi bir tablo satirindaysa paragraf O TEK SATIRDIR
+# (ayni olculmus gerekce SPAN'de de var: bir tablonun komsu satirlari
+# birbiriyle ilgisiz kayitlardir).
+#
+# ██ NEDEN DAR: UC ADAY OLCULDU ██ (56 tek parcali kisayol uzerinde)
+#     P-BLANK  (bos satir siniri)          35 sahip  .  0 YANLIS baglama
+#     P-FENCE  (ustteki cit blogunu da yut) 42 sahip  .  1 YANLIS baglama
+#     P-W10    (10 satir geriye pencere)    45 sahip  .  1 YANLIS baglama
+# Yanlis baglamanin somut adi: 02-sonraki-asamalar.md:434 --
+#   "`Battle.Tick` (`:366`)". Cumlenin bir ust blogu BoardAdapter.cs:268 ile
+#   biten bir cit. Genis kurallar `:366`'yi BoardAdapter.cs'e bagliyor; orada
+#   366. satir yerlestirme kipinin LogError'u, Tick ile ilgisi yok.
+# ██ Iki hata esit degil ██: cikarilamayan sahip SAYILIR ve BASILIR, yani
+# gorunur bir bosluktur. Yanlis baglanan sahip ya sahte ihlal uretir (biri
+# DOGRU sayiyi yanlisiyla degistirir) ya da bayat bir atfi yanlis dosyaya
+# karsi dogrular. Kapinin kendi doktrini bunu zaten soyluyor: sessizce yesil
+# yanan kapi hic olmayan kapidan kotudur. Kapsam degil DOGRULUK secildi.
+#
+# ██ NEDEN GERIYE ██ "Paragrafta en son anilan" ileriye degil GERIYE taranir.
+# Olculdu: 02-sonraki-asamalar.md:168-176 paragrafi once BoardAdapter.cs'i
+# (168), sonra UnitView.cs'i (172) aniyor; 169 ve 170'teki `:728` ve `:992`
+# BoardAdapter'a aittir. Ileri-son kural onlari UnitView.cs'e baglardi ve
+# UnitView.cs 130 satir -- iki sahte SINIR ihlali. Ayni sey
+# 04-yok-olan-mekanizmalar-unity.md:552-556'da da var.
+#
+# Kisayol atiflar ayni uc katmandan gecer (varlik . sinir . kayma) ama
+# ALINTI katmani onlara neredeyse hic uygulanamaz: alinti bicimi atfin satir
+# BASINDA olmasini ister, kisayol ise cumlenin ORTASINDA yasar. Yani kisayol
+# atifin tek gercek kayma sinyali YAKIN AD'dir ve o sinyal kucuk kaymaya
+# KORDUR. ██ Bu yuzden kisayolun kalici cozumu denetlemek degil, TAM BICIME
+# (Dosya.cs:N) cevirmektir; kapi yalnizca borcu gorunur tutar. ██
+#
 # ██ IKI SINYALIN GUCU ESIT DEGIL -- OLCULDU ██ Gecen her atif yapay olarak
 # kaydirilip kapiya geri verildi (153 atif):
 #
@@ -65,6 +107,19 @@ ASSETS_DEFAULT = "Assets"
 REF = re.compile(r"((?:[A-Za-z0-9_.-]+/)*)([A-Za-z0-9_]+\.cs):(\d+)(?:-(\d+))?")
 FENCE = re.compile(r"^\s*```")
 BACKTICK = re.compile(r"`([^`]+)`")
+
+# Kisayol atif: ters tirnak icinde YALNIZ ":N" simgeleri. Ayrac olarak bosluk,
+# virgul ve orta nokta kabul edilir cunku belgede uc bicim de gecti:
+#   `:992`   .   `:51` . `:59`   .   `:109 :110 :113 ...`
+# Ters tirnak icinde baska HICBIR sey olmamali; `Ad :5` bilerek disarida
+# birakildi, orada sahip zaten satirda yaziyor ve ayri bir lehcedir.
+SHORT = re.compile(r"`((?::\d+(?:-\d+)?)(?:[ ,·]+:\d+(?:-\d+)?)*)`")
+SHORT_ONE = re.compile(r":(\d+)(?:-(\d+))?")
+# Kisayolun sahibini ararken kullanilan ciplak dosya adi deseni: satir numarasi
+# ZORUNLU DEGIL. Olculdu -- belgeler sahibi cogu kez numarasiz yaziyor:
+# "`Assets/Game/Core/Combat/Combatant.cs` kendisi. `TryRevive` (`:186`)".
+CSNAME = re.compile(r"((?:[A-Za-z0-9_.-]+/)*)([A-Za-z0-9_]+\.cs)")
+HEADING = re.compile(r"^\s{0,3}#")
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 TOKEN = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
@@ -226,6 +281,41 @@ def nearby_identifiers(lines, index):
     return found
 
 
+def paragraph_start(lines, index):
+    """Kisayolun paragrafinin BASLADIGI satir indeksini doner.
+
+    Sinir: bos satir . cit (```) . baslik (#) . tablo satiri. Kisayolun kendi
+    satiri bir tablo satiriysa paragraf o tek satirdir -- komsu tablo
+    satirlari birbiriyle ilgisiz kayitlardir (ayni olcum SPAN'de yazili).
+    """
+    if is_table_row(lines[index]):
+        return index
+    start = index
+    while start > 0:
+        above = lines[start - 1]
+        if not above.strip():
+            break
+        if FENCE.match(above) or is_table_row(above) or HEADING.match(above):
+            break
+        start -= 1
+    return start
+
+
+def shortcut_owner(lines, index, column):
+    """Kisayolun sahibi: paragrafta ve kisayoldan ONCE anilan son .cs adi.
+
+    Yoksa None. Sahibi cikarilamayan kisayol IHLAL DEGILDIR -- sayilir ve
+    ciktida basilir; sessizce atlamak kapiyi kendi kapsami konusunda
+    yalanci yapardi.
+    """
+    start = paragraph_start(lines, index)
+    region = "\n".join(lines[start:index]) + "\n" + lines[index][:column]
+    found = list(CSNAME.finditer(region))
+    if not found:
+        return None
+    return found[-1].group(1) + found[-1].group(2)
+
+
 def quoted_text(lines, index, ref_text):
     """Atfin yanindaki kod alintisini doner, yoksa None.
 
@@ -284,6 +374,11 @@ def audit(documents, source):
         "k3a": 0, "k3a_kayma": 0,
         "k3b": 0, "k3b_kayma": 0,
         "k3_yok_ad": 0, "k3_yok_dosyada": 0, "k3_yok_sinir": 0,
+        # Kisayol katmani AYRI sayilir: ana katmanin sayilarina karismaz,
+        # yoksa kapi kendi kapsamini kendi ciktisinda sisirmis olurdu.
+        "ks": 0, "ks_muaf": 0, "ks_sahip": 0, "ks_ihlal": 0,
+        "ks_yok_sahip": 0, "ks_yok_dosya": 0,
+        "ks_kayma_denetlendi": 0, "ks_kayma_yok": 0,
     }
 
     for name, text in documents:
@@ -410,6 +505,118 @@ def audit(documents, source):
                                      % (ref_text, best_name, best, K)))
                     stat["k3b_kayma"] += 1
 
+            # ── KISAYOL KATMANI ───────────────────────────────────────────
+            for span in SHORT.finditer(line):
+                owner = shortcut_owner(lines, index, span.start())
+                targets = []
+                if owner:
+                    if "/" in owner:
+                        targets = source.by_suffix(owner)
+                    else:
+                        targets = source.by_name(owner)
+
+                for piece in SHORT_ONE.finditer(span.group(1)):
+                    short_text = piece.group(0)
+                    stat["ks"] += 1
+                    if exempt:
+                        stat["ks_muaf"] += 1
+                        continue
+
+                    if owner is None:
+                        stat["ks_yok_sahip"] += 1
+                        continue
+                    if not targets:
+                        # Sahip ADI cikarildi ama diskte karsiligi yok. Bu bir
+                        # kisayol ihlali DEGIL: ciplak dosya adi kapinin ana
+                        # deseninin disinda ve onu burada ihlal saymak,
+                        # denetlemedigimiz bir metinden ihlal uretmek olurdu.
+                        stat["ks_yok_dosya"] += 1
+                        continue
+                    if len(targets) > 1:
+                        problems.append((name, number, "KS-COKLU",
+                                         "KISAYOL SAHIBI COKLU: `%s` -> %s -> %s"
+                                         % (short_text, owner,
+                                            " . ".join(targets))))
+                        stat["ks_sahip"] += 1
+                        stat["ks_ihlal"] += 1
+                        stat["ks_kayma_yok"] += 1
+                        continue
+
+                    stat["ks_sahip"] += 1
+                    key = targets[0]
+                    low = int(piece.group(1))
+                    high = int(piece.group(2)) if piece.group(2) else low
+                    total = source.count(key)
+                    if low < 1 or high > total or high < low:
+                        problems.append((name, number, "KS-SINIR",
+                                         "KISAYOL SATIRI DOSYAYI ASIYOR: `%s` "
+                                         "-> %s (%d satir)"
+                                         % (short_text, key, total)))
+                        stat["ks_ihlal"] += 1
+                        stat["ks_kayma_yok"] += 1
+                        continue
+
+                    audited = False
+                    quote = quoted_text(lines, index, short_text)
+                    if quote:
+                        where = source.texts(key).get(quote)
+                        if where:
+                            audited = True
+                            if not any(low <= w <= high for w in where):
+                                problems.append((name, number, "KS-ALINTI",
+                                                 "KISAYOL ALINTISI KAYMIS: `%s`"
+                                                 " -> %s -- bu metin %s. satirda"
+                                                 % (short_text, key,
+                                                    ", ".join(str(w)
+                                                              for w in where))))
+                                stat["ks_ihlal"] += 1
+
+                    # ██ KISAYOLUN PENCERESI SPAN DEGIL, KENDI SATIRIDIR ██
+                    # OLCULDU (48 sahibi cikarilmis kisayol uzerinde):
+                    #   +-2 satir  -> 27 denetlendi . 0 gercek yakalama .
+                    #                 1 SAHTE POZITIF
+                    #   kendi satiri -> 21 denetlendi . 0 gercek yakalama .
+                    #                 0 sahte pozitif
+                    # Sahte pozitifin adi: 04-yok-olan-mekanizmalar-unity.md:911.
+                    # Ustteki satir `AllocatingGCMemory` adini tasiyor ama o ad
+                    # AYNI CUMLEDEKI BASKA bir atfa (:103) aittir; pencere onu
+                    # `:69` uzerine tasiyor ve DOGRU olan `:69`'u kizartiyor.
+                    # Sebep yapisal: tam atif cogu kez satirinda yalnizdir,
+                    # kisayol ise cumle ORTASINDA ve kardesleriyle YAN YANA
+                    # yasar -- pencere komsu atfin adini calar. Ayni sey
+                    # 02-sonraki-asamalar.md:170'te de olculdu: pencere `:992`
+                    # icin iki satir asagidaki `UnitView` adini seciyor, oysa
+                    # o satirin adi `Destroy`.
+                    idents = nearby_identifiers([line], 0)
+                    table = source.words(key)
+                    best, best_name = None, None
+                    for ident in sorted(idents):
+                        for where in table.get(ident, ()):
+                            if low <= where <= high:
+                                distance = 0
+                            else:
+                                distance = min(abs(where - low),
+                                               abs(where - high))
+                            if best is None or distance < best:
+                                best, best_name = distance, ident
+
+                    if best is None:
+                        if audited:
+                            stat["ks_kayma_denetlendi"] += 1
+                        else:
+                            stat["ks_kayma_yok"] += 1
+                        continue
+
+                    stat["ks_kayma_denetlendi"] += 1
+                    if best > K:
+                        problems.append((name, number, "KS-AD",
+                                         "KISAYOL YAKIN AD UZAKTA: `%s` -> %s "
+                                         "-- `%s` en yakin %d satir otede "
+                                         "(esik %d)"
+                                         % (short_text, key, best_name,
+                                            best, K)))
+                        stat["ks_ihlal"] += 1
+
     return problems, stat
 
 
@@ -489,6 +696,27 @@ OlmayanTip.cs:5
 <!-- ATIF-MUAF --> `BasakOlmayanTip.cs:9` satir ici muafiyet.
 """
 
+# Kisayol katmaninin iki yarisi. IYI ornek bilerek IKI dosya aniyor, dogru
+# olan kisayoldan ONCE ve yanlis olan SONRA duruyor -- ve ikisi AYNI SATIRDA,
+# cunku sahip kuralinin yonu ancak boyle sinanir. Kural "ileri-son ad" haline
+# gelirse BirinciTip.cs secilir, o ad iki dizinde birden gecer ve ornek COKLU
+# ihlali uretir. Yani bu yari yalniz "ihlal yok" demiyor, sahibin DOGRU
+# secildigini de kanitliyor. OLCULDU: kural bilerek ileri-son'a cevrildi ve
+# bu yari KAPI BOZUK dedi; iki dosya ayri SATIRLARDA dururken DEMIYORDU.
+SELF_KS_GOOD = """
+`IkinciTip.cs:5` esigi tasir, `Yakin` (`:12`) onu okur, `BirinciTip.cs` okumaz.
+"""
+
+SELF_KS_BAD = """
+Bu paragrafta hicbir kaynak dosyasi anilmiyor, yalniz bir kisayol var (`:12`).
+
+`IkinciTip.cs:5` sonrasinda `Esik` (`:500`) dosyanin sonunu asiyor.
+
+`BirinciTip.cs` ardindan gelen `:3` iki dizinde birden cozuluyor.
+
+`IkinciTip.cs:5` ve `HesaplaMesafe` (`:80`) -- ad dosyada var ama cok uzakta.
+"""
+
 
 def self_check():
     """Ayristiricinin CALISTIGINI once kendi uzerinde kanitlar.
@@ -527,6 +755,42 @@ def self_check():
         return "muafiyet isaretcisi calismadi: %s" % (muaf[0][3],)
     if mstat["muaf"] != 2:
         return "muafiyet sayaci yanlis: 2 bekleniyordu, %d cikti" % mstat["muaf"]
+
+    # ── KISAYOL KATMANI: iki yari da zorunlu ─────────────────────────────
+    kgood, kgstat = audit([("kisayol-iyi", SELF_KS_GOOD)], source)
+    kgood = [p for p in kgood if p[2].startswith("KS-")]
+    if kgood:
+        return "bilinen-iyi kisayol ihlal uretti: %s" % (kgood[0][3],)
+    if kgstat["ks"] != 1:
+        return ("bilinen-iyi kisayol ornekte 1 kisayol bekleniyordu, %d bulundu"
+                % kgstat["ks"])
+    if kgstat["ks_sahip"] != 1:
+        return ("bilinen-iyi kisayolun SAHIBI cikarilamadi -- sahip kurali "
+                "bosa dustu (ks_sahip=%d)" % kgstat["ks_sahip"])
+    if kgstat["ks_kayma_denetlendi"] != 1:
+        return ("bilinen-iyi kisayol kayma icin denetlenmedi "
+                "(ks_kayma_denetlendi=%d)" % kgstat["ks_kayma_denetlendi"])
+
+    kbad, kbstat = audit([("kisayol-kotu", SELF_KS_BAD)], source)
+    kkinds = set(kind for _, _, kind, _ in kbad if kind.startswith("KS-"))
+    for wanted in ("KS-SINIR", "KS-COKLU", "KS-AD"):
+        if wanted not in kkinds:
+            return ("bilinen-kotu kisayol ornekte %s YAKALANMADI -- kapi bu "
+                    "katmanda kor (yakalananlar: %s)"
+                    % (wanted, ", ".join(sorted(kkinds)) or "hicbiri"))
+    if kbstat["ks"] != 4:
+        return ("bilinen-kotu kisayol ornekte 4 kisayol bekleniyordu, %d bulundu"
+                % kbstat["ks"])
+    # ██ ASIL YARI ██ sahibi cikarilamayan kisayol IHLAL DEGIL, sayilan bir
+    # bosluktur. Bu sinama olmadan kapi "gormedigim her sey ihlaldir" diyen
+    # bir kapiya donusur ve dogru yazilmis belgeleri kizartirdi.
+    if kbstat["ks_yok_sahip"] != 1:
+        return ("sahipsiz kisayol 'cikarilamadi' sayacina dusmedi "
+                "(ks_yok_sahip=%d, 1 bekleniyordu)" % kbstat["ks_yok_sahip"])
+    if kbstat["ks_ihlal"] != 3:
+        return ("bilinen-kotu kisayol ornekte 3 ihlal bekleniyordu, %d cikti "
+                "-- sahipsiz kisayol ihlal sayilmis olabilir"
+                % kbstat["ks_ihlal"])
 
     return None
 
@@ -583,6 +847,23 @@ def main(argv):
     print("                    %d yakininda ters tirnakli ad yok" % stat["k3_yok_ad"])
     print("                    %d anilan ad dosyada hic gecmiyor" % stat["k3_yok_dosyada"])
     print("                    %d zaten sinir ihlali" % stat["k3_yok_sinir"])
+    # ██ KISAYOL KATMANI KENDI KAPSAMINI KENDI YAZAR ██ Bu satirlar olmasa
+    # cikti "atif: N" der ve okuyan `:992` bicimindeki atiflarin da o sayinin
+    # icinde oldugunu sanirdi. Sahibi cikarilamayan kisayol ihlal degildir --
+    # ama SAYILIR, cunku sayilmayan bir bosluk yok sayilmis bir bosluktur.
+    print("KISAYOL `:N`    : %d tarandi . %d sahip cikarildi . %d IHLAL . "
+          "%d sahip CIKARILAMADI  (muaf: %d)"
+          % (stat["ks"], stat["ks_sahip"], stat["ks_ihlal"],
+             stat["ks_yok_sahip"] + stat["ks_yok_dosya"], stat["ks_muaf"]))
+    print("                    %d paragrafinda hic dosya adi anilmiyor"
+          % stat["ks_yok_sahip"])
+    print("                    %d anilan sahip diskte cozulemedi"
+          % stat["ks_yok_dosya"])
+    print("                  sahibi cikarilanin %d'i KAYMA icin denetlendi, "
+          "%d'i denetlenemedi"
+          % (stat["ks_kayma_denetlendi"], stat["ks_kayma_yok"]))
+    print("                  ALINTI kisayola neredeyse hic uygulanamaz "
+          "(atfin satir BASINDA olmasini ister)")
     print("")
     print("ihlal: %d" % len(problems))
     return 1 if problems else 0
