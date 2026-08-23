@@ -1,0 +1,20 @@
+# Satır sonu sözleşmesi — DİSİPLİNLE değil, MAKİNEYLE zorlanır.
+#
+# Ölçüldü 2026-08-23: core.autocrlf=true ve .gitattributes YOKKEN depo her şeyi
+# LF saklıyor ama taze bir checkout her şeyi CRLF yapıyordu. Yani 65 .md
+# dosyasının "LF" sözleşmesi ve 51 .cs dosyasının "CRLF" sözleşmesi yalnızca
+# çalışma ağacında, yalnızca yazan aracın disipliniyle duruyordu — klonlayan
+# ikinci bir makinede ikisi de bozulurdu.
+#
+# Aynı ölçümde 8 .cs dosyasının çalışma ağacında LF olduğu görüldü; bu satırlar
+# onları da bir sonraki checkout'ta sözleşmeye getirir.
+* text=auto
+
+*.cs      text eol=crlf
+*.ps1     text eol=crlf
+
+*.md      text eol=lf
+*.py      text eol=lf
+*.asmdef  text eol=lf
+*.json    text eol=lf
+*.yml     text eol=lf
