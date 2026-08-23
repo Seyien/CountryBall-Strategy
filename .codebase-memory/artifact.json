@@ -1,11 +1,11 @@
 {
     "schema_version": 2,
-    "commit": "f29082b726345ee419998f67530a72ee92ed60aa",
-    "indexed_at": "2026-08-21T02:15:03Z",
+    "commit": "b0897e371be08e0f1cfd2c498f0ed9d3e869d685",
+    "indexed_at": "2026-08-22T03:35:54Z",
     "project": "CountryBall-Strategy",
-    "nodes": 1120,
-    "edges": 4349,
-    "original_size": 4390912,
-    "compressed_size": 818915,
+    "nodes": 2487,
+    "edges": 5179,
+    "original_size": 3538944,
+    "compressed_size": 339728,
     "compression_level": 9
 }
