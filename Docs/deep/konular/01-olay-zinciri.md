@@ -4,6 +4,20 @@
 > **Kodda nereden geldin:** `Combatant.StateChanged`, `Battle.stateForwarders`, `Battle.UnitStateChanged`
 > **Ne zaman oku:** bu dört üyeden birine dokunmadan önce, ya da "bu sözlük neden var" diye sorduğunda.
 
+> ██ **ÖNCE OKU — bu dosya bir GİRİŞ değil, bir BULUŞMA NOKTASI.** ██ Numarası
+> `01` ama üç ayrı ipliğin düğümlendiği yer burası, ve üçünün de tanımı başka
+> dosyalarda:
+>
+> | Bu dosyada tanımsız kullanılan | Sahibi |
+> |---|---|
+> | *ad alanı*, *assembly*, "bağlanmak" (aşağıda, "Karakterler"in sonunda) | [`konular/02`](02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is) |
+> | `Alive` / `Downed` / `Dead` — üç durumun ne demek olduğu | [`konular/05`](05-yasam-dongusu.md) |
+> | `Action<…>`, `event`, `?.Invoke`'un ne **vaat ettiği** | [`dil/04`](../dil/04-delege-olay-ve-kapanis.md#birinci-durak-delege-metoda-isaret-eden-nesne) |
+>
+> Üçünü de okumadan bu dosya okunur — ama "niye böyle" sorusu cevapsız kalır.
+> Önerilen yol bu dosyayı **onuncu** adıma koyuyor:
+> [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md).
+
 ---
 
 ## Sahne
@@ -57,6 +71,12 @@ tahtayı tanımaya başlardı. Kimlik `Unit`'te yaşıyor, eşleme `Battle`'da. 
 sadece "ne kadar canı var" sorusuna cevap veriyor.
 
 **Bütün hikâye bu tek karardan doğuyor.** Aklında tut.
+
+> **Önce oku:** [`02-assembly-duvari.md`](02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is)
+> — yukarıdaki cümle bu dosyanın taşıyıcı gerekçesi ve üç tanımsız kavram
+> taşıyor: *klasör*, *ad alanı* ve *assembly* üç **ayrı** şeydir. `02` o kararın
+> bir tercih değil ██ derleyici tarafından uygulanan bir kısıt ██ olduğunu
+> gösteriyor — ve aynı kararı öteki yönden anlatıyor (`02:440`).
 
 ---
 
@@ -201,6 +221,47 @@ battle.UnitStateChanged += OnUnitStateChanged;     // ③ METOT ADI
 Yine metot adı. Yine sözlük yok. Neden? Çünkü `BoardAdapter` **tek bir** `Battle`
 dinliyor ve olay zaten "kim" bilgisini taşıyor. Ekleyecek bir şeyi yok.
 
+### Ekran yarısı: "güncellendi" tek kelime değil, üç halka
+
+Zincir `OnUnitStateChanged`'de **bitmiyor**. Rengin gerçekten değiştiği yere
+kadar üç halka daha var, ve üçü de kodda açılabilir:
+
+```
+  BoardAdapter.cs:277   private void OnEnable()
+  BoardAdapter.cs:279       battle.UnitStateChanged += OnUnitStateChanged;
+  BoardAdapter.cs:282   private void OnDisable()
+  BoardAdapter.cs:284       battle.UnitStateChanged -= OnUnitStateChanged;
+        │  ██ Abonelik ÇİFTİ burada; sökme sözü tutan tek şey DİSİPLİN ██
+        ▼
+  BoardAdapter.cs:299   OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+  BoardAdapter.cs:301       ApplyStateVisual(unit, to);
+        │  ██ AYRIŞMA NOKTASI ██ olay ÜÇ değer taşıyor, kullanılan İKİ
+        │     `from` bugün okunmuyor — eksiklik değil, adı hazır bir alan
+        ▼
+  BoardAdapter.cs:943   ApplyStateVisual(Unit unit, UnitState state)
+  BoardAdapter.cs:945       if (!TryGetView(unit, out UnitView view)) return;
+  BoardAdapter.cs:953       view.SetState(state);
+        │  ██ ÇEVİRİ YOK ██ durum OLDUĞU GİBİ geçiyor. Bir zamanlar burada
+        │     üç değer ikiye iniyordu ve Downed ile Dead ekranda aynı görünüyordu
+        ▼
+  UnitView.cs:166       public void SetState(UnitState state)
+  UnitView.cs:175           bodyRenderer.flipY = state != UnitState.Alive;
+  UnitView.cs:183           bodyRenderer.color = authoredColor * TintFor(state);
+        │
+        ▼
+  ██ ASKER EKRANDA YATIK VE SOLGUN ██
+```
+
+Son iki satır **üç durumu iki eksenle** yazıyor: `flipY` yalnız "ayakta mı"
+sorusunu soruyor (`Downed` ile `Dead` o eksende **aynı**), rengi ayıran ise
+çarpım. Üçünü ayıran şey iki eksenin **birleşimi** — tek eksenle yazılamayacak
+bir cümle. Gerekçesinin tamamı `UnitView.cs`'in kendi yorumunda.
+
+██ **Bu ekseni `konular/07` tamamlamıyor** ██ — orada da bir "ekran" durağı var
+ama o **seçim** ekseninde (`SetSelected` → çerçeve), bu **durum** ekseninde
+(`SetState` → yatıklık + renk). `07:658` iki ekseni açıkça ayırıyor:
+*"İKİ EKSEN BURADA KESİŞMEZ."* Aynı `UnitView`, iki ayrı soru.
+
 Cümle tamamlandı, asker ekranda yere yattı.
 
 ---
@@ -301,6 +362,42 @@ birim sözlükten çıktı, tahtadan çıktı, ekrandan silindi
 Ve en sinsi tarafı: `-=` yanlış nesneyle çağrılırsa **hata vermez**. Derleyici
 susar, testler yeşil kalır, liste olduğu gibi durur. `stateForwarders`'ın var olma
 sebebi tam olarak bu sessizliği önlemek.
+
+### ③ Bir abone FIRLARSA — sökülme değil, yayın faturası
+
+Yukarıdaki iki dal **sökülmemiş** bir aboneyi anlatıyor. Üçüncü bir dal var ve
+onun tetiği sökme değil: bir abonenin **istisna fırlatması**. `Invoke` bir
+`try`/`catch` **taşımaz**, dolayısıyla iki şey birden olur — kalan aboneler hiç
+çağrılmaz, **ve yayıncının `Invoke` satırından sonraki kendi satırları da
+çalışmaz.** Bu projede o satırın ne olduğu tuzağı soyut olmaktan çıkarıyor:
+
+```csharp
+// UnitLifecycle.cs:138-139 — OnHealthDepleted'in son iki satırı
+SetState(UnitState.Downed);              // ← içinde StateChanged?.Invoke var
+remainingSeconds = downedWindowSeconds;  // ██ BİR ABONE FIRLARSA ÇALIŞMAZ ██
+```
+
+```
+   State = Downed        ✓ yazıldı   (SetState, Invoke'tan ÖNCE atıyor)
+   remainingSeconds      ✗ 0'da kaldı
+        │
+        ▼
+   ilk Tick(0.016f):  Alive değil · 0 − 0,016 ≤ 0 · Downed  →  SetState(Dead)
+        │
+        ▼
+   ██ 10 SANİYELİK KURTARMA PENCERESİ TEK KAREDE YOK OLDU ██
+```
+
+██ **AYRIŞMA NOKTASI** ██ — sezgi "bir abonenin hatası aboneyi ilgilendirir"
+der; kod "bir abonenin hatası **yayıncının kendi değişmezini** kurmasını
+engeller" der. Ayrışan iki şey: *hatanın kaynağı* ile *hatanın faturasını
+ödeyen*.
+
+**Bugün neden görünmüyor:** üç olayın da üretimde **birer** abonesi var ve
+hiçbiri fırlatmıyor. Önem kazanacağı gün ölçülebilir: `Battle.UnitStateChanged`'e
+ikinci bir abone (ses, skor, başarım) eklendiği gün. Mekanizmanın tamamı ve
+aynı dosyadan **karşı örneği** (`TryRevive`'da aynı şeklin neden zararsız olduğu):
+[`dil/06` — İstisna tuzağı](../dil/06-delege-arka-taraf.md#istisna-tuzagi).
 
 ---
 

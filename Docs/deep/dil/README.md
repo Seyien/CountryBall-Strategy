@@ -35,6 +35,12 @@ Kuralın kendisi `unity-expert-code-quality` skill'inde:
 | [03](03-hata-bildirme-ve-dogrulama.md) | **Hata bildirme** — kime söylüyorsun, hangi tiple | `nameof` · `ArgumentNullException` · `ArgumentOutOfRangeException` · `ArgumentException` · `Math.Max/Min` |
 | [04](04-delege-olay-ve-kapanis.md) | **Fonksiyonu değişkende tutmak** | `Action<T>` · `event` · `?.Invoke` · kapanış kimliği · metot grubu |
 | [05](05-deger-referans-ve-kimlik.md) | **"Aynı" olmak ne demek** | değer/referans · `ReferenceEquals` · `enum` · `out` · `=>` · `switch` · `%` |
+| [06](06-delege-arka-taraf.md) | **Delegenin arka tarafı** — `+=` derleyicide neye dönüşür | `System.Delegate` (`Target`/`Method`) · `event` → gizli alan + `add_`/`remove_` · `Delegate.Combine`/`Remove` · `GetInvocationList` · `?.`nin tek okuması |
+| [07](07-bellek-canlilik-ve-yikim.md) | **Bir nesne ne zaman gerçekten biter** — kapsam ≠ canlılık ≠ erişilebilirlik ≠ kaynak ömrü | GC kökleri · kapanış tutması · `Destroy` · `System.Object` ≠ `UnityEngine.Object` · tahsis ölçümü |
+
+██ `06` ile `07` **sıralı** okunur ve ikisi de kendi ön koşulunu dosyanın
+başında yazıyor: `06` `04`'ü, `07` `05`'i istiyor. Zincirdeki tek açık ön koşul
+beyanı orada. ██
 
 ## Bu ağacın yakaladığı üç yanlış model
 

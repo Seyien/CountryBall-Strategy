@@ -629,6 +629,61 @@ Bu metotta ne bir sınır kontrolü, ne "hücre dolu mu" sorusu, ne de bir sıra
 sorusu var. Hepsi `PlaceStructure`'ın içinde. Çeviri ile karar arasındaki sınır
 tam olarak burası.
 
+### ██ BUGÜNKÜ SINIR: bu yol Play'de baştan sona KOŞMUYOR ██
+
+Yukarıdaki anlatı **sınırı** doğru çiziyor, ama yolun kendisi çalışma anında
+kesiliyor. Play'e basıp bir birim seçer, `B`'ye basar ve **tahta içindeki boş
+bir hücreye** bırakırsan Console'da şunu görürsün:
+
+```
+ArgumentException: The unit is already in this battle.
+Parameter name: unit
+```
+
+Sebebi tam olarak yukarıdaki alıntının ikinci satırı:
+
+```
+BoardAdapter.cs:491   Unit placer = selectedUnit;
+BoardAdapter.cs:493   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), …)
+                                                          ▲
+                      ██ YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR ██
+        │
+        ▼
+BattleActions.cs:362  battle.AddStructure(unit, structure, x, y);
+        │
+        ▼
+Battle.cs:280         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
+Battle.cs:282             throw new ArgumentException("The unit is already in this battle.", …);
+```
+
+`selectedUnit` **tanım gereği** `combatants` sözlüğünde: `TryEnterPlacementMode`
+(`BoardAdapter.cs:350`) `selectedUnit == null` ise kipe hiç girmiyor, ve seçim
+ancak dolu bir hücreye tıklanarak doğuyor.
+
+██ Hangi hücrede ne olduğu ölçüldü — üç dal, ve **sağlıklı** iki dalı ret
+değeri döndürüyor: ██
+
+```
+  tahta DIŞI hücre  ──► BattleActions.cs:344  RejectedInvalidCell    ✓ ret, istisna yok
+  DOLU hücre        ──► BattleActions.cs:354  RejectedCellOccupied   ✓ ret, istisna yok
+  tahta içi + BOŞ   ──► BattleActions.cs:362  AddStructure           ██ HER SEFERİNDE İSTİSNA ██
+```
+
+Yani **başarılı olması gereken tek dal** patlıyor:
+██ `PlacementOutcome.Placed` arayüzden ULAŞILAMAZ ve `CreateStructureVisual`
+(`BoardAdapter.cs:555`) üretimde HİÇ çağrılmaz. ██
+
+**Testler neden yeşil:** `BattleActionsTests` her çağrıda **taze bir kimlik**
+veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir testte
+yok. `BoardAdapterTests.cs` diye bir dosya da yok — `00-iskelet.md:330-332` bunu
+zaten yazıyor.
+
+██ **Bunu önceden bil.** ██ Bilmezsen kırılanın belge değil **sen** olduğunu
+sanırsın. Bilerek bakarsan bu on dakika turun en öğretici anı olur: burası
+[`../README.md`](../README.md)'nin ilk kuralının — *"İkisi çelişirse **kod
+kazanır**"* — koşturulabilir tek örneği. **Düzeltme bu turun işi değil:** not al,
+geç.
+
 ---
 
 ## Yedinci durak: ekran

@@ -76,10 +76,40 @@ Ders kitabı değil, hikâye. Sırasıyla:
 2. **Karakterler** — ilgili tipler; her biri için *bilir* ve **BİLMEZ**
    listesi. Hikâyeyi ilginç kılan bilmedikleridir.
 3. **Duraklar** — olay/veri hangi tipten hangisine, ne kazanarak geçiyor
-4. **Tek bakışta zincir** — figürün tamamı, ayrışma noktası `██` ile işaretli
+4. **Tek bakışta zincir** — figürün tamamı, **ayrışma noktası** `██` ile
+   işaretli (terimin tanımı: [Sözlük](#sozluk))
 5. **Kural** — okuyucunun kendi kodunda uygulayacağı karar ağacı
 6. **Yanlış hatırlananlar** — bu konuda tipik iki üç yanlış model, adıyla
 7. **Kaçış yolu** — bu tasarımdan nasıl kaçılırdı ve neden kaçılmadı
+
+## Sözlük
+
+Bu ağaçta tekrar tekrar geçen, ama tek bir yerde tanımlanmadığı için okuyucuyu
+tökezleten üç terim. Tanım burada bir kez veriliyor; dosyalar onu tekrar
+etmiyor.
+
+**AYRIŞMA NOKTASI.** Bir figürde `██ … ██` ile işaretlenen satır, o figürde
+**iki şeyin birbirinden ayrıldığı** yerdir: sezginin bir şey, kodun başka bir
+şey söylediği satır. Bir kavram değil, bir **işaret**; her figürde ayrışan iki
+şey **farklıdır** ve neyin neyden ayrıldığını figürün kendi metni söyler.
+Örnekler: `konular/02`'de klasör ile ad alanının çeliştiği satır; `konular/03`'te
+`readonly`'nin bakmadığı satır; `dil/07`'de kapsam ile canlılığın ayrıldığı yer.
+██ İşareti gördüğünde sorulacak soru tektir: *burada hangi iki şey ayrışıyor?* ██
+
+**AKIŞ SAHİBİ** (transaction script). Birden fazla kuralı **belirli bir sırayla**
+soran, ama kuralların hiçbirini kendisi yazmayan tip. Bu projede `BattleActions`,
+`MoveAction` ve `AttackAction` tam olarak budur — ve üçü de bir **Command
+değildir** (ölçü: üçü de `static class`, hiçbirinin alanı yok, dolayısıyla geri
+alınabilir bir "komut nesnesi" ortada yok). Deseni adıyla anlatan yer:
+[../ogrenme/01-koda-gomulu-desenler.md](../ogrenme/01-koda-gomulu-desenler.md).
+
+**SIRA DEVRİ.** Bir eylemin sonunda sıranın öteki tarafa geçmesi
+(`TurnState.EndTurn`) — ve bu projede **her** eylemin sonunda değil, yalnızca
+bir **beyaz listeye** düşen sonuç değerleri için. "Beyaz liste", devri
+tetikleyecek sonuçların tek tek sayılmasıdır; karşıtı olan kara liste
+(*"şunlar hariç hepsi devreder"*) yeni bir ret değeri eklendiği gün sessizce
+yanlış cevap verirdi. ██ Zincirin geri dönülemez adımı budur: bir kez devredilen
+sıra geri alınmaz. ██ Yeri: `konular/04` ADIM 7.
 
 ## Üç ağaç
 
@@ -95,9 +125,15 @@ Docs/deep/
 
 ## Dosyalar — konular/
 
-Okuma sırası zorunlu değil — her dosya kendi başına ayakta. Ama numaralar bir
-öğrenme sırası öneriyor: önce sınırlar (02), sonra sahiplik (03), sonra akış
-(01, 04), sonra alan bilgisi (05, 06, 07).
+██ **Numara bir DOSYA KİMLİĞİDİR, bir sıra değil.** ██ Aşağıdaki tablo bir
+**indekstir**: hangi soru hangi dosyaya gider. Öğrenme sırası ayrı bir belgede
+ve numaralara **uymuyor** — ölçüldü, sekiz `konular/` dosyasından yalnız ikisi
+(03 ve 08) numara sırasında doğru yerde duruyor:
+[../ogrenme/00-okuma-sirasi.md](../ogrenme/00-okuma-sirasi.md).
+
+Dosyalar birbirinden bağımsız da değil: `01` ile `02` karşılıklı olarak
+ötekinin okunmuş olduğunu varsayıyor (`01:55` ↔ `02:440`). Bir dosyayı sırasız
+açmak mümkün, ama "niye böyle" sorusunun cevabı çoğu zaman başka bir dosyada.
 
 | # | Konu | Koddaki durakları |
 |---|---|---|
@@ -108,6 +144,7 @@ Okuma sırası zorunlu değil — her dosya kendi başına ayakta. Ama numaralar
 | [05](konular/05-yasam-dongusu.md) | **Yaşam döngüsü** — Alive→Downed→Dead, yasak geçişler, yapı ikizinin üç eksiği | `UnitLifecycle`, `StructureLifecycle`, `TargetingRules`, `Battle.RemoveReadyForCleanup` |
 | [06](konular/06-sonuc-enumlari.md) | **Sonuç enum'ları** — sıfırıncı değer neden RET, bir asmdef bir enum değerini nasıl yasaklar | `AttackOutcome`, `MoveOutcome`, `PlacementOutcome`, `ReviveOutcome` |
 | [07](konular/07-tiklamadan-eyleme.md) | **Tıklamadan eyleme** — üç giriş sorgusu, jest durum makinesi, niyet vs geçerlilik | `PointerGesture`, `BoardAdapter.Update`/`HandleClick`, `BattleActions` |
+| [08](konular/08-motor-cagri-dongusu.md) | **Motorun çağrı döngüsü** — `Awake` neden bir `event` değil, sıranın sahipleri, `IEnumerator`'un ikinci hayatı | `BoardAdapter.Awake`/`OnEnable`/`OnDisable`/`Update`, `UnitView.Awake`, `PointerGesture.Reset`, `EditorSettings.asset` |
 
 ## İlgili
 
@@ -117,3 +154,6 @@ Okuma sırası zorunlu değil — her dosya kendi başına ayakta. Ama numaralar
 - Ödünç alınan tipler ve dil özellikleri: [dil/README.md](dil/README.md)
 - Tip başına ayna belgeler: [kod/README.md](kod/README.md)
 - Bu turun devir paketi: [../comment-diagram-debt/HANDOFF.md](../comment-diagram-debt/HANDOFF.md)
+- Dördüncü ve **ayrı** bir ağaç — "ben nerede duruyorum": [../ogrenme/README.md](../ogrenme/README.md).
+  Bu üç ağaç *kodun ne öğrettiğini* anlatır; o ağaç *okuyanın neyi kapattığını ve
+  neyin borç kaldığını* tutar. Kapısı: `python Tools/check-curriculum-coverage.py`

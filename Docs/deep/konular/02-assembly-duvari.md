@@ -346,7 +346,7 @@ Arama merdiveni — ve nerede durduğu:
              BoardAdapter, UnitView                          ✗ yok
                  │
   SEVİYE 1b  namespace GÖVDESİNDEKİ using / alias    ◄── ALIAS BURADA
-                 │                                       (BoardAdapter.cs:97)
+                 │                                       (BoardAdapter.cs:44)
   SEVİYE 2   GridStrategy'nin ÜYELERİ
              Battle, Combat, Core, Unity                     ✓ BULDU
              ██ ARAMA BİTTİ ██ bulunan şey bir AD ALANI, tip değil
@@ -363,11 +363,11 @@ SEVİYE 3'te bekliyor; arama SEVİYE 2'de bitiyor. Üst ad alanının bir **üye
 dosya başındaki `using`'i **her zaman** yener.
 
 **② Alias'ın yeri kuralın kendisidir.** `BoardAdapter.cs`'te alias satırı
-`namespace GridStrategy.Unity { … }` bloğunun **içinde** — 97. satırda, öteki
-`using`'lerin 92 satır aşağısında. Orada olduğu için SEVİYE 1b'de yakalanıyor ve
-arama SEVİYE 2'ye hiç çıkmıyor. Aynı satır dosyanın başına, öteki `using`'lerin
-yanına taşınsaydı SEVİYE 3'e düşerdi ve CS0118 geri gelirdi. **Metin harfi
-harfine aynı, sonuç zıt.** Yeri tesadüf değil, kararın kendisi.
+`namespace GridStrategy.Unity { … }` bloğunun **içinde** — 44. satırda, öteki
+`using`'lerin (1-5. satırlar) 39 satır aşağısında. Orada olduğu için SEVİYE 1b'de
+yakalanıyor ve arama SEVİYE 2'ye hiç çıkmıyor. Aynı satır dosyanın başına, öteki
+`using`'lerin yanına taşınsaydı SEVİYE 3'e düşerdi ve CS0118 geri gelirdi.
+**Metin harfi harfine aynı, sonuç zıt.** Yeri tesadüf değil, kararın kendisi.
 
 **③ `global::` bugünkü hatayı çözmez, yarınkini engeller.** Alias'ın sağ
 tarafındaki `GridStrategy` adı da çözülmek zorunda ve o çözüm de aynı merdivene
@@ -650,7 +650,7 @@ bedeli kodun içinde okunur bıraktı.
 ## Bunu okuduktan sonra kodda ne göreceksin
 
 `AttackResolver`'ın `distance` parametresi, `MoveOutcome`'un beşinci değeri,
-`MoveProfile`'ın Core'da durması ve `BoardAdapter`'ın 97. satırındaki alias artık
+`MoveProfile`'ın Core'da durması ve `BoardAdapter`'ın 44. satırındaki alias artık
 dört ayrı tuhaflık değil — **aynı iki mekanizmanın** izleri. İlk üçü
 görünürlüğün, sonuncusu ad çözümlemenin.
 

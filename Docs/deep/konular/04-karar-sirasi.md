@@ -81,6 +81,17 @@ taşıyan tip o assembly'den görünmüyor.
 katmana iner; inemediği yerde bir üst katmanda kalır. Ret sırası da tam olarak
 "hangi kural hangi katmanda yaşayabildi" sorusunun tortusu.
 
+> **Önce oku:** [`02-assembly-duvari.md`](02-assembly-duvari.md#duvarin-engelledigi-sey-gorunurluk)
+> — yukarıdaki iki körlüğün tamamı `.asmdef` dosyalarının `references` dizisine
+> dayanıyor ve bu dosya `asmdef`'i tanımlamıyor. "`TurnState` başka bir
+> assembly'de, adı yazılamaz" cümlesinin **neden** derleme hatası ürettiği orada.
+>
+> **İki ileri işaretçi de burada dursun:** hangi **istisna tipinin** ne zaman
+> seçileceği bu dosyanın işi değil —
+> [`dil/03`](../dil/03-hata-bildirme-ve-dogrulama.md); sonuç `enum`'larının
+> kendisi de değil — [`konular/06`](06-sonuc-enumlari.md). ██ `06` ölçütü
+> **kurar**, bu dosya onu bir sıra kararına **uygular**; kuran önce okunur. ██
+
 ---
 
 ## Birinci durak: çizginin kendisi
@@ -623,6 +634,13 @@ ayırdığın gün bir sıra kararı doğar ve onu bir testle savunmak zorunda k
 altıncı satırdaki çizgi bir sınır, üstündeki her `if` bir soru, altındaki her
 satır bir olgu. `MoveAction`'daki SEVİYE tablosu ile `AttackAction`'daki erken
 çıkış merdiveni aynı iki ölçütün iki uygulaması.
+
+██ **Bu üç tipin desen adı bu dosyada geçmiyor** ██ — `BattleActions`,
+`MoveAction` ve `AttackAction` birer **akış sahibi**dir (transaction script) ve
+bir **Command değildir**; ölçüsü üçünün de `static class` olması ve tek bir
+alan taşımaması. Adı, doğuran baskısı ve neden Command olmadığı:
+[`../../ogrenme/01-koda-gomulu-desenler.md`](../../ogrenme/01-koda-gomulu-desenler.md#2-akis-sahibi-transaction-script-command-degil).
+"Bu projede hangi desenleri kullandın" sorusunun cevabı orada.
 
 Kodda karar, burada hikâye. İkisi çelişirse **kod kazanır** — orası çalışan
 metin, burası anlatı.
