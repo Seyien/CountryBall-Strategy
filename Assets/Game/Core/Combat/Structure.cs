@@ -3,57 +3,47 @@ using System;
 namespace GridStrategy.Combat
 {
     // ═══ ROL: BİLEŞİK (Aggregate) ════════════════════════════════════
-    // kimlik : var — her yapı kendi Health ve kendi StructureLifecycle'ına sahip
-    // hafıza : var — aynı TakeDamage(10) çağrısı her seferinde farklı sonuç
+    // kimlik : var — ölçüsü şu: ayrı Health ve ayrı StructureLifecycle ile
+    //          İKİ Structure kur, yalnız birine TakeDamage uygula;
+    //          ötekinin CurrentHealth'i de IsStanding'i de kımıldamaz
+    // hafıza : var — ölçüsü şu: Health(10) ile kurulan bir yapıya
+    //          TakeDamage(10)'u arka arkaya İKİ kez uygula, dönüş değerleri
+    //          FARKLI olur: birincisi true ("bu vuruş yıktı") ve
+    //          IsStanding'i false yapar, ikincisi false — yıkık yapı ikinci
+    //          kez yıkılmaz, enkaz sayacı da sıfırlanmaz
     // Unity  : gerekmez — parçalarının hiçbiri motora bağlı değil
     // karar  : parçalar ARASINDAKİ kuralı yürütür; parçaların kendi kurallarına
     //          karışmaz
-    //
-    // REDDEDILEN - Structure.cs:37 yerine:
-    //     public sealed class Structure : Combatant
-    // KIRILAN  : baraka, askerin yaşam döngüsünü DEVRALIR ve hiçbiri ona uymaz.
-    //            TryRevive() devralınır  -> bina "diriltilebilir" olur
-    //            AttackProfile zorunlu   -> saldırmayan depo sahte profil uydurur
-    //            State artık UnitState   -> binaya hiç olmayacak Downed hâli gelir
-    //            derleyici: hiçbir şey der  .  test: Repair_AfterDestruction
-    //            _IsRejected'in koruduğu ayrım ORTADAN KALKAR
-    // KAZANIRDI: her bina düşüp kurtarılma penceresi açsaydı ve her binanın
-    //            savunma ateşi olsaydı — o gün üç dosya üç kopya kural olurdu.
-    // TEK CUMLE: Kalıtım "aynı parçalara sahip" demek değil, "aynı yaşam
-    //            döngüsünden geçer" demektir; baraka geçmiyor.
+    // KALITIM AYNI PARÇALAR DEĞİL, AYNI YAŞAM DÖNGÜSÜ DEMEKTİR. `: Combatant`
+    // yazmak reddedildi: kalıtım SEÇMELİ değildir ve baraka devralacağı üyelerin
+    // yarısına uymaz — TryRevive, Downed hâli, zorunlu AttackProfile, on
+    // saniyelik kurtarma penceresi. `sealed` bu satıra karşı sıfır koruma sağlar.
+    // → Structure.md#sealed-class-structure
     /// <summary>
     /// Bir yapının bütünü: canı, yaşam döngüsü, tarafı ve (varsa) saldırı tanımı.
     ///
-    /// Var olma sebebi <see cref="Combatant"/> ile aynı cümledir: <see cref="Health"/>
-    /// canın bittiğini bilir ama <see cref="StructureLifecycle"/>'ı tanımaz;
-    /// StructureLifecycle yıkımı bilir ama canı tanımaz. İkisini birden tanıyan tek
-    /// yer burasıdır.
+    /// Var olma sebebi <see cref="Combatant"/> ile aynı cümledir:
+    /// <see cref="Health"/> canın bittiğini bilir ama
+    /// <see cref="StructureLifecycle"/>'ı tanımaz; StructureLifecycle yıkımı
+    /// bilir ama canı tanımaz. İkisini birden tanıyan tek yer burasıdır.
     ///
-    /// Combatant'ın KOPYASI değildir ve ondan TÜREMEZ (gerekçe yukarıda). Ortak olan
-    /// tek şey <see cref="Health"/>'tir — ve bu bir tesadüf değil, bu tipin varlığıyla
-    /// sınanan iddiadır: can kuralı tipten bağımsızsa, bir barakanın canı bir askerin
-    /// canıyla aynı sınıfla tutulabilmelidir.
+    /// Combatant'ın KOPYASI değildir ve ondan TÜREMEZ. Ortak olan tek şey
+    /// <see cref="Health"/>'tir — ve bu bir tesadüf değil, bu tipin varlığıyla
+    /// sınanan iddiadır: can kuralı tipten bağımsızsa, bir barakanın canı bir
+    /// askerin canıyla aynı sınıfla tutulabilmelidir.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Core/Combat/Structure.md
     /// </summary>
     public sealed class Structure
     {
         private readonly Health health;
         private readonly StructureLifecycle lifecycle;
 
-        // REDDEDILEN - Structure.cs:73 yerine (saldırı tanımı zorunlu olur,
-        //              Combatant'taki gibi):
-        //     public Structure(Health health, StructureLifecycle lifecycle, Team team, AttackProfile attackProfile)
-        //     {
-        //         AttackProfile = attackProfile ?? throw new ArgumentNullException(nameof(attackProfile));
-        //     }
-        // KIRILAN  : saldırmayan her depo ve duvar kendine sahte bir profil uydurur.
-        //            damage: 0 yazılır      -> "saldıramaz"ın TİPSİZ işaretçisi doğar
-        //            "menzil en az 1" kuralı -> uydurulan profil bir YALANA döner
-        //            derleyici: hiçbir şey der  .  test:
-        //            Structure_WithoutAttackProfile_CannotAttack derlenemez
-        // KAZANIRDI: iki ayrı tip (Tower / Building) yazılsaydı ve kuleler saldırıya
-        //            özgü DURUM taşısaydı — bekleme süresi, cephane, hedef hafızası.
-        // TEK CUMLE: İsteğe bağlı parametre KURALI yazdırır, zorunlu parametre
-        //            İSTİSNAyı; burada kural "yapı saldırmaz"dır.
+        // İSTEĞE BAĞLI PARAMETRE KURALI YAZDIRIR, ZORUNLU OLAN İSTİSNAYI. Yapıların
+        // ÇOĞU saldırmaz; zorunlu imzada her depo ve duvar kendine sahte bir profil
+        // uydururdu — üstelik "menzil en az 1" kuralı yüzünden o profil komşu
+        // hücreye ulaştığını SÖYLERDİ. Kural imzada okunsun diye isteğe bağlı.
+        // → Structure.md#structure
         /// <param name="attackProfile">
         /// Saldırmayan yapılar için <c>null</c>. Kural olan davranış "saldırmaz"dır;
         /// isteğe bağlı parametre, kuralı değil İSTİSNAyı yazdırır.
@@ -70,12 +60,14 @@ namespace GridStrategy.Combat
             // Team.None BİLEREK geçerli: tarafsız yıkılabilir duvar, kapı ya da
             // engel gerçek bir yapıdır. Doğrulama koysaydık Team'in sıfırıncı
             // değerinin var olma sebebini burada iptal etmiş olurduk.
+            // → Structure.md#team
             Team = team;
 
             // Takım sonradan DEĞİŞMEZ. Ele geçirilebilir bina istenirse bu bir
             // kural değişikliğidir (kim, ne kadar sürede, hangi mesafeden) ve o
             // kuralın sahibi bu tip olmayabilir; bugün readonly kalması, o kararın
             // bir setter'ın içinde sessizce verilmesini engelliyor.
+            // → Structure.md#team
             AttackProfile = attackProfile;
         }
 
@@ -98,18 +90,11 @@ namespace GridStrategy.Combat
         /// can bir SAYIdır, ayakta olmak bir ALAN yargısıdır. Alan yargısının
         /// sahibi, alanı bilen taraftır — burada <see cref="StructureLifecycle"/>.
         /// </summary>
-        // REDDEDILEN - Structure.cs:113 yerine (tek kaynak canın kendisi olsun):
-        //     public bool IsStanding => health.HasRemaining;
-        // KIRILAN  : ad tek kaynağa iner ama YANLIŞ kaynağa; 41 testin 40'ı yeşil
-        //            kalır (ÖLÇÜLDÜ, yalıtılmış koşu).
-        //            yıkık binanın canı iyileştirilir -> bina kendiliğinden ayağa kalkar
-        //            TryRepair'in kelepçesi artık kendi koruduğu şeyi sorar
-        //            moloz sayacı hâlâ duruma bağlı -> sayı ile durum sessizce ayrışır
-        //            derleyici: hiçbir şey der  .  test: DestroyedStructure_HealthItselfStillHeals
-        // KAZANIRDI: yıkım geri sayımı, moloz penceresi ve onarım yasağı hiç
-        //            olmasaydı — o gün StructureLifecycle fazlalık, tek kaynak can olurdu.
-        // TEK CUMLE: Can bir SAYIdır, ayakta olmak bir ALAN yargısıdır; tek kaynağa
-        //            inmek doğrudur ama kaynağın DOĞRU olanı seçilmelidir.
+        // TEK KAYNAĞA İNMEK DOĞRUDUR; DOĞRU KAYNAĞA İNMEK ŞARTTIR. Ayakta olmak
+        // bir ALAN yargısıdır ve kaynağı durumdur, can değil. `health.HasRemaining`
+        // yazılsaydı yıkık binanın canı iyileştirildiğinde bina kendiliğinden
+        // kalkardı — ölçüldü: 41 testin 40'ı yeşil kalıyor.
+        // → Structure.md#isstanding
         public bool IsStanding => lifecycle.State == StructureState.Standing;
 
         public int CurrentHealth => health.Current;
@@ -128,9 +113,8 @@ namespace GridStrategy.Combat
 
             // IsStanding neden ayrı yaşıyor: alan yargısı, alanı BİLEN sahibe ait.
             // Burası canı ve yaşam döngüsünü aynı anda gören tek yer — ve tam bu
-            // yüzden ikisini birleştirmek en kolay göründüğü yer. HasRemaining
-            // sayıyı söyler, IsStanding durumu; ikisi bilerek ayrı kalır (gerekçe
-            // IsStanding'in üstündeki REDDEDILEN bloğunda).
+            // yüzden ikisini birleştirmek en kolay göründüğü yer.
+            // → Structure.md#isstanding
             if (!health.HasRemaining)
             {
                 return lifecycle.OnHealthDepleted();
@@ -149,10 +133,10 @@ namespace GridStrategy.Combat
         public bool TryRepair(int amount)
         {
             // Kelepçe burada, StructureLifecycle'da değil: yıkık bir yapıyı ayağa
-            // kaldırmanın yasak olduğu tek yer can ile durumu AYNI ANDA gören yerdir.
-            // Yaşam döngüsü tek başına izin verseydi sıfır canla ayakta duran bir
-            // bina üretirdi (gerekçenin tamamı StructureLifecycle'daki TryRepair
-            // reddinde yazılı).
+            // kaldırmanın yasak olduğu tek yer can ile durumu AYNI ANDA gören
+            // yerdir. Yaşam döngüsü tek başına izin verseydi sıfır canla ayakta
+            // duran bir bina üretirdi.
+            // → Structure.md#tryrepairint-amount
             if (!IsStanding)
             {
                 return false;
@@ -161,6 +145,7 @@ namespace GridStrategy.Combat
             // Miktar doğrulaması bilerek burada DEĞİL: negatif onarımın ne olduğuna
             // HealingRules karar verir ve aynı ön koşulu burada kopyalasaydık kural
             // iki yerde yaşardı.
+            // → Structure.md#tryrepairint-amount
             health.Heal(amount);
             return true;
         }

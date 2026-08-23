@@ -3,8 +3,15 @@ using System;
 namespace GridStrategy.Combat
 {
     // ═══ ROL: VARLIK (Entity) ════════════════════════════════════════
-    // kimlik : var — her birimin kendi durumu ve kendi geri sayımı
-    // hafıza : var — aynı Tick(1f) çağrısı duruma göre farklı sonuç verir
+    // kimlik : var — ölçüsü şu: iki UnitLifecycle kur, yalnız birinde
+    //          OnHealthDepleted() çağır; onun State'i Downed ve
+    //          RemainingSeconds'ı 10 olur, ötekininki Alive ve 0'da kalır
+    // hafıza : var — ölçüsü şu: OnHealthDepleted()'ten sonra Tick(11f)'i arka
+    //          arkaya İKİ kez çağır, iki FARKLI şey olur. Birincisi kurtarma
+    //          penceresini kapatır: State Downed'dan Dead'e geçer ve
+    //          StateChanged tetiklenir. İkincisi State'e DOKUNMAZ, yalnızca
+    //          ceset sayacını bitirip IsReadyForCleanup'ı true yapar. Farkı
+    //          doğuran şey, tipin kalan saniyeyi çağrılar arasında tutması
     // Unity  : gerekmez — zaman DIŞARIDAN gelir, Time.deltaTime okunmaz
     // karar  : yalnızca KARAR verir ("artık Dead", "ceset kaldırılmalı");
     //          hiçbir şeyi yok etmez, çizmez, sahneye dokunmaz
@@ -12,15 +19,14 @@ namespace GridStrategy.Combat
     /// Bir birimin üç durumlu yaşam döngüsü ve geri sayımları.
     ///
     /// ZAMANI KENDİ OKUMAZ. <see cref="Tick"/> saniyeyi dışarıdan alır; içeride
-    /// `Time.deltaTime` yoktur. Sebebi ölçülmüş: EditMode'da `Time.deltaTime`
-    /// sıfır DEĞİL (0,017675) — yani zamanı içeriden okuyan bir tasarım testte
-    /// patlamaz, sessizce anlamsız bir sayıyla çalışır. Dışarıdan almak hem o
-    /// sessiz hatayı imkânsız kılar hem de 10 saniyelik kuralı gerçekten 10
-    /// saniye beklemeden sınamayı mümkün kılar.
+    /// <c>Time.deltaTime</c> yoktur. Sebebi ölçülmüş ve gerekçesi Tick'in
+    /// üstünde duruyor.
     ///
     /// Neyi BİLMEZ: canın kaç olduğunu (<see cref="Health"/>'in işi), kimin
     /// dirilttiğini, sahnede neyin silineceğini. Yalnızca "hangi durumdayım ve
     /// ne kadar kaldı" sorusunu cevaplar.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Core/Combat/UnitLifecycle.md
     /// </summary>
     public sealed class UnitLifecycle
     {
@@ -30,21 +36,11 @@ namespace GridStrategy.Combat
         private readonly float downedWindowSeconds;
         private readonly float corpseWindowSeconds;
 
-        // Bulunulan durumun geri sayımı. Alive'da anlamsızdır ve kullanılmaz;
-        // tek alanla iki sayaç taşımak, iki alanın senkron kalmasını sağlamaktan
-        // basittir — bir anda yalnızca bir geri sayım işler.
-        //
-        // REDDEDILEN - UnitLifecycle.cs:48 yerine:
-        //     private float downedRemaining;
-        //     private float corpseRemaining;
-        // KIRILAN  : "hangi sayaç işliyor" bilgisi State'in yanında İKİNCİ kez durur.
-        //            RemainingSeconds hangisini döndüreceğini State'e sorar
-        //            TryRevive ikisini sıfırlamayı unutur -> ceset sayacı diriye taşınır
-        //            derleyici: hiçbir şey der  .  test: hata saniyeler sonra görünür
-        // KAZANIRDI: iki sayaç AYNI ANDA işlemek zorunda olsaydı — ceset süresi düşme
-        //            anında başlayıp Downed boyunca da aksaydı.
-        // TEK CUMLE: Bir anda yalnız bir geri sayım işliyorsa iki alan iki gerçek
-        //            değil, senkron tutulacak tek gerçeğin iki kopyasıdır.
+        // AYNI ANDA BİR TANESİ İŞLİYORSA, ALAN DA BİR TANEDİR. Bulunulan durumun
+        // geri sayımı; Alive'da anlamsızdır ve kullanılmaz. İki ayrı sayaç alanı
+        // reddedildi — "hangisi işliyor" bilgisi zaten State'te duruyor ve ikinci
+        // kayıt, senkron tutulacak bir söze dönüşürdü.
+        // → UnitLifecycle.md#remainingseconds-alan
         private float remainingSeconds;
 
         public UnitLifecycle(
@@ -72,38 +68,19 @@ namespace GridStrategy.Combat
         /// Durum her DEĞİŞTİĞİNDE tetiklenir ve yeni durumu taşır. Kurucudaki
         /// ilk atama tetiklemez — o bir geçiş değil, başlangıçtır; ve o anda
         /// abone olabilmiş kimse yoktur.
-        ///
-        /// NEDEN DÖNÜŞ DEĞERİ DEĞİL — bu ayrım bu dosyanın en pahalı satırı:
-        /// <see cref="AttackAction.Execute"/> zaten "düşürdü" bilgisini
-        /// DÖNDÜRÜYOR ve orada event gereksiz olurdu, çünkü soran zaten
-        /// oradadır. Ama <see cref="Tick"/> ile olan Downed → Dead geçişini
-        /// SORAN YOKTUR: Tick'i çeviren taraf oyun döngüsüdür ve o geçişle
-        /// ilgilenmez; ilgilenen (ceset efekti, ses, skor) BAŞKA yerdedir.
-        ///
-        /// Tek cümlelik ayrım:
-        /// <b>Dönüş değeri — soran zaten orada. Event — ilgilenen başka yerde.</b>
         /// </summary>
+        // SORAN YOKKEN İLGİLENEN VARSA, ŞEKİL EVENT'TİR. Dönüş değeri yetmezdi:
+        // Tick içindeki Downed → Dead geçişini SORAN yoktur, ilgilenen (ceset
+        // efekti, ses, skor) başka yerdedir. Bedeli yayıncıdan aboneye güçlü
+        // referanstır ve bilerek ödendi.
+        // → UnitLifecycle.md#statechanged
+        // DERİN ANLATIM: Docs/deep/konular/01-olay-zinciri.md — dört durak (sayaç ->
+        // savaşçı -> kayıt memuru -> çevirmen), hangi aboneliğin NEDEN sözlük
+        // gerektirdiği ve sökülmezse önce neyin patladığı orada hikâye olarak.
         public event Action<UnitState> StateChanged;
 
         public UnitState State { get; private set; }
 
-        // REDDEDILEN - UnitLifecycle.cs:113 yerine (event hiç doğmaz, çağıran
-        //              her kare State'i okuyup önceki değerle karşılaştırır):
-        //     var before = lifecycle.State;
-        //     lifecycle.Tick(dt);
-        //     if (lifecycle.State != before) { /* tepki */ }
-        // KIRILAN  : "önceki durumu hatırlamak" her çağıranın kendi işi olur.
-        //            UI, ses ve skor üç ayrı kopya tutar -> biri unutur, hata sessizdir
-        //            geçişi yalnız Tick'i çeviren görür -> başka dinleyici HİÇ göremez
-        //            derleyici: hiçbir şey der  .  test: hiçbiri kırmızıya dönmez
-        // KARSILASTIRMA:
-        //     dönüş değeri  soran zaten orada  -> bu geçişi soran yok, cevap boşa gider
-        //     her kare oku  soran belirsiz     -> hatırlama işi her çağırana dağılır
-        //     event         ilgilenen başkada  -> geçiş, Tick'i hiç bilmeyene de ulaşır
-        // KAZANIRDI: tek bir çağıran olsaydı ve o çağıran zaten her kare durumu
-        //            okuyor olsaydı — o gün event yalnızca bir dolaylılık katmanı olurdu.
-        // TEK CUMLE: Geçişi SORAN varsa dönüş değeri yeter; soran yokken ilgilenen
-        //            varsa tek dürüst şekil event'tir.
 
         /// <summary>
         /// Durumu değiştirir ve dinleyenlere haber verir. Tek giriş noktası
@@ -112,9 +89,10 @@ namespace GridStrategy.Combat
         /// </summary>
         private void SetState(UnitState next)
         {
-            // Aynı duruma geçiş bir DEĞİŞİM değildir; event tetiklenmez.
-            // Bu satır olmasaydı bir dinleyici aynı geçişi iki kez duyabilir
-            // ve iki kez ses çalabilirdi.
+            // Aynı duruma geçiş bir DEĞİŞİM değildir; event tetiklenmez. Bu satır
+            // olmasaydı bir dinleyici aynı geçişi iki kez duyabilir ve iki kez
+            // ses çalabilirdi.
+            // → UnitLifecycle.md#setstateunitstate-next
             if (State == next)
             {
                 return;
@@ -124,16 +102,11 @@ namespace GridStrategy.Combat
             StateChanged?.Invoke(next);
         }
 
-        // REDDEDILEN - UnitLifecycle.cs:143 yerine:
-        //     public event Action OnReadyForCleanup;
-        // KIRILAN  : olay Tick'in ORTASINDA tetiklenir ve abone hemen yok etmeye başlar.
-        //            dönmekte olan güncelleme döngüsü yok edilmiş birime dokunur
-        //            abonelik çözülmezse saf Core nesnesi ölü Unity nesnesini tutar
-        //            derleyici: hiçbir şey der  .  test: Core testleri yeşil kalır
-        // KAZANIRDI: temizliği isteyen taraf ile Tick'i çeviren taraf farklı olsaydı —
-        //            bayrağı kimse okumazdı ve haber vermek şart olurdu.
-        // TEK CUMLE: Üstteki event kararının TERS yönü: burada okuyan zaten Tick'i
-        //            çeviren taraf, o yüzden bayrak yeter ve bayrak kimseyi tutmaz.
+        // İSTEK BAYRAKLA SÖYLENİR, ÇÜNKÜ BAYRAK KİMSEYİ TUTMAZ. Temizlik için
+        // bir event reddedildi: Tick'in ORTASINDA tetiklenir, abone hemen yok
+        // etmeye başlar ve dönmekte olan döngü yok edilmiş birime dokunurdu.
+        // Üstteki event kararının TERS yönü — okuyan zaten Tick'i çeviren taraf.
+        // → UnitLifecycle.md#isreadyforcleanup
         /// <summary>
         /// Ceset süresi dolduğunda true olur. Bu bir İSTEKtir, bir eylem değil:
         /// sahneden silme işini Unity katmanı yapar. Burada true olması, orada
@@ -149,29 +122,14 @@ namespace GridStrategy.Combat
         public float RemainingSeconds => State == UnitState.Alive ? 0f : remainingSeconds;
 
         /// <summary>Canı tükendiğinde çağrılır: ayakta olan birim düşer.</summary>
+        // DERİN ANLATIM: Docs/deep/konular/05-yasam-dongusu.md
         public void OnHealthDepleted()
         {
-            // Bilerek yalnızca Alive'dan çalışır. Downed bir birime tekrar vurmak
-            // onu ANINDA öldürmemeli — "işini bitirme" ayrı bir kural (düşme canı)
-            // ve o kural henüz yazılmadı. Buraya sessizce koymak, tasarımdaki iki
-            // ayrı Downed→Dead yolunu bire indirirdi.
-            //
-            // REDDEDILEN - UnitLifecycle.cs:175 yerine:
-            //     if (State == UnitState.Downed)
-            //     {
-            //         State = UnitState.Dead;
-            //         remainingSeconds = corpseWindowSeconds;
-            //         return;
-            //     }
-            // KIRILAN  : düşmüş birime değen tek bir sıyırık kurtarma penceresini kapatır.
-            //            alan hasarı olan her saldırı istemeden "bitirme" hâline gelir
-            //            düşme canı kuralının yazılacağı yer kalmaz
-            //            derleyici: hiçbir şey der  .  test: Downed_HealthDepletedAgain_
-            //            DoesNotSkipTheWindow kırmızı olur
-            // KAZANIRDI: tasarım "yerdekine vuran bitirir" derse ve bitirmenin ayrı bir
-            //            maliyeti, menzili ya da süresi olmayacaksa.
-            // TEK CUMLE: Downed'ın var olma sebebi bir PENCEREdir; o pencereyi atlayan
-            //            kısayol, durumun kendisini de gereksizleştirir.
+            // KURTARMA PENCERESİNİ ATLAYAN KESTİRME, DURUMU DA SİLER. Kapı bilerek
+            // yalnız Alive'dan geçirir: düşmüş birime tekrar vurmak onu ANINDA
+            // öldürmemeli — "işini bitirme" ayrı bir kuraldır (düşme canı) ve o
+            // kural henüz yazılmadı; buraya sessizce koymak yerini de yok ederdi.
+            // → UnitLifecycle.md#onhealthdepleted
             if (State != UnitState.Alive)
             {
                 return;
@@ -198,23 +156,16 @@ namespace GridStrategy.Combat
             return true;
         }
 
-        // REDDEDILEN - UnitLifecycle.cs:218 yerine:
-        //     public void Tick()
-        //     {
-        //         float deltaSeconds = Time.deltaTime;
-        // KIRILAN  : ölçüldü — EditMode'da Time.deltaTime sıfır DEĞİL, 0,017675 döner.
-        //            test patlamaz, sessizce 0,017675'lik adımlarla ilerler
-        //            "10.1f verince öldü" diyen test hiç yazılamaz
-        //            dosya UnityEngine'e bağlanır -> testler PlayMode'a düşer
-        //            derleyici: hiçbir şey der  .  test: yeşil kalır, hiçbir şey ölçmez
-        // KAZANIRDI: tip bir MonoBehaviour olsaydı ve zamanın tek bir kaynağı
-        //            bulunsaydı — herkes aynı sayıyı geçiyorsa parametre seçim sunmaz.
-        // TEK CUMLE: Zamanı DIŞARIDAN almak bir test kolaylığı değil, testin hiç
-        //            yazılamayacağı bir sessizliği imkânsız kılmaktır.
+        // ZAMANI DIŞARIDAN ALMAK, SESSİZ BİR YANLIŞI İMKÂNSIZ KILAR. Ölçüldü:
+        // EditMode'da Time.deltaTime sıfır DEĞİL, 0,017675 döner — zamanı
+        // içeriden okuyan tasarım testte patlamaz, sessizce anlamsız bir sayıyla
+        // yürür ve "Tick(10.1f) verince öldü" diyen test hiç yazılamaz.
+        // → UnitLifecycle.md#tickfloat-deltaseconds
         /// <summary>
         /// Zamanı ilerletir. Saniye DIŞARIDAN gelir — bu tipin Unity'ye
         /// bağlanmamasının ve EditMode'da sınanabilmesinin tek sebebi budur.
         /// </summary>
+        // DERİN ANLATIM: Docs/deep/konular/05-yasam-dongusu.md
         public void Tick(float deltaSeconds)
         {
             if (deltaSeconds < 0f)
@@ -226,6 +177,7 @@ namespace GridStrategy.Combat
             // Alive'da geri sayım yok; erken çıkış burada PERFORMANS için değil,
             // DOĞRULUK için: aşağıdaki çıkarma Alive'da anlamsız bir alanı
             // eksiltirdi.
+            // → UnitLifecycle.md#tickfloat-deltaseconds
             if (State == UnitState.Alive)
             {
                 return;

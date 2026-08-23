@@ -9,16 +9,15 @@ namespace GridStrategy.Combat
     /// "Bu birim hareket edebilir mi?" sorusunun tek sahibi.
     ///
     /// Bu tipin var olma sebebi tek cümleydi: <see cref="TargetingRules"/>
-    /// "kime vurulur" ve "kim diriltilir" sorularını cevaplıyordu, "kim
-    /// hareket eder" sorusunu ise KİMSE cevaplamıyordu — ve sahipsiz kural
-    /// sessizce en yanlış yerde, akışın içinde doğuyordu.
+    /// "kime vurulur" ve "kim diriltilir" sorularını cevaplıyordu, "kim hareket
+    /// eder" sorusunu ise KİMSE cevaplamıyordu — ve sahipsiz kural sessizce en
+    /// yanlış yerde, akışın içinde doğuyordu.
     ///
     /// Neden Combat'ta: kural birimin DURUMUNU sormak zorunda ve
     /// <see cref="UnitState"/> burada yaşıyor. Hareket AKIŞI (MoveAction)
-    /// Core'da, hareket KURALI burada — çünkü akış tahtayı, kural savaşı
-    /// tanır. Core, Combat'ı görmediği için akışın bu kuralı kendi içinden
-    /// sorması mümkün değildir; soran taraf BattleActions'tır, tıpkı
-    /// <see cref="TargetingRules"/>'ın takımlı sürümünü onun sorması gibi.
+    /// Core'da, hareket KURALI burada — çünkü akış tahtayı, kural savaşı tanır.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Core/Combat/MovementRules.md
     /// </summary>
     public static class MovementRules
     {
@@ -26,79 +25,34 @@ namespace GridStrategy.Combat
         /// Hareket edebilir mi? Yalnızca <see cref="UnitState.Alive"/>.
         ///
         /// <see cref="UnitState.Downed"/> için cevap HAYIR, ve bu
-        /// <see cref="TargetingRules.CanBeAttacked(UnitState)"/> ile bilerek çelişir:
-        /// düşmüş birim hâlâ geçerli bir HEDEFTİR ama artık bir OYUNCU
-        /// değildir. Yerde yatan bir birimin kaçabilmesi, "işini bitirme"
-        /// tasarımını anlamsız kılardı — düşman gelene kadar sürünüp giden
-        /// bir birim hiç düşmemiş sayılır.
+        /// <see cref="TargetingRules.CanBeAttacked(UnitState)"/> ile bilerek
+        /// çelişir: düşmüş birim hâlâ geçerli bir HEDEFTİR ama artık bir OYUNCU
+        /// değildir.
         ///
-        /// <see cref="UnitState.Dead"/> için cevap da HAYIR, ama sebebi
-        /// farklı: Downed bir kural gereği durdurulur, Dead zaten oyunda
-        /// değildir. İki HAYIR'ın aynı olması bir tesadüftür, bir kural
-        /// değil.
+        /// <see cref="UnitState.Dead"/> için cevap da HAYIR, ama sebebi farklı:
+        /// Downed bir kural gereği durdurulur, Dead zaten oyunda değildir. İki
+        /// HAYIR'ın aynı olması bir tesadüftür, bir kural değil.
         /// </summary>
-        // Bilinmeyen bir enum değeri karşısında cevap HAYIR — beyaz liste
-        // biçimi bilerek seçildi ve TargetingRules.CanBeRevived'ın şekli
-        // birebir bu. Dördüncü bir durum (Fleeing, Stunned, Petrified)
-        // eklendiği gün bu metot onu SESSİZCE kabul etmez; kararı yeniden
-        // vermek için buraya gelinir.
+        // BEYAZ LİSTE YENİ DEĞERİ REDDEDER, KARA LİSTE KABUL EDER. `== Alive`
+        // biçimi bilerek seçildi: dördüncü bir durum (Stunned, Fleeing) eklendiği
+        // gün kara liste onu sessizce YÜRÜYEBİLİR sayardı. Sessizce yanılmayı
+        // göze almadığımız taraf yetki tarafıdır; hedeflenebilirlik maruziyettir.
+        // → MovementRules.md#canmoveunitstate-state
         //
-        // REDDEDILEN - MovementRules.cs:72 yerine (kara liste biçimi,
-        //              TargetingRules.CanBeAttacked'ın şekli):
-        //     return state != UnitState.Downed && state != UnitState.Dead;
-        // KIRILAN  : bugünkü üç durumda aynı cevabı verir; kırılan şey İLERİDE olur.
-        //            UnitState'e eklenen her yeni durum -> varsayılan YÜRÜYEBİLİR
-        //            sersemletilmiş birim eklenir -> hiçbir test kırılmadan yürür
-        //            derleyici: hiçbir şey der  .  test: eksik kural ancak oyunda görülür
-        // KAZANIRDI: hareket edebilenlerin ÇOĞUNLUK olacağı bir tasarımda — on
-        //            durumun sekizi yürüyorsa beyaz liste her yeni durumda
-        //            düzenlenir ve asıl kural iki istisnanın altında kaybolur.
-        // TEK CUMLE: Beyaz liste yeni değeri REDDEDER, kara liste KABUL eder;
-        //            sessizce yanılmak istemediğimiz taraf yetki tarafıdır.
-        //
-        // REDDEDILEN - MovementRules.cs:72 yerine (kural kendi başına
-        //              yazılmaz, hedefleme kuralından TÜRETİLİR):
-        //     return TargetingRules.CanBeAttacked(state)
-        //            && !TargetingRules.CanBeRevived(state);
-        // KIRILAN  : bugün ÜÇ durumda da doğru cevabı verir — tehlikeli olan tam bu.
-        //            hareket kuralı artık saldırı kuralının TÜREVİdir
-        //            "düşmüş birime vurulur" değişir -> düşmüş birim yürümeye başlar
-        //            derleyici: hiçbir şey der  .  test: hiçbiri kırmızıya dönmez
-        // KAZANIRDI: hareket gerçekten "hedeflenebilir ama diriltilemez" olmanın
-        //            TANIMI olsaydı — o gün üç metot değil bir metot olurdu ve
-        //            adı CanMove olmazdı.
-        // TEK CUMLE: İki kuralın bugün kesişmesi onları aynı kural yapmaz;
-        //            türetme, kesişmenin bittiği günü sessiz kılar.
+        // KURALDAN TÜRETME, VERİDEN TÜRETME DEĞİLDİR. Bu satırı TargetingRules'tan
+        // türetmek reddedildi: hareket kuralı saldırı kuralının TÜREVİ olurdu ve
+        // "düşmüş birime vurulur" değiştiği gün düşmüş birim yürümeye başlardı.
+        // Üç eyleyen kuralı bugün aynı satırı taşıyor; bu bir kesişme, bağ değil.
+        // → MovementRules.md#canmoveunitstate-state
         public static bool CanMove(UnitState state)
         {
             return state == UnitState.Alive;
         }
 
-        // TAKIM AŞIRI YÜKLEMESİ BİLEREK YOK — ve TargetingRules'la arasındaki
-        // bu asimetri öğreticidir. Hedeflemenin takımlı sürümü var çünkü "kime
-        // saldırabilirim" İKİ TARAFIN sorusudur: bir saldıran, bir hedef.
-        // Hareketin ikinci tarafı yoktur; birim kendi kendine yürür.
-        //
-        // "Sıra kimde" sorusu buraya benzeyebilir ama buranın işi değildir:
-        // o soru TurnRules'ın ve Battle katmanında yaşıyor.
-        //
-        // REDDEDILEN - MovementRules.cs:74 yerine:
-        //     public static bool CanMove(UnitState state, Team unitTeam, Team activeTeam)
-        //     {
-        //         if (unitTeam == Team.None) { return false; }
-        //         if (unitTeam != activeTeam) { return false; }
-        //         return CanMove(state);
-        //     }
-        // KIRILAN  : ikinci satır SIRA kuralıdır ve sahibi TurnRules'tır; kural
-        //            o an iki evde birden yaşar.
-        //            TurnRules'a "aynı takım üst üste oynar" istisnası eklenir
-        //            -> burası haberdar olmaz, iki cevap ayrışır
-        //            Team parametresi Battle'ın bilgisini Combat'a taşır
-        //            derleyici: hiçbir şey der  .  test: hiçbiri kırmızıya dönmez
-        // KAZANIRDI: hareketin gerçekten İKİNCİ BİR TARAFI olsaydı — itme,
-        //            sürükleme, zorla yer değiştirme. O gün cevap sıra kuralı
-        //            değil sahiplik kuralı olurdu.
-        // TEK CUMLE: Bir metoda ikinci parametre eklemek çoğu zaman ikinci bir
-        //            KURALI eve almaktır; kural başına bir sahip.
+        // İKİNCİ PARAMETRE ÇOĞU ZAMAN İKİNCİ BİR KURALDIR. Takım aşırı yüklemesi
+        // BİLEREK yok: hareketin ikinci bir tarafı yoktur, birim kendi kendine
+        // yürür. `unitTeam != activeTeam` satırı SIRA kuralıdır ve sahibi
+        // TurnRules'tır; buraya alınsaydı aynı cümle iki evde yaşardı.
+        // → MovementRules.md#canmoveunitstate-team-team
     }
 }

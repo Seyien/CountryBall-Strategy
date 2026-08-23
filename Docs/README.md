@@ -11,6 +11,9 @@ birinin diğerini bulabilmesi için var.
 | `Assets/Tests/EditMode/Combat/` | Davranış testleri + tahsis (allocation) testleri |
 | `Tools/run-editmode-tests.ps1` | Testleri Editor'e dokunmadan komut satırından koşar |
 | `Tools/.test-results/` | Koşu çıktıları (XML + Unity log) |
+| `Docs/comment-diagram-debt/` | Yorum-diyagram borcu: devir paketi, envanter, JSON state |
+| `Docs/deep/kod/` | Ayna belgeler — her tipin gerekçeleri ([indeks](deep/kod/README.md)) |
+| `Docs/deep/konular/` | Mekanizma anlatıları — çok dosyayı kat eden konular |
 
 ## Kararların ve öğrenme kaydının yeri
 

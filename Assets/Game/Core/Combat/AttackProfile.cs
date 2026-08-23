@@ -3,52 +3,45 @@ using System;
 namespace GridStrategy.Combat
 {
     // ═══ ROL: TANIM (Profile) ════════════════════════════════════════
-    // kimlik : yok — (10 hasar, 1 menzil) olan iki nesne aynı şeydir;
-    //          yüzlerce asker tek bir örneği paylaşabilir
+    // kimlik : yok — ölçüsü şu: bir birimin profilini aynı sayıları taşıyan
+    //          başka bir (10 hasar, 1 menzil) örneğiyle değiştir; hiçbir
+    //          çağıranın cevabı değişmez. Ölçü `==` DEĞİL — Equals
+    //          yazılmadığı için o karşılaştırma false döner; ölçü YERİNE
+    //          GEÇEBİLİRLİK — bu yüzden yüzlerce asker tek bir örneği
+    //          paylaşabilir
     // hafıza : yok — değerler kurucuda donar, Damage her okumada aynı
     // Unity  : gerekmez — bugün düz C# nesnesi; ScriptableObject kararı
     //          geldiğinde bu satır değişir, rol değişmez
     // karar  : vermez — sayıyı taşır; "menzile giriyor mu" sorusunu AttackResolver cevaplar
     /// <summary>
     /// Bir saldırı türünün değişmez tanımı: "kılıç 10 hasar, 1 hücre menzil".
-    /// TANIM'dır, varlık değildir — aynı değerlere sahip iki AttackProfile aynı
-    /// şeydir ve yüzlerce asker tek bir örneği paylaşabilir.
+    /// TANIM'dır, varlık değildir — aynı değerlere sahip iki AttackProfile
+    /// birbirinin YERİNE GEÇEBİLİR ve yüzlerce asker tek bir örneği
+    /// paylaşabilir.
     ///
-    /// Bu yüzden hiçbir alanı sonradan DEĞİŞMEZ: bir profil oluşturulduktan
-    /// sonra sabittir. Değişebilseydi, onu paylaşan her birim habersiz etkilenirdi.
+    /// Bu yüzden hiçbir alanı sonradan DEĞİŞMEZ: değişebilseydi, onu paylaşan
+    /// her birim habersiz etkilenirdi.
     ///
     /// Neyi TUTMAZ: kimin saldırdığını, kime saldırıldığını, o anki bekleme
     /// süresini. Bunlar çağrı anına ya da birime ait; tanıma değil.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Core/Combat/AttackProfile.md
     /// </summary>
-    // REDDEDILEN - AttackProfile.cs:35 yerine:
-    //     public readonly struct AttackProfile
-    // KIRILAN  : paylaşılan TEK örnek her çağrıda kopyaya döner — "yüzlerce asker
-    //            tek profili paylaşır" cümlesi sessizce yalan olur.
-    //            struct null olamaz -> AttackResolver'daki null koruması anlamsızlaşır
-    //            derleyici: null atamayı der  .  test: IsWithinRange_NullProfile_Throws
-    //            derlenmez ve o sözleşme sınanamaz kalır
-    // KAZANIRDI: profil paylaşılmayıp birim başına saklansaydı ve her karede
-    //            binlerce kez okunsaydı — iki int kopyalamak referans takibinden
-    //            ucuz kalırdı.
-    // TEK CUMLE: TANIM paylaşılır, kopyalanmaz; kopyalanan tanım artık TEK tanım
-    //            değildir.
+    // TANIM PAYLAŞILIR, KOPYALANMAZ: `sealed class` olduğu için yüzlerce asker
+    // TEK örneğe ok tutar. `readonly struct` olsaydı her alan okumasında ve her
+    // parametre geçişinde yeni bir kopya doğar, "tek profili paylaşır" cümlesi
+    // sessizce yalan olur ve `null` hâli kalmadığı için AttackResolver'daki null
+    // koruması anlamsızlaşırdı.
+    // → AttackProfile.md#attackprofile-tip
     public sealed class AttackProfile
     {
-        // REDDEDILEN - AttackProfile.cs:52 yerine (kurucu silinir, tip
-        //              ScriptableObject'ten türer):
-        //     [SerializeField] private int damage;
-        //     [SerializeField] private int range;
-        //     private void OnValidate() { range = Mathf.Max(1, range); }
-        // KIRILAN  : doğrulama OnValidate'e taşınır ve yalnızca Inspector'da çalışır;
-        //            koddan üretilen profil hiç sınanmaz.
-        //            asmdef'in noEngineReferences sınırı düşer -> saf kural motora bağlanır
-        //            derleyici: asmdef sınırını der  .  test: AttackProfileTests'in
-        //            Throws testleri derlenmez
-        // KAZANIRDI: hasar ve menzil sayılarını programcı değil TASARIMCI
-        //            ayarlayacaksa — asset olarak Inspector'dan, yeniden
-        //            derlemeden dengelenirdi.
-        // TEK CUMLE: Bir kuralı motora bağlamak onu sınanabilir olmaktan çıkarır;
-        //            asmdef sınırı bu kararın yazılı hâlidir.
+        // DOĞRULAMA KURUCUDA DURUR: profil HANGİ yoldan gelirse gelsin (kod,
+        // test, gelecekteki bir yükleyici) geçersiz değer üretilemez. Tip
+        // ScriptableObject'ten türeseydi doğrulama OnValidate'e kayar, yalnızca
+        // Inspector'da çalışır ve koddan üretilen profil hiç sınanmazdı; asmdef'in
+        // noEngineReferences sınırı da o gün düşerdi.
+        // → AttackProfile.md#attackprofileint-damage-int-range
+        // DERİN ANLATIM: Docs/deep/konular/02-assembly-duvari.md
         public AttackProfile(int damage, int range)
         {
             if (damage < 0)
@@ -58,7 +51,7 @@ namespace GridStrategy.Combat
 
             // Menzil en az 1: sıfır menzilli bir saldırı hiçbir hücreye
             // ulaşamazdı ve sessizce hiçbir işe yaramayan bir birim üretirdi.
-            // Alternatif: `if (range < 0)` — 0 menzil geçerli olurdu. Seçilmedi: sebebi hemen yukarıda; 0 ancak kendi hücresine uygulanan bir yetenek geldiği gün "sadece kendi hücrem" anlamını kazanır.
+            // → AttackProfile.md#menzil-en-az-1
             if (range < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(range), range, "Range must be at least 1.");
@@ -69,9 +62,15 @@ namespace GridStrategy.Combat
         }
 
         /// <summary>Bir vuruşun ham hasarı. Zırh/direnç burada DEĞİL.</summary>
+        // Zırh, direnç, kalkan ve kritik çarpanı DamageRules'un evinde; buraya
+        // eklenseydi TANIM sessizce bir formüle dönerdi.
+        // → AttackProfile.md#damage
         public int Damage { get; }
 
         /// <summary>Kaç hücre uzağa ulaşabildiği. Mesafenin nasıl ölçüldüğünü bilmez.</summary>
+        // Yalnızca EŞİĞİ verir; karşılaştırmayı AttackResolver yapar. Kurucudaki
+        // `range < 1` kelepçesi bu property'nin değişmezidir.
+        // → AttackProfile.md#range
         public int Range { get; }
     }
 }

@@ -8,72 +8,61 @@ namespace GridStrategy.Battle
     // ═══ ROL: VARLIK (Entity) ════════════════════════════════════════
     // kimlik : var — her savaşın kendi tur durumu; iki savaş aynı anda iki
     //          farklı tarafın sırasında olabilir
-    // hafıza : var — aynı EndTurn çağrısı farklı sonuç verir: bir devir turu
-    //          ilerletir, bir sonraki ilerletmez
+    // hafıza : var — ölçüsü şu: EndTurn()'ü arka arkaya İKİ kez çağır, iki
+    //          FARKLI şey olur. [Player, Enemy] diziliminde birinci çağrı
+    //          sırayı Player'dan Enemy'ye geçirir ve TurnNumber'a DOKUNMAZ;
+    //          ikinci çağrı Enemy'den Player'a döner ve TurnNumber'ı 1
+    //          artırır. Farkı doğuran şey, tipin kaçıncı sırada olduğunu
+    //          çağrılar arasında hatırlaması.
     // Unity  : gerekmez — noEngineReferences: true; kare, zaman, sahne bilmez
     // karar  : tutar ve bildirir; kimin ne yapabileceğine TurnRules karar verir
     /// <summary>
     /// Bir savaşın sıra durumu: sıra hangi tarafta ve kaçıncı turdayız.
     ///
     /// Bu tip <b>hiçbir yasak koymaz.</b> "Şu an senin sıran değil" cümlesi bir
-    /// KURAL'dır ve <see cref="TurnRules"/>'a aittir. Burada yazılsaydı sıra
-    /// BİLGİSİ ile sıra KURALI aynı yerde yaşardı; kuralı sınamak için her
-    /// seferinde bir savaş kurmak gerekir, ve "sıra kimde" sorusunun cevabını
-    /// isteyen arayüz istemeden kural motorunu da yanında taşırdı.
+    /// KURAL'dır ve <see cref="TurnRules"/>'a aittir.
     ///
     /// ZAMANI YOKTUR. <see cref="UnitLifecycle"/>'ın aksine burada <c>Tick</c>
     /// yok, çünkü tur süreli değil: sıra yalnızca <see cref="EndTurn"/> ile,
-    /// yani bir ÇAĞRIYLA devredilir. Bu tek cümle aşağıdaki event kararının
-    /// dayanağıdır.
+    /// yani bir ÇAĞRIYLA devredilir.
     ///
     /// Neyi BİLMEZ: sahada hangi birimlerin olduğunu, hangi birimin bu turda ne
     /// yaptığını, savaşın bitip bitmediğini, sonucu kimin göstereceğini.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Battle/TurnState.md
     /// </summary>
     public sealed class TurnState
     {
-        /// <summary>
-        /// İki taraflı varsayılan dizilim. Savaşların çoğu böyle başlar; başka
-        /// bir dizilim isteyen kurucuya kendi listesini verir.
-        /// </summary>
+        // BİR TANIM, BİR DURUM DEĞİL — ölçüsü şu: hiçbir savaş kurmadan
+        // TurnState.DefaultTurnOrder okunabilir, Current okunamaz. Savaştan
+        // savaşa değişmeyen bir dizilim hiçbir savaşa ait değildir; static
+        // olması sızıntı değil, amacın kendisi. → TurnState.md#defaultturnorder
         public static readonly IReadOnlyList<Team> DefaultTurnOrder =
             Array.AsReadOnly(new[] { Team.Player, Team.Enemy });
 
         // İlk tur BİRdir, sıfır değil: bu sayı oyuncuya gösterilmek için var ve
-        // arayüz "Tur 1" yazar. Sıfırdan başlasaydı ekrana yazan her yer +1
-        // eklerdi, yani "turlar birden sayılır" kuralı bu dosyada değil
-        // arayüzde — üstelik her arayüzde ayrı ayrı — yaşardı.
+        // arayüz "Tur 1" yazar. Sıfırdan başlasaydı "turlar birden sayılır"
+        // kuralı bu dosyada değil her arayüzde ayrı ayrı yaşardı.
+        // → TurnState.md#firstturnnumber
         public const int FirstTurnNumber = 1;
 
-        // REDDEDILEN - TurnState.cs:65 yerine (liste hiç doğmaz; sıra iki değer
-        //              arasında sabitlenir ve EndTurn tek satıra iner):
-        //     public Team Current { get; private set; }
-        //     // EndTurn içinde:
-        //     Current = Current == Team.Player ? Team.Enemy : Team.Player;
-        // KIRILAN  : takım dizilimi İKİ yerde yaşar — ternary'de ve tur sayacında.
-        //            "herkes bir kez oynadı mı" sorusu "Current tekrar Player
-        //            oldu"ya iner -> Player, Enemy, Enemy dizilimi (turda iki kez
-        //            oynayan hızlı düşman) iki devirde tamamlanmış sayılır
-        //            derleyici: hiçbir şey der  .  test: kırmızı —
-        //            TurnNumber_AdvancesOnlyAfterEveryEntryHasPlayed
-        // KAZANIRDI: oyunda ikiden fazla giriş ASLA olmayacaksa ve tur numarası
-        //            her devirde artacaksa — o gün liste, derleyicinin garanti
-        //            ettiğini çalışma zamanı doğrulamasına çevirir: boş liste,
-        //            Team.None ve null hatalarının hiçbiri bir ternary'de olamaz.
-        // TEK CUMLE: Dizilimi VERİ yapmak "kim ne zaman oynar" sorusunu tek yerde
-        //            cevaplanabilir kılar; koda gömmek onu her soruya yeniden
-        //            yazdırır.
+        // DİZİLİM VERİDİR, KODA GÖMÜLMÜŞ BİR DAL DEĞİL. Bir ternary yazılsaydı
+        // dizilim İKİ yerde yaşardı — devirde ve tur sayacında — ve ikisi de
+        // "tam iki taraf var" varsayardı. Liste bir DEĞER olduğu için uzunluğu
+        // okunabiliyor ve "herkes bir kez oynadı mı" sorusu türetilebiliyor.
+        // → TurnState.md#order
         private readonly Team[] order;
 
         // Salt okunur görünüm bir KEZ kuruluyor. Her okumada Array.AsReadOnly
         // çağırmak aynı diziye her seferinde yeni bir sarmalayıcı üretirdi ve
         // arayüz her karede sıra listesini okuduğunda çöp toplayıcıyı beslerdi.
+        // → TurnState.md#orderview
         private readonly ReadOnlyCollection<Team> orderView;
 
         // Sıranın kimde olduğu TEK yerde duruyor: bir indeks. Ayrıca bir
-        // `Team current` alanı tutulsaydı iki alanı senkron tutmak bir ödev
-        // olurdu ve EndTurn'de birini güncelleyip diğerini unutmak derleme
-        // hatası vermezdi — hata "sıra düşmanda ama düşman oynamıyor" diye
-        // bildirilirdi.
+        // `Team current` alanı tutulsaydı iki alanı senkron tutmak bir ödev olur,
+        // birini güncelleyip diğerini unutmak derleme hatası vermezdi.
+        // → TurnState.md#index
         private int index;
 
         /// <summary>
@@ -85,6 +74,11 @@ namespace GridStrategy.Battle
         {
         }
 
+        // Üç kelepçe üç ayrı kırılmayı kapatıyor ve sertlik sırası kırılmanın
+        // GÖRÜNÜRLÜĞÜYLE ters orantılı: null ile boş liste zaten patlardı,
+        // tarafsız eleman ise sessizce hiç kimsenin eyleyemediği bir devir
+        // doğururdu. Dizilim KOPYALANIYOR; yinelenen giriş bilerek serbest.
+        // → TurnState.md#turnstateireadonlylist
         /// <summary>
         /// Takım dizilimini vererek bir savaş kurar. Dizilim savaş boyunca
         /// DEĞİŞMEZ; sıra onun üzerinde döner.
@@ -118,21 +112,11 @@ namespace GridStrategy.Battle
             var copy = new Team[turnOrder.Count];
             for (int i = 0; i < turnOrder.Count; i++)
             {
-                // REDDEDILEN - TurnState.cs:136 yerine (bu kontrol hiç yazılmaz,
-                //              tarafsız taraf da sıraya girer):
-                //     copy[i] = turnOrder[i];
-                // KIRILAN  : her turda hiçbir şeyin olamadığı bir devir doğar.
-                //            TurnRules tarafsızı hiçbir sırada eyletmez -> o
-                //            devirde hiçbir birim eyleyemez -> oyun her turda bir
-                //            kez donmuş görünür, hata "ara sıra takılıyor" olur
-                //            derleyici: hiçbir şey der  .  test: yeşil kalır
-                // KAZANIRDI: tarafsızın gerçekten oynayacağı bir şey olduğu gün —
-                //            yaban canavarları, yayılan yangın, herkese ateş eden
-                //            nötr kuleler; o gün "çevre turu" gerçek bir turdur ve
-                //            burada yasaklamak uydurma bir üçüncü takım açtırır.
-                // TEK CUMLE: default(Team) tarafsızdır, yani bu satır olmazsa
-                //            elemanı atanmayı unutulmuş bir dizi geçerli bir
-                //            dizilim sayılır ve savaş olmayan tarafın sırasında başlar.
+                // default(Team) TARAFSIZDIR: bu satır olmasaydı elemanı atanmayı
+                // unutulmuş bir dizi geçerli sayılır, TurnRules tarafsızı hiçbir
+                // sırada eyletmediği için o devirde hiç kimse eyleyemez ve hata
+                // "oyun ara sıra takılıyor" diye bildirilirdi.
+                // → TurnState.md#turnstateireadonlylist
                 if (turnOrder[i] == Team.None)
                 {
                     throw new ArgumentException(
@@ -157,36 +141,11 @@ namespace GridStrategy.Battle
             TurnNumber = FirstTurnNumber;
         }
 
-        // NEDEN TurnChanged EVENT'İ YOK — UnitLifecycle'ın gerekçesi kopyalanmadı,
-        // bu tipe uygulandı ve İKİ yarısı ayrı ayrı sınandı. Oradaki cümle şuydu:
-        // "dönüş değeri — soran zaten orada; event — ilgilenen başka yerde."
-        //
-        // Birinci yarı GEÇERSİZ: bu tipte kimsenin sormadığı bir geçiş yok.
-        // UnitLifecycle'da event'i haklı çıkaran şey Tick'in içindeki
-        // Downed → Dead geçişiydi — zamanla, kimse sormadan oluyordu. Burada
-        // zaman yok; sıra yalnızca EndTurn ile değişir ve o çağrıyı yapan taraf
-        // cevabı dönüş değeriyle alır.
-        //
-        // İkinci yarı — asıl sınav burada, ve ilk bakışta event'i HAKLI çıkarıyor:
-        // tur değişimini duymak isteyen çok (tur başlığı, yapay zekâ sürücüsü,
-        // etki süresi sayaçları) ve hiçbiri EndTurn'ü çağıran taraf değil. Buna
-        // rağmen event reddedildi; gerekçe aşağıda ve StructureLifecycle'ınkinin
-        // kopyası DEĞİL: orada ilgilenen zaten çağırandı, burada ilgilenen
-        // başkadır ama araya AKIŞ SAHİBİ girer.
-        //
-        // REDDEDILEN - TurnState.cs:195 yerine:
-        //     public event Action<Team> TurnChanged;
-        // KIRILAN  : dinleyen taraf akışın sahibini ATLAYIP doğrudan buraya bağlanır.
-        //            olay EndTurn'ün ORTASINDA yayılır -> index yeni tarafı,
-        //            TurnNumber hâlâ eski turu gösterir -> o an TurnRules'a soran
-        //            dinleyici oyunun hiçbir anında doğru olmayan bir cevap alır
-        //            derleyici: hiçbir şey der  .  test: yeşil kalır
-        // KAZANIRDI: sıra ÇAĞRISIZ da değişebilseydi — süreli tur ("30 saniyede
-        //            oynamazsan pas geçersin"), bağlantısı kopan oyuncunun
-        //            otomatik devri ya da sırayı çeviren bir sunucu; o gün geçişi
-        //            bir Tick doğurur ve olay onu duymanın TEK yolu olur.
-        // TEK CUMLE: Olay, kimsenin SORMADIĞI bir geçiş için vardır; burada geçişi
-        //            yapan taraf cevabı zaten dönüş değeriyle alıyor.
+        // NEDEN TurnChanged EVENT'İ YOK: olay, kimsenin SORMADIĞI bir geçiş için
+        // vardır; burada geçişi yapan taraf cevabı zaten EndTurn'ün dönüş
+        // değeriyle alıyor. Olay yayılabileceği tek an — index yeni, TurnNumber
+        // hâlâ eski — oyunun hiçbir anında doğru olmayan bir pencere.
+        // → TurnState.md#turnchanged
 
         /// <summary>
         /// Sıranın o an hangi tarafta olduğu. Dizilimden TÜRETİLİR, ayrıca
@@ -206,29 +165,11 @@ namespace GridStrategy.Battle
         /// </summary>
         public IReadOnlyList<Team> TurnOrder => orderView;
 
-        // NEDEN EYLEM SAYACI BURADA DEĞİL — "bir birim turda kaç kez eyleyebilir"
-        // sorusunun iki yarısı var ve ikisi ayrı yerlere ait: KAÇ sorusu bir
-        // kuraldır ve TurnRules.MaxActionsPerTurn'de yaşar; KAÇ KEZ KULLANDI
-        // sorusu bir durumdur, çünkü aynı birime aynı anda sorulan aynı soru
-        // farklı cevap verir. İkincisi bu tipe konmadı.
-        //
-        // REDDEDILEN - TurnState.cs:247 üstüne eklenmesi reddedildi:
-        //     private readonly Dictionary<Unit, int> actionsUsed =
-        //         new Dictionary<Unit, int>();
-        //     public int ActionsUsedBy(Unit unit) { ... }
-        //     // ve EndTurn içinde: actionsUsed.Clear();
-        // KIRILAN  : anahtar seçilemiyor — savaşçı bugün tahtada Unit, savaşta
-        //            Combatant, kuralda Team diye üç tiple temsil ediliyor.
-        //            elinde başka bir tip olan çağıran SORAMAZ -> kendi eşlemesini
-        //            kurar -> sayaç yine iki yerde yaşar; kaldırılan birim de
-        //            sözlükte kalır ve savaş boyunca bellekte tutulur
-        //            derleyici: hiçbir şey der  .  test: yeşil kalır
-        // KAZANIRDI: savaşçının TEK bir kimliği olduğu gün — Unit ile Combatant
-        //            birleştiğinde ya da akış sahibi buraya kararlı bir savaş içi
-        //            indeks verdiğinde; o gün sıfırlama anını bilen tek yer burası
-        //            olduğu için sözlüğün yeri de burasıdır.
-        // TEK CUMLE: Bir sözlüğün yeri, anahtarının sahibinin yaşadığı yerdir —
-        //            bu tip o eşlemenin sahibi değil.
+        // NEDEN EYLEM SAYACI BURADA DEĞİL: sorunun "KAÇ kez eyleyebilir" yarısı
+        // bir kuraldır ve TurnRules.MaxActionsPerTurn'de yaşıyor; "KAÇ KEZ
+        // kullandı" yarısı bir durumdur ama sözlüğün ANAHTARI seçilemiyor —
+        // savaşçı bugün tahtada Unit, savaşta Combatant, kuralda Team.
+        // → TurnState.md#actionsused
 
         /// <summary>
         /// Sırayı dizilimdeki bir sonraki tarafa devreder.
@@ -256,23 +197,11 @@ namespace GridStrategy.Battle
                 return false;
             }
 
-            // REDDEDILEN - TurnState.cs:276 yerine (sarmal hiç beklenmez, her
-            //              devir turu ilerletir ve yukarıdaki erken dönüş silinir):
-            //     index = (index + 1) % order.Length;
-            //     TurnNumber++;
-            //     return true;
-            // KIRILAN  : tur numarası dizilimin UZUNLUĞUNA bağlanır.
-            //            "3 tur dayan" iki taraflı savaşta iki, üç girişlide bir
-            //            oynama hakkı verir; "2 tur süren zehir" düşman oynamadan biter
-            //            derleyici: hiçbir şey der  .  test: kırmızı —
-            //            TurnNumber_DoesNotAdvanceInsideTheRound
-            // KAZANIRDI: tur numarası oyuncuya HİÇ gösterilmeyecek, yalnızca
-            //            olayları sıralayan bir damga (kayıt sırası, tekrar
-            //            dosyası ordinali) olsaydı — orada aranan şey "kaçıncı
-            //            tur" değil "hangisi önce oldu"dur.
-            // TEK CUMLE: Tur, herkesin bir kez oynadığı andır; her devri tur
-            //            saymak dengeyi tasarımcının hiç dokunmadığı bir sayıya
-            //            bağlar.
+            // TUR = index sıfıra döndüğü an. Her devri tur saymak, tur numarasını
+            // dizilimin UZUNLUĞUNA bağlardı: "3 tur dayan" iki taraflı savaşta
+            // iki, üç girişlide bir oynama hakkı verir — aynı cümle, iki farklı
+            // denge. Erken dönüş ile bu artış aynı bilgiyi iki kez vermiyor: biri
+            // "devam", diğeri "yeni tur" der. → TurnState.md#endturn
             TurnNumber++;
             return true;
         }

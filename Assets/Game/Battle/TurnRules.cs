@@ -11,13 +11,6 @@ namespace GridStrategy.Battle
     /// <summary>
     /// "Bu birim ŞU AN eyleyebilir mi?" sorusunun tek sahibi.
     ///
-    /// Bu tipin var olma sebebi <see cref="GridStrategy.Core.MoveAction"/>'ın
-    /// kendi başlığında zaten yazılıydı: <i>"Neyi BİLMEZ: sıranın kimde
-    /// olduğunu, birimin bu turda daha önce hareket edip etmediğini."</i> O iki
-    /// soru sahipsizdi, ve sahipsiz kaldığı sürece cevapları her çağıranın
-    /// içinde ayrı ayrı doğacaktı — arayüzde bir <c>if</c>, yapay zekâda bir
-    /// başkası, ve ikisi ilk denge değişikliğinde ayrışacaktı.
-    ///
     /// <see cref="TurnState"/> sıranın KİMDE olduğunu tutar; burası o bilgiden
     /// ne ÇIKTIĞINI söyler. Ayrım <see cref="Team"/> ile
     /// <see cref="TargetingRules"/> arasındaki ayrımın aynısıdır: taraf bir
@@ -29,24 +22,15 @@ namespace GridStrategy.Battle
     /// olup olmadığını (<see cref="GridStrategy.Core.MoveAction"/>'ın işi).
     /// Bu kural onların ÖNÜNDE durur: sıra sende değilse geçerli bir hamlenin
     /// bile sırası değildir.
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Battle/TurnRules.md
     /// </summary>
     public static class TurnRules
     {
-        // REDDEDILEN - TurnRules.cs:57 yerine (sabit buradan silinir, sayı
-        //              savaşın durumuna taşınır):
-        //     // TurnState içinde:
-        //     public int MaxActionsPerTurn { get; }
-        // KIRILAN  : kural, kuralı sahiplenmeyi bırakır.
-        //            CanAct sayıyı okuyamaz -> DÖRDÜNCÜ parametre olarak ister ->
-        //            onu yanlış dolduran çağıran birime fazladan eylem hakkı verir
-        //            derleyici: hiçbir şey der  .  test: CanAct_BudgetPlane_OnItsOwnTurn
-        //            tablosu [TestCase] ile yazılamaz olur — özniteliğe nesne konmaz
-        // KAZANIRDI: sınır savaştan savaşa DEĞİŞSEYDİ — "yıldırım modunda herkes
-        //            iki kez oynar" gibi bir mod düğmesi ya da zorluk seviyesine
-        //            bağlı bir ayar; o gün sayı gerçekten durumdur ve buradaki
-        //            sabit her mod için yeniden derleme gerektirirdi.
-        // TEK CUMLE: Bir sabit kuralın metninin parçasıdır; onu duruma taşımak
-        //            kuralı her çağıranın yeniden beyan ettiği bir sayıya çevirir.
+        // Sabit BURADA, TurnState'te değil: bir eşik kuralın METNİNİN parçasıdır.
+        // Duruma taşınsaydı kural sayıyı okuyamaz, dördüncü bir parametre olarak
+        // isterdi ve onu yanlış dolduran çağıran birime fazladan eylem hakkı
+        // verirdi. → TurnRules.md#maxactionsperturn
         /// <summary>
         /// Bir birimin kendi turunda kaç kez eyleyebileceği.
         ///
@@ -56,21 +40,10 @@ namespace GridStrategy.Battle
         /// </summary>
         public const int MaxActionsPerTurn = 1;
 
-        // REDDEDILEN - TurnRules.cs:85 yerine (bu aşırı yükleme hiç doğmaz,
-        //              yalnızca üç parametreli sürüm kalır ve taraf sorusunu
-        //              soran uydurma bir sıfır geçer):
-        //     TurnRules.CanAct(unitTeam, currentTurn, actionsUsedThisTurn: 0)
-        // KIRILAN  : uydurma sıfır, çağrıyı bir yalana çevirir.
-        //            arayüz düşman birimlerini soluklaştırırken elinde ne birim
-        //            ne sayaç vardır -> sıfır geçer -> cevap "eyleyebilir" olur,
-        //            oysa sorulan şey eylem değil SIRAydı
-        //            derleyici: hiçbir şey der  .  test: CanAct_TeamPlane matrisi
-        //            ölçmediği bir sütun taşır ve taraf kararı bütçenin altında kalır
-        // KAZANIRDI: sıra sorusu HİÇBİR zaman birimsiz sorulmayacaksa — o gün
-        //            iki aşırı yükleme hangisinin gerçek kural olduğunu
-        //            belirsizleştirir ve biri sessizce eskir.
-        // TEK CUMLE: İki farklı soru varsa iki imza vardır; birini diğerinin
-        //            varsayılanıyla sormak, sorulmayan soruyu cevaplamış olur.
+        // İKİ AŞIRI YÜKLEME, İKİ AYRI SORU — ve bu sürüm yalnız SIRAYI soruyor.
+        // Tek imzaya inseydi, elinde sayaç olmayan çağıran (düşman birimlerini
+        // soluklaştıran arayüz) uydurma bir sıfır geçerdi ve sorulmamış bir
+        // sorunun cevabını almış olurdu. → TurnRules.md#canactteam-team
         /// <summary>
         /// Sıra bu tarafta mı? Bütçeye BAKMAZ — yalnızca sıranın kimde olduğunu
         /// sorar.
@@ -82,6 +55,7 @@ namespace GridStrategy.Battle
         /// unutulmuş bir birim HER ŞEYİ değil HİÇBİR ŞEYİ yapabilir olur ve
         /// eksiklik ilk denemede görülür.
         /// </summary>
+        // DERİN ANLATIM: Docs/deep/konular/04-karar-sirasi.md
         public static bool CanAct(Team unitTeam, Team currentTurn)
         {
             // Tarafsızlık yalnızca BİR yanda sınanıyor. İkinci bir
@@ -96,20 +70,11 @@ namespace GridStrategy.Battle
             return unitTeam == currentTurn;
         }
 
-        // REDDEDILEN - TurnRules.cs:130 yerine (değerler yerine savaşın kendisi
-        //              geçilir):
-        //     public static bool CanAct(Team unitTeam, TurnState turn,
-        //                               int actionsUsedThisTurn)
-        // KIRILAN  : bağımlılık yönü tersine döner — KURAL, VARLIK'ı tanır.
-        //            kuralı sınamak için geçerli dizilimli bir savaş kurmak gerekir
-        //            -> öznitelik argümanı sabit olmak zorunda -> TurnState örneği
-        //            [TestCase] içine konulamaz, taraf matrisi dokuz metoda dağılır
-        //            derleyici: hiçbir şey der  .  test: tablolar var olamaz
-        // KAZANIRDI: cevap savaşın BİRDEN ÇOK alanına bağlı olsaydı — sıra, tur
-        //            numarası, kalan süre ve bütçe birlikte; o gün dört ayrı
-        //            değeri elden geçirmek tören olurdu.
-        // TEK CUMLE: Bir kurala nesne geçmek onu o nesnenin ömrüne bağlar; değer
-        //            geçmek kuralı tek başına sorulabilir bırakır.
+        // İMZA DEĞER ALIYOR, NESNE DEĞİL: bir TurnState geçmek KURAL'ı VARLIK'a
+        // bağlar, yani kuralı sınamak için geçerli dizilimli bir savaş kurmayı
+        // ve taraf matrisini tek tablodan dokuz metoda dağıtmayı gerektirirdi.
+        // Üç parametre üç ayrı sahipten geliyor ve imza bunu görünür kılıyor.
+        // → TurnRules.md#canactteam-team-int
         /// <summary>
         /// Sıra bu tarafta mı VE birimin bu turda eylem hakkı kaldı mı?
         ///
@@ -120,7 +85,8 @@ namespace GridStrategy.Battle
         /// <param name="actionsUsedThisTurn">
         /// Birimin bu turda şimdiye kadar kaç eylem harcadığı. Bu sayıyı bu tip
         /// TUTMAZ — <c>static</c> ve hafızasızdır; sayacın neden burada da
-        /// <see cref="TurnState"/>'te de yaşamadığı TurnState.cs'te yazılı.
+        /// <see cref="TurnState"/>'te de yaşamadığı TurnState'in kendi belgesinde
+        /// yazılı.
         /// </param>
         public static bool CanAct(Team unitTeam, Team currentTurn, int actionsUsedThisTurn)
         {

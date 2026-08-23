@@ -3,8 +3,15 @@ using System;
 namespace GridStrategy.Combat
 {
     // ═══ ROL: VARLIK (Entity) ════════════════════════════════════════
-    // kimlik : var — her yapının kendi durumu ve kendi enkaz sayacı
-    // hafıza : var — aynı Tick(1f) çağrısı duruma göre farklı sonuç verir
+    // kimlik : var — ölçüsü şu: iki StructureLifecycle kur, yalnız birinde
+    //          OnHealthDepleted() çağır; onun State'i Destroyed ve
+    //          RemainingSeconds'ı 8 olur, ötekininki Standing ve 0'da kalır
+    // hafıza : var — ölçüsü şu: OnHealthDepleted()'ten sonra Tick(5f)'i
+    //          arka arkaya İKİ kez çağır, iki FARKLI cevap alırsın:
+    //          birinciden sonra RemainingSeconds 3 ve IsReadyForCleanup
+    //          false, ikinciden sonra 0 ve true. Farkı doğuran şey, tipin
+    //          kalan saniyeyi çağrılar arasında tutması; burada event yok,
+    //          farkı görmenin tek yolu bu iki alanı okumak
     // Unity  : gerekmez — zaman DIŞARIDAN gelir
     // karar  : yalnızca KARAR verir ("artık yıkık", "enkaz kaldırılabilir");
     //          hiçbir şeyi yok etmez, çizmez, sahneye dokunmaz
@@ -17,29 +24,28 @@ namespace GridStrategy.Combat
     /// için yoklar. Bir baraka düşüp kurtarılmayı beklemez: ayaktadır ya da
     /// enkazdır.
     ///
-    /// ONARIM ile DİRİLTME farkı — bu dosyanın en kolay karıştırılan satırı:
-    /// diriltme bir DURUM geçişidir (yıkık → ayakta), onarım ise yalnızca bir
-    /// SAYI değişikliğidir (can artar, durum aynı kalır). Bu tip onarımı hiç
-    /// görmez; onarım <see cref="Health"/>'e aittir ve ayakta olan bir yapıda
-    /// yapılır. Yıkılmış bir yapı onarılmaz — yeniden inşa edilir, ki o da bu
-    /// tipin bir geçişi değil, yepyeni bir nesnedir.
+    /// ONARIM ile DİRİLTME farkı: diriltme bir DURUM geçişidir (yıkık → ayakta),
+    /// onarım ise yalnızca bir SAYI değişikliğidir (can artar, durum aynı kalır).
+    /// Bu tip onarımı hiç görmez.
     ///
-    /// ZAMANI KENDİ OKUMAZ. <see cref="Tick"/> saniyeyi dışarıdan alır; içeride
-    /// <c>Time.deltaTime</c> yoktur. Gerekçe <see cref="UnitLifecycle"/>'da
-    /// ölçülerek yazıldı ve burada tekrar edilmiyor, yalnızca uygulanıyor:
-    /// EditMode'da o değer sıfır DEĞİL, yani zamanı içeriden okuyan tasarım
-    /// testte patlamaz — sessizce anlamsız bir sayıyla çalışır.
+    /// ZAMANI KENDİ OKUMAZ. <see cref="Tick"/> saniyeyi dışarıdan alır; gerekçe
+    /// <see cref="UnitLifecycle"/>'da ölçülerek yazıldı ve burada tekrar
+    /// edilmiyor, yalnızca uygulanıyor.
     ///
     /// Neyi BİLMEZ: canın kaç olduğunu (<see cref="Health"/>'in işi), hangi
     /// takıma ait olduğunu (<see cref="Structure"/>'ın işi), sahnede neyin
     /// silineceğini (Unity katmanının işi).
+    ///
+    /// GEREKÇELER: Docs/deep/kod/Core/Combat/StructureLifecycle.md
     /// </summary>
+    // DERİN ANLATIM: Docs/deep/konular/05-yasam-dongusu.md
     public sealed class StructureLifecycle
     {
-        // Enkaz penceresi cesetten uzun: yıkık bina bir HARİTA İŞARETİdir,
-        // oyuncu ona bakıp "burada bir şey oldu" der. Sayı bir denge düğmesidir
-        // ve kurucudan değiştirilebilir; bu dosyanın sahiplendiği kural sayı
-        // değil, "sayaç işler ve dolunca temizlik İSTENİR" cümlesidir.
+        // Enkaz penceresi cesetten uzun: yıkık bina bir HARİTA İŞARETİdir. Sayı
+        // bir denge düğmesidir ve kurucudan değiştirilebilir; bu dosyanın
+        // sahiplendiği kural sayı değil, "sayaç işler ve dolunca temizlik
+        // İSTENİR" cümlesidir.
+        // → StructureLifecycle.md#defaultrubblewindowseconds
         public const float DefaultRubbleWindowSeconds = 8f;
 
         private readonly float rubbleWindowSeconds;
@@ -58,38 +64,20 @@ namespace GridStrategy.Combat
             State = StructureState.Standing;
         }
 
-        // NEDEN StateChanged EVENT'İ YOK — UnitLifecycle'daki gerekçe körü körüne
-        // kopyalanmadı, sınandı ve BURADA GEÇERSİZ çıktı. Oradaki tek cümle şuydu:
-        // "dönüş değeri — soran zaten orada; event — ilgilenen başka yerde." Orada
-        // event'i haklı çıkaran şey Tick'in içindeki Downed → Dead geçişiydi: onu
-        // kimse SORMUYORDU, Tick'i çeviren oyun döngüsü o geçişle ilgilenmiyordu.
-        // Burada Tick'in içinde hiçbir DURUM geçişi yok — Tick yalnızca bir bayrak
-        // açıyor. Tek geçiş (ayakta → yıkık) her zaman bir hasar çağrısından doğar
-        // ve o çağrıyı yapan taraf cevabı zaten dönüş değeriyle alır.
-        //
-        // REDDEDILEN - StructureLifecycle.cs:84 yerine:
-        //     public event Action<StructureState> StateChanged;
-        // KIRILAN  : aynı olgu iki yoldan birden duyurulur ve çağıran ikisini de duyar.
-        //            OnHealthDepleted "bu çağrı yıktı mı" cevabını zaten döndürüyor
-        //            hem dönüşü okuyan hem abone olan UI -> yıkım sesi iki kez çalar
-        //            abonelik çözülmezse saf Core nesnesi ölü Unity nesnesini canlı tutar
-        //            derleyici: hiçbir şey der  .  test: hiçbiri kırmızıya dönmez
-        // KAZANIRDI: yapı, kimsenin ÇAĞRI yapmadığı bir yoldan yıkılabilseydi —
-        //            yanıp kendiliğinden çöken bina, enerjisi kesilen kule, sahipsiz
-        //            alan hasarı. O gün geçişin "soranı" olmazdı.
-        // TEK CUMLE: Dönüş değeri "soran zaten orada" demektir, event "ilgilenen
-        //            başka yerde"; burada her yıkımın bir soranı var.
+        // EVENT, GEÇİŞİN SORANI YOKKEN DOĞAR — burada her yıkımın soranı var.
+        // UnitLifecycle'daki gerekçe kopyalanmadı, sınandı ve BURADA GEÇERSİZ
+        // çıktı: Tick'in içinde tek bir DURUM geçişi yok, tek geçiş (ayakta →
+        // yıkık) her zaman bir hasar çağrısından doğar ve cevabı dönüşle alınır.
+        // → StructureLifecycle.md#statechanged
 
         /// <summary>Yapının o anki durumu. Yeni yapı ayakta doğar.</summary>
         public StructureState State { get; private set; }
 
-        // NEDEN SetState YOK: UnitLifecycle'daki tek giriş noktası deseninin
-        // gerekçesi yorumunda yazılı — "State'e doğrudan yazan bir satır kalsaydı,
-        // o geçiş sessizce kaybolurdu" ve hata "bazen event gelmiyor" diye çıkardı.
-        // Burada event yok, dolayısıyla kaybolacak bir şey de yok; SetState bugün
-        // yalnızca bir yönlendirme katmanı olurdu. Deseni geri getirecek tetikleyici
-        // nettir ve bilerek yazılıyor: bu tipe bir event, bir geçiş kaydı (log) ya
-        // da ikinci bir geçiş yolu eklendiği GÜN, State'e yazan tek satır kalmalı.
+        // NEDEN SetState YOK: UnitLifecycle'daki tek giriş noktası deseni event'i
+        // tetiklemek içindi; burada event olmadığı için kaybolacak bir yayın da
+        // yok ve SetState yalnızca bir yönlendirme katmanı olurdu. Deseni geri
+        // getirecek tetikleyici net: event, geçiş kaydı ya da ikinci bir yol.
+        // → StructureLifecycle.md#state
 
         /// <summary>
         /// Enkaz süresi dolduğunda true olur. Bu bir İSTEKtir, bir eylem değil:
@@ -103,17 +91,11 @@ namespace GridStrategy.Combat
         /// </summary>
         public float RemainingSeconds => State == StructureState.Standing ? 0f : remainingSeconds;
 
-        // REDDEDILEN - StructureLifecycle.cs:121 yerine (dönüş değeri yok,
-        //              metot void kalır ve çağıran durumu kendisi okur):
-        //     public void OnHealthDepleted()
-        // KIRILAN  : "bu vuruş mu yıktı" cevabı her çağıranda üç satırla elle kurulur.
-        //            önce State'i oku, çağır, tekrar oku -> Structure'da, UI'da, skorda
-        //            birinde ilk okuma unutulur -> enkaza vurmak yeni yıkım sayılır
-        //            derleyici: hiçbir şey der  .  test: hiçbiri kırmızıya dönmez
-        // KAZANIRDI: geçişle ilgilenen taraf çağıran DEĞİLSE — o gün yukarıda
-        //            reddedilen event doğru cevaba dönerdi.
-        // TEK CUMLE: Cevabı hesaplayabilen tek yer onu DÖNDÜRMELİDİR; yoksa aynı
-        //            hesap her çağıranda yeniden doğar.
+        // CEVABI HESAPLAYABİLEN TEK YER ONU DÖNDÜRMELİDİR. `void` bırakılsaydı
+        // "bu vuruş mu yıktı" cevabı her çağıranda önce-oku / çağır / sonra-oku
+        // diye elle kurulurdu; ilk okumayı unutan tek yerde enkaza değen alan
+        // hasarı YENİ bir yıkım sayılır — ses tekrar çalar, skor tekrar artar.
+        // → StructureLifecycle.md#onhealthdepleted
         /// <summary>
         /// Canı tükendiğinde çağrılır: ayakta olan yapı yıkılır ve enkaz sayacı başlar.
         /// </summary>
@@ -126,6 +108,7 @@ namespace GridStrategy.Combat
                 // binaya rastgele düşen alan hasarı enkazı sonsuza dek ekranda
                 // tutardı — ve bu, hiçbir zaman ortaya çıkmayan türden bir hatadır:
                 // kimse "enkaz neden hâlâ duruyor" diye bug açmaz.
+                // → StructureLifecycle.md#onhealthdepleted
                 return false;
             }
 
@@ -134,24 +117,11 @@ namespace GridStrategy.Combat
             return true;
         }
 
-        // NEDEN TryRevive YOK — bu satır bir eksiklik değil, bir karar:
-        //
-        // REDDEDILEN - StructureLifecycle.cs:160 üstüne eklenmesi reddedildi:
-        //     public bool TryRepair()
-        //     {
-        //         if (State != StructureState.Destroyed) { return false; }
-        //         State = StructureState.Standing;
-        //         remainingSeconds = 0f;
-        //         return true;
-        //     }
-        // KIRILAN  : bu tip canı GÖRMEZ; durumu "ayakta"ya çevirir, Current sıfırda kalır.
-        //            sıfır canla ayakta bina -> değen ilk hasar onu anında tekrar yıkar
-        //            hata "bina bazen hemen yıkılıyor" diye gelir, sebebi burada aranmaz
-        //            derleyici: hiçbir şey der  .  test: Repair_AfterDestruction_IsRejected
-        // KAZANIRDI: tasarım "çöken bina enkaz penceresi dolmadan yerinde ayağa
-        //            kaldırılabilir" derse — pencere ve geri sayım zaten burada.
-        // TEK CUMLE: Durumu değiştiren yer canı da görmek zorundadır; görmüyorsa
-        //            o geçiş onun değildir.
+        // DURUMU ÇEVİREN YER, DAYANDIĞI OLGUYU GÖRMEK ZORUNDA — bu tip canı
+        // GÖRMEZ. Buraya bir TryRepair konsaydı durumu "ayakta"ya çevirir, Current
+        // sıfırda kalırdı: değen ilk hasar binayı anında tekrar yıkardı. Onarımın
+        // kelepçesi canı ve durumu aynı anda gören Structure.TryRepair'de duruyor.
+        // → StructureLifecycle.md#tryrepair
 
         /// <summary>
         /// Zamanı ilerletir. Saniye DIŞARIDAN gelir — bu tipin Unity'ye
@@ -168,6 +138,7 @@ namespace GridStrategy.Combat
             // Ayakta geri sayım yok; erken çıkış burada PERFORMANS için değil,
             // DOĞRULUK için: aşağıdaki çıkarma ayakta bir yapıda anlamsız bir
             // alanı eksiltirdi.
+            // → StructureLifecycle.md#tickfloat-deltaseconds
             if (State == StructureState.Standing)
             {
                 return;
@@ -181,6 +152,7 @@ namespace GridStrategy.Combat
 
             // Enkaz süresi doldu. Sayaç sıfırda tutuluyor ki sonraki Tick'ler onu
             // eksiye götürmesin ve UI negatif sayı göstermesin.
+            // → StructureLifecycle.md#tickfloat-deltaseconds
             remainingSeconds = 0f;
             IsReadyForCleanup = true;
         }
