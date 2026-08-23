@@ -35,6 +35,14 @@ PATTERN = re.compile(r"//.*\b(" + "|".join(ASCII_TURKISH) + r")\b")
 
 COMMENT = re.compile(r"^\s*(//|///)")
 
+# OLCULMUS TUZAK 2: bir DOSYA YOLU Turkce cumle degildir. "DERIN ANLATIM:
+# Docs/deep/06-sonuc-enumlari.md" satiri "sonuc" desenine esler ve yazari
+# yolu bozuk yazmaya iter. Dosya adlarinda aksanli harf zaten kullanilmaz
+# (git, kabuk, capraz platform), yani bu kapinin orada soyleyecek sozu yok.
+# Tarama oncesi yol benzeri token'lar maskelenir; yorumun geri kalani tam
+# olarak eskisi gibi taranir.
+PATHLIKE = re.compile(r"[\w.-]+/[\w./-]+(?:#[\w-]+)?|\S+\.(?:cs|md|txt|json|asmdef|py|ps1)(?:#[\w-]+)?\b")
+
 
 def main():
     root = pathlib.Path("Assets")
@@ -42,7 +50,7 @@ def main():
 
     for path in sorted(root.rglob("*.cs")):
         for number, line in enumerate(path.read_text(encoding="utf-8").split("\n"), start=1):
-            if PATTERN.search(line):
+            if PATTERN.search(PATHLIKE.sub(" ", line)):
                 hits.append((path, number, line.strip()))
 
     for path, number, text in hits:

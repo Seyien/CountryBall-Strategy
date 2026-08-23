@@ -29,7 +29,12 @@ KARSILASTIRMA = re.compile(r"^\s*//\s*KARSILASTIRMA\s*:")
 COMMENT = re.compile(r"^\s*//")
 
 # "(1)" "(2)" ... ya da satir basinda "1." "2." — blok icinde numarali liste.
-NUMBERED = re.compile(r"//.*(\(\d\)|^\s*//\s*\d[.)]\s)")
+# Numarali liste SATIR BASINDA durur: "// (1) ..." ya da "// 1. ...".
+# Eski desen ciplak "(\d)" ariyordu ve yorumda gecen her API cagrisini
+# yakaliyordu: [Min(1)], [Range(0,1)], Input.GetMouseButton(0). Iki ayri
+# worker bunu bagimsiz olarak bildirdi ve ikisi de metni BOZARAK gecti --
+# yani kapi dogru yazilmis yorumu cezalandiriyordu.
+NUMBERED = re.compile(r"^\s*//\s*(\(\d\)|\d[.)])\s")
 
 KIRILAN_MAX = 6
 
