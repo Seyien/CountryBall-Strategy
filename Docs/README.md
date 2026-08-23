@@ -14,6 +14,8 @@ birinin diğerini bulabilmesi için var.
 | `Docs/comment-diagram-debt/` | Yorum-diyagram borcu: devir paketi, envanter, JSON state |
 | `Docs/deep/kod/` | Ayna belgeler — her tipin gerekçeleri ([indeks](deep/kod/README.md)) |
 | `Docs/deep/konular/` | Mekanizma anlatıları — çok dosyayı kat eden konular |
+| `Docs/ogrenme/` | Öğrenme defteri — hangi desen kodda var, hangisi yok, hangi kavram borçlu ([indeks](ogrenme/README.md)) |
+| `Tools/check-curriculum-coverage.py` | Kavram borç defterinin kapısı — sahipsiz, uydurma ya da bayat satır bırakmaz |
 
 ## Kararların ve öğrenme kaydının yeri
 
