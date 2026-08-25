@@ -387,20 +387,20 @@ Zincir `OnUnitStateChanged`'de **bitmiyor**. Rengin gerçekten değiştiği yere
 kadar üç halka daha var, ve üçü de kodda açılabilir:
 
 ```
-  BoardAdapter.cs:288   private void OnEnable()
-  BoardAdapter.cs:290       battle.UnitStateChanged += OnUnitStateChanged;
-  BoardAdapter.cs:293   private void OnDisable()
-  BoardAdapter.cs:295       battle.UnitStateChanged -= OnUnitStateChanged;
+  BoardAdapter.cs:349   private void OnEnable()
+  BoardAdapter.cs:351       battle.UnitStateChanged += OnUnitStateChanged;
+  BoardAdapter.cs:354   private void OnDisable()
+  BoardAdapter.cs:356       battle.UnitStateChanged -= OnUnitStateChanged;
         │  >> Abonelik ÇİFTİ burada; sökme sözü tutan tek şey DİSİPLİN <<
         ▼
-  BoardAdapter.cs:310   private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
-  BoardAdapter.cs:312       ApplyStateVisual(unit, to);
+  BoardAdapter.cs:371   private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+  BoardAdapter.cs:373       ApplyStateVisual(unit, to);
         │  >> AYRIŞMA NOKTASI << olay ÜÇ değer taşıyor, kullanılan İKİ
         │     `from` bugün okunmuyor — eksiklik değil, adı hazır bir alan
         ▼
-  BoardAdapter.cs:954       private void ApplyStateVisual(Unit unit, UnitState state)
-  BoardAdapter.cs:956-959       if (!TryGetView(unit, out UnitView view))
-  BoardAdapter.cs:964       view.SetState(state);
+  BoardAdapter.cs:1398       private void ApplyStateVisual(Unit unit, UnitState state)
+  BoardAdapter.cs:1400-1403       if (!TryGetView(unit, out UnitView view))
+  BoardAdapter.cs:1408       view.SetState(state);
         │  >> ÇEVİRİ YOK << durum OLDUĞU GİBİ geçiyor. Bir zamanlar burada
         │     üç değer ikiye iniyordu ve Downed ile Dead ekranda aynı görünüyordu
         ▼

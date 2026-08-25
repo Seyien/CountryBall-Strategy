@@ -331,7 +331,7 @@ ve boyutuna göre değişiyor. Kesin kapasite formülü bu turda **[DOĞRULANMAD
 Assets/Game/Battle/Battle.cs:59   private readonly Dictionary<Unit, Combatant> combatants =
 Assets/Game/Battle/Battle.cs:66   private readonly Dictionary<Unit, Structure> structures =
 Assets/Game/Battle/Battle.cs:81   private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
-Assets/Game/Unity/BoardAdapter.cs:199   private readonly Dictionary<Unit, UnitView> unitViews =
+Assets/Game/Unity/BoardAdapter.cs:209   private readonly Dictionary<Unit, UnitView> unitViews =
 ```
 
 [YEREL ÖLÇÜM] 2026-08-23: `Unit` ile anahtarlanmış **dört** yan tablo var; üçü
@@ -555,7 +555,7 @@ tablo **sayıldı: dört**.
 Assets/Game/Battle/Battle.cs:59         private readonly Dictionary<Unit, Combatant> combatants =
 Assets/Game/Battle/Battle.cs:66         private readonly Dictionary<Unit, Structure> structures =
 Assets/Game/Battle/Battle.cs:81         private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
-Assets/Game/Unity/BoardAdapter.cs:199   private readonly Dictionary<Unit, UnitView> unitViews =
+Assets/Game/Unity/BoardAdapter.cs:209   private readonly Dictionary<Unit, UnitView> unitViews =
 ```
 
 Üçü `Battle.cs`'te, dördüncüsü Unity katmanında. Dördüncüsünün ayrı yerde olması
@@ -595,9 +595,9 @@ yok, hiçbiri bir küme dolaşmıyor.
 çağıran:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:317   private void Update()
-Assets/Game/Unity/BoardAdapter.cs:625   private void AdvanceBattleTime()
-Assets/Game/Unity/BoardAdapter.cs:627   battle.Tick(Time.deltaTime);
+Assets/Game/Unity/BoardAdapter.cs:416   private void Update()
+Assets/Game/Unity/BoardAdapter.cs:929   private void AdvanceBattleTime()
+Assets/Game/Unity/BoardAdapter.cs:931   battle.Tick(Time.deltaTime);
 ```
 
 ***SONUÇ — dürüst cümle:*** bu proje ECS'in **mimari** yarısını bütünüyle
@@ -616,10 +616,10 @@ o satırı **sayıyla sertleştiriyor**.
 ### Bugünkü ölçü
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:113   [SerializeField, Min(1)] private int width = 3;
-Assets/Game/Unity/BoardAdapter.cs:114   [SerializeField, Min(1)] private int height = 5;
-Assets/Game/Unity/BoardAdapter.cs:267   SpawnUnit("Vanguard", Team.Player, 1, 2);
-Assets/Game/Unity/BoardAdapter.cs:268   SpawnUnit("Raider", Team.Enemy, 1, 3);
+Assets/Game/Unity/BoardAdapter.cs:114   [SerializeField, Min(1)] private int width = 3;
+Assets/Game/Unity/BoardAdapter.cs:115   [SerializeField, Min(1)] private int height = 5;
+Assets/Game/Unity/BoardAdapter.cs:328   SpawnUnit("Vanguard", Team.Player, 1, 2);
+Assets/Game/Unity/BoardAdapter.cs:329   SpawnUnit("Raider", Team.Enemy, 1, 3);
 ```
 
 ```
@@ -792,12 +792,12 @@ küçültülürse kırılır.
 
 ### Basamak 2 · Birim sayısını artır — 2 → 200 → 2.000
 
-**NE EKLENİR** — `BoardAdapter.cs:267-268`'deki iki `SpawnUnit` çağrısı yerine
+**NE EKLENİR** — `BoardAdapter.cs:328-329`'daki iki `SpawnUnit` çağrısı yerine
 bir döngü. ***Bu basamak mevcut koda **dokunuyor** — merdivenin ilk dokunan
 basamağı.***
 
 **GÖRÜNÜR KILAR** — Üç şey birden:
-① **Yaratma maliyeti.** `BoardAdapter.cs:739`'daki `Instantiate` bugün yalnız
+① **Yaratma maliyeti.** `BoardAdapter.cs:1078`'deki `Instantiate` bugün yalnız
 iki kez çalışıyor. 2.000 kez çalıştığında yükleme süresi **görünür** olur — ve
 `02-sonraki-asamalar.md` Aşama 2'nin (nesne havuzu) tetikleyici koşulu tartışma
 konusu hâline gelir.
@@ -813,7 +813,7 @@ sıfır kalacaktır. Yani bu basamak tek başına ECS'i **haklı çıkarmaz** �
 görmek basamağın asıl dersidir.
 
 **KIRDIĞI KARAR** — İki tanesi:
-① `BoardAdapter.cs:1007`'deki `Destroy` ve `UnitView`'un `Awake` sözleşmesi —
+① `BoardAdapter.cs:1473`'teki `Destroy` ve `UnitView`'un `Awake` sözleşmesi —
 2.000 görsel için havuz tartışması gerçekten açılır.
 ② Tahta kapasitesi: 2.000 birim en az `2.000` hücre ister, yani Basamak 1 bunun
 **ön koşuludur**.
@@ -1373,17 +1373,17 @@ Assets/Game/Core/Combat/MovementRules.cs:47    public static bool CanMove(UnitSt
 Assets/Game/Core/Combat/TargetingRules.cs:31   public static class TargetingRules
 Assets/Game/Core/Combat/UnitLifecycle.cs:185   public void Tick(float deltaSeconds)
 Assets/Game/Core/Combat/UnitLifecycle.cs:197   if (State == UnitState.Alive)
-Assets/Game/Unity/BoardAdapter.cs:113          [SerializeField, Min(1)] private int width = 3;
-Assets/Game/Unity/BoardAdapter.cs:114          [SerializeField, Min(1)] private int height = 5;
-Assets/Game/Unity/BoardAdapter.cs:199          private readonly Dictionary<Unit, UnitView> unitViews =
-Assets/Game/Unity/BoardAdapter.cs:210          private readonly List<Unit> cleanupBuffer = new List<Unit>();
-Assets/Game/Unity/BoardAdapter.cs:267          SpawnUnit("Vanguard", Team.Player, 1, 2);
-Assets/Game/Unity/BoardAdapter.cs:268          SpawnUnit("Raider", Team.Enemy, 1, 3);
-Assets/Game/Unity/BoardAdapter.cs:317          private void Update()
-Assets/Game/Unity/BoardAdapter.cs:625          private void AdvanceBattleTime()
-Assets/Game/Unity/BoardAdapter.cs:627          battle.Tick(Time.deltaTime);
-Assets/Game/Unity/BoardAdapter.cs:739          UnitView view = Instantiate(unitPrefab, transform);
-Assets/Game/Unity/BoardAdapter.cs:1007         Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:114          [SerializeField, Min(1)] private int width = 3;
+Assets/Game/Unity/BoardAdapter.cs:115          [SerializeField, Min(1)] private int height = 5;
+Assets/Game/Unity/BoardAdapter.cs:209          private readonly Dictionary<Unit, UnitView> unitViews =
+Assets/Game/Unity/BoardAdapter.cs:233          private readonly List<Unit> cleanupBuffer = new List<Unit>();
+Assets/Game/Unity/BoardAdapter.cs:328          SpawnUnit("Vanguard", Team.Player, 1, 2);
+Assets/Game/Unity/BoardAdapter.cs:329          SpawnUnit("Raider", Team.Enemy, 1, 3);
+Assets/Game/Unity/BoardAdapter.cs:416          private void Update()
+Assets/Game/Unity/BoardAdapter.cs:929          private void AdvanceBattleTime()
+Assets/Game/Unity/BoardAdapter.cs:931          battle.Tick(Time.deltaTime);
+Assets/Game/Unity/BoardAdapter.cs:1078          UnitView view = Instantiate(unitPrefab, transform);
+Assets/Game/Unity/BoardAdapter.cs:1473         Destroy(view.gameObject);
 Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs:69    public void Olcum_Aygiti_Tahsisi_Gorebiliyor()
 Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs:103   public void ResolveRemaining_Hic_Tahsis_Yapmaz()
 ```

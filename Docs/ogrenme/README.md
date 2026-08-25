@@ -42,7 +42,7 @@ Docs/ogrenme/
 
 | Dosya | Ne yapar | Ne YAPMAZ |
 |---|---|---|
-| [00-okuma-sirasi.md](00-okuma-sirasi.md) | `Docs/deep/` ağacını **hangi sırayla** okuyacağını 15 adım ve 5 oturuma böler; her adımın ön koşulunu, yanında açık duracak `.cs` dosyasını ve bitiş koşturmasını yazar | Hiçbir mekanizmayı **anlatmaz** — bir yol tarifi, bir ders değil. Dosya numaralarını da değiştirmez: ██ numara kimliktir, sıra buradadır ██ |
+| [00-okuma-sirasi.md](00-okuma-sirasi.md) | `Docs/deep/` ağacını **hangi sırayla** okuyacağını 15 adım ve 5 oturuma böler; her adımın ön koşulunu, yanında açık duracak `.cs` dosyasını ve bitiş koşturmasını yazar | Hiçbir mekanizmayı **anlatmaz** — bir yol tarifi, bir ders değil. Dosya numaralarını da değiştirmez: ***numara kimliktir, sıra buradadır*** |
 | [01-koda-gomulu-desenler.md](01-koda-gomulu-desenler.md) | Kodda **doğrulanmış** desenleri adlandırır; her biri için baskıyı, dosya:satır yerini, SOLID karşılığını ve reddedilen rakibi yazar | Kodda olmayan bir deseni "var" diye yazmaz; ders kitabı tanımı vermez |
 | [02-sonraki-asamalar.md](02-sonraki-asamalar.md) | Bugün olmayan altı konuyu, her biri için **tetikleyici koşulla** birlikte yazar | Hiçbir şey **önermez**. "Şunu şimdi ekleyelim" cümlesi bu ağaçta yasaktır |
 | [03-kavram-borc-defteri.md](03-kavram-borc-defteri.md) | Yetkinlik evrenindeki her kavrama bir **sahip dosya** ya da bir **aşama** yazar | Boş hücre bırakmaz; sahipsiz kavram bırakmaz |
@@ -54,6 +54,7 @@ Docs/ogrenme/
 | [09-ecs-dots-yol-haritasi.md](09-ecs-dots-yol-haritasi.md) | ECS'i, Job System'i ve Burst'ü **ayrı ayrı** mekanizma olarak anlatır; eşiği sayıyla ölçer; projeyi genişletmek için yedi basamaklı bir merdiven ve on araştırma sorusu yazar | Hiçbir şey **önermez** ve hiçbir hızlanma oranı yazmaz — kaynaksız sayı bu dosyada yasaktır |
 | [10-mufredat-ve-catal-karari.md](10-mufredat-ve-catal-karari.md) | Bu ağaçta **öneri yazan tek dosya**: hangi desenin bu projede baskısı var, hangisi ayrı bir projeye ait, çatal ne zaman açılır, başvuru hangi gün başlar | Bir desenin **nasıl uygulanacağını** yazmaz (`01` ve `02`'nin işi); projenin koduna dair karar vermez — kararı okuyanın **yoluna** dairdir |
 | [11-unity-penceresi-adim-adim.md](11-unity-penceresi-adim-adim.md) | Bu ağaçta **prosedür yazan tek dosya**: `BoardAdapter` ve `UnitView` üstündeki 16 serileştirilmiş alanın her biri için Inspector başlığını, oraya ne sürükleneceğini, boş bırakılırsa kodun ne yapacağını ve tanım satırını verir; sonra bugünkü sahnenin ölçülmüş eksiğini pencere pencere onartır | Hiçbir **mekanizma** anlatmaz (`08`'in ve `konular/07`'nin işi) ve koddaki yerleştirme kusurunu **düzeltmez** — onu yalnızca ulaşılabilir kılar |
+| [12-unity-editor-baglama.md](12-unity-editor-baglama.md) | Yapı türü, üretim ve panel katmanının Unity penceresinde nasıl kurulacağını adım adım yazar: varlık dosyaları, sahne hiyerarşisi, prefab, bileşen bağlantıları ve **27 `[SerializeField]` alanının her biri için "boş bırakılırsa ne olur"** | Mekanizmayı anlatmaz (`02` Aşama 1'in işi); mevcut sahnenin onarımını yazmaz (`11`'in işi) ve **`11`'den önce okunmaz** |
 
 ## Üç kural — bu ağaç yazılırken uyulan
 
@@ -157,7 +158,7 @@ Yazılırken kaynakta doğrulanan, okuyucuyu yanlış yöne götürecek üç şe
    TAM DEĞİL. GoF Adapter bir tipin arayüzünü BAŞKA bir arayüze çevirir;
    burada çevrilen bir arayüz yok, çevrilen şey iki DÜNYA — piksel/kare/sahne
    ile hücre/tur/kural. Doğru ad: katman sınırı çevirmeni.
-   Ölçü: Assets/Game/Unity/BoardAdapter.cs:110 — `MonoBehaviour`'dan türüyor,
+   Ölçü: Assets/Game/Unity/BoardAdapter.cs:111 — `MonoBehaviour`'dan türüyor,
          hiçbir arayüz uygulamıyor.
 ```
 

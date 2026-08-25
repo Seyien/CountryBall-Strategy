@@ -33,21 +33,48 @@ Yani: erişim tarafı `dil/08`'in, desen tarafı `ogrenme/01`'in, motor tarafı
 
 Beş sayım, beş ayrı soru. Yöntem açık yazılıyor ki tekrar edilebilsin.
 
-### ① Kalıtım satırı — toplam **iki**
+### ① Kalıtım satırı — toplam **sekiz**, oyun mantığında **sıfır**
 
 ```sh
 grep -rn "class .* : " Assets/Game/ --include=*.cs
 ```
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:110
-    public sealed class BoardAdapter : MonoBehaviour
+Assets/Game/Unity/BoardAdapter.cs:111
+    public sealed class BoardAdapter : MonoBehaviour, IPlacementBoard
+Assets/Game/Unity/PaletteEntryView.cs:39
+    public sealed class PaletteEntryView : MonoBehaviour,
+Assets/Game/Unity/ProductionDirector.cs:35
+    public sealed class ProductionDirector : MonoBehaviour
+Assets/Game/Unity/ProductionPanelView.cs:36
+    public sealed class ProductionPanelView : MonoBehaviour
+Assets/Game/Unity/StructureBlueprintAsset.cs:37
+    public sealed class StructureBlueprintAsset : ScriptableObject
+Assets/Game/Unity/StructurePaletteView.cs:30
+    public sealed class StructurePaletteView : MonoBehaviour
+Assets/Game/Unity/UnitBlueprintAsset.cs:45
+    public sealed class UnitBlueprintAsset : ScriptableObject
 Assets/Game/Unity/UnitView.cs:43
     public sealed class UnitView : MonoBehaviour
 ```
 
-***Başka hiçbir tip hiçbir şeyden türemiyor.*** İkisi de motora bağlanmak için
-yazılmış; ikisi de `sealed`. Yani oyun mantığında kalıtım **sıfır**.
+***BU SAYI 2026-08-25'te İKİDEN SEKİZE ÇIKTI — ve iddianın asıl konusu
+değişmedi, güçlendi.*** Eski cümle *"Başka hiçbir tip hiçbir şeyden
+türemiyor"* idi ve artık yanlış. Yerine geçen ölçü daha keskin:
+
+```
+  >> SEKİZİN SEKİZİ DE AYNI KLASÖRDE <<
+
+  GridStrategy.Unity   ► 8 kalıtım satırı   (9 dosya)
+  GridStrategy.Battle  ► 0                  (7 tip)
+  GridStrategy.Combat  ► 0                  (23 tip)
+  GridStrategy.Core    ► 0                  (7 tip)
+```
+
+Sekizi de `sealed`, sekizi de **motor tipinden** türüyor (`MonoBehaviour` ×6,
+`ScriptableObject` ×2), ve hiçbiri **proje-yerel** bir tabandan türemiyor —
+yani bu depoda iki katlı bir kalıtım ağacı **yok**. Oyun mantığında kalıtım
+hâlâ **sıfır**; değişen tek şey motora bağlanan bileşen sayısı.
 
 ### ② Aşırı yükleme grubu — **altı grup, on dört metot**
 
@@ -101,8 +128,12 @@ Assets/Game/Battle/TurnState.cs:94
 
 ### ③ Ezme (`virtual`/`override`) — **sıfır**, ve iki kez ölçüldü
 
-Kaynak tarafı: 33 üretim dosyasında `abstract`, `virtual`, `override` ve
-`interface` kelimelerinin dördü de **sıfır** kez bildirim olarak geçiyor.
+Kaynak tarafı: **46** üretim dosyasında `abstract`, `virtual` ve `override`
+kelimelerinin üçü de **sıfır** kez bildirim olarak geçiyor (2026-08-25; dosya
+sayısı 33'ten 46'ya çıkarken üç sıfır da korundu). ***Dördüncü kelime düştü:***
+`interface` bugün **bir** kez geçiyor (`IPlacementBoard.cs:39`) — ama bu
+bölümün konusu EZME ve arayüz üye devretmez, yalnız imza dayatır; ezmenin
+sıfırı bundan etkilenmiyor.
 Üstveri tarafı: dört üretim DLL'inde `Virtual` damgası taşıyan **tek bir metot
 yok**. İki ölçümün tamamı
 [`dil/08`](../deep/dil/08-erisim-ve-sozlesme.md)'in sayılar bölümünde.
@@ -553,14 +584,15 @@ En yaygın yanlış model, ve tam olarak bu ailenin dışında:
 
 ---
 
-## Üçüncü durak: KALITIM — ***bu projede toplam iki satır***
+## Üçüncü durak: KALITIM — ***oyun mantığında sıfır satır***
 
-İkisi de yukarıda sayıldı ve ikisi de aynı şeyi söylüyor: **bu proje kalıtımı
-oyun mantığında hiç kullanmıyor.** İki kullanım da motora bağlanmak için.
+Sekizi de yukarıda sayıldı ve sekizi de aynı şeyi söylüyor: **bu proje kalıtımı
+oyun mantığında hiç kullanmıyor.** Sekiz kullanımın sekizi de motora bağlanmak
+için — altısı bir bileşen olabilmek, ikisi bir varlık dosyası olabilmek adına.
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:110
-    public sealed class BoardAdapter : MonoBehaviour
+Assets/Game/Unity/BoardAdapter.cs:111
+    public sealed class BoardAdapter : MonoBehaviour, IPlacementBoard
 ```
 
 ***Bu bir eksiklik değil bir KARAR.*** Gerekçesi bu dosyada değil, kararın kendi
@@ -790,9 +822,10 @@ kazanç "iki metot"tan "N metot ve N dallı ifade"ye döner ve karar değişir.
 ### S2 — "Neden kalıtım yerine bileşim?"
 
 **KISA (30 sn).** Çünkü kalıtım **seçmeli değildir**: `: Taban` yazdığın gün
-tabanın **her** üyesi gelir. Projemde kalıtım satırı **iki** ve ikisi de
-motorun zorunlu kıldığı satır; oyun mantığında **sıfır**. Ana tiplerim
-yeteneklerini devralarak değil, parçaları **alan olarak tutarak** kazanıyor.
+tabanın **her** üyesi gelir. Projemde kalıtım satırı **sekiz** ve sekizi de
+motorun zorunlu kıldığı satır — hepsi tek assembly'de, hiçbiri proje-yerel bir
+tabandan değil; oyun mantığında **sıfır**. Ana tiplerim yeteneklerini
+devralarak değil, parçaları **alan olarak tutarak** kazanıyor.
 
 **GENİŞLETİLMİŞ (2 dk).** Sınavı bir kez gerçekten yaptım ve **kaybettim**:
 yapı tipini savaşçıdan türetmeyi denedim, reddettim, ve reddin gerekçesini
@@ -812,10 +845,14 @@ doğduğunda soyut taban yeniden sınanır.
 aynı yetenek sözleşmesi arkasında **gerçekten** birden fazla uygulamaya ihtiyaç
 duyuyorsa. "Üç tip var, o hâlde bir arayüz olmalı" bir ölçü değildir.
 
-**GENİŞLETİLMİŞ (2 dk).** Projemde arayüz sayısı **sıfır** ve bu bir ihmal
-değil: arayüz basıncının şeklini taşıyan **tek bir yer** var —bir çağıran, tek
-bir yetenek, iki farklı uygulama— ve orada bile yazılmadı, çünkü kazanç iki
-metot, bedel üç karardı. Ölçütün tam metni ve arayüzü doğuracak dört somut
+**GENİŞLETİLMİŞ (2 dk).** Projemde arayüz sayısı **bir** (`IPlacementBoard`) ve
+bu sayının uzun süre **sıfır** kalması bir ihmal değildi: arayüzü yazdıran şey
+"üç tip var" değil, ***adı konmuş bir çağıranın somut tipi görmemesi
+gerekmesi*** oldu. O gün 2026-08-25'te geldi — üretim katmanı yazılırken
+`ProductionDirector`'ın tahtayı çağırması gerekti ama tahtanın dosyası başka
+bir hattın malıydı. Basınç somuttu, arayüz o gün doğdu. Ondan önce arayüz
+basıncının şeklini taşıyan tek yer vardı —bir çağıran, tek bir yetenek, iki
+farklı uygulama— ve orada yazılmadı, çünkü kazanç iki metot, bedel üç karardı. Ölçütün tam metni ve arayüzü doğuracak dört somut
 olay `dil/08`'de yazılı; ben o dosyanın karar ağacını kullanıyorum. En yakın
 alternatifleri de eledim ve elemeler kayıtlı: soyut taban reddedildi (gerekçe
 kodda), test sahtesi reddedildi (gerekçe bir testin içinde). Arayüzün ilk
@@ -920,8 +957,11 @@ döngüsünün tamamı** ortaksa.
 ## Yanlış hatırlanan üç şey
 
 **"Polimorfizm = interface."** Hayır — ve bu iddia bu projede tek satırda
-çürüyor: arayüz sayısı **sıfır**, buna karşılık on dört aşırı yüklenmiş metot
-ve altı ayrı generic tanım kullanımda. Arayüz polimorfizmin **bir aracıdır**,
+çürüyor: arayüz sayısı **bir**, buna karşılık on dört aşırı yüklenmiş metot
+ve altı ayrı generic tanım kullanımda. ***Oran bu iddiayı eskisinden daha iyi
+çürütüyor:*** arayüz sıfırken "henüz sırası gelmemiş" denebilirdi; bir arayüz
+yazıldıktan sonra bile çok biçimliliğin geri kalanı ona hiç dokunmadan
+çalışmaya devam ediyor. Arayüz polimorfizmin **bir aracıdır**,
 tanımı değil; hatta çok biçimliliğin üç türünden **hiçbirinin zorunlu şartı**
 değildir. Aşırı yükleme tek bir tip içinde olur, generic hiçbir hiyerarşi
 istemez, ezme için arayüz değil **kalıtım** yeter. ***Ölçü: bu projede
@@ -984,7 +1024,12 @@ projede o geri çağrıların hepsi `private` yazılmış ve bu mümkün — bir
       Doğacağı an: ilk kendi generic arayüzümüzün yazıldığı gün.
 
   Açık arayüz uygulaması, varsayılan üyeler → HENÜZ YOK → sahipsiz.
-      Doğacağı an: ilk arayüz yazıldığı gün.
+      "Doğacağı an: ilk arayüz yazıldığı gün" yazıyordu; O GÜN GELDİ
+      (IPlacementBoard.cs:39) ve mekanizma yine de doğmadı. Ölçü:
+      BoardAdapter sekiz üyeyi de ÖRTÜK uyguluyor, yani "void
+      IPlacementBoard.PlaceUnit(...)" biçiminde tek satır yok; varsayılan
+      gövde taşıyan üye de yok. Doğacağı yeni an: aynı tipin ADI ÇAKIŞAN
+      iki arayüz uyguladığı gün.
 
   operator aşırı yüklemesi, implicit /      → HENÜZ YOK → sahipsiz.
   explicit dönüşümler                          Doğacağı an: ilk değer

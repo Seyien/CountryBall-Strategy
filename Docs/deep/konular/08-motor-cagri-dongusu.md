@@ -55,7 +55,7 @@ görmez**. `BoardAdapter.cs` ise beşinci satırında `using UnityEngine;` yazar
 İkisi tek bir noktada buluşur:
 
 ```
-BoardAdapter.cs:627   battle.Tick(Time.deltaTime);
+BoardAdapter.cs:931   battle.Tick(Time.deltaTime);
 ```
 
 Motorun karesi orada saniyeye çevrilir ve duvarın
@@ -295,9 +295,9 @@ onun.
 İkisini aynı projede, arka arkaya iki satırda görebilirsin:
 
 ```
-BoardAdapter.cs:290   battle.UnitStateChanged += OnUnitStateChanged;
+BoardAdapter.cs:351   battle.UnitStateChanged += OnUnitStateChanged;
                       ▲ C# event
-BoardAdapter.cs:288   private void OnEnable()
+BoardAdapter.cs:349   private void OnEnable()
                       ▲ Unity mesajı
                       ▲                     ▲
                       │                     └─ bu metodu MOTOR bulur
@@ -384,7 +384,7 @@ PointerGesture → MonoBehaviour'dan TÜREMİYOR
 Sonuç: `Reset()` yalnızca `TryEnterPlacementMode` onu çağırdığı için koşar:
 
 ```
-BoardAdapter.cs:382   gesture.Reset();
+BoardAdapter.cs:481   gesture.Reset();
 ```
 
 **Ölçüsü:** o tek satırı sil, metot ölü koda döner. Aynı deneyi
@@ -546,10 +546,10 @@ Sayarak. Uydurma örnek yok.
 
 | # | Geri çağrı | Yeri | Ne yapıyor |
 |---|---|---|---|
-| 1 | `Awake` | `Assets/Game/Unity/BoardAdapter.cs:232` | `GetComponent<Grid>()`, `new Battle(w,h)`, `new PointerGesture(eşik)`, hayaleti kapatır, zemini kurar, iki demo birim doğurur |
-| 2 | `OnEnable` | `Assets/Game/Unity/BoardAdapter.cs:288` | `battle.UnitStateChanged += OnUnitStateChanged` — tek satır |
-| 3 | `OnDisable` | `Assets/Game/Unity/BoardAdapter.cs:293` | aynı aboneliği bırakır **ve** `CancelPlacement()` çağırır |
-| 4 | `Update` | `Assets/Game/Unity/BoardAdapter.cs:317` | zaman ilerletme + kip ayrımı + üç girdi sorgusu |
+| 1 | `Awake` | `Assets/Game/Unity/BoardAdapter.cs:293` | `GetComponent<Grid>()`, `new Battle(w,h)`, `new PointerGesture(eşik)`, hayaleti kapatır, zemini kurar, iki demo birim doğurur |
+| 2 | `OnEnable` | `Assets/Game/Unity/BoardAdapter.cs:349` | `battle.UnitStateChanged += OnUnitStateChanged` — tek satır |
+| 3 | `OnDisable` | `Assets/Game/Unity/BoardAdapter.cs:354` | aynı aboneliği bırakır **ve** `CancelPlacement()` çağırır |
+| 4 | `Update` | `Assets/Game/Unity/BoardAdapter.cs:416` | zaman ilerletme + kip ayrımı + üç girdi sorgusu |
 | 5 | `Awake` | `Assets/Game/Unity/UnitView.cs:86` | `SetState(Alive)`, sonra `SetSelected(false)` — doğan birimi normalleştirir |
 
 **Toplam: 5.** Başka `MonoBehaviour` yok, başka geri çağrı yok.
@@ -701,7 +701,7 @@ public sealed class Battle : MonoBehaviour
   kurucu argümanları hiçbir yerden geçirilemez.
 
   ```
-  BoardAdapter.cs:238   battle = new Battle(width, height);
+  BoardAdapter.cs:299   battle = new Battle(width, height);
   ```
 
 - Kurucunun yerine ikinci bir `Init(w, h)` metodu doğar, onunla birlikte **yeni

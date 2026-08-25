@@ -81,7 +81,7 @@ Bu dosya uzun ve baştan sona okunmak zorunda değil. Mülakat provası yapıyor
 | 3 | Tek doğruluk kaynağı | uygulanmış | tahta tek sahipli, konum önbelleği reddedilmiş |
 | 4 | Dependency Injection | uygulanmış · konteynersiz | parçalar kurucudan ve `[SerializeField]`'den |
 | 5 | Law of Demeter | ██ ihlal VAR, bilinerek ██ | sıra devri zinciri, borç yazılı |
-| 6 | Kalıtım yerine bileşim | uygulanmış | kalıtım toplam iki satır, ikisi de motor zorunluluğu |
+| 6 | Kalıtım yerine bileşim | uygulanmış | çekirdek üç assembly'de kalıtım SIFIR; sekizin sekizi de motor zorunluluğu |
 | 7 | YAGNI | uygulanmış | altı mekanizma yazılı, hiçbiri uygulanmamış |
 | 8 | DRY | doğru uygulanmış | kural tek yerde, aynı satır üç yerde ve bu ihlal değil |
 | 9 | Separation of concerns | uygulanmış · derleyiciyle zorlanıyor | dört `.asmdef` |
@@ -251,9 +251,9 @@ Bu dosyanın tek katkısı ilkeye adını vermek.
 yazılmış iki yer var ve **ikisi de savunulabilir**:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:1079       private string DescribeCondition(Unit unit)
-Assets/Game/Unity/BoardAdapter.cs:1086       return $"health={combatant.CurrentHealth}, state={combatant.State}";
-Assets/Game/Unity/BoardAdapter.cs:550        Team team = battle.TryGetCombatant(placer, out Combatant combatant)
+Assets/Game/Unity/BoardAdapter.cs:1564       private string DescribeCondition(Unit unit)
+Assets/Game/Unity/BoardAdapter.cs:1571       return $"health={combatant.CurrentHealth}, state={combatant.State}";
+Assets/Game/Unity/BoardAdapter.cs:769        Team team = battle.TryGetCombatant(placer, out Combatant combatant)
 ```
 
 Birincisi (`DescribeCondition`) bir savaşçının canını ve durumunu **sorup** bir
@@ -475,7 +475,7 @@ desenin (paylaşılan değişmez tanım) **ön koşulu**.
 İkinci yol Unity tarafında ve o da DI'dır:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:124        [SerializeField] private UnitView unitPrefab;
+Assets/Game/Unity/BoardAdapter.cs:125        [SerializeField] private UnitView unitPrefab;
 ```
 
 Üçüncü yol **DI değildir** ve ayrımı bilmek önemli:
@@ -698,20 +698,40 @@ parçaları alan olarak **tutarak** kazan.
 anlatılmış durumda ve burada TEKRAR EDİLMİYOR.*** Bu dosyanın katkısı yalnız
 ad ve köken.
 
-***ÖLÇÜ DOĞRULANDI*** — iddia "projede toplam iki kalıtım satırı var, ikisi de
-`: MonoBehaviour`" idi. Bu oturumda `Assets/Game` altındaki 33 üretim dosyası
-tarandı ve **doğrulandı**; kalıtım satırı tam olarak iki tane:
+***ÖLÇÜ YENİLENDİ (2026-08-25)*** — eski iddia şuydu: *"projede toplam iki
+kalıtım satırı var, ikisi de `: MonoBehaviour`."* O sayı **düştü**. `Assets/Game`
+altındaki **46** üretim dosyası yeniden tarandı; taban listesi taşıyan tip
+bildirimi bugün **sekiz**:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:110        public sealed class BoardAdapter : MonoBehaviour
-Assets/Game/Unity/UnitView.cs:43             public sealed class UnitView : MonoBehaviour
+MonoBehaviour'dan (6)
+  Assets/Game/Unity/BoardAdapter.cs:111        : MonoBehaviour, IPlacementBoard
+  Assets/Game/Unity/PaletteEntryView.cs:39     : MonoBehaviour, +4 motor arayüzü
+  Assets/Game/Unity/ProductionDirector.cs:35   : MonoBehaviour
+  Assets/Game/Unity/ProductionPanelView.cs:36  : MonoBehaviour
+  Assets/Game/Unity/StructurePaletteView.cs:30 : MonoBehaviour
+  Assets/Game/Unity/UnitView.cs:43             : MonoBehaviour
+ScriptableObject'ten (2)
+  Assets/Game/Unity/StructureBlueprintAsset.cs:37
+  Assets/Game/Unity/UnitBlueprintAsset.cs:45
 ```
 
-İkisi de `GridStrategy.Unity` içinde, ikisi de `sealed`, ikisi de **zorunlu** —
-Unity bir bileşeni ancak `MonoBehaviour`'dan türeyerek tanır. Yani bu projede
-kalıtım bir seçenek olarak değil, motorun dayattığı tek yerde kullanılıyor.
-`abstract`, `virtual`, `override` ve `interface` kelimelerinin dördü de üretim
-kodunda **hiç geçmiyor**.
+***AYRIMIN KENDİSİ İDDİANIN ASIL KONUSUYDU VE GÜÇLENDİ.*** Sayı dörde katlandı
+ama şu ölçü hiç oynamadı: çekirdek üç assembly'de (`GridStrategy.Core`,
+`.Combat`, `.Battle` — 30 dosya, 30 tip) kalıtım satırı **SIFIR**. Sekizin
+sekizi de `GridStrategy.Unity`'de, sekizi de `sealed`, sekizi de **motor
+tipinden** türüyor ve hiçbiri **proje-yerel** bir tabandan türemiyor. Unity bir
+bileşeni ancak `MonoBehaviour`'dan, bir varlığı ancak `ScriptableObject`'ten
+türeyerek tanır. Yani kalıtım bu projede bir tasarım aracı değil, motorun
+kapıda istediği giriş biletidir — ve bileti isteyen kimsenin olmadığı yerde
+sayı sıfır kalmıştır.
+
+`abstract`, `virtual` ve `override` kelimelerinin üçü de üretim kodunda hâlâ
+**hiç geçmiyor** — bu üç sıfır, dosya sayısı 33'ten 46'ya çıkarken korundu.
+***Dörtlünün dördüncüsü düştü:*** `interface` artık geçiyor, tam bir tanım
+(`Assets/Game/Unity/IPlacementBoard.cs:39`). Ama arayüz uygulamak üye
+devralmak değildir — devralınan gövde yok, yalnız imza var; kalıtım iddiasını
+taşıyan ölçü `abstract`/`virtual`/`override` sıfırlığıdır ve o duruyor.
 
 Kalıtımın bilinçli reddi kodda yazılı:
 
@@ -753,9 +773,11 @@ geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır.***
 **MÜLAKAT CEVABI**
 
 > **KISA (30 sn).** Bileşim, yetenekleri devralmak yerine parça olarak tutmaktır.
-> Projemde kalıtım toplam **iki satır** ve ikisi de `: MonoBehaviour`, yani
-> motorun dayattığı yer — üretim kodunda `abstract`, `virtual`, `override` ve
-> `interface` hiç geçmiyor. Bunun en somut örneği `Structure`: `: Combatant`
+> Projemde kalıtım toplam **sekiz satır** ve sekizi de bir motor tipinden
+> (`: MonoBehaviour` ya da `: ScriptableObject`), yani motorun dayattığı yer;
+> çekirdek üç assembly'de **sıfır**. Üretim kodunda `abstract`, `virtual` ve
+> `override` hiç geçmiyor — arayüz ise tam bir tane var ve o da üye
+> devretmiyor, yalnız imza dayatıyor. Bunun en somut örneği `Structure`: `: Combatant`
 > yazmayı reddettim, çünkü baraka devralacağı üyelerin yarısına uymuyor —
 > `TryRevive`, `Downed` hâli, zorunlu saldırı profili.
 
@@ -815,12 +837,15 @@ cümlesinin "hiç öğrenmedim"e dönüşmesini.
 Somut bir örnek — nesne havuzu:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:739        UnitView view = Instantiate(unitPrefab, transform);
-Assets/Game/Unity/BoardAdapter.cs:1007       Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:1078        UnitView view = Instantiate(unitPrefab, transform);
+Assets/Game/Unity/BoardAdapter.cs:1473       Destroy(view.gameObject);
 ```
 
-`Instantiate`'in tek çağıranı `SpawnUnit`, onun da tek çağıranları `Awake`
-içindeki iki satır. Yani **kare başına sıfır** birim doğuyor ve havuzun
+`Instantiate`'in tek çağıranı artık `PlaceUnit` (`BoardAdapter.cs:1062`);
+`SpawnUnit` 2026-08-25'te gövdesini ona devretti ve ikinci bir çağıran doğdu
+(`ProductionDirector.cs:347`, arayüz üzerinden). ***Ama iddianın asıl konusu
+kare başına tahsisti ve o ayakta:*** yeni çağıran `Update` yolunda değil, bir
+sürükle-bırak olayında. Yani **kare başına sıfır** birim doğuyor ve havuzun
 azaltacağı maliyet ölçülebilir değil, çünkü maliyet yok. Tetikleyici koşul
 yazılı: sürekli doğup ölen bir nesne sınıfı ortaya çıktığında, ya da
 `Instantiate`/`Destroy` çifti `Update` yolundan çağrılmaya başladığında.
@@ -1096,9 +1121,9 @@ rolünü "karma" diye yazıyor, ve altında bir **koku notu** duruyor: eşiğin
 aşıldığı yazılı ve silinmemiş.
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:68         // ═══ ROL: KARMA — ÇEVİRMEN + VARLIK (Adapter + Entity) ═══════════
-Assets/Game/Unity/BoardAdapter.cs:83         // KOKU   : evet ve BÜYÜDÜ. EŞİK AŞILDI — ve notu SİLMİYORUM, çünkü bir
-Assets/Game/Unity/BoardAdapter.cs:88         //          SIRADAKİ EŞİK → BoardAdapter.md#rol
+Assets/Game/Unity/BoardAdapter.cs:69         // ═══ ROL: KARMA — ÇEVİRMEN + VARLIK (Adapter + Entity) ═══════════
+Assets/Game/Unity/BoardAdapter.cs:84         // KOKU   : evet ve BÜYÜDÜ. EŞİK AŞILDI — ve notu SİLMİYORUM, çünkü bir
+Assets/Game/Unity/BoardAdapter.cs:89         //          SIRADAKİ EŞİK → BoardAdapter.md#rol
 ```
 
 Yani ilke burada mükemmel uygulanmamış ve bu **bilinerek** böyle: eşiği aştığını
@@ -1414,13 +1439,13 @@ Assets/Game/Core/MoveOutcome.cs:26           public enum MoveOutcome
 Assets/Game/Core/Combat/AttackOutcome.cs:27  public enum AttackOutcome
 Assets/Game/Battle/PlacementOutcome.cs:24    public enum PlacementOutcome
 Assets/Game/Battle/ReviveOutcome.cs:25       public enum ReviveOutcome
-Assets/Game/Unity/BoardAdapter.cs:110        public sealed class BoardAdapter : MonoBehaviour
-Assets/Game/Unity/BoardAdapter.cs:124        [SerializeField] private UnitView unitPrefab;
-Assets/Game/Unity/BoardAdapter.cs:550        Team team = battle.TryGetCombatant(placer, out Combatant combatant)
-Assets/Game/Unity/BoardAdapter.cs:739        UnitView view = Instantiate(unitPrefab, transform);
-Assets/Game/Unity/BoardAdapter.cs:1007       Destroy(view.gameObject);
-Assets/Game/Unity/BoardAdapter.cs:1079       private string DescribeCondition(Unit unit)
-Assets/Game/Unity/BoardAdapter.cs:1086       return $"health={combatant.CurrentHealth}, state={combatant.State}";
+Assets/Game/Unity/BoardAdapter.cs:111        public sealed class BoardAdapter : MonoBehaviour
+Assets/Game/Unity/BoardAdapter.cs:125        [SerializeField] private UnitView unitPrefab;
+Assets/Game/Unity/BoardAdapter.cs:769        Team team = battle.TryGetCombatant(placer, out Combatant combatant)
+Assets/Game/Unity/BoardAdapter.cs:1078        UnitView view = Instantiate(unitPrefab, transform);
+Assets/Game/Unity/BoardAdapter.cs:1473       Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:1564       private string DescribeCondition(Unit unit)
+Assets/Game/Unity/BoardAdapter.cs:1571       return $"health={combatant.CurrentHealth}, state={combatant.State}";
 Assets/Game/Unity/UnitView.cs:43             public sealed class UnitView : MonoBehaviour
 ```
 

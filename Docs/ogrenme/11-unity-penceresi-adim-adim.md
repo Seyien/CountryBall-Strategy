@@ -55,8 +55,8 @@ iki olayın ikisi de bugün gerçekleşmiyor, çünkü `placementGhost` sahnede
 atanmamış:
 
 ```
-BoardAdapter.cs:367   if (placementGhost == null)
-BoardAdapter.cs:369   Debug.LogError("[Board] Cannot enter placement mode: placementGhost is not assigned.", this);
+BoardAdapter.cs:466   if (placementGhost == null)
+BoardAdapter.cs:468   Debug.LogError("[Board] Cannot enter placement mode: placementGhost is not assigned.", this);
 ```
 
 `return` ile birlikte geldiği için kip hiç açılmıyor. Sürükleyecek bir hayalet
@@ -156,31 +156,31 @@ okundu:
 
 ```
 ZEMIN
-BoardAdapter.cs:646   if (terrainSprites == null || terrainSprites.Length == 0)
-BoardAdapter.cs:702   int index = (x * 7 + y * 13) % terrainSprites.Length;
-BoardAdapter.cs:662   Debug.Log($"[Board] built {battle.Width}x{battle.Height} = {battle.CellCount} cells.", this);
+BoardAdapter.cs:959   if (terrainSprites == null || terrainSprites.Length == 0)
+BoardAdapter.cs:1015   int index = (x * 7 + y * 13) % terrainSprites.Length;
+BoardAdapter.cs:975   Debug.Log($"[Board] built {battle.Width}x{battle.Height} = {battle.CellCount} cells.", this);
       >> 646 dogruysa 662'ye HIC gelinmez: aradaki return donguyu atlar. <<
 
 BIRIM
-BoardAdapter.cs:265   if (unitPrefab != null)
-BoardAdapter.cs:739   UnitView view = Instantiate(unitPrefab, transform);
-BoardAdapter.cs:757                   new Health(maxHealth),
-BoardAdapter.cs:759                   new AttackProfile(damage, attackRange),
-BoardAdapter.cs:843   MoveOutcome outcome = BattleActions.Move(battle, selectedUnit, x, y, moveRange);
+BoardAdapter.cs:326   if (unitPrefab != null)
+BoardAdapter.cs:1078   UnitView view = Instantiate(unitPrefab, transform);
+BoardAdapter.cs:1097                   new Health(maxHealth),
+BoardAdapter.cs:1099                   new AttackProfile(damage, attackRange),
+BoardAdapter.cs:1221   MoveOutcome outcome = BattleActions.Move(battle, selectedUnit, x, y, moveRange);
 
 HAYALET
-BoardAdapter.cs:251                       "[Board] placementGhost is not assigned. Assign a child SpriteRenderer; structure placement mode will refuse to start without it.",
-BoardAdapter.cs:369   Debug.LogError("[Board] Cannot enter placement mode: placementGhost is not assigned.", this);
-BoardAdapter.cs:384   placementGhost.enabled = true;
-BoardAdapter.cs:573   renderer.sprite = placementGhost.sprite;
+BoardAdapter.cs:312                       "[Board] placementGhost is not assigned. Assign a child SpriteRenderer; structure placement mode will refuse to start without it.",
+BoardAdapter.cs:468   Debug.LogError("[Board] Cannot enter placement mode: placementGhost is not assigned.", this);
+BoardAdapter.cs:483   placementGhost.enabled = true;
+BoardAdapter.cs:801   renderer.sprite = placementGhost.sprite;
       >> 573'un anlami: hayaletin sprite'i AYNI ZAMANDA yapinin sprite'idir. <<
 
 OLCU VE JEST
-BoardAdapter.cs:238   battle = new Battle(width, height);
-BoardAdapter.cs:243   gesture = new PointerGesture(dragThreshold);
-BoardAdapter.cs:335   if (Input.GetKeyDown(placementModeKey))
-BoardAdapter.cs:408   if (Input.GetKeyDown(placementCancelKey))
-BoardAdapter.cs:554   return new Structure(new Health(structureMaxHealth), new StructureLifecycle(), team);
+BoardAdapter.cs:299   battle = new Battle(width, height);
+BoardAdapter.cs:304   gesture = new PointerGesture(dragThreshold);
+BoardAdapter.cs:434   if (Input.GetKeyDown(placementModeKey))
+BoardAdapter.cs:507   if (Input.GetKeyDown(placementCancelKey))
+BoardAdapter.cs:773   return new Structure(new Health(structureMaxHealth), new StructureLifecycle(), team);
 
 SINIRLARIN GERCEK SAHIPLERI  -- [Min] tek kapi degil, ikinci kapi kodda
 UnitGrid.cs:36        if (width <= 0)
@@ -282,7 +282,7 @@ serileştirme yolu aynı yoldur, ama sahne tarafı ayrıca ölçülmedi.
 Bu ayrımı operatör tek koşturmada kapatır ve ölçü koddadır:
 
 ```
-BoardAdapter.cs:757                   new Health(maxHealth),
+BoardAdapter.cs:1097                   new Health(maxHealth),
 Health.cs:37          if (max <= 0)
 
 HUKUM A dogruysa  -> maxHealth 30 . Health kurucusu memnun . IKI birim dogar
@@ -333,8 +333,8 @@ Bugünkü sahnedeki dokuz eksik alanın kademesi, ölçülen HÜKÜM A altında:
 | `damage` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-YANLIŞ*** | `[Min(0)]` da `AttackProfile` da sıfırı **kabul eder**. Saldırı geçerli sayılır, Console `was hit` yazar, can hiç düşmez. Hiçbir kapı şikâyet etmez |
 | `moveRange` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-YANLIŞ*** | Sıfır "kök salmış" demektir ve bu geçerli bir değerdir; her hareket sessizce `RejectedOutOfRange` döner |
 | `dragThreshold` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-YANLIŞ*** | `PointerGesture` yalnız NaN'ı ve negatifi reddeder; sıfır eşik her kımıldamayı sürükleme sayar |
-| `placementModeKey` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-ÖLÜ*** | `BoardAdapter.cs:335` tuşu sorar ve `KeyCode.None` hiçbir tuşla eşleşmezse `TryEnterPlacementMode` hiç çağrılmaz: `B`'ye basılır, Console **sessiz** kalır |
-| `placementCancelKey` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-ÖLÜ*** | Aynı mekanizma, `BoardAdapter.cs:408`'de |
+| `placementModeKey` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-ÖLÜ*** | `BoardAdapter.cs:434` tuşu sorar ve `KeyCode.None` hiçbir tuşla eşleşmezse `TryEnterPlacementMode` hiç çağrılmaz: `B`'ye basılır, Console **sessiz** kalır |
+| `placementCancelKey` | HÜKÜM A'da zararsız · HÜKÜM B'de ***SESSİZ-ÖLÜ*** | Aynı mekanizma, `BoardAdapter.cs:507`'de |
 
 ***Tablonun okunma biçimi şudur:*** ölçülen hüküm A olduğu için bugün canlı olan
 tek satır birincisidir. Kalan sekiz satır bir tehdit envanteridir ve sebebi
@@ -424,7 +424,7 @@ Dokuzuncu alan ise bir **referans** alanı ve başlatıcısı yok — yani o, ö
 hangi tarafa düştüğünden **bağımsız** olarak boş:
 
 ```
-BoardAdapter.cs:160   [SerializeField] private SpriteRenderer placementGhost;
+BoardAdapter.cs:161   [SerializeField] private SpriteRenderer placementGhost;
 ```
 
 İkinci ve daha güçlü ölçü şu: sahnede referans verilebilecek bir çizici zaten
@@ -515,7 +515,7 @@ Sonra aynı bileşende **Sorting Order** alanına `1` yaz.
 **Dur ve rapor:** `.png` sürüklendiğinde alan kabul etmiyorsa, Project'te
 dosyanın solundaki açma üçgenine bas ve **içindeki** `Sprite` alt varlığını
 sürükle. `Sorting Order` neden `1`: zemin karoları `0` alıyor
-(`BoardAdapter.cs:690`), kodla doğan yapılar `1`
+(`BoardAdapter.cs:781`), kodla doğan yapılar `1`
 (`BoardAdapter.cs:576`), prefab'daki birim gövdesi `2`. Hayalet `0` kalsaydı
 zeminle aynı katmanda çizilir ve hangisinin üstte olacağı belirsizleşirdi.
 
@@ -550,8 +550,8 @@ sayılar, alan tablosundaki **Tanım** sütununun gösterdiği satırlarda duran
 alan başlatıcılarının birebir aynısıdır — ikisi örnek:
 
 ```
-BoardAdapter.cs:135   [SerializeField, Min(1)] private int maxHealth = 30;
-BoardAdapter.cs:171   [SerializeField] private KeyCode placementModeKey = KeyCode.B;
+BoardAdapter.cs:136   [SerializeField, Min(1)] private int maxHealth = 30;
+BoardAdapter.cs:172   [SerializeField] private KeyCode placementModeKey = KeyCode.B;
 ```
 
 Sonra `File` → `Save` (`Ctrl + S`).
@@ -581,7 +581,7 @@ BEKLENEN KIRMIZI SATIR SAYISI
    0
 
 ONARIMDAN ONCE burada tam BIR kirmizi satir vardi ve kaynagi:
-BoardAdapter.cs:251                       "[Board] placementGhost is not assigned. Assign a child SpriteRenderer; structure placement mode will refuse to start without it.",
+BoardAdapter.cs:312                       "[Board] placementGhost is not assigned. Assign a child SpriteRenderer; structure placement mode will refuse to start without it.",
 ```
 
 ***Bu tek satırın kaybolması, ADIM A-E'nin tuttuğunun kanıtıdır.*** Hâlâ

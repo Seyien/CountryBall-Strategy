@@ -40,7 +40,8 @@ hızda eskiyecekti. Kural metnini tek bir eve koyan tip bu baskıdan doğdu —
 `AttackRules.cs:12-15` bu boşluğu kendi sözleriyle anlatıyor: "kim VURUR
 sorusunu kimse cevaplamıyordu ve düşmüş bir birim hâlâ vurabiliyordu."
 
-**KODDA NEREDE** — dokuz tip, hepsi `static class`:
+**KODDA NEREDE** — ***on bir*** tip, hepsi `static class` (2026-08-25'te
+ölçüldü; bu sayı dokuzdu, üretim katmanı gelince iki tip daha bu şekle girdi):
 
 ```
 Assets/Game/Core/Combat/AttackRules.cs:21        CanAttack        :38
@@ -52,13 +53,23 @@ Assets/Game/Core/Combat/AttackResolver.cs:25     IsWithinRange    :38
 Assets/Game/Core/Combat/DamageRules.cs:24        ResolveRemaining :33
 Assets/Game/Core/Combat/HealingRules.cs:27       ResolveRestored  :37
 Assets/Game/Core/Combat/ReviveRules.cs:32        CanRevive        :48
+Assets/Game/Core/Combat/ProductionRules.cs:30    CanProduce       :49   ← YENİ
 Assets/Game/Core/GridDistance.cs:25              Between          :36
 Assets/Game/Battle/TurnRules.cs:28               CanAct           :59 :91
+Assets/Game/Battle/VictoryRules.cs:30            Winner           :53
 ```
 
 Ortak şekil: alan yok, kurucu yok, girdi enum ya da `int`, çıktı `bool` ya da
 `int`. `TurnRules.cs:41`'deki `MaxActionsPerTurn` sabiti bu şeklin tek istisnası
 gibi görünür — ama `const`'tur, yani durum değil metin.
+
+***ŞEKLİN SINIRI DA ÖLÇÜLDÜ*** — `Assets/Game/` altında toplam **14**
+`static class` var; yukarıdaki on bire girmeyen üçü `BattleActions`,
+`AttackAction` ve `MoveAction`. Onlar kural değil **eylem**: bir `Battle`
+ya da `Combatant` alıp onu **değiştiriyorlar**. Ayrımın ölçüsü tek satır —
+kural tipleri hiçbir nesneyi değiştirmez, yalnız cevap verir. `ProductionRules`
+ve `VictoryRules` bu sınavı geçtiği için listeye girdi: ikisinde de sıfır alan,
+sıfır kurucu.
 
 **SOLID KARŞILIĞI** — **S** (tek sorumluluk). Ölçüsü şu: `TargetingRules`
 değişmek için tek bir sebep taşır — "kime uygulanır" kuralının değişmesi.
@@ -299,16 +310,32 @@ Assets/Game/Battle/GridStrategy.Battle.asmdef         references: [Core, Combat]
 Assets/Game/Unity/GridStrategy.Unity.asmdef           references: [Core, Combat, Battle]   noEngineReferences: false
 ```
 
-Kapı tek dosya: `Assets/Game/Unity/BoardAdapter.cs:110`. Motor tarafında kalan
-ve duvarın altına **inmeyen** her şey burada:
+***KAPI ARTIK TEK DOSYA DEĞİL.*** Eskiden bu satır "Kapı tek dosya:
+`BoardAdapter.cs`" diyordu ve o gün doğruydu. 2026-08-25'te ölçüldü:
+`GridStrategy.Unity` altında **9** dosya var, **8**'i motoru gerçekten
+**çağırıyor**. Duvarın yeri değişmedi — kapının **genişliği** değişti:
 
 ```
-Time.deltaTime      okunur   BoardAdapter.cs:627   → battle.Tick(...)
-Instantiate         çağrılır BoardAdapter.cs:739
-Destroy             çağrılır BoardAdapter.cs:1007
-Input               okunur   BoardAdapter.cs:335 ve Update/UpdatePlacement gövdeleri
-Grid (motor bileşeni) BoardAdapter.cs:184, hücre→dünya çevirisi :701
+Time.deltaTime      okunur   BoardAdapter.cs:931       → battle.Tick(...)
+                             ProductionDirector.cs:150 → production.Tick(...)
+Instantiate         çağrılır BoardAdapter.cs:1078
+                             ProductionPanelView.cs:142 . StructurePaletteView.cs:119
+Destroy             çağrılır BoardAdapter.cs:1454 . :1473
+                             ProductionPanelView.cs:179
+GetComponent        çağrılır BoardAdapter.cs:298 (Grid) . UnitView.cs:125 (SpriteRenderer)
+Input               okunur   BoardAdapter.cs Update/UpdatePlacement gövdeleri
 ```
+
+***DOKUZUNCU DOSYA BİR AYRIMI GÖRÜNÜR KILIYOR*** — `IPlacementBoard.cs` motoru
+**çağırmıyor**, yalnız bir motor tipinin ADINI taşıyor: `TryScreenPointToCell`
+bir `Vector2` alıyor. Bir tipi adlandırmak ile onu çağırmak aynı şey değildir;
+arayüzün kendi künyesi de bunu yazıyor (*"Unity: gerekmez ama VAR"*). Dosyanın
+çekirdeğe değil Unity katmanına konmasının tek sebebi bu ad.
+
+***HÜKÜM AYAKTA, ve ölçüsü şu:*** bu dokuz dosyanın dokuzu da aynı
+assembly'de ve o assembly'nin **dışında** motora değen **sıfır** dosya var.
+Duvarın altındaki üç assembly'de `noEngineReferences: true` — yani "kapı tek
+dosya" iddiası "kapı tek **assembly**"ye dönüştü ve asıl korunan şey buydu.
 
 Duvarın altında ne olduğu da ölçülü: `UnitLifecycle.cs:185`'daki `Tick` saniyeyi
 **dışarıdan** alır ve içeride `Time.deltaTime` yoktur. Sebebi ölçülmüş ve
@@ -352,10 +379,26 @@ harfine aynı, sonuç zıt. Harita `BoardAdapter.cs:13-47`'te çizili.
 kalmaz, dosya başındaki sıradan bir `using` yeterdi.
 
 *****BU BİR GoF ADAPTER DEĞİL***** — GoF Adapter bir tipin arayüzünü **başka
-bir arayüze** çevirir; ölçüsü, çevrilen hedef arayüzün var olmasıdır. Burada
-`BoardAdapter` hiçbir arayüz uygulamıyor (`BoardAdapter.cs:110` — yalnız `MonoBehaviour`'dan
-türüyor) ve çevirdiği şey bir arayüz değil, iki **dünya**. Doğru ad "katman
-sınırı çevirmeni". Dosya bunu kendisi de itiraf ediyor: künyesi
+bir arayüze** çevirir; ölçüsü, çevrilen hedef arayüzün var olmasıdır.
+
+***BU İDDİANIN DAYANAĞI 2026-08-25'te DEĞİŞTİ, HÜKMÜ DEĞİŞMEDİ.*** Eskiden
+ölçü şuydu: `BoardAdapter` hiçbir arayüz uygulamıyor. Bugün **uyguluyor** —
+`BoardAdapter.cs:111` `MonoBehaviour`'ın yanına `IPlacementBoard`'u da yazıyor
+ve sekiz üyesinin sekizi de o sözleşmenin karşılığı. Yani "arayüz yok"
+dayanağı düştü.
+
+Hüküm yine de ayakta, çünkü GoF Adapter'ın asıl ölçüsü arayüzün varlığı değil
+***ADAPTE EDİLENİN*** varlığıdır: Adapter, sarmaladığı **başka bir nesneye**
+çağrıyı çevirerek devreder. `BoardAdapter`'ın böyle bir sarmaladığı yok —
+tahtayı kendisi tutuyor (`battle` alanı, `BoardAdapter.cs:201`). Çevirdiği şey
+bir arayüz değil, iki **dünya**: ekran noktası ile hücre koordinatı. Doğru ad
+hâlâ "katman sınırı çevirmeni".
+
+***YENİ ÖLÇÜ*** — `IPlacementBoard` bir Adapter hedefi değil bir **dikiş**:
+uygulayanı tek (`BoardAdapter`), çağıranı tek (`ProductionDirector`), ve var
+olma sebebi `ProductionDirector`'ın tahtanın somut tipini hiç görmemesi. Bir
+GoF Adapter'da hedef arayüzü çağıran taraf ile adapte edilen taraf **ayrı**
+tiplerdir; burada adapte edilen taraf **yok**. Dosya bunu kendisi de itiraf ediyor: künyesi
 `BoardAdapter.cs:68` "KARMA — ÇEVİRMEN + VARLIK" diyor ve `:83-88`'de bir **koku
 notu** taşıyor — eşiğin aşıldığı yazılı, silinmemiş.
 
@@ -395,12 +438,33 @@ Assets/Game/Core/Combat/Structure.cs:37
 `Combatant.cs:152`'deki `public UnitState State => lifecycle.State;` satırı
 bileşimin görünen yüzü: dışarıya tek bir tip görünüyor, cevabı parça veriyor.
 
-***ÖLÇÜLDÜ*** — `Assets/Game/` altındaki 33 üretim dosyasının hiçbirinde
-`abstract`, `virtual` ve `override` kelimeleri **geçmiyor**; `interface` de
-geçmiyor. Yani bu
-projede kalıtım bir seçenek olarak değil, **hiç** kullanılmıyor. Motor tarafında
-tek kalıtım var ve zorunlu: `BoardAdapter.cs:110` ile `UnitView.cs:43`
-`MonoBehaviour`'dan türüyor.
+***ÖLÇÜLDÜ (2026-08-25)*** — `Assets/Game/` altındaki **46** üretim dosyasının
+hiçbirinde `abstract`, `virtual` ve `override` kelimeleri **geçmiyor** — üçü de
+sıfır, ve bu sayı dosya sayısı 33'ten 46'ya çıkarken değişmedi. Yani bu projede
+kalıtım bir **hiyerarşi kurma aracı** olarak hâlâ hiç kullanılmıyor.
+
+***BİR DAYANAK DÜŞTÜ:*** eskiden bu paragraf "`interface` de geçmiyor" diyordu.
+Bugün geçiyor — tam **bir** tanım var: `IPlacementBoard.cs:39`. Ama bu, kalıtım
+iddiasını çürütmez çünkü arayüz uygulamak **üye devralmak** değildir; devralınan
+bir gövde yok, yalnız imza var. `abstract`/`virtual`/`override` sıfırlığı bu
+ayrımın tam ölçüsüdür ve o sıfır duruyor.
+
+***İKİNCİ DAYANAK BÜYÜDÜ:*** "Motor tarafında tek kalıtım var" artık yanlış.
+Taban listesi taşıyan tip **sekiz** ve sekizi de `Assets/Game/Unity/` altında:
+
+```
+MonoBehaviour'dan (6)   BoardAdapter.cs:111 . PaletteEntryView.cs:39
+                        ProductionDirector.cs:35 . ProductionPanelView.cs:36
+                        StructurePaletteView.cs:30 . UnitView.cs:43
+ScriptableObject'ten (2) StructureBlueprintAsset.cs:37 . UnitBlueprintAsset.cs:45
+```
+
+***Ayrımın kendisi iddianın asıl konusuydu ve GÜÇLENDİ:*** çekirdek üç
+assembly'de (`Core`, `Combat`, `Battle`) taban listesi taşıyan tip sayısı
+**sıfır** — 30 dosya, 30 tip, sıfır kalıtım. Sekizin sekizi de motor tipinden
+türüyor ve hiçbiri **proje-yerel** bir tabandan türemiyor. Yani kalıtım bu
+projede bir tasarım aracı değil, motorun kapıda istediği **giriş bileti**;
+duvarın öte yanında bileti isteyen kimse olmadığı için orada sıfır kalıyor.
 
 **SOLID KARŞILIĞI** — **L** (Liskov). Ölçüsü şu: bir alt tip üst tipin yerine
 geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır.
@@ -507,8 +571,8 @@ birimin ikisi de **kendi** profilini alıyor: `NewCombatant` her çağrıda yeni
 `AttackProfile` kuruyor.
 
 ```
-BoardAdapter.cs:749   private Combatant NewCombatant(Team team)
-BoardAdapter.cs:759   new AttackProfile(damage, attackRange),
+BoardAdapter.cs:1089   private Combatant NewCombatant(Team team)
+BoardAdapter.cs:1099   new AttackProfile(damage, attackRange),
 ```
 
 Yani paylaşım bugün **mümkün** ama **yapılmıyor**.
@@ -562,7 +626,7 @@ numaralanırdı.
 çağrıda anlamsız kalırdı (`AttackOutcome.cs:21-24`).
 
 İhlal edilseydi hangi dosya değişirdi: `Assets/Game/Unity/BoardAdapter.cs`.
-Oradaki `ReactToMove` (`:904`) ve saldırı ikizi `ReactToAttack` (`:854`),
+Oradaki `ReactToMove` (`:1310`) ve saldırı ikizi `ReactToAttack` (`:1232`),
 beş ret sebebi tek bir `bool`'a inseydi, sebebi **yeniden hesaplamak** zorunda
 kalırdı — yani `MoveAction`'ın kurallarını ikinci kez yazardı.
 
@@ -731,7 +795,7 @@ ikinci bir doğruluk kaynağı yaratma kararıdır (`Battle.cs:523-526`).
 
 **KAZANIRDI:** Tahta boyutu gerçekten ölçülebilir bir darboğaz olduğunda —
 `TryGetPosition` bugün `Width × Height` hücreyi tarıyor (`Battle.cs:535-547`)
-ve tahta `3×5` (`BoardAdapter.cs:113-114`), yani en fazla 15 hücre. Ölçü
+ve tahta `3×5` (`BoardAdapter.cs:114-115`), yani en fazla 15 hücre. Ölçü
 büyüdüğünde ve tarama profilde göründüğünde tablo doğru seçim olur — ama o gün
 **tek yazma kapısı** zorunlu hâle gelir.
 
@@ -762,15 +826,15 @@ Aşağıdakilerin hiçbiri bu projede **yok**. Yokluk bir eksiklik değil, bir
 | Aday | Neden yok — ölçü |
 |---|---|
 | Command | `MoveAction.cs:42`, `AttackAction.cs:36`, `BattleActions.cs:50` üçü de `static class`; saklanacak nesne yok, geri alma yok |
-| Strategy | Üretim kodunda `interface` kelimesi hiç geçmiyor; aynı çağıranın iki uygulamayı çalıştırdığı tek bir yer yok |
-| Factory | `BoardAdapter.cs:749` `NewCombatant` bir **private yardımcı**; üretim politikası taşımıyor, tip seçmiyor |
+| Strategy | Üretim kodunda **bir** `interface` var (`IPlacementBoard.cs:39`) ama uygulayanı **tek** (`BoardAdapter`); Strategy'nin ölçüsü arayüzün varlığı değil, aynı çağıranın **iki** uygulama arasında seçim yapmasıdır — o seçim sıfır yerde |
+| Factory | `BoardAdapter.cs:1089` `NewCombatant` bir **private yardımcı**; üretim politikası taşımıyor, tip seçmiyor |
 | Singleton | Üretim kodunda değiştirilebilir hiçbir `static` alan yok; tek `static` alan `TurnState.cs:44` ve `readonly` + salt okunur görünüm |
 | Service Locator | Kayıt defteri yok; bağımlılıklar kurucudan ya da `[SerializeField]`'den geliyor |
-| Decorator | Sarmalanacak sabit bir sözleşme (arayüz/soyut tip) yok |
+| Decorator | Sözleşme artık **var** (`IPlacementBoard`), ama Decorator'ın ölçüsü sözleşme değil: aynı sözleşmeyi uygulayıp **başka bir uygulamayı sarmalayan** bir tip gerekir. Uygulayan tek ve hiçbir şeyi sarmalamıyor — sıfır |
 | MVP / MVC | `UnitView.cs:43` edilgen bir görünüm, ama karşısında bir sunucu (presenter) tipi yok; niyet çevirisi `BoardAdapter` içinde <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil --> |
-| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:739`) ve `Destroy` (`BoardAdapter.cs:1007`) doğrudan çağrılıyor |
-| ScriptableObject | `Assets/` altında hiçbir tip `ScriptableObject`'ten türemiyor; tek geçtiği yer `AttackProfile.cs:13` ve `:44`, ikisi de **karar notu** |
-| Olay veri yolu | Ortak bir yayın noktası yok; üç `event` doğrudan zincir hâlinde bağlı (8. desen) |
+| Nesne havuzu | `Assets/` altında `Pool` kelimesi hiç geçmiyor; `Instantiate` (`BoardAdapter.cs:1078`) ve `Destroy` (`BoardAdapter.cs:1473`) doğrudan çağrılıyor |
+| ScriptableObject | ***ARTIK VAR*** — 2026-08-25'te iki tip türedi: `UnitBlueprintAsset.cs:45` ve `StructureBlueprintAsset.cs:37`. `AttackProfile.cs:13` ve `:44`'teki **karar notları** hâlâ yerinde ve hâlâ doğru: o tip bilerek düz C# kaldı, çünkü doğrulamasını kurucuda yapıyor. Yani aday "yok" değil, ***kısmen uygulandı*** |
+| Olay veri yolu | Ortak bir yayın noktası yok; **10** `event` doğrudan zincir hâlinde bağlı (8. desen). Sayı 2026-08-25'te üçten ona çıktı — ama veri yolunun ölçüsü sayı değil **dolaylılık**: onun onu da yayıncısını tip olarak tanıyan bir aboneye gidiyor, ortada kayıt defteri yok |
 | Coroutine / `async` | `Assets/Game/` altında `IEnumerator`, `yield`, `async`, `Task`, `Awaitable` kelimelerinin hiçbiri geçmiyor |
 
 ---
@@ -790,13 +854,13 @@ Assets/Game/Core/MoveAction.cs:42             public static class MoveAction
 Assets/Game/Battle/BattleActions.cs:50        public static class BattleActions
 Assets/Game/Core/Combat/AttackProfile.cs:40   public sealed class AttackProfile
 Assets/Game/Core/MoveProfile.cs:42            public sealed class MoveProfile
-Assets/Game/Unity/BoardAdapter.cs:110         public sealed class BoardAdapter : MonoBehaviour
-Assets/Game/Unity/BoardAdapter.cs:184         private Grid unityGrid;
-Assets/Game/Unity/BoardAdapter.cs:199         private readonly Dictionary<Unit, UnitView> unitViews =
-Assets/Game/Unity/BoardAdapter.cs:627         battle.Tick(Time.deltaTime);
-Assets/Game/Unity/BoardAdapter.cs:739         UnitView view = Instantiate(unitPrefab, transform);
-Assets/Game/Unity/BoardAdapter.cs:749         private Combatant NewCombatant(Team team)
-Assets/Game/Unity/BoardAdapter.cs:1007        Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:111         public sealed class BoardAdapter : MonoBehaviour
+Assets/Game/Unity/BoardAdapter.cs:194         private Grid unityGrid;
+Assets/Game/Unity/BoardAdapter.cs:209         private readonly Dictionary<Unit, UnitView> unitViews =
+Assets/Game/Unity/BoardAdapter.cs:931         battle.Tick(Time.deltaTime);
+Assets/Game/Unity/BoardAdapter.cs:1078         UnitView view = Instantiate(unitPrefab, transform);
+Assets/Game/Unity/BoardAdapter.cs:1089         private Combatant NewCombatant(Team team)
+Assets/Game/Unity/BoardAdapter.cs:1473        Destroy(view.gameObject);
 Assets/Game/Battle/Battle.cs:59               private readonly Dictionary<Unit, Combatant> combatants =
 Assets/Game/Battle/Battle.cs:66               private readonly Dictionary<Unit, Structure> structures =
 Assets/Game/Battle/Battle.cs:81               private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =

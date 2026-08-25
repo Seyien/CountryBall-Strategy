@@ -774,7 +774,7 @@ Parameter name: unit
 Sebebi tam olarak yukarıdaki alıntının ikinci satırı:
 
 ```
-BoardAdapter.cs:502   Unit placer = selectedUnit;
+BoardAdapter.cs:601   Unit placer = selectedUnit;
 BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
                                                           ▲
                       >> YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR <<
@@ -792,8 +792,8 @@ Battle.cs:289             throw new ArgumentException("The unit is already in th
 tıklanarak doğuyor.
 
 ```
-BoardAdapter.cs:359   private void TryEnterPlacementMode()
-BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
+BoardAdapter.cs:458   private void TryEnterPlacementMode()
+BoardAdapter.cs:462       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
 ```
 
 **Hangi hücrede ne olduğu ölçüldü — üç dal, ve *sağlıklı* iki dalı ret

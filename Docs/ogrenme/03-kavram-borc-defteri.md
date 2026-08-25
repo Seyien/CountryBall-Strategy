@@ -122,12 +122,12 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | Saf kural sınıfı (stateless policy) | `Docs/ogrenme/01-koda-gomulu-desenler.md:31` | KAPALI | Dokuz tip, hepsi `static class`, hiçbirinde alan yok |
 | Akış sahibi (transaction script) | `Docs/ogrenme/01-koda-gomulu-desenler.md:102` | KAPALI | `MoveAction`, `AttackAction`, `BattleActions`; ret sırası bir karar olarak yazılı |
 | Durum makinesi — enum tabanlı | `Docs/ogrenme/01-koda-gomulu-desenler.md:190` | KAPALI | Üç makine, yasak geçişler, beyaz liste biçimi |
-| Katman sınırı çevirmeni | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KAPALI | Duvar dört `.asmdef`'te, kapı `Assets/Game/Unity/BoardAdapter.cs:110` |
+| Katman sınırı çevirmeni | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KAPALI | Duvar dört `.asmdef`'te, kapı `Assets/Game/Unity/BoardAdapter.cs:111` |
 | Bileşim ve kalıtımın reddi | `Docs/ogrenme/01-koda-gomulu-desenler.md:364` | KAPALI | 33 üretim dosyasında `abstract`/`virtual`/`override` hiç geçmiyor |
 | Sonuç değeri kanalı (result enum) | `Docs/ogrenme/01-koda-gomulu-desenler.md:513` | KAPALI | Dört enum; sıfırıncı değer kararı dördünde de aynı |
 | Gözlemci (Observer) | `Docs/ogrenme/01-koda-gomulu-desenler.md:580` | KAPALI | Dört duraklı zincir; hikâyesi `Docs/deep/konular/01-olay-zinciri.md:63` |
 | Kimlik + yan tablo | `Docs/ogrenme/01-koda-gomulu-desenler.md:665` | KAPALI | `Unit` + üç sözlük; anahtarı ayakta tutan şey `Equals`'in YOKLUĞU |
-| Flyweight — paylaşılan değişmez tanım | `Docs/ogrenme/01-koda-gomulu-desenler.md:439` | KISMİ | İç durum yarısı var (`AttackProfile`, `MoveProfile` değişmez). EKSİK: paylaşımı yöneten havuz/fabrika; bugün her birim kendi profilini alıyor `Assets/Game/Unity/BoardAdapter.cs:759` |
+| Flyweight — paylaşılan değişmez tanım | `Docs/ogrenme/01-koda-gomulu-desenler.md:439` | KISMİ | İç durum yarısı var (`AttackProfile`, `MoveProfile` değişmez). EKSİK: paylaşımı yöneten havuz/fabrika; bugün her birim kendi profilini alıyor `Assets/Game/Unity/BoardAdapter.cs:1099` |
 | Command | `Docs/ogrenme/01-koda-gomulu-desenler.md:102` | KISMİ | Neden bu projede olmadığı ve neyin yanlış hatırlandığı yazılı. EKSİK: tetikleyici koşulu — hamle geçmişi, tekrar izleme ya da geri alma özelliği doğmadı |
 | GoF State — hâl başına sınıf | `Docs/ogrenme/01-koda-gomulu-desenler.md:190` | KISMİ | Enum tabanlı makine kapalı; GoF biçimiyle farkı yazılı. EKSİK: hâl başına onlarca satır davranış biriktiğinde geçiş eşiği ölçülmedi |
 | GoF Adapter — arayüz dönüştürücü | `Docs/ogrenme/01-koda-gomulu-desenler.md:274` | KISMİ | Katman çevirmeni ile farkı yazılı. EKSİK: gerçek bir arayüz dönüştürme örneği yok, çünkü projede `interface` hiç yok |
@@ -155,7 +155,7 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | Ad çözümleme ve `using` alias | `Docs/deep/kod/Unity/BoardAdapter.md:78` | KAPALI | Arama seviyeleri haritası; alias'ın yerinin kuralın kendisi olması |
 | Serileştirme — `[SerializeField]` ve alan tipi | `Docs/deep/kod/Unity/BoardAdapter.md:258` | KISMİ | Sayının hangi dosyada yaşayacağı kararı ve üç attribute'ün üç ayrı işi :308 kapalı. EKSİK: Unity hangi tipleri serileştirir, `[SerializeReference]`, özel çizici; `.meta` GUID tarafı ayrı satırda |
 | `.meta` dosyası ve GUID sahipliği | `AŞAMA: sahipsiz — ilk prefab/asset taşıma işi yapıldığı gün` | HENÜZ YOK | Bugün tek değinme `Docs/deep/README.md:44` — `Assets/` altındaki bir `.md`'nin `.meta` üretmesi; kavram olarak anlatılmıyor |
-| Unity mesaj geri çağrıları (`Awake`/`OnEnable`/`Update`) | `Docs/deep/konular/08-motor-cagri-dongusu.md:125` | KAPALI | "Birinci durak: `Awake` bir `event` DEĞİLDİR"; çağrı sırası sahipleriyle :248. Koddaki karar `Assets/Game/Unity/BoardAdapter.cs:276` |
+| Unity mesaj geri çağrıları (`Awake`/`OnEnable`/`Update`) | `Docs/deep/konular/08-motor-cagri-dongusu.md:125` | KAPALI | "Birinci durak: `Awake` bir `event` DEĞİLDİR"; çağrı sırası sahipleriyle :248. Koddaki karar `Assets/Game/Unity/BoardAdapter.cs:293` |
 | Tembel `GetComponent` ve `Awake`'in EditMode'da çalışmaması | `Assets/Game/Unity/UnitView.cs:113` | KAPALI | Ölçülmüş sebep: `Awake` EditMode'da hiç çalışmaz, orada kurulan referans tipi sahnesiz sınanamaz kılardı |
 | Domain Reload ve sahne yeniden yükleme | `Docs/deep/konular/08-motor-cagri-dongusu.md:718` | KAPALI | "Altıncı durak: Domain Reload — sessiz kanıt kirleticisi". `static` durumun Domain Reload kapalıyken hayatta kalması ayrıca Aşama 4'te |
 | Zamanın dışarıdan verilmesi (`Time.deltaTime` sınırı) | `Assets/Game/Core/Combat/UnitLifecycle.cs:163` | KAPALI | Ölçülmüş: EditMode'da `Time.deltaTime` sıfır değil 0,017675 döner; zamanı içeriden okuyan tasarım sessizce anlamsız yürür |
@@ -192,7 +192,7 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | Tarama maliyeti ve karmaşıklık | `Assets/Game/Battle/Battle.cs:528` | KISMİ | `TryGetPosition` tahtayı `Width × Height` tarıyor ve maliyet gerekçede adı konmuş. EKSİK: karmaşıklık gösterimi ve ölçüm; bugün tahta 15 hücre |
 | Belirlenimci kural ve saf fonksiyon | `Assets/Game/Core/Combat/DamageRules.cs:19` | KAPALI | Formülün girdi uzayı sahibininkinden geniş; negatif yollar da sınanabiliyor |
 | Yol bulma (A\*) ve engel maliyeti | `AŞAMA: sahipsiz — birim adım adım yürümeye başladığı gün` | HENÜZ YOK | Bugün hareket ışınlanma: `Assets/Game/Core/MoveAction.cs:27` yolun üzerinde ne olduğunu bilmediğini açıkça yazıyor |
-| Rastgelelik ve tohum (seed) | `AŞAMA: sahipsiz — ilk rastgele karar doğduğu gün` | HENÜZ YOK | Üretim kodunda `Random` hiç geçmiyor; zemin deseni bile sabit bir formül `Assets/Game/Unity/BoardAdapter.cs:702` |
+| Rastgelelik ve tohum (seed) | `AŞAMA: sahipsiz — ilk rastgele karar doğduğu gün` | HENÜZ YOK | Üretim kodunda `Random` hiç geçmiyor; zemin deseni bile sabit bir formül `Assets/Game/Unity/BoardAdapter.cs:1015` |
 
 ---
 

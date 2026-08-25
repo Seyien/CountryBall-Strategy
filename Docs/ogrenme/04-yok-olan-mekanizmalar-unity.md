@@ -229,7 +229,7 @@ koştur — ikincisi kırmızı. Ölçü testin kendisi değil, testleri **ayır
 // BoardAdapter.cs:191
 private Battle battle;
 
-// BoardAdapter.cs:238   (Awake'in içinde)
+// BoardAdapter.cs:299   (Awake'in içinde, :293)
 battle = new Battle(width, height);
 ```
 
@@ -375,12 +375,12 @@ hiçbiri değil — ve olmadıkları için soru da doğmuyor.
 ### ⑤ NE KIRAR
 
 ① **`Awake`'in demo satırları ikinci kez koşar.** `BoardAdapter.Awake` sahne
-yüklendiğinde iki birim doğuruyor (`BoardAdapter.cs:267-268`). Adaptör kalıcı yapılsaydı ve
+yüklendiğinde iki birim doğuruyor (`BoardAdapter.cs:328-329`). Adaptör kalıcı yapılsaydı ve
 sahne yeniden yüklenseydi, kalıcı adaptörün **yanına** yeni sahnenin adaptörü
 düşerdi: iki adaptör, iki savaş, dört birim.
 
 ② **`OnEnable`/`OnDisable` simetrisinin dayanağı değişir.** Bugün simetriyi
-disiplin tutuyor ve bu kodda yazılı — `BoardAdapter.cs:282-283`: "eksik bir `-=`
+disiplin tutuyor ve bu kodda yazılı — `BoardAdapter.cs:343-344`: "eksik bir `-=`
 tek bir uyarı bile üretmez". Risk bugün küçük çünkü nesne sahneyle birlikte yok
 oluyor; kalıcı bir nesnede aynı eksiklik **oturum boyu** yaşar.
 
@@ -480,7 +480,7 @@ Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 ```
 
 ***ÖLÇÜ*** — `TryReadPointerCell` `Camera.main`'i çağrı başına **iki kez** okuyor
-ve iki çağıranı var: `HandleClick` (`BoardAdapter.cs:773`, tıklama başına) ve `UpdatePlacement`
+ve iki çağıranı var: `HandleClick` (`BoardAdapter.cs:864`, tıklama başına) ve `UpdatePlacement`
 (`:415`) — ikincisi **yerleştirme kipindeyken her karede** koşuyor. Okumanın
 motor içinde önbelleklenip önbelleklenmediği bu turda **doğrulanmadı**; yerel
 belge önbellekten söz etmiyor. ***Zaten konumuz o değil: maliyet bilinmiyor,
@@ -534,23 +534,23 @@ Bağımlılıklar bugün üç yoldan geliyor ve **sayıldı**:
 | Serileştirilmiş alan | **13** | `BoardAdapter.cs` — `:113 :114 :117 :124 :135 :138 :141 :150 :160 :168 :171 :174 :178` |
 | Serileştirilmiş alan | **3** | `UnitView.cs` — `:51` · `:59` · `:66` |
 | Kurucu parametresi | — | `Combatant.cs:59` (4 bağımlılık) · `Structure.cs:51` · `PointerGesture.cs:127` · `new Battle(width, height)` |
-| `GetComponent` (kendi nesnesinde) | **2** | `BoardAdapter.cs:237` (`Grid`) · `UnitView.cs:125` (`SpriteRenderer`) |
-| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:597` ve `:603` — `Camera.main` |
+| `GetComponent` (kendi nesnesinde) | **2** | `BoardAdapter.cs:298` (`Grid`) · `UnitView.cs:125` (`SpriteRenderer`) |
+| ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:876` ve `:882` — `Camera.main` |
 | Tip taraması (`Find*`) | **0** | — |
 
 ***İki `GetComponent`, bir `Find` DEĞİLDİR*** — `GetComponent` **bu nesnenin**
-bileşen listesinde arar, sahnede değil; kodda yazılı (`BoardAdapter.cs:234-236`): "bileşen
+bileşen listesinde arar, sahnede değil; kodda yazılı (`BoardAdapter.cs:295-297`): "bileşen
 listesinde arar ... Listede bir Grid bulunacağını RequireComponent garanti eder."
 Kapsam farkı ölçülebilir: `GetComponent<Grid>()` için aday sayısı bu
 GameObject'in bileşen sayısı (**3**), `FindObjectOfType<Grid>()` için yüklü
-bileşenlerin tamamı (**~46**). Ve `[RequireComponent(typeof(Grid))]` (`:109`)
+bileşenlerin tamamı (**~46**). Ve `[RequireComponent(typeof(Grid))]` (`:110`)
 birincisine bir **garanti** ekliyor; ikincisine böyle bir garanti veren hiçbir
 etiket yok.
 
 ### ⑤ NE KIRAR
 
 ① **Inspector kapıları düşer.** Bugün üç `LogError` var ve üçü de `Awake`'te,
-yani **kullanımdan önce**: `unitPrefab` (`BoardAdapter.cs:272`), `placementGhost` (`:250`),
+yani **kullanımdan önce**: `unitPrefab` (`BoardAdapter.cs:333`), `placementGhost` (`:311`),
 `selectionOverlay` (`UnitView.cs:99`). Bir `Find` bu kapıların hiçbirini
 üretemez — "atanmamış" diye bir hâl yoktur, yalnız "bulunamadı" vardır ve o da
 çağrı anında öğrenilir.
@@ -742,7 +742,7 @@ her Move çağrısında kurulan MoveProfile sayısı       ◄── 1
 ```
 
 Aynısı bir adım hafifiyle `AttackProfile` için de geçerli: `NewCombatant` her
-birime kendi profilini kuruyor (`BoardAdapter.cs:759`) — iki birim, iki profil,
+birime kendi profilini kuruyor (`BoardAdapter.cs:1099`) — iki birim, iki profil,
 aynı `damage`, aynı `attackRange`, iki ayrı nesne.
 [6. desen](01-koda-gomulu-desenler.md#6-paylasilan-degismez-tanim-flyweightin-ic-durum-yarisi)
 iç durum yarısının var olduğunu zaten yazıyor; borç defteri de "paylaşımı yöneten
@@ -936,7 +936,7 @@ DestroyImmediate  0              (yalnız testlerde: 2 satır)
 ```
 
 Buna karşılık **tahsis bilinci** projede zaten var ve havuzsuz uygulanmış — kap
-yeniden kullanılıyor (`BoardAdapter.cs:205-210`, `cleanupBuffer`): "her karede
+yeniden kullanılıyor (`BoardAdapter.cs:227-232`, `cleanupBuffer`): "her karede
 yeni bir List kurmak kare başına çöp üretirdi." ***Bu, `ListPool<T>`'nin elle
 yazılmış ve tek kullanıcılı hâlidir;*** havuzun çözdüğü problemin en küçük örneği
 zaten burada ve doğru çözülmüş.
@@ -963,7 +963,7 @@ penceresi kayar · `unitViews` üçüncü bir hâl kazanır). ***Üzerine koydu�
 tanesi:***
 
 ① **Ebeveyn eski kullanımdan kalır.** `Instantiate`'in ikinci parametresi bugün
-bir yaşam döngüsü kararı — `BoardAdapter.cs:735-736`: "ikinci parametre ebeveyni verir, böylece
+bir yaşam döngüsü kararı — `BoardAdapter.cs:1074-1075`: "ikinci parametre ebeveyni verir, böylece
 tahta yok olunca birimler de gider." Havuzdan gelen nesnenin `transform.parent`'ı
 **önceki** kullanımdan kalır, ve bu projede tam bir anlamı var: ebeveyn yanlışsa
 "tahtayı yok et" tek çağrısı artık o nesneyi kapsamaz.
@@ -1121,12 +1121,12 @@ olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı g
 belgede geçen aynı numaraların hepsi elden geçirilir.
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:191         private Battle battle;
-Assets/Game/Unity/BoardAdapter.cs:237         unityGrid = GetComponent<Grid>();
-Assets/Game/Unity/BoardAdapter.cs:597         if (Camera.main == null)
-Assets/Game/Unity/BoardAdapter.cs:654         for (int x = 0; x < battle.Width; x++)
-Assets/Game/Unity/BoardAdapter.cs:740         view.name = $"Unit_{unit.Name}_{x}_{y}";
-Assets/Game/Unity/BoardAdapter.cs:759         new AttackProfile(damage, attackRange),
+Assets/Game/Unity/BoardAdapter.cs:201         private Battle battle;
+Assets/Game/Unity/BoardAdapter.cs:298         unityGrid = GetComponent<Grid>();
+Assets/Game/Unity/BoardAdapter.cs:876         if (Camera.main == null)
+Assets/Game/Unity/BoardAdapter.cs:967         for (int x = 0; x < battle.Width; x++)
+Assets/Game/Unity/BoardAdapter.cs:831         view.name = $"Unit_{unit.Name}_{x}_{y}";
+Assets/Game/Unity/BoardAdapter.cs:1099         new AttackProfile(damage, attackRange),
 Assets/Game/Core/Combat/AttackProfile.cs:59   if (range < 1)
 Assets/Game/Battle/BattleActions.cs:178       var profile = new MoveProfile(moveRange);
 Assets/Game/Unity/UnitView.cs:93              SetState(UnitState.Alive);

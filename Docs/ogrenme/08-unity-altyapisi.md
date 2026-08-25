@@ -392,18 +392,37 @@ kurabilirsin: *"bir değer tipi döndüren özelliğin dönüşü değiştirilem
 Çözüm de tek satırdır: bütün vektörü yaz.
 
 ```
-BoardAdapter.cs:741   view.transform.position = CellCentre(x, y);
+BoardAdapter.cs:1080   view.transform.position = CellCentre(x, y);
 ```
 
-Bu satır projedeki dört konum yazımından biri ve dördü de aynı biçimde —
+Bu satır projedeki ***altı*** konum yazımından biri ve altısı da aynı biçimde —
 parça değil, **bütün vektör**:
 
 ```
-BoardAdapter.cs:423   placementGhost.transform.position = CellCentre(x, y);
-BoardAdapter.cs:570   structureObject.transform.position = CellCentre(x, y);
-BoardAdapter.cs:677   cell.transform.position = CellCentre(x, y);
-BoardAdapter.cs:741   view.transform.position = CellCentre(x, y);
+BoardAdapter.cs:522    placementGhost.transform.position  = CellCentre(x, y);
+BoardAdapter.cs:756    placementGhost.transform.position  = CellCentre(x, y);   ← YENİ
+BoardAdapter.cs:798    structureObject.transform.position = CellCentre(x, y);
+BoardAdapter.cs:990    cell.transform.position            = CellCentre(x, y);
+BoardAdapter.cs:1080   view.transform.position            = CellCentre(x, y);
+BoardAdapter.cs:1421   view.transform.position            = CellCentre(x, y);   ← YENİ
 ```
+
+***SAYI DÖRTTEN ALTIYA ÇIKTI (2026-08-25), İDDİA AYNEN AYAKTA.*** İki yeni
+yazımı getiren şey `SetPlacementGhost` (`:737`) ve birimin hücre değiştirmesi.
+İddianın konusu sayı değil **biçim**di, ve biçim altıda altı korundu:
+
+```
+  >> ALTISI DA AYNI ÜÇ ÖZELLİĞİ TAŞIYOR <<
+
+  ① bütün vektör yazılıyor       — .x/.y'ye tek bir atama YOK
+  ② sağ taraf tek bir çağrı      — altısı da CellCentre(x, y)
+  ③ hepsi tek dosyada            — altısı da BoardAdapter.cs
+```
+
+Üçüncü madde asıl ölçüdür: hücre→dünya çevirisinin **tek** bir sahibi var ve
+konum yazan altı satırın altısı da o sahibin içinde. Bir yazım daha eklendiğinde
+kırılacak olan şey sayı değil, bu üç maddeden biridir — asıl izlenmesi gereken
+budur.
 
 ***İkinci fatura: `position` bir özellik olduğu için her okuma bir ÇAĞRIDIR.***
 Ölçülmüş şekli birinci durakta: `get_position` → `get_position_Injected`
@@ -427,22 +446,38 @@ içinde bile iki ayrı dünya var.
 ### ⑦ Bu projede `Vector3` nerede geçiyor — SAYILDI
 
 ```
-ÜRETİM KODU (Assets/Game/)
-    Vector3     ► 2 satır      ikisi de BoardAdapter.cs
-    Vector3Int  ► 2 satır      ikisi de BoardAdapter.cs
-    UnitView.cs ► >> SIFIR <<  bu dosya bir vektör hiç görmez
+ÜRETİM KODU (Assets/Game/)          — 2026-08-25'te yeniden sayıldı
+    Vector3     ► 2 satır      ikisi de BoardAdapter.cs      (değişmedi)
+    Vector3Int  ► 2 satır      ikisi de BoardAdapter.cs      (değişmedi)
+    Vector2     ► 9 satır      ALTI ayrı dosyada             >> YENİ <<
+    UnitView.cs ► >> SIFIR <<  bu dosya bir vektör hiç görmez (değişmedi)
 TEST KODU (Assets/Tests/)
     Vector3     ► 3 satır      GridCellGapCharacterizationTests.cs
 ```
 
-Dört üretim satırının tamamı:
+Dört `Vector3`/`Vector3Int` üretim satırının tamamı:
 
 ```
-BoardAdapter.cs:603   Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-BoardAdapter.cs:609   Vector3Int cell = unityGrid.WorldToCell(worldPoint);
-BoardAdapter.cs:712   private Vector3 CellCentre(int x, int y)
-BoardAdapter.cs:714   return unityGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
+BoardAdapter.cs:882    Vector3 worldPoint = Camera.main.ScreenToWorldPoint(screenPoint);
+BoardAdapter.cs:888    Vector3Int cell = unityGrid.WorldToCell(worldPoint);
+BoardAdapter.cs:1025   private Vector3 CellCentre(int x, int y)
+BoardAdapter.cs:1027   return unityGrid.GetCellCenterWorld(new Vector3Int(x, y, 0));
 ```
+
+***DOKUZ `Vector2` SATIRI YENİ ve iddiayı sınıyor.*** Sürükle-bırak katmanı
+ekran noktasını taşımak zorunda; `Vector2` bu yüzden altı dosyaya yayıldı:
+
+```
+IPlacementBoard.cs:72       PaletteEntryView.cs:63 :66
+ProductionDirector.cs:212 :234   ProductionPanelView.cs:201 :209
+StructurePaletteView.cs:158 :166    BoardAdapter.cs:848 :869
+```
+
+***İDDİA YİNE DE AYAKTA, çünkü konusu dosya değil DUVAR'dı:*** dokuz satırın
+dokuzu da `GridStrategy.Unity` içinde. Çekirdek üç assembly'de `Vector2`,
+`Vector3` ve `Vector3Int` toplamı **sıfır** — duvarın öte yanına bugün de
+yalnız `int x, int y` geçiyor. Değişen şey duvarın yeri değil, duvarın bu
+yanındaki odanın büyümesi.
 
 ***Şeklin kendisi bir mimari ifadesidir:*** `Vector3` **duvarı geçmiyor**.
 Piksel, dünya noktası ve hücre indeksi arasındaki çeviri `BoardAdapter`'da
@@ -450,7 +485,7 @@ başlıyor ve orada bitiyor; duvarın öte yanına yalnız `int x, int y` geçiy
 Duvarın kendi hikâyesi: [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md).
 
 `Vector3Int` ayrı bir tiptir ve **bilerek** kullanılıyor: `float` bir hücre
-indeksi olamaz. Kodun kendi notu (`BoardAdapter.cs:607-608`) bunu yazıyor.
+indeksi olamaz. Kodun kendi notu (`BoardAdapter.cs:886-887`) bunu yazıyor.
 `Vector3Int` sınırın ötesine geçmez. "Tahta içinde mi" sorusunu soran taraf
 yine `Battle`'dır.
 
@@ -473,7 +508,7 @@ Her `GameObject` **tam bir** `Transform` taşır; ebeveyn/çocuk bağı o bileş
 üstündedir. Kodun kendi notu bunu yazıyor:
 
 ```
-BoardAdapter.cs:673   cell.transform.SetParent(transform, worldPositionStays: false);
+BoardAdapter.cs:986   cell.transform.SetParent(transform, worldPositionStays: false);
 ```
 
 Çıplak `transform` = `this.transform`. Amaç konum değil ***TOPLU YAŞAM
@@ -617,8 +652,8 @@ MonoBehaviour:
 `width` ve `height` C# tarafında `private`:
 
 ```
-BoardAdapter.cs:113   [SerializeField, Min(1)] private int width = 3;
-BoardAdapter.cs:114   [SerializeField, Min(1)] private int height = 5;
+BoardAdapter.cs:114   [SerializeField, Min(1)] private int width = 3;
+BoardAdapter.cs:115   [SerializeField, Min(1)] private int height = 5;
 ```
 
 ***Erişim belirteci C# derleyicisinin kuralıdır. Unity'nin serileştiricisi bir
@@ -647,20 +682,26 @@ sözlük olmak zorunda olduğu burada tekrar edilmiyor — sahibi
 
 *****SERİLEŞTİRME BİR ANLIK GÖRÜNTÜDÜR — bu projede CANLI ÖLÇÜM*****
 
-Şimdi say. `BoardAdapter` üstünde ***13*** adet `[SerializeField]` var.
-Sahne dosyasında yazılı olan ***4*** tane.
+Şimdi say. `BoardAdapter` üstünde ***14*** adet `[SerializeField]` var
+(2026-08-25'te yeniden sayıldı; bu sayı 13'tü, `reviveModifierKey` eklendi).
+Sahne dosyasında yazılı olan yine ***4*** tane.
 
 ```
 SAHNEDE VAR (4)     : width · height · terrainSprites · unitPrefab
-SAHNEDE YOK (9)     : maxHealth · damage · attackRange · moveRange ·
+SAHNEDE YOK (10)    : maxHealth · damage · attackRange · moveRange ·
                       placementGhost · dragThreshold · placementModeKey ·
-                      placementCancelKey · structureMaxHealth
+                      placementCancelKey · reviveModifierKey ·
+                      structureMaxHealth
 
 >> SAYIM TUZAĞI — bu dosya ona düştü ve düzeltti: <<
-    grep -c "SerializeField" BoardAdapter.cs   ► 14   ◄ >> YANLIŞ <<
-    çünkü BoardAdapter.cs:126 bir YORUM ve içinde o kelime geçiyor.
-    grep -cE "^\s*\[SerializeField" ...      ► 13   ◄ doğru sayı
+    grep -c "SerializeField" BoardAdapter.cs   ► 15   ◄ >> YANLIŞ <<
+    çünkü BoardAdapter.cs:127 bir YORUM ve içinde o kelime geçiyor.
+    grep -cE "^\s*\[SerializeField" ...      ► 14   ◄ doğru sayı
 Aynı tuzak UnitView'da da var (UnitView.cs:69 bir yorum): 4 değil >> 3 <<.
+
+>> TUZAK BİR KEZ DAHA VURDU: yukarıdaki iki sayı da BİRER ARTTI, aradaki <<
+>> FARK ise sabit kaldı (tam olarak 1 yorum satırı). Sayının değişmesi     <<
+>> dersin yanlışlandığı anlamına gelmez; DERS FARKTA, sayıda değil.        <<
 
 Dosya tarihleri:
     Assets/Scenes/SampleScene.unity        2026-08-16 23:28
@@ -772,8 +813,8 @@ malzeme örnekleri, gölgelendirici derlemesi.
       bozulduğu gün — gruplama sorusu ancak o gün gerçek olur.
    ③ Bir malzeme/gölgelendirici kararı verildiği gün (bugün hiç yok).
 Bugün alınan tek çizim kararı: sortingOrder — zemin 0, birimler 1:
-BoardAdapter.cs:690   renderer.sortingOrder = 0;
-BoardAdapter.cs:576   renderer.sortingOrder = 1;
+BoardAdapter.cs:1003   renderer.sortingOrder = 0;
+BoardAdapter.cs:804   renderer.sortingOrder = 1;
 ```
 
 ***Bu bir eksiklik değil, bir yokluk.*** Eksiklik yapılması gerekip
@@ -824,7 +865,7 @@ zaten kuruyor. ***Buradaki katkı: o tablonun makine tarafındaki kanıtı.***
 
 ```
 ① SEN YAZARSIN
-   BoardAdapter.cs:232   private void Awake()
+   BoardAdapter.cs:293   private void Awake()
    Derleyici için bu SIRADAN bir örnek metodu. `Awake` adının hiçbir
    özel anlamı yok. Ortada override yok, arayüz yok, çağıran satır yok.
         v
@@ -868,14 +909,61 @@ KIRILAN:
   · `UnitView` bugün `Update` YAZMIYOR ve yazmak zorunda da değil
     (ölçü: o dosyada `Time` kelimesi hiç geçmez). Arayüz olsaydı ya
     boş bir `Update` yazardı ya ayrı bir arayüz seçerdi.
-ÖLÇÜ: bugün MonoBehaviour'un uyguladığı arayüz sayısı >> 0 <<.
+ÖLÇÜ: Awake/Update/OnEnable ailesi için gereken arayüz sayısı >> 0 <<;
+      15 geri çağrının 15'i de hiçbir sözleşme imzalamadan koşuyor.
 ```
+
+***BU İDDİANIN SINIRI 2026-08-25'te ÖLÇÜLDÜ — ve sınır varmış.*** Yukarıdaki
+sıfır, motorun **ad tabanlı** geri çağrıları için doğru ve doğru kalıyor. Ama
+Unity'nin geri çağrı mekanizması tek değilmiş: `PaletteEntryView.cs:39-40`
+**dört** motor arayüzü uyguluyor —
+
+```
+IPointerClickHandler . IBeginDragHandler . IDragHandler . IEndDragHandler
+```
+
+— ve bunlar `EventSystem`'in **arayüz tabanlı** yoludur. Yani aynı motorda iki
+ayrı çözüm bir arada yaşıyor ve ayrım keyfî değil, ölçülebilir:
+
+```
+  >> İKİ MEKANİZMA, İKİ AYRI SORU <<
+
+  ad tabanlı (Awake, Update)     "bu tip şu ANI önemsiyor mu?"
+      · sözleşme yok, yazmazsan bedel yok
+      · yanlış yazarsan SESSİZ ölür  ← bu dosyanın ana dersi
+
+  arayüz tabanlı (IDragHandler)  "bu nesne şu OLAYIN hedefi mi?"
+      · sözleşme var, derleyici üye eksikliğinde patlar
+      · yanlış yazamazsın — ad denetimi DERLEME ANINDA
+```
+
+İkincisinin sessiz ölüm riski yoktur ve sebebi tam olarak birincisinin
+riskini doğuran şeydir: ***sözleşme, adı derleyiciye emanet eder.*** Unity
+ad tabanlı yolu kare başına çağrılan az sayıda mesaj için, arayüz yolunu ise
+seyrek ve hedefli olaylar için seçmiş.
 
 ***AD TABANLI ÇÖZÜM İKİSİNDEN DE KAÇINIR:*** yazmadığın geri çağrının hiçbir
 maliyeti yoktur — ne tabloda yer tutar, ne seni bir üye yazmaya zorlar. Motor
 yalnız **gerçekten tanımladıklarını** bulur.
 
-Bu projedeki ölçüsü: iki `MonoBehaviour`, **beş** geri çağrı tanımlı.
+Bu projedeki ölçüsü (2026-08-25): **altı** `MonoBehaviour` ve iki
+`ScriptableObject`, toplam ***15*** geri çağrı tanımlı. Sayı beşten on beşe
+çıktı; oran değişmedi — hiçbir tip yazmadığı geri çağrı için bedel ödemiyor.
+
+```
+BoardAdapter         Awake OnEnable OnDisable Update      ► 4
+ProductionDirector   Awake OnEnable OnDisable Update      ► 4
+ProductionPanelView  Awake OnEnable OnDisable             ► 3
+StructurePaletteView Awake                                ► 1
+UnitView             Awake                                ► 1
+StructureBlueprintAsset  OnValidate                       ► 1
+UnitBlueprintAsset       OnValidate                       ► 1
+```
+
+***YAZILMAYANIN BEDAVA OLDUĞUNUN ÖLÇÜSÜ BURADA GÖRÜNÜR HÂLE GELDİ:***
+`StructurePaletteView` ve `UnitView` yalnız `Awake` yazıyor — ikisi de
+`Update` yazmıyor ve motor onları kare listesine hiç almıyor. Bir arayüz
+sözleşmesi olsaydı ikisi de boş bir `Update` taşımak zorunda kalırdı.
 `Start`, `LateUpdate`, `FixedUpdate`, `OnDestroy`, `OnValidate` — hiçbiri yok ve
 hiçbirinin **yokluğu bir maliyet üretmiyor**. Tam sayım ve her birinin neden
 gerekmediği: [`konular/08` → Tanımlı OLMAYANLAR](../deep/konular/08-motor-cagri-dongusu.md#tanimli-olmayanlar-ve-neden-gerekmemis).
@@ -909,7 +997,7 @@ Metot orada duracak, derlenecek, ikiliye girecek ve ***hiçbir zaman
 Şimdi bunu bu projeye uygula:
 
 ```
-BoardAdapter.cs:238   battle = new Battle(width, height);
+BoardAdapter.cs:299   battle = new Battle(width, height);
 ```
 
 Bu satır `Awake` içinde. Adı `Awakee` yapsan:
@@ -932,14 +1020,14 @@ hâli***.
 **KENDİNİ KORUMA YOLU — bugün elde olan.** Bir geri çağrı yazdığında adını
 **IDE'nin tamamlamasından** seç, elle yazma. Rider ve Visual Studio bilinen
 Unity mesaj adlarını tanır. Bu bir garanti değil, bir alışkanlıktır. Bugün bu
-projede geri çağrıların **beşi de** doğru yazılmış (ölçü: beşi de gerçekten
-koşuyor, aksi hâlde oyun ilk karede patlardı).
+projede geri çağrıların ***on beşi de*** doğru yazılmış (ölçü: on beşi de
+gerçekten koşuyor, aksi hâlde oyun ilk karede patlardı).
 
 ### ⑤ ***Motor bunu her karede YANSIMAYLA mı çözüyor — DOĞRULANMADI***
 
 ```
 DOĞRULANABİLEN : Motorun çağrı yolu C#'ın erişim kurallarına tabi değil
-                 (5 geri çağrının 5'i de `private` ve 5'i de koşuyor).
+                 (15 geri çağrının 15'i de `private` ve 15'i de koşuyor).
 DOĞRULANABİLEN : MonoBehaviour zincirinde bu adlardan hiçbiri tanımlı değil,
                  yani çözüm kalıtımla YAPILMIYOR.
 >> DOĞRULANMADI << :
@@ -1060,7 +1148,7 @@ Yalnız son iki satır bu repoya karşı ölçüldü.
 | **Slay the Spire** ██ DOĞRULANMADI ██ | ██ EŞLEŞMİYOR ██ — Unity kullanmıyor; libGDX üstünde Java ile yazıldığı biliniyor | Kare akışı oyunun mimarisini **belirlemiyor**; iş kart oynandığında doğuyor ve bir eylem sırası hâlinde boşalıyor. Motorun sağladığı şey çizim ve girdi; kural tarafı motordan bağımsız |
 | **Vampire Survivors** ██ DOĞRULANMADI ██ | Kare döngüsü ve toplu çarpışma sorgusu | Yüzlerce gövde her kare yaklaşır, her silahın sayacı iner, kim kime değiyor diye bakılır. Kare başına iş **nesne sayısıyla büyür**; mimarinin tamamı bu büyümenin üstüne kurulu |
 | **Stardew Valley** ██ DOĞRULANMADI ██ | ██ EŞLEŞMİYOR ██ — Unity kullanmıyor; MonoGame/XNA üstünde yazıldığı biliniyor. `Game1` sınıfının güncelleme metodu akışı yürütüyor | Serileştirme ve varlık kimliği tarafında Unity'nin `.meta`/GUID'ine karşılık gelen bir şey **yok**; kayıt dosyası ve içerik yükleme elle yazılmış |
-| **CountryBall (bu proje)** ✅ ÖLÇÜLDÜ | ██ Serileştirme ██ (`[SerializeField]`) ve ██ ad tabanlı geri çağrı ██ | 13 + 3 = 16 serileştirilmiş alan sahnede/prefab'da yaşıyor; 5 geri çağrı motoru kodla buluşturuyor. Üçüncü hizmet `Transform` hiyerarşisi (2 seviye). Çizim tarafı yalnız `SpriteRenderer` |
+| **CountryBall (bu proje)** ✅ ÖLÇÜLDÜ | ***Serileştirme*** (`[SerializeField]`) ve ***ad tabanlı geri çağrı*** | 2026-08-25 sayımı: `GridStrategy.Unity` genelinde **44** serileştirilmiş alan (`BoardAdapter` 14 + `UnitView` 3 + yeni UI/varlık tipleri 27); **15** geri çağrı motoru kodla buluşturuyor. Üçüncü hizmet `Transform` hiyerarşisi (2 seviye). Dördüncüsü YENİ: `EventSystem`'in arayüz tabanlı olay yolu (`PaletteEntryView`, 4 arayüz). Çizim tarafı `SpriteRenderer` ve UI `Image`/`Text` |
 | ██ KARŞILIĞI OLMAYAN SATIR ██ | Fizik ve çarpışma | ██ HENÜZ YOK ██ → Vampire Survivors satırının belirleyici hizmeti bu projede **hiç yok**: `Rigidbody`, `Collider`, `OnTrigger*` → sıfır. Yaratacağı aşama: birimlerin hücre değil **serbest** konumda hareket ettiği gün |
 
 *****EN ÖĞRETİCİ SATIR BİRİNCİDİR***** ve iki kez öyle: (a) o oyun Unity bile
@@ -1110,9 +1198,9 @@ penceresine (varsayılan: sağda) bak.
 **GÖRÜNÜR SONUÇ:** ***Üç Bileşen*** sırayla: `Transform` · `Grid` ·
 `Board Adapter (Script)`. Sonuncusunun altında Inspector alanları: Width = 3 ·
 Height = 5 · Terrain Sprites (4 eleman) · Unit Prefab.
-**DUR VE RAPOR:** ***Asıl gözlem: kaç Inspector alanı görünüyor?*** Kodda 13
-`[SerializeField]` var, sahne dosyasında 4 tanesi yazılı. 13'ünü de görüyorsan
-Unity kalan 9'un değerini C# alan başlatıcılarından almış demektir.
+**DUR VE RAPOR:** ***Asıl gözlem: kaç Inspector alanı görünüyor?*** Kodda 14
+`[SerializeField]` var, sahne dosyasında 4 tanesi yazılı. 14'ünü de görüyorsan
+Unity kalan 10'un değerini C# alan başlatıcılarından almış demektir.
 ***Gördüğün sayıyı NOT AL.*** O sayı, 3.3'te "DOĞRULANMADI" diye işaretlenen
 tek soruyu tam olarak kapatır.
 
@@ -1149,7 +1237,7 @@ ADAY B   ArgumentException: The unit is already in this battle.
 ÖLÇÜLEN : Assets/Scenes/SampleScene.unity içinde `placementGhost` anahtarı
           >> HİÇ YOK << (3.3'teki "sahnede yazılı 4 alan" ölçümü).
           Aynı sebeple Awake'te de bir uyarı bekleniyor:
-BoardAdapter.cs:367   if (placementGhost == null)
+BoardAdapter.cs:309   if (placementGhost == null)
 >> DOĞRULANMADI << : Unity sahneyi açtığında alanın null kalıp kalmadığı.
           Editor bu turda açılmadı — ADIM 3'teki gözlem bu soruyu da kapatır.
 ```
@@ -1230,7 +1318,7 @@ ADIM 8   → GUID bağı bir teori değil, iki dosyada duran aynı 32 karakter
                      │                                             │
                      ▼                                             │
         SampleScene.unity → m_Script: {guid: 9997...}              │
-               + serileştirilmiş 4 alan (kodda 13 tane var)        │
+               + serileştirilmiş 4 alan (kodda 14 tane var)        │
                      │                                             │
                      ▼                                             │
  >> YEREL MOTOR (C++) << ◄─────────────────────────────────────────┘
@@ -1362,12 +1450,23 @@ varyantı gerektiği gün (kolay/zor mod, iki farklı birim türü). Bugün tek 
 `UnityEngine.LowLevel.PlayerLoop` bu sürümde **var** ve gerçekten
 değiştirilebilir (ölçüldü: `PlayerLoopSystem` tipinin `subSystemList` ve
 `updateDelegate` alanları public). ***HENÜZ YOK*** → sistem sayısı ikiyi geçtiği
-ve aralarındaki sıranın **gerçekten** önem kazandığı gün. İki `MonoBehaviour`
-için tartışılmaz bile.
+ve aralarındaki sıranın **gerçekten** önem kazandığı gün.
+
+***TETİKLEYİCİNİN YARISI 2026-08-25'te GERÇEKLEŞTİ.*** Eski cümle *"İki
+`MonoBehaviour` için tartışılmaz bile"* diyordu; bugün **altı** `MonoBehaviour`
+var, yani "sistem sayısı ikiyi geçti" koşulu **doldu**. Diğer yarısı hâlâ
+dolmadı ve ölçüsü şu: kare başına koşan iki `Update` var
+(`BoardAdapter.cs:416`, `ProductionDirector.cs:142`) ve ikisi **birbirinden
+bağımsız** — biri savaş saatini ilerletiyor, öteki üretim sayaçlarını.
+Aralarında ne paylaşılan bir durum ne de bir sıra bağı var; hangisi önce
+koşarsa koşsun sonuç aynı. ***Sıra önem kazandığı gün ölçü hazır: aynı veriyi
+bir `Update` yazıp öteki okumaya başladığında.***
 
 **Neden kaçılmadı:** kaçılacak bir şey yoktu. Motorun yüzeyi bu projede
-***5 geri çağrı · 16 serileştirilmiş alan · 4 konum yazımı · 2 vektör satırı***
-kadar. Geri kalan her şey duvarın öte yanında, motor diye bir şeyin varlığından
+***15 geri çağrı · 44 serileştirilmiş alan · 6 konum yazımı · 13 vektör satırı***
+kadar (sayılar 2026-08-25 ölçümü; önceki tur 5 · 16 · 4 · 2 idi). ***Yüzey
+büyüdü, ama tamamı hâlâ tek assembly'nin içinde*** — kaçılmayan şey bir
+büyüklük değil bir **sınır** kararıydı ve o sınır oynamadı. Geri kalan her şey duvarın öte yanında, motor diye bir şeyin varlığından
 habersiz yaşıyor.
 
 ---
@@ -1399,7 +1498,7 @@ Dürüstlük listesi. Bu dosyanın hiçbir yerinde bunlar iddia olarak yazılmad
 
 ⑤ `B` tuşuna basınca Console'da hangi hatanın çıktığı.
    SEBEP: yukarıdakinin doğrudan sonucu. `placementGhost` sahne dosyasında
-          YOK; null kalırsa BoardAdapter.cs:369 kipi hiç açmaz ve
+          YOK; null kalırsa BoardAdapter.cs:468 kipi hiç açmaz ve
           konular/07'nin ölçtüğü ArgumentException'a HİÇ ULAŞILMAZ.
    >> Bu, bu turun bulduğu ve raporladığı tek ÇELİŞKİDİR: << iki belge
           farklı Console çıktısı öngörüyor ve ayıran şey tek bir
@@ -1446,10 +1545,12 @@ grep -c "pinvokeimpl" core.il                  # ► 0
 # ④ Bu repodaki sayımlar
 cd <proje kökü>
 # >> DIKKAT — DUZ grep YANILTIR: yorum satirlarini da sayar. <<
-#    grep -c "SerializeField" BoardAdapter.cs  ► 14   ◄ YANLIS (biri yorum, :126)
+#    grep -c "SerializeField" BoardAdapter.cs  ► 15   ◄ YANLIS (biri yorum, :127)
 #    grep -c "SerializeField" UnitView.cs      ►  4   ◄ YANLIS (biri yorum, :69)
-grep -cE "^\s*\[SerializeField" Assets/Game/Unity/BoardAdapter.cs   # ► 13  DOGRU
+grep -cE "^\s*\[SerializeField" Assets/Game/Unity/BoardAdapter.cs   # ► 14  DOGRU
 grep -cE "^\s*\[SerializeField" Assets/Game/Unity/UnitView.cs       # ►  3  DOGRU
+# Katmanin tamami (2026-08-25 olcumu):
+grep -rcE "^\s*\[SerializeField" Assets/Game/Unity/ | awk -F: '{s+=$2} END {print s}'   # ► 44
 # Sahnedeki BoardAdapter blogunun serilestirilmis alanlari (m_* olmayanlar):
 sed -n '/^  m_EditorClassIdentifier:/,/^--- /p' Assets/Scenes/SampleScene.unity   | grep -E "^  [a-zA-Z]"                     # ► width · height · terrainSprites · unitPrefab
 grep    "guid:" Assets/Game/Unity/BoardAdapter.cs.meta            # ► 9997...

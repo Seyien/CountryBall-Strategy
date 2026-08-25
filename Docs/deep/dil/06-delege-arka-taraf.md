@@ -385,7 +385,7 @@ bir `+=`'i dengeler, iki `+=`'i değil. Simetriyi tutan şey derleyici değil,
 çağıranın disiplini.
 
 **Bu projede bugün ölçüsü:** üretimdeki üç `+=` üç ayrı dosyada ve her biri bir
-kez çalışıyor (`Combatant.cs:90`, `Battle.cs:228`, `BoardAdapter.cs:290`).
+kez çalışıyor (`Combatant.cs:90`, `Battle.cs:228`, `BoardAdapter.cs:351`).
 ***Önem kazanacağı gün:*** `BoardAdapter.OnEnable` bir `OnDisable` görmeden
 ikinci kez çağrıldığı gün — Unity'de bu, bileşen kapatılıp açıldığında
 olağandır; simetriyi bugün tutan tek şey `OnDisable`'daki eşleşen `-=` satırı.
@@ -594,7 +594,7 @@ ARIZA B — ABONELİK ŞİŞMESİ / SIZINTI  ayrı arıza, aynı yapı kapatıyo
 `Assets/Game` altında olay aboneliği için `+=` üç yerde, `-=` iki yerde geçiyor.
 `BoardAdapter` simetrik — `OnEnable`de `+=` (`BoardAdapter.cs:290`), `OnDisable`da
 `-=` (`BoardAdapter.cs:295`). `Battle` yönlendiricisini sözlükten alıp söküyor
-(`Battle.cs:349`). Eksik bir `-=` tek bir uyarı bile üretmez; bunu `BoardAdapter.cs:282`
+(`Battle.cs:349`). Eksik bir `-=` tek bir uyarı bile üretmez; bunu `BoardAdapter.cs:304`
 kendi yorumunda zaten söylüyor.
 
 > **◀ DÖNÜŞ:** [../../ogrenme/02-sonraki-asamalar.md](../../ogrenme/02-sonraki-asamalar.md#asama-3-olay-veri-yolu-event-bus)

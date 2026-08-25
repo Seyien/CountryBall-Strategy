@@ -226,6 +226,37 @@ KULEYE SAVASCI YERLESTIRME  ERTELENIR
    yani karmasiklik ekliyor, ogreti eklemiyor
 ```
 
+### N5 · Varlık tedarik sırası — ve manifesti taşımanın sebebi
+
+Çatalda *"buna görsel lazım"* dendiği an refleks yeni paket aramaktır. O **son**
+basamaktır, ilk değil.
+
+```
+1  ZATEN ICERI ALINMIS      once projenin kendi sanat agacini ara
+2  ICERIDEKINDEN TURETILIR  palet takasi . tint . dondurme . fill
+                            KANIT zorunlu: IHDR/tRNS/acilmis IDAT birebir,
+                            renkler paketin KENDI semasindan olculur
+3  LISANSLI ve KAYITLI PAKETTE HALA VAR
+                            paketler yuzlerce karo tasir, proje bir avuc alir
+                            bu basamak MANIFEST yoksa GORUNMEZ
+4  YENI PAKET               ancak burada kaynak arama baslar, ve tam bir
+                            lisans incelemesini de beraberinde surukler
+```
+
+***Üçüncü basamağı var eden şey manifesttir.*** Nereden geldiğini yazmadan
+varlık içeri alan bir proje o basamağı sessizce silmiştir ve her boşlukta
+2'den 4'e atlar.
+
+Bu projede manifest var ve çatala **taşınacak** varlıkların arasındadır:
+[`../../Assets/Art/THIRD_PARTY_ASSETS.md`](../../Assets/Art/THIRD_PARTY_ASSETS.md).
+Paket başına şunları taşıyor: ürün sayfası, arşiv adresi, arşiv SHA-256, tam
+lisans adı, arşiv içi lisans metninin okunduğu teyidi, zorunlu atıf dizesi
+(bu üç pakette: ***yok***), ve bilerek alınmayanların gerekçesi.
+
+**Hükümde basamağı adlandır.** *"Buna görsel lazım"* ile *"4. basamak: elimizdeki
+hiçbir paket bunu karşılamıyor"* farklı iddialardır, ve yalnız ikincisi yeni
+paket aramayı meşrulaştırır.
+
 ---
 
 ## Zaman çizelgesi

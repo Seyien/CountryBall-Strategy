@@ -286,7 +286,7 @@ kapsamın ortasında ölü ilan edebilir.
 
 ### Bu projeden dört cevap, tek metotta
 
-`BoardAdapter.DespawnView` (BoardAdapter.cs:983-1010) dördünü tek ekranda gösteriyor:
+`BoardAdapter.DespawnView` (BoardAdapter.cs:1433-1476) dördünü tek ekranda gösteriyor:
 
 ```csharp
 private void DespawnView(Unit unit)
@@ -554,7 +554,7 @@ Combatant → Battle      sınır GEÇER  (iki ayrı ömür)      → >> SÖKMEK
 battle → BoardAdapter   sınır GEÇER  (motor ile çekirdek) → >> SÖKMEK ŞART <<
 ```
 
-Üçüncü satır `BoardAdapter.OnEnable`/`OnDisable` (BoardAdapter.cs:288-301) ve kodun
+Üçüncü satır `BoardAdapter.OnEnable`/`OnDisable` (BoardAdapter.cs:349-362) ve kodun
 oradaki uyarısı bu dosyanın da uyarısı: *"Simetriyi derleyici değil disiplin
 tutuyor: eksik bir `-=` tek bir uyarı bile üretmez."*
 
@@ -566,7 +566,7 @@ tutuyor: eksik bir `-=` tek bir uyarı bile üretmez."*
 C# temsili ve onunla ilişkili yerel motor durumu. İkisinin ömrü ayrı yönetilir.
 
 ```
-BoardAdapter.cs:1007    Destroy(view.gameObject);
+BoardAdapter.cs:1473    Destroy(view.gameObject);
        ┌─────────────────────┴──────────────────────┐
        ▼                                            ▼
 YEREL TARAF                              YÖNETİLEN TARAF
@@ -603,7 +603,7 @@ Burada tekrar edilmiyor; buradaki katkı tek cümle: **fark bir kaprisin değil,
 iki ayrı ömrün gözlemlenebilir izidir.** `==` "yerel taraf yaşıyor mu" diye
 sorar, `ReferenceEquals` "yönetilen kutu aynı kutu mu" diye.
 
-`BoardAdapter.DespawnView`'daki sıra (BoardAdapter.cs:1002-1007) tam olarak bunun
+`BoardAdapter.DespawnView`'daki sıra (BoardAdapter.cs:1468-1473) tam olarak bunun
 sonucu: önce `unitViews.Remove(unit)`, sonra `Destroy`. Tersi olsaydı tabloda
 "null gibi ama null değil" bir referans kalırdı — sözlükte duran, `== null`
 diyen, `ReferenceEquals` ile bulunabilen bir hayalet.
@@ -611,38 +611,65 @@ diyen, `ReferenceEquals` ile bulunabilen bir hayalet.
 ### Bu projede `Destroy` gerçekten çağrılıyor mu — SAYARAK
 
 ```
-ÜRETİM KODU (Assets/Game/)
-   Destroy(...)            ► 1 çağrı    BoardAdapter.cs:1007
+ÜRETİM KODU (Assets/Game/)            — 2026-08-25'te yeniden sayıldı
+   Destroy(...)            ► 3 çağrı    BoardAdapter.cs:1454, :1473
+                                         ProductionPanelView.cs:179
    DestroyImmediate(...)   ► 0 çağrı
-   OnDestroy()             ► 0 tanım    (yalnız BoardAdapter.cs:279'de
+   OnDestroy()             ► 0 tanım    (yalnız BoardAdapter.cs:340'ta
                                          REDDEDİLEN alternatif olarak anılıyor)
-   Instantiate(...)        ► 1 çağrı    BoardAdapter.cs:739
-   new GameObject(...)     ► 2 çağrı    BoardAdapter.cs:568, 656
-   AddComponent<...>()     ► 2 çağrı    BoardAdapter.cs:572, 671
+   Instantiate(...)        ► 3 çağrı    BoardAdapter.cs:1078
+                                         ProductionPanelView.cs:142
+                                         StructurePaletteView.cs:119
+   new GameObject(...)     ► 2 çağrı    BoardAdapter.cs:796, :980
+   AddComponent<...>()     ► 2 çağrı    BoardAdapter.cs:800, :995
 
 TEST KODU (Assets/Tests/)
-   DestroyImmediate(...)   ► 2 çağrı    UnitViewTests.cs:76
+   DestroyImmediate(...)   ► 3 çağrı    BoardAdapterTests.cs:119     >> YENİ <<
                                         GridCellGapCharacterizationTests.cs:40
+                                        UnitViewTests.cs:76
 ```
 
-**Yaratan ile serbest bırakan simetrisi tek yerde tam:** birim görselleri —
-`Instantiate` (728) ↔ `Destroy` (992), aradaki tabloyu `unitViews` tutuyor.
-**Simetrinin eksik olduğu yer:** `CreateStructureVisual` (BoardAdapter.cs:566)
-bir `GameObject` doğuruyor ama hiçbir tabloya yazmıyor — kodun kendi notu bunu
-bilerek söylüyor: *"GÖRSEL BİR TABLOYA KAYDEDİLMİYOR: bugün onu tekrar bulması
-gereken hiçbir çağıran yok."* Oysa `RemoveReadyForCleanup` enkaz süresi dolan
-yapıları da aynı tampona yazıyor ve `AdvanceBattleTime` her
-biri için `DespawnView` çağırıyor (BoardAdapter.cs:634-637); o çağrı `unitViews`'te
-bir şey bulamaz ve `TryGetView` `LogError` basıp döner (BoardAdapter.cs:1072).
+***BEŞ SAYININ DÖRDÜ DEĞİŞMEDİ, BİRİ ARTTI.*** Üretim tarafındaki beş sayım
+(3 · 0 · 0 · 3 · 2 · 2) bu turda birebir aynı çıktı — `BoardAdapter` 1089'dan
+1574 satıra çıkarken, üstelik iki yeni UI tipi `Instantiate` çağırmaya
+başlamışken. Sebebi sayılabilir: yeni gelen doğumların hepsi **var olan iki
+kapıdan** geçti. Test tarafındaki `DestroyImmediate` ise ikiden üçe çıktı;
+üçüncüsü `BoardAdapterTests.cs:119`. ***Satır numaralarının tamamı kaydı —
+sayılar kaymadı.*** Bu ayrım bu bölümün asıl dersidir: bir iddiayı çürüten şey
+satırın yer değiştirmesi değil, SAYININ değişmesidir.
+
+**Yaratan ile serbest bırakan simetrisi artık İKİ yerde tam:**
+
+```
+birim gorseli    unitViews.Add      :1082 <->  unitViews.Remove      :1468
+                 Instantiate        :1078 <->  Destroy               :1473
+yapi gorseli     structureViews.Add :809  <->  structureViews.Remove :1453
+                 new GameObject     :796  <->  Destroy               :1454
+```
+
+***Bu bölüm bir kusuru anlatmak için yazılmıştı ve o kusur 2026-08-25'te
+kapandı.*** Eski hâli şunu diyordu: `CreateStructureVisual` bir `GameObject`
+doğuruyor ama hiçbir tabloya yazmıyor, dolayısıyla `AdvanceBattleTime`'ın
+temizlik döngüsü onu arar, bulamaz, `LogError` basar ve enkaz ekranda kalır.
+
+Tahmin doğru çıktı ve kapatıldı: `structureViews` sözlüğü eklendi
+(`BoardAdapter.cs:809` ve `:1453`); temizlik tarafı da ayrı bir yapı dalı
+kazandı — `DespawnView` (`BoardAdapter.cs:1433`).
+`TryGetView`'in `LogError`'ı artık yalnız gerçek programcı hatasında yanıyor.
+
+***Buradaki ders kapanan kusur değil, kusuru GÖRÜNÜR kılan ölçüdür.*** Yaratan
+ile serbest bırakanı yan yana saymak, aradaki tabloyu sormak — bu üç adım
+kusurun kodda hiç koşmadan önce bulunmasını sağladı.
 
 ```
 Battle.cs:456-462   foreach (KeyValuePair<Unit, Structure> pair in structures)
 ```
 
-**Yapı görselinin serbest bırakan tarafı yazılmamış.** Dürüst sınır: bu yol bugün
-baştan sona koşmuyor (yerleştirme çalışma anında bir istisnayla kesiliyor; bir kod
-kusuru olarak ayrıca raporlandı), yani sahnede biriken bir yapı görseli bugün YOK
-— ama yazılı hâliyle yaratan var, serbest bırakan yok.
+**Yapı görselinin serbest bırakan tarafı artık yazılmış.** Aynı gün ikinci bir
+kusur da kapandı: yerleştirme çalışma anında bir istisnayla kesiliyordu
+(`Battle.cs`'in *"bu birim zaten bu savaşta"* kelepçesi), yani bu yol baştan sona
+hiç koşmamıştı. Yapıya kendi kimliği verildi ve yol açıldı — ***yani serbest
+bırakan taraf, ilk kez gerçekten çağrılabilir hâle geldiği gün yazılmış oldu.***
 
 ### `DestroyImmediate` neden testlerde, ve neden yalnız orada
 
@@ -660,7 +687,7 @@ Dört ayrı mekanizma var; bu proje bugün **ikisine** dokunuyor:
 | Mekanizma | Bu projede | Hangi aşama getirir |
 |---|---|---|
 | Yönetilen GC | **VAR** — üç olay aboneliği, iki sözlük, kapanış nesneleri | — |
-| Unity `Destroy` | **VAR** — tek çağrı, BoardAdapter.cs:1007 | — |
+| Unity `Destroy` | **VAR** — üç çağrı: BoardAdapter.cs:1454 (yapı), :1473 (birim), ProductionPanelView.cs:179 (UI öğesi) | — |
 | Açık yerel konteyner elden çıkarma (`NativeArray<T>` + `Dispose`) | **HENÜZ YOK** (ölçü: `IDisposable`, `using (`, `NativeArray` → Assets altında sıfır satır) | Jobs/Burst ile bir yol hesabı ya da toplu görünürlük hesabı geldiği gün |
 | Varlık (asset) boşaltma (`Resources.UnloadUnusedAssets`, Addressables) | **HENÜZ YOK** (ölçü: `Resources.` ve `SceneManager` → sıfır satır; sprite'lar Inspector referansı) | İkinci bir sahne ya da çalışma anında yüklenen ilk varlık geldiği gün |
 
@@ -714,7 +741,7 @@ Kodda tahsis hakkında **iddia** taşıyan ama hiçbir testi olmayan dört yorum
 |---|---|---|
 | `Battle.cs:373-376` | küme `IEnumerable` olarak açılsaydı numaralandırıcı kutulanır ve her `Update` bir tahsis yapardı | **ÖLÇÜLMEDİ** |
 | `Battle.cs:379-382` | `Dictionary<,>.Enumerator` bir `struct` olduğu için doğrudan `foreach`'te kutulanmaz | **ÖLÇÜLMEDİ** |
-| `BoardAdapter.cs:205-210` | `cleanupBuffer` alan olmasaydı her karede yeni bir `List` kare başına çöp üretirdi | **ÖLÇÜLMEDİ** |
+| `BoardAdapter.cs:227-232` | `cleanupBuffer` alan olmasaydı her karede yeni bir `List` kare başına çöp üretirdi | **ÖLÇÜLMEDİ** |
 | `TurnState.cs:60-63` | her okumada `Array.AsReadOnly` çağırmak yeni bir sarmalayıcı üretir ve çöp toplayıcıyı besler | **ÖLÇÜLMEDİ** |
 
 Ayrıca **hiç ölçülmemiş katmanlar**: `GridStrategy.Battle` ve `GridStrategy.Unity`
@@ -740,9 +767,9 @@ sabitlenmemeli, çünkü bayt toplamları Editor Mono'ya ve 64 bite özgüdür. 
 
 | Oyun | Sahneden ne çıkıyor, ne sıklıkta | Bu projedeki karşılığı |
 |---|---|---|
-| **Slay the Spire** | Oynanan kart elden ayrılır, yığına gider. Savaş boyunca aynı küçük deste kimlikleri dolaşır; yeni kimlik yalnız ödül ekranında doğar. Çıkan şey sahneden çıkar, oyundan çıkmaz. | **VAR ve birebir.** `Battle.combatants` ve `unitViews` sabit, küçük bir kimlik kümesi taşıyor; `Awake` iki demo birim doğuruyor (BoardAdapter.cs:267-268), varsayılan tahta 3×5 = 15 hücre (BoardAdapter.cs:113-114). Doğum nadir, çıkış nadir. <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil. 113-114 ve 267-268'in alıntılı çapası Docs/ogrenme/02-sonraki-asamalar.md'de. --> |
-| **Vampire Survivors** | ██ EŞLEŞMİYOR — ve en öğretici satır bu ██ Saniyede onlarca düşman doğar ve ölür; ekranda aynı anda binlercesi olabilir. Çıkan her varlığın belleği **aynı karenin bütçesi içinde** çözülmek zorunda. | **YOK, ve yokluğu bir karar değil bir ÖLÇEK farkı.** Bu projede `Destroy` tek bir yerde, tek bir çağrı (BoardAdapter.cs:1007) ve tetikleyicisi bir ceset sayacı. Doğum hızı yükseldiği gün ilk düşen şey `Destroy`-ve-unut yaklaşımı olur: her `Instantiate`/`Destroy` çifti yeni yönetilen nesne ve yeni yerel nesne demektir. **HENÜZ YOK → birim havuzu**, ve önem kazanacağı koşul yazılabilir: aynı karede birden fazla birim doğduğu gün. |
-| **Stardew Valley** | Gün biter, harita ve içindeki her şey değişir. Envanter ve çiftliğin durumu geçişten **sağ çıkar**; sahnedeki her şey çıkmaz. İki ayrı ömür: kaydedilen ve kaydedilmeyen. | **HENÜZ YOK.** Bu projede tek sahne var, sahne geçişi yok, kayıt/yükleme yok. `Battle` `BoardAdapter.Awake`'te doğuyor (BoardAdapter.cs:238) ve hiçbir yere yazılmıyor. **HENÜZ YOK → sahne geçişi ya da kayıt sistemi**; o gün "hangi nesne geçişten sağ çıkar" sorusu doğar ve statik alanların (bugün tek örnek: `TurnState.DefaultTurnOrder`) sahne geçişinde SIFIRLANMADIĞI ilk kez önem kazanır. |
+| **Slay the Spire** | Oynanan kart elden ayrılır, yığına gider. Savaş boyunca aynı küçük deste kimlikleri dolaşır; yeni kimlik yalnız ödül ekranında doğar. Çıkan şey sahneden çıkar, oyundan çıkmaz. | **VAR ve birebir.** `Battle.combatants` ve `unitViews` sabit, küçük bir kimlik kümesi taşıyor; `Awake` iki demo birim doğuruyor (BoardAdapter.cs:328-329), varsayılan tahta 3×5 = 15 hücre (BoardAdapter.cs:114-115). Doğum nadir, çıkış nadir. <!-- ATIF-MUAF: tablo hücresi; alıntı biçimi atfın satır BAŞINDA olmasını ister, tablo satırında mümkün değil. 114-115 ve 328-329'un alıntılı çapası Docs/ogrenme/02-sonraki-asamalar.md'de. 2026-08-25'te tazelendi: eski atıflar 113-114 ve 267-268 idi. --> |
+| **Vampire Survivors** | ██ EŞLEŞMİYOR — ve en öğretici satır bu ██ Saniyede onlarca düşman doğar ve ölür; ekranda aynı anda binlercesi olabilir. Çıkan her varlığın belleği **aynı karenin bütçesi içinde** çözülmek zorunda. | **YOK, ve yokluğu bir karar değil bir ÖLÇEK farkı.** Bu projede `Destroy` üç çağrı (BoardAdapter.cs:1454, :1473 ve ProductionPanelView.cs:179) ve savaş tarafındaki ikisinin tetikleyicisi bir ceset ya da enkaz sayacı — kare değil. Doğum hızı yükseldiği gün ilk düşen şey `Destroy`-ve-unut yaklaşımı olur: her `Instantiate`/`Destroy` çifti yeni yönetilen nesne ve yeni yerel nesne demektir. **HENÜZ YOK → birim havuzu**, ve önem kazanacağı koşul yazılabilir: aynı karede birden fazla birim doğduğu gün. |
+| **Stardew Valley** | Gün biter, harita ve içindeki her şey değişir. Envanter ve çiftliğin durumu geçişten **sağ çıkar**; sahnedeki her şey çıkmaz. İki ayrı ömür: kaydedilen ve kaydedilmeyen. | **HENÜZ YOK.** Bu projede tek sahne var, sahne geçişi yok, kayıt/yükleme yok. `Battle` `BoardAdapter.Awake`'te doğuyor (BoardAdapter.cs:299 — 2026-08-25'te ölçüldü; bu atıf :238 yazıyordu ve o satır bugün `PointerGesture` alanının yorumunu gösteriyor) ve hiçbir yere yazılmıyor. **HENÜZ YOK → sahne geçişi ya da kayıt sistemi**; o gün "hangi nesne geçişten sağ çıkar" sorusu doğar ve statik alanların (bugün tek örnek: `TurnState.DefaultTurnOrder`) sahne geçişinde SIFIRLANMADIĞI ilk kez önem kazanır. |
 
 Üç satırın ortak dersi: **temizlik stratejisini oyunun kendisi değil, oyunun
 DOĞUM HIZI seçer.** Bu proje bugün birinci satırda oturuyor.
@@ -867,7 +894,7 @@ IDisposable                 NEDEN YOK: projede tek bir IDisposable yok; eklemek
 
 Destroy yerine havuz      → yok etme, kapat ve listeye geri koy; iki taraf da
 (pooling)                   HİÇ ölmez.
-                            NEDEN YOK: doğum hızı iki (BoardAdapter.cs:267-268);
+                            NEDEN YOK: doğum hızı iki (BoardAdapter.cs:328-329);
                             havuz ölçülmemiş bir soruna yazılmış kod olurdu.
                             HENÜZ YOK → Vampire Survivors satırındaki koşul
 
@@ -900,14 +927,14 @@ olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı g
 belgede geçen aynı numaraların hepsi elden geçirilir.
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:983     private void DespawnView(Unit unit)
-Assets/Game/Unity/BoardAdapter.cs:1002    unitViews.Remove(unit);
-Assets/Game/Unity/BoardAdapter.cs:1007    Destroy(view.gameObject);
-Assets/Game/Unity/BoardAdapter.cs:288     private void OnEnable()
-Assets/Game/Unity/BoardAdapter.cs:238     battle = new Battle(width, height);
+Assets/Game/Unity/BoardAdapter.cs:1433     private void DespawnView(Unit unit)
+Assets/Game/Unity/BoardAdapter.cs:1468    unitViews.Remove(unit);
+Assets/Game/Unity/BoardAdapter.cs:1473    Destroy(view.gameObject);
+Assets/Game/Unity/BoardAdapter.cs:349     private void OnEnable()
+Assets/Game/Unity/BoardAdapter.cs:299     battle = new Battle(width, height);
 Assets/Game/Unity/BoardAdapter.cs:566     private void CreateStructureVisual(int x, int y)
-Assets/Game/Unity/BoardAdapter.cs:572     var renderer = structureObject.AddComponent<SpriteRenderer>();
-Assets/Game/Unity/BoardAdapter.cs:634     for (int i = 0; i < cleanupBuffer.Count; i++)
+Assets/Game/Unity/BoardAdapter.cs:800     var renderer = structureObject.AddComponent<SpriteRenderer>();
+Assets/Game/Unity/BoardAdapter.cs:938     for (int i = 0; i < cleanupBuffer.Count; i++)
 Assets/Game/Battle/Battle.cs:226          Action<UnitState, UnitState> forwarder =
 Assets/Game/Battle/Battle.cs:349          combatants[unit].StateChanged -= forwarder;
 Assets/Game/Battle/Battle.cs:353          combatants.Remove(unit);

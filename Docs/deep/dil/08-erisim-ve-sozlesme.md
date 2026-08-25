@@ -65,17 +65,24 @@ find Assets/Game -name "*.cs" -exec sed 's://.*::' {} \; \
   | grep -oE "\bpublic\b" | wc -l
 ```
 
-`Assets/Game` altında, 33 üretim dosyasında:
+`Assets/Game` altında, **46** üretim dosyasında (2026-08-25 ölçümü; önceki tur
+33 dosyaydı ve sayılar parantez içinde):
 
 ```
-  public              156          interface             0   >> SIFIR <<
-  private              98          abstract              0   >> SIFIR <<
-  internal              1   ◄──    virtual               0   >> SIFIR <<
-  protected             0          override              0   >> SIFIR <<
-  protected internal    0
-  private protected     0          sealed class         14
-                                   static class         12
+  public              228 (156)    interface             1 (0)  ◄── YENİ
+  private             131  (98)    abstract              0      >> SIFIR <<
+  internal              1   (1)    virtual               0      >> SIFIR <<
+  protected             0   (0)    override              0      >> SIFIR <<
+  protected internal    0   (0)
+  private protected     0   (0)    sealed class         23 (14)
+                                   static class         14 (12)
 ```
+
+***DÖRT SIFIRIN ÜÇÜ DURDU, BİRİ DÜŞTÜ.*** `abstract`, `virtual` ve `override`
+dosya sayısı %39 artarken sıfırda kaldı; `interface` ise 0'dan 1'e çıktı
+(`IPlacementBoard`). ***Ve `protected`in sıfırı bu tablonun en anlamlı
+satırıdır:*** kalıtım satırı ikiden sekize çıktığı hâlde `protected` hiç
+doğmadı, çünkü sekiz tabanın sekizi de bu depoda değil `UnityEngine`'de.
 
 İki uyarı, ikisi de ölçüldü. **①** Ham `grep` bu sayıları vermez: yorum
 satırları silinmeden `public` 158, `private` 100, `internal` 3 çıkıyor — fark
@@ -111,8 +118,11 @@ Sayılar yalnız kaynağa değil **derlenmiş çıktıya** da soruldu.
 
 Üç şey burada kanıtlanıyor ve üçü de kaynak okumasıyla değil **üstveriyle**:
 `internal` çalışma zamanında `Assembly` diye yazılır; `static class`
-`abstract sealed` diye yazılır (beşinci durak); ve 34 tipin hepsi `Public`
-görünürlükte — yani bu projede **örtük `internal` tip yok**.
+`abstract sealed` diye yazılır (beşinci durak); ve **47** tipin hepsi `Public`
+görünürlükte — yani bu projede **örtük `internal` tip yok**. ***Tip sayısı
+2026-08-25'te 34'ten 47'ye çıktı ve "hepsi" kelimesi hepsini kapsamaya devam
+ediyor:*** `internal`/`private`/`protected` bir tip bildirimi arayan desen
+bugün de **sıfır** satır döndürüyor.
 
 ---
 
@@ -228,17 +238,22 @@ yok; her tip kararını açıkça söylüyor.
 
 | belirteç | duvar NEREDE biter | `Assets/Game` |
 |---|---|---|
-| `public` | hiçbir yerde — referans veren her assembly görür | **156** |
-| `private` | içeren tipin gövdesi | **98** |
-| `internal` | ██ assembly ██ (`.asmdef` sınırı) | **1** |
+| `public` | hiçbir yerde — referans veren her assembly görür | **228** |
+| `private` | içeren tipin gövdesi | **131** |
+| `internal` | ***assembly*** (`.asmdef` sınırı) | **1** |
 | `protected` | tip ağacı — türeyenler | **0** |
 | `protected internal` | assembly ∪ türeyenler (daha geniş) | **0** |
 | `private protected` | assembly ∩ türeyenler (daha dar) | **0** |
 
 Tablonun en öğretici satırı dördüncüsü. `protected` sıfır kez geçiyor ve sebebi
-bir üslup kararı değil: **bu projede kalıtım satırı toplam iki** ve ikisi de
-motorun zorunlu kıldığı satır (dördüncü durak). Türeyen yoksa `protected`
-`private` ile aynı odayı açar — yani hiçbir şey söylemez.
+bir üslup kararı değil: **bu projede kalıtım satırı toplam sekiz** ve sekizi de
+motorun zorunlu kıldığı satır (dördüncü durak). ***Bu sayı 2026-08-25'te ikiden
+sekize çıktı, ama `protected`in sıfırı kımıldamadı*** — ve sebebi tam olarak
+iddianın söylediği şey: sekizin sekizi de **motor** tipinden türüyor, hiçbiri
+proje-yerel bir tabandan. Türeyen yoksa `protected` `private` ile aynı odayı
+açar; bizim tabanlarımız duvarın öte yanında (`UnityEngine`) ve onlara
+`protected` yazamayız. Yani sıfır bir tercih değil, ***ağacın şeklinin
+sonucudur*** — ve ağaç dört katına çıkarken bile şeklini korumuştur.
 
 ***"Bugün yok" eksik bir cümledir.*** `protected`'in bu projeye gireceği gün
 tektir: gerçek bir alt tip ailesi doğduğu ve o ailenin **ortak ama dışarı
@@ -253,30 +268,44 @@ ortaya çıkıyor:
 ```
   assembly                public   private        şekli
   ──────────────────────────────────────────────────────────────
-  GridStrategy.Core          31        7      açık kütüphane
-  GridStrategy.Combat        82       18      açık kütüphane
-  GridStrategy.Battle        39       11      açık kütüphane + 1 internal
-  GridStrategy.Unity          4       62      >> TERS <<
+  GridStrategy.Core          31        6      açık kütüphane
+  GridStrategy.Combat       110       20      açık kütüphane
+  GridStrategy.Battle        42       10      açık kütüphane + 1 internal
+  GridStrategy.Unity         45       95      >> TERS <<
   ──────────────────────────────────────────────────────────────
-  toplam                    156       98
+  toplam                    228      131
 ```
 
-`GridStrategy.Unity`'deki dört `public`in tamamı burada:
+<!-- Sayım yöntemi: satır başındaki anahtar kelime.
+     grep -hE '^[[:space:]]*public\b'  ilgili klasörde, alt klasör hariç.
+     2026-08-25 ölçümü; önceki tur 31/7 · 82/18 · 39/11 · 4/62 = 156/98 idi. -->
+
+***`GridStrategy.Unity`'DEKİ `public` SAYISI DÖRTTEN 45'e ÇIKTI (2026-08-25)***
+ve eski cümle — *"`BoardAdapter`'ın tek bir `public` ÜYESİ yok"* — artık
+**yanlış**. Bugün sekiz `public` üyesi var:
 
 ```
-BoardAdapter.cs:110
-    public sealed class BoardAdapter : MonoBehaviour
-
-UnitView.cs:43
-    public sealed class UnitView : MonoBehaviour
-
-UnitView.cs:142
-    public void SetSelected(bool isSelected)
+BoardAdapter.cs:274   public event Action<Unit> SelectionChanged;
+BoardAdapter.cs:288   public event Action<Unit> UnitRemoved;
+BoardAdapter.cs:664   public PlacementOutcome PlaceStructure(...)
+BoardAdapter.cs:737   public void SetPlacementGhost(bool visible, int x, int y)
+BoardAdapter.cs:848   public bool TryScreenPointToCell(Vector2 screenPoint, ...)
+BoardAdapter.cs:902   public bool IsCellFree(int x, int y)
+BoardAdapter.cs:914   public bool TryGetStructure(Unit identity, out Structure structure)
+BoardAdapter.cs:1062  public bool PlaceUnit(Unit identity, Combatant combatant, ...)
 ```
 
-Dördüncüsü `UnitView.cs`'in 173. satırındaki `SetState`. ***`BoardAdapter`'ın
-tek bir `public` ÜYESİ yok.*** Yalnız sınıfın kendisi `public` — o da motorun
-bileşeni tanıyabilmesi için.
+***AMA "TERS" HÜKMÜ AYAKTA — ve asıl konu buydu.*** Ölçüsü oran: `Unity`
+tarafında `private` sayısı `public` sayısının **iki katından fazla** (95'e 45),
+üç kütüphane assembly'sinde ise tam tersi (183'e 36). Yaprak assembly hâlâ
+içine kapalı; büyüyen şey kapalılığın oranı değil, katmanın kendisi.
+
+***VE SEKİZİN SEKİZİ DE BİR SÖZLEŞMENİN KARŞILIĞI:*** yukarıdaki listenin
+tamamı `IPlacementBoard`'un (`IPlacementBoard.cs:39`) sekiz üyesidir — birebir,
+fazlası yok. Yani `BoardAdapter` `public`e keyfî bir üye açmadı; açtığı her
+üyenin arkasında **adı konmuş bir çağıran** var (`ProductionDirector`). Eski
+cümlenin koruduğu değer *"sıfır public üye"* değil, ***"gerekçesiz public üye
+yok"*** idi ve o değer sekizde sekiz korunmuştur.
 
 Okunuşu tek cümle: **`GridStrategy.Unity` bir yaprak.** Onu çağıran başka bir
 assembly yok, dolayısıyla söz verecek kimsesi de yok. Aşağıdaki üç assembly ise
@@ -668,26 +697,51 @@ varsayılmadı.
 Dördü aynı ailenin üyesi: ilk üçü kalıtımı **açar**, dördüncüsü **kapatır**.
 `sealed` bu dosyanın konusu değil — ne yaptığı ve neyi vaat etmediği
 [`dil/01`](01-degismezlik-anahtar-kelimeleri.md#dorduncu-durak-sealed-tip-agacini-keser-nesne-grafigini-kesmez)'de
-yazılı. Buraya ait olan tek satır: bu projede 14 `sealed class` var, yani
-kalıtım kapısı **bilerek ve neredeyse her yerde** kapalı.
+yazılı. Buraya ait olan tek satır: bu projede **23** `sealed class` var
+(2026-08-25 ölçümü; bu sayı 14'tü), yani kalıtım kapısı **bilerek ve neredeyse
+her yerde** kapalı.
 
-### Kalıtım satırı: toplam iki, ikisi de zorunlu
+***SAYIM TUZAĞI BURADA DA VURDU ve kaydı düşülüyor:*** düz
+`grep -c "sealed class"` **24** verir, çünkü `AttackProfile.cs:30` bir YORUM
+ve içinde o kelime öbeği geçiyor. Satır başı deseni doğru sayıyı verir:
 
-`grep -rnE "class\s+\w+\s*:" Assets/Game --include=*.cs` iki satır döndürüyor:
-
-```
-BoardAdapter.cs:110
-    public sealed class BoardAdapter : MonoBehaviour
-
-UnitView.cs:43
-    public sealed class UnitView : MonoBehaviour
+```sh
+grep -rnE '^\s*(public|internal)\s+sealed\s+class\b' Assets/Game --include=*.cs | wc -l   # ► 23
 ```
 
-***Başka hiçbir tip hiçbir şeyden türemiyor.*** Ve türeyen bu ikisi bile
-**mühürlü** — yön burada okunur: `sealed` bir tipin altını keser, üstünü değil.
+Doğrulaması toplamda: 23 `sealed class` + 14 `static class` + 9 `enum` +
+1 `interface` = **47**, yani `Assets/Game` altındaki tip sayısının tamamı.
+***Ve bu toplam bir şeyi daha kanıtlıyor: mühürsüz tek bir sınıf yok*** —
+`public class` deseni sıfır satır döndürüyor.
+
+### Kalıtım satırı: toplam sekiz, sekizi de zorunlu
+
+`grep -rnE "class\s+\w+\s*:" Assets/Game --include=*.cs` bugün **sekiz** satır
+döndürüyor (2026-08-25; bu sayı iki idi):
+
+```
+BoardAdapter.cs:111          : MonoBehaviour, IPlacementBoard
+PaletteEntryView.cs:39       : MonoBehaviour, +4 EventSystems arayüzü
+ProductionDirector.cs:35     : MonoBehaviour
+ProductionPanelView.cs:36    : MonoBehaviour
+StructurePaletteView.cs:30   : MonoBehaviour
+UnitView.cs:43               : MonoBehaviour
+StructureBlueprintAsset.cs:37 : ScriptableObject
+UnitBlueprintAsset.cs:45      : ScriptableObject
+```
+
+***Eski cümle "Başka hiçbir tip hiçbir şeyden türemiyor" idi ve düştü.***
+Yerine geçen ölçü daha dar ve daha güçlü: **hiçbir tip PROJE-YEREL bir
+tabandan türemiyor.** Sekiz tabanın sekizi de `UnityEngine` içinde; bu depoda
+bir tip ile onun tabanını aynı anda yazan tek bir satır yok. Yani kalıtım
+ağacının derinliği hâlâ **bir**.
+
+Türeyen sekizin sekizi de **mühürlü** — yön burada okunur: `sealed` bir tipin
+altını keser, üstünü değil.
 
 Sonucu doğrudan: `abstract`, `virtual`, `override` için **proje içinden örnek
-YOK.** Bu dosya uydurma örnek yazmıyor. Üstveri de aynı şeyi söylüyor — dört
+YOK** — üçü de sıfır ve bu sıfır, dosya sayısı 33'ten 46'ya çıkarken korundu.
+Bu dosya uydurma örnek yazmıyor. Üstveri de aynı şeyi söylüyor — dört
 üretim DLL'inde `Virtual` damgası taşıyan tek bir metot yok.
 
 ### `virtual` / `override`in arka tarafı
@@ -861,10 +915,17 @@ cevabımıza benziyor.
    ① KİM GÖRÜR          ② KİM YAZAR          ③ NEYE BAĞLANIR
    erişim belirteci     get-only / set       somut tip / sözleşme
 
-   public   156         { get; }             somut sınıf  >> 34 <<
-   private   98         private set          arayüz       >>  0 <<
+   public   228         { get; }             somut sınıf  >> 46 tip <<
+   private  131         private set          arayüz       >>  1 alan <<
    internal   1  ◄──    düz alan             abstract taban>> 0 <<
    protected  0
+
+   ③'ün ölçüsü (2026-08-25): arayüz TİPİYLE bildirilmiş alan sayısı
+   tam olarak BİR — ProductionDirector.cs:47 `private IPlacementBoard board`.
+   Yanındaki satır bir motor kısıtını görünür kılıyor: serileştirilen
+   alan (:45) `MonoBehaviour` tipinde, çünkü Unity bir ARAYÜZÜ Inspector'a
+   seri hâle getiremez; çevirme Awake'te yapılıyor (:92, `as` ile) ve
+   tutmazsa konsola bağırılıyor (:108-112).
         │                    │                    │
    duvar: assembly      sahibi: dil/01       sahibi: bu dosya
         │
@@ -939,9 +1000,15 @@ cevabımıza benziyor.
 **"Arayüz kullanmak performansı iyileştirir."** Hayır — ve tersi bile mümkün.
 Bir arayüz tipli referans ikinci bir nesne yaratmaz, örneği küçültmez, alan
 silmez; yalnız **görünen üye kümesini daraltır**. Çağrı ise somut çağrıdan
-farklı çözülür. ***Bu projede o farkın bedeli ÖLÇÜLMEDİ*** ve ölçülemez:
-dört üretim assembly'sinde arayüz uygulaması sıfır, karşılaştırılacak taraf yok.
-Arayüzün gerekçesi hız değil, **çağıranın ikinci bir uygulamaya ihtiyacı**dır.
+farklı çözülür. ***Bu projede o farkın bedeli hâlâ ÖLÇÜLMEDİ*** — ama gerekçesi
+2026-08-25'te değişti. Eskiden ölçülemezdi: *"dört üretim assembly'sinde arayüz
+uygulaması sıfır, karşılaştırılacak taraf yok."* Bugün **bir** arayüz var
+(`IPlacementBoard`, tek uygulayanı `BoardAdapter`) ve karşılaştırma teknik
+olarak kurulabilir hâle geldi. Yapılmadı, çünkü ***tek uygulamalı bir arayüzde
+JIT çağrıyı zaten tekilleştirebilir*** ve ölçüm iki tarafı da aynı yere
+düşürebilir — yani sayı çıkar, anlamı çıkmaz. Anlamlı olacağı gün belli: ikinci
+uygulama yazıldığı gün. Arayüzün gerekçesi zaten hız değil, **çağıranın somut
+tipi görmemesi**dir; `IPlacementBoard`ın kendi künyesi de bunu böyle yazıyor.
 
 **"`internal` = aynı klasör."** Hayır — `internal` = **aynı assembly**. Karşı
 örnek bu depoda: `Assets/Game/Core/Combat/` klasörü `Assets/Game/Core/`'un
@@ -949,7 +1016,7 @@ Arayüzün gerekçesi hız değil, **çağıranın ikinci bir uygulamaya ihtiyac
 Core'a yazılacak bir `internal` üyeyi, klasör olarak onun içinde duran
 Combat dosyaları **göremez**. Sınırı çizen şey klasör değil, en yakın `.asmdef`.
 
-**"On iki `static class` var, demek ki arayüzlerin yerine onlar konmuş."**
+**"On dört `static class` var, demek ki arayüzlerin yerine onlar konmuş."**
 Hayır — ikisi farklı sorunun cevabı. `static class` "durum taşımayan bir kural
 nereye yazılır" sorusuna cevap veriyor; arayüz "bir çağıran kaç uygulama
 görmeli" sorusuna. ***Ölçü: bir `static class` arayüz uygulayamaz ve parametre
@@ -1000,13 +1067,21 @@ birbirinin alternatifi değil; biri seçildi diye öteki elenmedi.
       Doğacağı an: bir testin internal bir üyeye ihtiyaç duyduğu ilk gün.
 
   Açık arayüz uygulaması, varsayılan   → HENÜZ YOK → sahipsiz.
-  arayüz üyeleri, `new` ile üye gizleme    Doğacağı an: ilk arayüz yazıldığı gün.
+  arayüz üyeleri, `new` ile üye gizleme    "Doğacağı an: ilk arayüz yazıldığı
+      gün" yazıyordu; O GÜN GELDİ (IPlacementBoard.cs:39) ve üçü de yine
+      doğmadı. Ölçü: BoardAdapter sekiz üyeyi de ÖRTÜK uyguluyor
+      ("IPlacementBoard.PlaceUnit(...)" biçiminde sıfır satır), arayüzde
+      gövdeli üye sıfır, `new` ile gizlenen üye sıfır. Yeni doğuş anı:
+      aynı tipin ADI ÇAKIŞAN iki arayüz uyguladığı gün.
 
   Generic tipler ve kısıtlar           → HENÜZ YOK → kayıtlı; defterde
   (`where T : IFoo`)                       satırı var: [ogrenme/03](../../ogrenme/03-kavram-borc-defteri.md)
 
-  Arayüz gönderim tablosunun ÖLÇÜSÜ    → ÖLÇÜLMEDİ.
-      Ölçülebilmesi için önce bir arayüz gerekir.
+  Arayüz gönderim tablosunun ÖLÇÜSÜ    → HÂLÂ ÖLÇÜLMEDİ, ama engeli değişti.
+      Eskiden "önce bir arayüz gerekir" diyordu; arayüz artık var.
+      Bugünkü engel: tek uygulamalı bir arayüzde gönderim tablosu
+      gözlemlenebilir bir fark üretmeyebilir. Ölçülebilir hâle geleceği
+      gün: IPlacementBoard'un ikinci uygulaması yazıldığı gün.
 ```
 
 ---

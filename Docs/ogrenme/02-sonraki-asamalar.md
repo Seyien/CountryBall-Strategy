@@ -61,7 +61,7 @@ rol değişmez." Bu, bekleyen bir borcun **yazılı** hâli.
 
 - Kod derlemeden değer değiştirmek gerektiğinde. Bugün `damage`'ı 10'dan 12'ye
   çekmek Inspector'dan mümkün, ama **birim türü başına** farklı değer vermek
-  değil: `NewCombatant` (`BoardAdapter.cs:749`) her birime **aynı** üç sayıyı
+  değil: `NewCombatant` (`BoardAdapter.cs:1089`) her birime **aynı** üç sayıyı
   veriyor. İkinci bir birim türü doğduğu gün bu kırılır.
 - Aynı tanımı **iki sahnenin** paylaşması gerektiğinde. Bugün tek sahne var;
   ikinci sahne, beş `[SerializeField]` alanının ikinci kopyasını doğurur.
@@ -125,22 +125,41 @@ biri gerektiğinde **onu geri vermek**. Kazancı yaratma/yok etme maliyetini ve
 **A · BUGÜNKÜ KARŞILIĞI** — Doğrudan yaratma ve doğrudan yok etme:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:739   Instantiate(unitPrefab, transform)   ← birim görseli
-Assets/Game/Unity/BoardAdapter.cs:1007   Destroy(view.gameObject)             ← temizlik
-Assets/Game/Unity/BoardAdapter.cs:667   new GameObject($"Cell_{x}_{y}")      ← zemin, Awake'te
-Assets/Game/Unity/BoardAdapter.cs:568   new GameObject($"Structure_{x}_{y}") ← yapı görseli
+Assets/Game/Unity/BoardAdapter.cs:1078   Instantiate(unitPrefab, transform)   ← birim görseli
+Assets/Game/Unity/BoardAdapter.cs:1473   Destroy(view.gameObject)             ← birim temizliği
+Assets/Game/Unity/BoardAdapter.cs:1454   Destroy(structureObject)             ← yapı temizliği
+Assets/Game/Unity/BoardAdapter.cs:980    new GameObject($"Cell_{x}_{y}")      ← zemin, Awake'te
+Assets/Game/Unity/BoardAdapter.cs:796    new GameObject(structureUnit.Name)   ← yapı görseli
+Assets/Game/Unity/ProductionPanelView.cs:142   Instantiate(entryPrefab, row)  ← düğme, YENİ
+Assets/Game/Unity/StructurePaletteView.cs:119  Instantiate(entryPrefab, row)  ← düğme, YENİ
 ```
 
-***ÖLÇÜ*** — `Instantiate`'in tek çağıranı `SpawnUnit` (`BoardAdapter.cs:720`), onun da tek
-çağıranları `Awake` içindeki iki satır (`:267`, `:268`). Yani **kare başına
-sıfır** birim doğuyor. `Destroy` yalnızca ceset süresi dolduğunda çalışıyor
-(`AdvanceBattleTime :625` → `DespawnView :983`). Bugün havuzun azaltacağı bir
-maliyet **ölçülebilir değil**, çünkü maliyet yok.
+***ÖLÇÜ DEĞİŞTİ (2026-08-25)*** — eskiden `Instantiate`'in tek çağıranı
+`SpawnUnit`'ti. Bugün **değil**: gövde `PlaceUnit`'e (`BoardAdapter.cs:1062`)
+taşındı ve `SpawnUnit` (`:1033`) artık ona **delege eden** dört satırlık bir
+üye. Zincir bir halka uzadı ve bir çağıran kazandı:
+
+```
+Awake :328 :329 ──► SpawnUnit :1033 ──┐
+                                      ├──► PlaceUnit :1062 ──► Instantiate :1078
+ProductionDirector :347 ──────────────┘        (IPlacementBoard üzerinden)
+```
+
+***İDDİANIN ASIL KONUSU KARE BAŞINA TAHSİSTİ ve o ayakta:*** ikinci çağıran
+`Update` yolunda **değil** — `ProductionDirector.DropAt` bir sürükle-bırak
+olayından geliyor (`ProductionPanelView.cs:213`, `StructurePaletteView.cs:170`),
+yani oyuncunun parmağı kalktığında bir kez. `ProductionDirector.Update` (`:142`)
+yalnızca üretim sayacı işletiyor, hiçbir nesne doğurmuyor. Yani **kare başına
+sıfır** birim doğuyor; artık "yalnız `Awake`'te" değil, "yalnız `Awake`'te ve
+oyuncu bıraktığında". `Destroy` yine yalnızca ceset ya da enkaz süresi
+dolduğunda çalışıyor (`Update :422` → `AdvanceBattleTime :929` →
+`DespawnView :1433`). Bugün havuzun azaltacağı bir maliyet **ölçülebilir
+değil**, çünkü maliyet yok.
 
 Buna karşılık projede tahsis bilinci **zaten var** ve havuzsuz uygulanmış:
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:210   cleanupBuffer — her karede yeni List kurmamak için alan
+Assets/Game/Unity/BoardAdapter.cs:233   cleanupBuffer — her karede yeni List kurmamak için alan
 Assets/Game/Battle/Battle.cs:429        RemoveReadyForCleanup(List<Unit>) — tamponu ÖNCE temizler
 Assets/Game/Battle/Battle.cs:383        Dictionary üzerinde DOĞRUDAN foreach — kutulama yok
 Assets/Game/Battle/TurnState.cs:64      orderView — salt okunur görünüm bir KEZ kuruluyor
@@ -167,8 +186,8 @@ parçacık ve animasyon, olay abonelikleri, çift bırakma, yabancı nesne reddi
 kapasite ve sahne boşaltma).
 
 **C · İLK ADIM** — Değişecek ilk dosya `Assets/Game/Unity/BoardAdapter.cs`,
-ve tek bir satır: `BoardAdapter.cs:739`'daki `Instantiate` bir `Get()` çağrısına döner.
-Ama **ikinci** satır asıl karardır: `BoardAdapter.cs:1007`'deki `Destroy`, `Release(view)`'a
+ve tek bir satır: `BoardAdapter.cs:1078`'deki `Instantiate` bir `Get()` çağrısına döner.
+Ama **ikinci** satır asıl karardır: `BoardAdapter.cs:1473`'teki `Destroy`, `Release(view)`'a
 dönerken görsel durumun sıfırlanması gerekir — ve bu projede sıfırlanacak durum
 `UnitView`'da yazılı: `UnitView.cs:93` (`SetState(UnitState.Alive)`) ve
 `UnitView.cs:107` (`SetSelected(false)`). Yani sıfırlama sözleşmesinin metni
@@ -189,8 +208,8 @@ bunu bilmezse yanlış yerde arar.
 
 ③ **Bugünkü sadelik gider.** `unitViews` sözlüğü (`BoardAdapter.cs:199`) bugün
 "tabloda varsa ekranda var" demek. Havuzla birlikte üçüncü bir hâl doğar:
-"nesne yaşıyor ama havuzda bekliyor" — ve `TryGetView`'ın (`:1065`) `LogError`
-kararı (`:1072`) o gün yanlış alarm üretmeye başlar.
+"nesne yaşıyor ama havuzda bekliyor" — ve `TryGetView`'ın (`:1550`) `LogError`
+kararı (`:1557`) o gün yanlış alarm üretmeye başlar.
 
 **E · ÖN KOŞUL** — İki kavram önce kapanmalı: **profil çıkarma kanıt sınırı**
 (Aşama 6 — ölçüsüz havuz kurulamaz) ve **Unity mesaj geri çağrıları**
@@ -298,8 +317,8 @@ hikâye olarak anlatabiliyor. Veri yolu geldiğinde yayıncı ile abone arasınd
 "Find All References" boş döner ve yolu ancak çalışma zamanında izleyebilirsin.
 
 İkinci kırılma daha sinsi: **abonelik ömrü**. Bugün abonelik `OnEnable`/
-`OnDisable` çiftinde (`BoardAdapter.cs:288`/`BoardAdapter.cs:293`) ve simetriyi **disiplin**
-tutuyor — eksik bir `-=` tek bir uyarı bile üretmez (`:282-283`). Veri yolu bu
+`OnDisable` çiftinde (`BoardAdapter.cs:349`/`BoardAdapter.cs:354`) ve simetriyi **disiplin**
+tutuyor — eksik bir `-=` tek bir uyarı bile üretmez (`:343-344`). Veri yolu bu
 sorunu çözmez, **çoğaltır**: ölü bir abone artık bir nesnede değil, merkezî
 bir listede yaşar ve sahne yeniden yüklendiğinde de orada kalır.
 
@@ -366,9 +385,9 @@ Somut eşik: bir müzik çalar ya da kayıt sistemi geldiğinde ① ve ② doğr
 başına açıkça bağlanan bir servistir.
 
 **C · İLK ADIM** — Değişecek ilk dosya bir tip **değil**, bir yer: kurulum
-kökü. Bugün o kök `Assets/Game/Unity/BoardAdapter.cs:232`'teki `Awake` — savaşı
-kuran (`BoardAdapter.cs:238`), jesti kuran (`:243`), zemini kuran (`:259`) ve iki demo birimi
-doğuran (`BoardAdapter.cs:267-268`) satırlar orada. Sahne ötesi bir bağımlılık geldiği gün ilk
+kökü. Bugün o kök `Assets/Game/Unity/BoardAdapter.cs:293`'teki `Awake` — savaşı
+kuran (`BoardAdapter.cs:299`), jesti kuran (`:304`), zemini kuran (`:320`) ve iki demo birimi
+doğuran (`BoardAdapter.cs:328-329`) satırlar orada. Sahne ötesi bir bağımlılık geldiği gün ilk
 soru "nereye `static` koyayım" değil, "bu kök kimin" olur.
 
 **D · NE KIRAR** — İki şey, ikisi de ölçülebilir:
@@ -458,10 +477,10 @@ yumuşatma değil, ölçü. Bugünkü tahta `3×5`, yani **15 hücre**, ve tahta
 parça sayısı iki:
 
 ```
-BoardAdapter.cs:113   [SerializeField, Min(1)] private int width = 3;
-BoardAdapter.cs:114   [SerializeField, Min(1)] private int height = 5;
-BoardAdapter.cs:267   SpawnUnit("Vanguard", Team.Player, 1, 2);
-BoardAdapter.cs:268   SpawnUnit("Raider", Team.Enemy, 1, 3);
+BoardAdapter.cs:114   [SerializeField, Min(1)] private int width = 3;
+BoardAdapter.cs:115   [SerializeField, Min(1)] private int height = 5;
+BoardAdapter.cs:328   SpawnUnit("Vanguard", Team.Player, 1, 2);
+BoardAdapter.cs:329   SpawnUnit("Raider", Team.Enemy, 1, 3);
 ```
 
 `Battle.Tick` (`Battle.cs:377`) kare başına iki `Combatant`
@@ -627,16 +646,16 @@ olmasını ister. Kod kaydığında kızacak olan yer burasıdır; kızdığı g
 belgede geçen aynı numaraların hepsi elden geçirilir.
 
 ```
-Assets/Game/Unity/BoardAdapter.cs:135      [SerializeField, Min(1)] private int maxHealth = 30;
-Assets/Game/Unity/BoardAdapter.cs:138      [SerializeField, Min(0)] private int damage = 10;
-Assets/Game/Unity/BoardAdapter.cs:141      [SerializeField, Min(1)] private int attackRange = 1;
-Assets/Game/Unity/BoardAdapter.cs:150      [SerializeField, Min(0)] private int moveRange = 1;
-Assets/Game/Unity/BoardAdapter.cs:178      [SerializeField, Min(1)] private int structureMaxHealth = 50;
-Assets/Game/Unity/BoardAdapter.cs:667      var cell = new GameObject($"Cell_{x}_{y}");
+Assets/Game/Unity/BoardAdapter.cs:136      [SerializeField, Min(1)] private int maxHealth = 30;
+Assets/Game/Unity/BoardAdapter.cs:139      [SerializeField, Min(0)] private int damage = 10;
+Assets/Game/Unity/BoardAdapter.cs:142      [SerializeField, Min(1)] private int attackRange = 1;
+Assets/Game/Unity/BoardAdapter.cs:151      [SerializeField, Min(0)] private int moveRange = 1;
+Assets/Game/Unity/BoardAdapter.cs:188      [SerializeField, Min(1)] private int structureMaxHealth = 50;
+Assets/Game/Unity/BoardAdapter.cs:980      var cell = new GameObject($"Cell_{x}_{y}");
 Assets/Game/Unity/BoardAdapter.cs:568      var structureObject = new GameObject($"Structure_{x}_{y}");
-Assets/Game/Unity/BoardAdapter.cs:210      private readonly List<Unit> cleanupBuffer = new List<Unit>();
-Assets/Game/Unity/BoardAdapter.cs:124      [SerializeField] private UnitView unitPrefab;
-Assets/Game/Unity/BoardAdapter.cs:232      private void Awake()
+Assets/Game/Unity/BoardAdapter.cs:233      private readonly List<Unit> cleanupBuffer = new List<Unit>();
+Assets/Game/Unity/BoardAdapter.cs:125      [SerializeField] private UnitView unitPrefab;
+Assets/Game/Unity/BoardAdapter.cs:293      private void Awake()
 Assets/Game/Battle/Battle.cs:429           public int RemoveReadyForCleanup(List<Unit> removed)
 Assets/Game/Battle/Battle.cs:377           public void Tick(float deltaSeconds)
 Assets/Game/Battle/TurnState.cs:64         private readonly ReadOnlyCollection<Team> orderView;

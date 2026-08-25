@@ -187,7 +187,7 @@ Assets/Game/Unity/GridStrategy.Unity.asmdef            references: [Core, Combat
 ```
 artı iki `.cs` yeri:
 ```
-Assets/Game/Unity/BoardAdapter.cs:48      using Battle = global::GridStrategy.Battle.Battle;
+Assets/Game/Unity/BoardAdapter.cs:49      using Battle = global::GridStrategy.Battle.Battle;
 Assets/Game/Core/Combat/AttackResolver.cs IsWithinRange(int distance, AttackProfile)
 ```
 
@@ -485,77 +485,133 @@ Bir askere tıkla (seçilir, çerçeve açılır) → boş hücreye tıkla (yür
 düşmana tıkla (vurur) → aynı askere ikinci kez tıkla (seçim bırakılır).
 `07:560-572`'deki niyet tablosunun dört dalı.
 
-#### ② ***ÇALIŞMAYACAK OLAN — VE BU SENİN HATAN DEĞİL***
+#### ② ***BİR ZAMANLAR ÇALIŞMAYAN — VE 2026-08-25'TE KAPANAN***
 
-Bir birim seç, **`B`**'ye bas (yerleştirme kipi açılır, hayalet belirir),
-sürükle, **tahta içindeki boş bir hücreye** bırak. Console'da şunu göreceksin:
+Bir birim seç, **`B`**'ye bas, sürükle, ***tahta içindeki boş bir hücreye***
+bırak. Yapı yerleşir ve görseli ekranda belirir.
 
-```
-ArgumentException: The unit is already in this battle.
-Parameter name: unit
-```
+***Bu adım bugüne kadar PATLIYORDU ve teşhis bu belgede yazılıydı.*** Aşağıdaki
+tanı hâlâ duruyor, çünkü asıl ders kusurun kendisi değil — bir belge ağacının
+koda karşı ölçüldüğünde henüz kimsenin görmediği bir kusuru nasıl bulduğu.
 
-***Bu bir KOD KUSURU ve `konular/07` dışında zincirin hiçbir yeri onu
-söylemiyor.***
-
-**Sebebi — koda karşı doğrulandı, üç sıçrama:**
+**Teşhis — o günkü hâliyle, üç sıçrama:**
 
 ```
-BoardAdapter.cs:502   Unit placer = selectedUnit;
-BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
-                                                          ▲
-                      >> YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR <<
-        │
-        ▼
-BattleActions.cs:365  battle.AddStructure(unit, structure, x, y);
-        │
-        ▼
-Battle.cs:287         if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
-Battle.cs:289             throw new ArgumentException("The unit is already in this battle.", nameof(unit));
+CommitPlacement    Unit placer = selectedUnit;
+                   BattleActions.PlaceStructure(battle, placer, ...)
+                                                        ^
+                   >> YAPIYA, ZATEN KAYITLI BIR BIRIMIN KIMLIGI VERILIYORDU <<
+        |
+        v
+BattleActions.cs:365   battle.AddStructure(unit, structure, x, y);
+        |
+        v
+Battle.cs:287          if (combatants.ContainsKey(unit) || structures.ContainsKey(unit))
+Battle.cs:289              throw new ArgumentException("The unit is already in this battle.", ...)
 ```
 
-`selectedUnit` **tanım gereği** `combatants` sözlüğünde:
-`TryEnterPlacementMode` `selectedUnit == null` ise kipe hiç girmiyor, ve seçim
-ancak **dolu** bir hücreye tıklanarak doğuyor:
+`selectedUnit` ***tanım gereği*** `combatants` sözlüğündeydi: `TryEnterPlacementMode`
+(`BoardAdapter.cs:458`) `selectedUnit == null` ise kipe hiç girmiyor, ve seçim
+ancak **dolu** bir hücreye tıklanarak doğuyor.
 
+*****ÜÇ DAL — o gün ölçülmüştü:*****
 ```
-BoardAdapter.cs:359   private void TryEnterPlacementMode()
-BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
-```
-
-*****HANGİ HÜCREDE NE OLUYOR — üç dal, ölçüldü:*****
-```
-  tahta DIŞI hücre  ──► BattleActions.cs:347  RejectedInvalidCell    ✓ ret, istisna YOK
-  DOLU hücre        ──► BattleActions.cs:357  RejectedCellOccupied   ✓ ret, istisna YOK
-  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure  >> HER SEFERİNDE İSTİSNA <<
+  tahta DISI hucre  --> BattleActions.cs:347  RejectedInvalidCell   ret, istisna YOK
+  DOLU hucre        --> BattleActions.cs:357  RejectedCellOccupied  ret, istisna YOK
+  tahta ici + BOS   --> BattleActions.cs:365  AddStructure  >> HER SEFERINDE ISTISNA <<
 ```
 
-***Yani **başarılı olması gereken tek dal** patlıyor. `PlacementOutcome.Placed`
-arayüzden ULAŞILAMAZ; `CreateStructureVisual` üretimde HİÇ çağrılmaz.***
+Yani ***başarılı olması gereken tek dal*** patlıyordu. `PlacementOutcome.Placed`
+arayüzden ulaşılamazdı ve `CreateStructureVisual` üretimde hiç çağrılmıyordu.
+
+**ONARIM — ve neden ORAYA yapıldı:**
 
 ```
-BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
+BoardAdapter.cs:617   var structureUnit = new Unit($"Structure_{x}_{y}");
+BoardAdapter.cs:624   PlaceStructure(structureUnit, NewStructure(placer), x, y);
 ```
 
-**Testler neden yeşil:** `BattleActionsTests` her çağrıda **taze bir kimlik**
-veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir testte
-yok. `BoardAdapterTests.cs` diye bir dosya da yok.
-`deep/00-iskelet.md:330-332` bunu zaten yazıyor.
+Kelepçe gevşetilmedi, ***çağıran düzeltildi.*** İki bağımsız kanıt bunu
+söylüyordu: `BattleActions.PlaceStructure`'ın kendi belgesi o argümanı
+*"yapının tahtadaki kimliği"* diye tarif ediyor, ve
+`BattleActionsTests.PlaceStructure_SameIdentityTwice_Throws` o kelepçeyi
+**bilerek** koruyor. Kural doğruydu; sözleşmeye uymayan taraf adaptördü.
 
-*****NE YAP:***** İstisnayı **gör**, yukarıdaki üç sıçramayı kodda aç, zinciri
-kendin izle. ***Bu, bütün turun en öğretici on dakikası olacak.*** Belgenin
-doğru olduğu yerle kodun doğru olduğu yerin nerede ayrıştığını kendi gözünle
-göreceksin. Ve [`deep/README.md`](../deep/README.md)'nin ilk kuralını ilk kez
-gerçekten uygulayacaksın:
+***Ve kusurun yıllarca görünmemesinin tek sebebi de yazılıydı:*** `BoardAdapterTests.cs`
+diye bir dosya yoktu. Bugün var ve **on bir testi** geçiyor; ilk ikisinin adı
+kusurun kendisini anlatıyor:
+
+```
+CommitPlacement_OnAFreeCell_PlacesTheStructureAndSaysPlaced
+CommitPlacement_GivesTheStructureItsOwnIdentity_NotThePlacers
+```
+
+*****NE YAP:***** Önce teşhisi oku, sonra `BoardAdapter.cs:617`'yi aç ve tek
+satırlık onarımı gör. Ardından `BoardAdapterTests.cs`'i aç: **kusurun kendisi
+artık bir testin adında yaşıyor.** ***Bu, bütün turun en öğretici on dakikası*** —
+çünkü zincirin bir kusuru önce ***yazdığını***, sonra ***kapattığını***, sonra
+kapanışı bir teste ***çivilediğini*** aynı sayfada göreceksin.
+
+Ve [`../deep/README.md`](../deep/README.md)'nin ilk kuralının neye yaradığını da
+göreceksin:
 
 > *"İkisi çelişirse **kod kazanır**."*
 
-*****Düzeltmeyi bu turda yapma.***** Not al, ayrı bir tura bırak. Bugünkü soru
-"okuduğumda anlayabilecek miyim", "kodu tamir edebilecek miyim" değil.
+O kural olmasaydı belge, kendi yazdığı teşhisi yıllarca doğru sanmaya devam
+ederdi.
+---
+
+### ADIM 8c · [`ogrenme/12-unity-editor-baglama.md`](12-unity-editor-baglama.md) — tamamı
+
+**NEDEN TAM BURADA:** `8b` bugünkü sahneyi **onarır**, `8c` üstüne **yeni
+katmanı kurar**. Sıra tersine çevrilemez: panel kodu tahtayı `IPlacementBoard`
+üzerinden çağırıyor ve o çağrıların gideceği yer `8b`'de bağlanan sahnedir.
+
+***Ölçü, ve bu adımın var olma sebebi:*** onuncu kapı
+(`Tools/check-asset-inventory.py`) bugün **kırmızı** ve tam yedi ihlal sayıyor —
+ikisi `.asset` örneği yokluğu, beşi sahne bağı yokluğu. Yani kod tarafı bitti,
+editör tarafı hiç başlamadı, ve bunu söyleyen şey bir görüş değil bir kapı.
+
+`8c` bittiğinde o kapı yeşile döner. ***Editör işinin bitip bitmediğini sana
+kapı söyleyecek.***
+
+**AÇIK OLACAK KOD:**
+```
+Assets/Game/Unity/StructureBlueprintAsset.cs   CreateAssetMenu tasiyan tip
+Assets/Game/Unity/UnitBlueprintAsset.cs        CreateAssetMenu tasiyan tip
+Assets/Game/Unity/ProductionDirector.cs        tahtayi IPlacementBoard'dan cagirir
+Assets/Game/Unity/StructurePaletteView.cs      sol panel
+Assets/Game/Unity/ProductionPanelView.cs       sag panel
+Assets/Game/Unity/PaletteEntryView.cs          liste ogesi prefabinin kokU
+```
+
+**NE ÖĞRENECEKSİN:** Serileştirilen bir alanın neden bir **sözleşme** olduğunu,
+ve o sözleşmenin ikinci tarafının kodda değil editörde durduğunu. Belge her alan
+için ***boş bırakılırsa ne olur*** sorusunu koddan ölçerek cevaplıyor ve üç
+kademeye ayırıyor:
+
+```
+SESLI          konsola bir sey basar         operator anlar
+SESSIZ-OLU     hicbir sey olmaz              "bozuk mu?" dedirtir
+SESSIZ-YANLIS  calisir ama YANLIS            en pahalisi
+```
+
+En pahalı alan `StructureBlueprintAsset.attackRange`: başlatıcısı `0` ve `0`
+*"saldırmaz"* demek. `damage: 15` yazıp menzili unutmak, yapının **hiç
+saldırmaması** demektir — tek satır uyarı çıkmadan.
+
+**BİTİŞ KOŞTURMASI:**
+```
+python Tools/check-asset-inventory.py
+```
+Yedi ihlal sıfıra inmeli. İnmiyorsa kapı hangi alanın hangi dosyada bağsız
+kaldığını satır satır söylüyor.
+
+
 
 ---
 
-### ADIM 9 · [`konular/08-motor-cagri-dongusu.md`](../deep/konular/08-motor-cagri-dongusu.md) — tamamı (1135)
+### ADIM 9 · [`konular/08-motor-cagri-dongusu.md`](../deep/konular/08-motor-cagri-dongusu.md) — tamamı (1181)
 
 **NEDEN BU SIRADA:** `07` `Update`'in **içini** anlatıyor; `08` `Update`'i
 **kimin çağırdığını**. `08:391-394` bu bölüşmeyi kendisi yazıyor. Ayrıca `08`
@@ -564,13 +620,13 @@ bölümü): buradan sonrasında kaybolmazsın.
 
 **AÇIK OLACAK KOD:**
 ```
-Assets/Game/Unity/BoardAdapter.cs:232   private void Awake()
+Assets/Game/Unity/BoardAdapter.cs:293   private void Awake()
         ◄── private, ve motor yine çağırıyor
-Assets/Game/Unity/BoardAdapter.cs:288   private void OnEnable()
-Assets/Game/Unity/BoardAdapter.cs:290   battle.UnitStateChanged += OnUnitStateChanged;
+Assets/Game/Unity/BoardAdapter.cs:349   private void OnEnable()
+Assets/Game/Unity/BoardAdapter.cs:351   battle.UnitStateChanged += OnUnitStateChanged;
         ◄── C# event
-Assets/Game/Unity/BoardAdapter.cs:293   private void OnDisable()
-Assets/Game/Unity/BoardAdapter.cs:317   private void Update()
+Assets/Game/Unity/BoardAdapter.cs:354   private void OnDisable()
+Assets/Game/Unity/BoardAdapter.cs:416   private void Update()
 Assets/Game/Unity/UnitView.cs:86        private void Awake()
 Assets/Game/Core/PointerGesture.cs      public void Reset()   ◄── Unity mesaj ADI, sıfır anlam
 ProjectSettings/EditorSettings.asset    m_EnterPlayModeOptionsEnabled: 0
@@ -604,7 +660,7 @@ görürsün, `Awake` ve `Start` **tekrar etmez**.
 
 # ***OTURUM 5 · DÜĞÜM VE DEFTER***  (~2 saat · 2.243+ satır)
 
-### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1491)
+### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1592)
 
 **NEDEN BU SIRADA:** ADIM 9 *"ne oluyor"*u kapattı: çağrı sırası, sahipleri, ve
 `Awake`'in bir `event` olmadığı. Bu dosya ***"neden ve teknik olarak nasıl"***
@@ -625,7 +681,7 @@ nereye tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazı
 
 ---
 
-### ADIM 10 · [`konular/01-olay-zinciri.md`](../deep/konular/01-olay-zinciri.md) — tamamı (671)
+### ADIM 10 · [`konular/01-olay-zinciri.md`](../deep/konular/01-olay-zinciri.md) — tamamı (735)
 
 **NEDEN EN SONDA — ***ve numarası `01` olmasına rağmen***:** Üç ipliğin
 düğümlendiği yer burası ve üçünü de artık kapattın:
@@ -648,11 +704,11 @@ Assets/Game/Core/Combat/Combatant.cs:90        this.lifecycle.StateChanged += On
 Assets/Game/Core/Combat/Combatant.cs:111       public event Action<UnitState, UnitState> StateChanged;
 Assets/Game/Battle/Battle.cs:81                private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders =
 Assets/Game/Battle/Battle.cs:179               public event Action<Unit, UnitState, UnitState> UnitStateChanged;
-Assets/Game/Unity/BoardAdapter.cs:290          battle.UnitStateChanged += OnUnitStateChanged;
-Assets/Game/Unity/BoardAdapter.cs:295          battle.UnitStateChanged -= OnUnitStateChanged;
+Assets/Game/Unity/BoardAdapter.cs:351          battle.UnitStateChanged += OnUnitStateChanged;
+Assets/Game/Unity/BoardAdapter.cs:356          battle.UnitStateChanged -= OnUnitStateChanged;
         ◄── ekran yarısı: 310 → 954 → UnitView.cs:173
-Assets/Game/Unity/BoardAdapter.cs:310          private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
-Assets/Game/Unity/BoardAdapter.cs:954          private void ApplyStateVisual(Unit unit, UnitState state)
+Assets/Game/Unity/BoardAdapter.cs:371          private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
+Assets/Game/Unity/BoardAdapter.cs:1398          private void ApplyStateVisual(Unit unit, UnitState state)
 Assets/Game/Unity/UnitView.cs:173              public void SetState(UnitState state)
 ```
 
@@ -693,7 +749,7 @@ tarif ediyor. ***Yaz, ölç, sil.*** `seen.Add` abone ettiğinde `Target`'ın bi
 
 ---
 
-### ADIM 12 · [`dil/07-bellek-canlilik-ve-yikim.md`](../deep/dil/07-bellek-canlilik-ve-yikim.md) (931)
+### ADIM 12 · [`dil/07-bellek-canlilik-ve-yikim.md`](../deep/dil/07-bellek-canlilik-ve-yikim.md) (958)
 
 **NEDEN BURAYA AİT:** `dil/07:277-341` ADIM 10'da okuduğun sözlüğün **bellek**
 faturasını ölçüyor. Ölçüm şu: yedi hop, ve tek bir `Combatant` referansı bütün
@@ -743,11 +799,11 @@ değil, ***iş bölümü***.
 Sonra ***dört tamamlayıcı dosya*** geliyor. Sıraları serbest, ama `07` ile `06`
 bu sırada en iyi okunur (önce dörtlünün **adı**, sonra ilkelerin adı):
 
-- [`07-oop-dortlusu.md`](07-oop-dortlusu.md) (1034) — kapsülleme · kalıtım ·
+- [`07-oop-dortlusu.md`](07-oop-dortlusu.md) (1079) — kapsülleme · kalıtım ·
   soyutlama · **çok biçimlilik**; polimorfizmin üç türü sayımla ayrılıyor
-- [`06-ilkeler-ve-kokenleri.md`](06-ilkeler-ve-kokenleri.md) (1463) — dokuz ilke,
+- [`06-ilkeler-ve-kokenleri.md`](06-ilkeler-ve-kokenleri.md) (1488) — dokuz ilke,
   kökeni, projedeki karşılığı, ve ***ilkeler çatıştığında hangisinin kazandığı***
-- [`04-yok-olan-mekanizmalar-unity.md`](04-yok-olan-mekanizmalar-unity.md) (1106)
+- [`04-yok-olan-mekanizmalar-unity.md`](04-yok-olan-mekanizmalar-unity.md) (1151)
   — `Instance` · `DontDestroyOnLoad` · `Find*` · `ScriptableObject` · nesne havuzu
 - [`05-yok-olan-mekanizmalar-csharp.md`](05-yok-olan-mekanizmalar-csharp.md) (852)
   — `yield` ve `await`'in derleyici çıktısı, IL'den ölçülmüş
@@ -796,28 +852,30 @@ olduğunu **kendin işaretle**. Defterin işi bu.***
 
  OTURUM 2  ─ SAHİPLİK VE DURUM ─────────────────────────── 1.825 satır ─ ~2 sa
    3  konular/03-tahta-sahipligi      503   kod: Battle.cs · UnitGrid.cs · BattleActions.cs:207
-   4  dil/01-degismezlik              598   kod: TurnState.cs:43-53 · UnitGrid.cs
-   5  konular/05-yasam-dongusu        724   kod: UnitLifecycle · StructureLifecycle · TargetingRules
+   4  dil/01-degismezlik              780   kod: TurnState.cs:43-53 · UnitGrid.cs
+   5  konular/05-yasam-dongusu        892   kod: UnitLifecycle · StructureLifecycle · TargetingRules
    >> DUR <<  Downed_IsTheOnlyStateBothAbilitiesAccept testini aç ve OKU
 
  OTURUM 3  ─ KARAR VE RET ──────────────────────────────── 1.342 satır ─ ~2 sa
-   6  konular/06-sonuc-enumlari       714   kod: dört enum + ReactToMove/ReactToAttack
-   7  konular/04-karar-sirasi         628   kod: BattleActions · AttackAction · MoveAction
+   6  konular/06-sonuc-enumlari       880   kod: dört enum + ReactToMove/ReactToAttack
+   7  konular/04-karar-sirasi         837   kod: BattleActions · AttackAction · MoveAction
    >> DUR <<  dört "Prefers" testi; hangisinin neden YAZILAMADIĞINI gör
 
  OTURUM 4  ─ MOTOR SINIRI ─────────────────────────────── 1.866+ satır ─ ~2,5 sa
-   8  konular/07-tiklamadan-eyleme    916   kod: BoardAdapter Update/HandleClick · PointerGesture
-  8b  ogrenme/11-unity-penceresi            16 Inspector alani · sahne onarimi (5 adim)
-   >> DUR <<  >> EDITOR · Play · ve YERLEŞTİRME KIRILACAK — DURMA NOKTASI 4 <<
-   9  konular/08-motor-cagri-dongusu  950   kod: Awake/OnEnable/Update · EditorSettings.asset
+   8  konular/07-tiklamadan-eyleme   1126   kod: BoardAdapter Update/HandleClick · PointerGesture
+  8b  ogrenme/11-unity-penceresi      770   16 Inspector alani · sahne onarimi
+   >> DUR <<  >> EDITOR · Play · DURMA NOKTASI 4 — kapanmis kusuru gor <<
+  8c  ogrenme/12-unity-editor-baglama  499   yeni katmanin editor kurulumu
+   >> DUR <<  check-asset-inventory.py -- yedi ihlal sifira inmeli
+   9  konular/08-motor-cagri-dongusu 1181   kod: Awake/OnEnable/Update · EditorSettings.asset
    >> DUR <<  iki bileşenli günlük deneyi — 08:344-370, sonra script'i SİL
 
  OTURUM 5  ─ DÜĞÜM VE DEFTER ───────────────────────────── 2.243+ satır ─ ~2 sa
-  10  konular/01-olay-zinciri         336   kod: UnitLifecycle:80 · Combatant:86,107 · Battle:74,172
-  11  dil/04 (460) ██→██ dil/06 (738)       kod: Combatant kurucusunun son iki satırı
-  12  dil/07-bellek-canlilik          709   kod: DespawnView · RemoveUnit
-  13  dil/05 · dil/02 · dil/03      1.588   referans — sıra serbest
-  14  ogrenme/01 ██→██ 03 ██→██ 02  1.685   desen adları · kapsama tablosu · aşamalar
+  10  konular/01-olay-zinciri         735   kod: UnitLifecycle:80 · Combatant:86,107 · Battle:74,172
+  11  dil/04 (607)  ->  dil/06 (1029)    kod: Combatant kurucusunun son iki satırı
+  12  dil/07-bellek-canlilik          958   kod: DespawnView · RemoveUnit
+  13  dil/05 · dil/02 · dil/03      1.967   referans — sıra serbest
+  14  ogrenme/01 -> 03 -> 02        1.885   desen adları · kapsama tablosu · aşamalar
    >> DUR <<  üç kapıyı koştur; KISMİ satırları kendin güncelle
 ```
 
