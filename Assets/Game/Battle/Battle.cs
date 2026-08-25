@@ -553,5 +553,39 @@ namespace GridStrategy.Battle
             y = -1;
             return false;
         }
+
+        /// <summary>
+        /// Bu tarafta kalıcı ölü OLMAYAN en az bir savaşçı kaldı mı.
+        ///
+        /// Düşmüş savaşçı bu soruya EVET dedirtir ve bu bir taviz değil bir
+        /// kural: <see cref="UnitState.Downed"/> kurtarılabilir bir hâldir,
+        /// diriltildiği an taraf savaşa geri döner. Sayıya değil VARLIĞA
+        /// soruluyor, çünkü soran taraf "kaç kişi kaldı" ile değil "bitti mi"
+        /// ile ilgileniyor.
+        ///
+        /// Yapılar SAYILMAZ: ayakta duran bir baraka tarafı savaşta tutmaz —
+        /// kimseyi vuramaz, kimseyi diriltemez, sıra ona hiç geçmez.
+        /// </summary>
+        // BU BİR KURAL DEĞİL, KENDİ KAYDINA SORULAN BİR SORU — tıpkı UnitCount
+        // gibi. "Kim kazandı" cümlesini bu üye kurmuyor, VictoryRules kuruyor;
+        // burası yalnızca o cümlenin iki girdisinden birini üretiyor ve bu ayrım
+        // tipin rol künyesindeki "burada tek bir oyun kuralı yoktur" satırını
+        // ayakta tutan şeydir.
+        //
+        // DÖNGÜ BURADA KALMAK ZORUNDA ve gerekçesi Tick'in üstünde ölçülerek
+        // yazılı: savaşçı kümesinin sahibi bu tip ve kümeyi `IEnumerable` olarak
+        // dışarı açmak numaralandırıcıyı arayüz ardında KUTULARDI.
+        public bool HasUnitsLeft(Team team)
+        {
+            foreach (KeyValuePair<Unit, Combatant> pair in combatants)
+            {
+                if (pair.Value.Team == team && pair.Value.State != UnitState.Dead)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

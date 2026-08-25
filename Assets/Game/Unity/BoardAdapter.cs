@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GridStrategy.Battle;
 using GridStrategy.Combat;
@@ -73,9 +74,9 @@ namespace GridStrategy.Unity
     //          iki FARKLI şey olur: birincisi birimi SEÇER, ikincisi seçimi
     //          BIRAKIR. Farkı üreten şey selectedUnit'in tıklamalar arasında
     //          yaşamasıdır — çeviri durumu değil, bir OYUN durumudur
-    // Unity  : zorunlu — ölçüsü şu: Assets/Tests/EditMode/Unity/ klasörüne
-    //          bak; UnitViewTests VAR, BoardAdapterTests YOK. Input, Camera,
-    //          Time ve Instantiate kullandığı için new ile kurulamaz
+    // Unity  : zorunlu — ESKİ ÖLÇÜ YANLIŞ, düzeltildi: BoardAdapterTests artık
+    //          VAR ama bu tipi `new` ile kuramıyor; Awake EditMode'da koşmadığı
+    //          için alanları YANSIMAYLA dolduruyor, Input ve Camera'ya girmiyor
     // karar  : ikisi birden — piksel→hücre çevirisi (çevirmen işi) ile
     //          "aynı anda tek birim seçili" ve "dolu hücreye tıklamak SALDIRI,
     //          boş hücreye tıklamak HAREKET demektir" kuralları (varlık işi)
@@ -107,7 +108,7 @@ namespace GridStrategy.Unity
     /// GEREKÇELER: Docs/deep/kod/Unity/BoardAdapter.md
     /// </summary>
     [RequireComponent(typeof(Grid))]
-    public sealed class BoardAdapter : MonoBehaviour
+    public sealed class BoardAdapter : MonoBehaviour, IPlacementBoard
     {
         [Header("Board size in CELLS, not world units")]
         [SerializeField, Min(1)] private int width = 3;
@@ -173,6 +174,15 @@ namespace GridStrategy.Unity
         [Tooltip("Key that cancels structure placement mode without touching the board.")]
         [SerializeField] private KeyCode placementCancelKey = KeyCode.Escape;
 
+        // BASILI TUTULAN TUŞ, BİR KİP DEĞİL — ve ayrım ölçülebilir: yerleştirme
+        // kipi kareler arasında yaşayan İKİ alan gerektirdi (isPlacingStructure,
+        // ghostIsCarried), diriltme ise tek bir tıklamanın anlamını değiştirmekle
+        // bitiyor ve geriye hatırlanacak hiçbir şey bırakmıyor. Kip yapılsaydı
+        // bırakılması gereken üçüncü bir durum doğardı ve OnDisable'ın bırakma
+        // listesi uzardı.
+        [Tooltip("Hold this key while clicking a fallen ally to REVIVE instead of attacking.")]
+        [SerializeField] private KeyCode reviveModifierKey = KeyCode.LeftShift;
+
         [Header("Structure stats - applied to every placed structure")]
         [Tooltip("Starting and maximum health of each placed structure.")]
         [SerializeField, Min(1)] private int structureMaxHealth = 50;
@@ -198,6 +208,19 @@ namespace GridStrategy.Unity
         // hangi nesnede yaşadığını hiç bilmiyor. → BoardAdapter.md#unitviews
         private readonly Dictionary<Unit, UnitView> unitViews =
             new Dictionary<Unit, UnitView>();
+
+        // YAPININ GÖRSELİ İÇİN AYRI TABLO, ve ayrımı doğuran şey DEĞER tipidir:
+        // birim görseli prefab'dan doğuyor ve üstünde bir UnitView taşıyor, yapı
+        // görseli ise CreateStructureVisual içinde koddan kuruluyor ve bizim
+        // hiçbir bileşenimizi taşımıyor — tek tabloda birleştirmek, olmayan bir
+        // bileşeni istemek ya da ortak ataya (Component) inip temizliğin hangi
+        // tarafta olduğunu yeniden sordurmak olurdu.
+        //
+        // BU TABLONUN YOKLUĞU BİR HATAYDI, bir sadelik değil: yapı görseli
+        // doğuyor ama hiçbir yere yazılmıyordu, temizlik süpürmesi onu
+        // bulamıyor, LogError basıyor ve enkaz ekranda kalıyordu.
+        private readonly Dictionary<Unit, GameObject> structureViews =
+            new Dictionary<Unit, GameObject>();
 
         // Şu an seçili birim. null = seçim yok.
         private Unit selectedUnit;
@@ -225,6 +248,44 @@ namespace GridStrategy.Unity
         // Sayaç değil bool, çünkü ayrım "kaçıncı tıklama" değil — hayalet fareye
         // bağlı mı bağlı değil mi. → BoardAdapter.md#ghostiscarried
         private bool ghostIsCarried;
+
+        // ═══ IPlacementBoard SÖZLEŞMESİ — SEKİZ ÜYE, TEK YÖN ═════════════
+        // Bu tip artık üretim ve yerleştirme katmanının tahtadan istediği her
+        // şeyi karşılıyor. OKUN YÖNÜ TEK VE ÖLÇÜLEBİLİR: aşağıdaki hiçbir satır
+        // ne ProductionDirector'ı ne bir panel tipini ADIYLA anıyor; tahta
+        // yalnızca yayınlıyor ve soruları cevaplıyor. Ters yön reddedildi —
+        // tahta o katmanı tanısaydı arayüzün var olma sebebi tam o satırda
+        // çökerdi ve iki dosya birbirini tutmak zorunda kalırdı.
+        // ÜYELERİN GEREKÇESİ İKİ YERDE BÖLÜNMÜŞ, tekrar edilmiyor: NE İSTENDİĞİ
+        // IPlacementBoard.cs'te üye üye yazılı, NASIL KARŞILANDIĞI burada.
+
+        /// <summary>
+        /// Tahtada bir birim ya da yapı seçildiğinde haber verir; seçim
+        /// kalktığında <c>null</c> ile.
+        /// </summary>
+        // İKİ YAYIN NOKTASI, İKİSİ DE ÜYENİN SONUNDA: SelectUnit yeni seçimi,
+        // ClearSelection null'ı duyurur. ClearSelection'ın erken çıkışı yayının
+        // ÜSTÜNDE bırakıldı ve bu bir karardır — altına inseydi seçim yokken
+        // yapılan her tıklama aynı boş seçimi tekrar duyururdu, sağ panel de
+        // her yayında düğmelerini yeniden kurduğu için görünür bir sebep
+        // olmadan kendini sıfırlardı.
+        // SEÇİMİN İKİNCİ BİR KOPYASI DOĞMUYOR: seçimin tek sahibi hâlâ
+        // selectedUnit alanı; olay onu yayımlar, saklamaz.
+        public event Action<Unit> SelectionChanged;
+
+        /// <summary>
+        /// Bir kimlik tahtadan tamamen kaldırıldığında haber verir — ceset ya
+        /// da enkaz süresi dolduğunda.
+        /// </summary>
+        // YAYIN AdvanceBattleTime'IN SÜPÜRMESİNDE, ve orası TEK doğru yer:
+        // savaşın kadrosundan çıkışın başka bir kapısı yok. DespawnView'ın
+        // içine konsaydı sessiz bir sızıntı doğardı — o üye önce yapı tablosuna
+        // bakıp erken dönüyor ve görseli olmayan bir kimlikte hiç yayın
+        // yapmazdı, oysa olayın sorduğu şey görsel değil kayıttır.
+        // BU OLAY OLMASAYDI KİMSE HATA AÇMAZDI: yıkılan her yapının üretim
+        // hattı dinleyicinin defterinde sonsuza dek sayardı ve ekranda bunun
+        // hiçbir karşılığı görünmezdi.
+        public event Action<Unit> UnitRemoved;
 
         // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — bu metodu
         // hiçbir satır ÇAĞIRMIYOR ve bir C# `event` de değil; motor onu ADINA
@@ -310,6 +371,44 @@ namespace GridStrategy.Unity
         private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
         {
             ApplyStateVisual(unit, to);
+
+            // ZAFERİN SORULDUĞU TEK YER BURASI, ve sebebi bu metodun ne olduğu:
+            // cevabın değişebildiği tek an bir savaşçının durumunun değiştiği
+            // andır. Update'e konsaydı aynı cevap saniyede altmış kez üretilirdi.
+            AnnounceWinnerIfAny();
+        }
+
+        /// <summary>
+        /// Savaşın bitip bitmediğini SORAR ve bittiyse Console'a tek satır yazar.
+        /// </summary>
+        // KURALI BU DOSYA YAZMIYOR ve tek satırlık kanıtı şu: aşağıda ne bir
+        // sayım, ne bir durum karşılaştırması, ne de bir taraf tercihi var —
+        // kadroyu Battle geziyor, kazananı VictoryRules söylüyor, buranın işi
+        // yalnızca cevabı Console'a taşımak.
+        //
+        // İLANIN TEKRARLANMAMASINI BİR BAYRAK DEĞİL, UnitLifecycle'ın SetState
+        // metodundaki "yeni durum eskisine eşitse hiç yayma" erken çıkışı
+        // sağlıyor: Dead uç durumdur ve ikinci kez yayılmaz. Buraya bir
+        // victoryAnnounced alanı koymak, o kelepçenin ikinci bir kopyasını
+        // burada tutmak olurdu.
+        //
+        // EKRANA HİÇBİR ŞEY ÇİZİLMİYOR ve bu bir eksiklik değil bir SINIR:
+        // sonucu gösterecek arayüzün sahibi bu dosya değil.
+        private void AnnounceWinnerIfAny()
+        {
+            // ARGÜMANLAR TAKIM ADIYLA YAZILI ve bu VictoryRules'ta adı konmuş
+            // bir borcun karşılığı: imzadaki iki bool aynı tiptedir, yerleri
+            // karışırsa kazanan TERS okunur ve derleyici hiçbir şey demez.
+            Team winner = VictoryRules.Winner(
+                battle.HasUnitsLeft(Team.Player),
+                battle.HasUnitsLeft(Team.Enemy));
+
+            if (winner == Team.None)
+            {
+                return;
+            }
+
+            Debug.Log($"[Board] BATTLE OVER - {winner} wins.", this);
         }
 
         // DERİN ANLATIM: Docs/deep/konular/07-tiklamadan-eyleme.md
@@ -500,24 +599,81 @@ namespace GridStrategy.Unity
             // aşağıda ne bir sınır, ne bir doluluk, ne de bir sıra kontrolü var.
             // → BoardAdapter.md#commitplacementint-x-int-y
             Unit placer = selectedUnit;
+
+            // YAPI KENDİ KİMLİĞİYLE TAHTAYA GİRER, KOYANIN KİMLİĞİYLE DEĞİL —
+            // ve bu satır bu dosyanın en pahalı düzeltmesi: burada `placer`
+            // geçiliyordu, o kimlik ise savaşın kadrosunda ZATEN kayıtlıydı.
+            // Battle.AddStructure'ın ortak kapısı ThrowIfCannotJoin aynı kimliği
+            // ikinci kez görünce "The unit is already in this battle." diyerek
+            // ArgumentException atıyordu, yani PlacementOutcome.Placed üretimde
+            // HİÇBİR geçerli hücrede üretilemiyordu.
+            //
+            // DÜZELTMENİN YERİ ÇAĞIRAN, MOTOR DEĞİL — ölçüldü, iki bağımsız
+            // kanıtla: PlaceStructure'ın `unit` parametresinin belgesi o
+            // argümanı "yapının tahtadaki kimliği" diye tarif ediyor, ve
+            // BattleActionsTests içindeki PlaceStructure_SameIdentityTwice_Throws
+            // testi aynı kelepçeyi bilerek koruyor. Kural doğruydu; sözleşmeye
+            // uymayan taraf burasıydı.
+            var structureUnit = new Unit($"Structure_{x}_{y}");
+
+            // YAPININ SAYILARI HÂLÂ Inspector'DAN: bu yol klavyeli kipin yolu ve
+            // NewStructure'ı kullanmaya devam ediyor. Sürükleme yolu aynı kapıya
+            // BAŞKA bir yapıyla giriyor, çünkü orada canın sahibi tanım
+            // varlığıdır. İki yol bir süre yan yana yaşar.
             PlacementOutcome outcome =
-                BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
+                PlaceStructure(structureUnit, NewStructure(placer), x, y);
 
             // KİPTEN ÇIKIŞ, sonuçtan BAĞIMSIZ: ret de bir cevaptır ve ret sebebi
             // çoğu zaman hücre değil BİRİMdir; düzeltmenin yolu kipe yeniden
-            // girmektir.
+            // girmektir. ÇIKIŞ ARTIK GÖRSELİN ALTINDA ve fark gözlenemez:
+            // CancelPlacement yalnız kip bayraklarına ve hayaletin görünürlüğüne
+            // dokunuyor, görselin okuduğu sprite ise kapalı bir SpriteRenderer'da
+            // da aynı.
             CancelPlacement();
 
-            // TEK BİR DEĞERLE KARŞILAŞTIRMA, TAM SWITCH DEĞİL — ve bu bilinçli
-            // bir eksikliktir: buradaki tek soru "kondu mu" ve bu dosyanın ret
-            // sebebine göre yapacağı FARKLI bir işi yok. EŞİK: bir ret sebebi
-            // ekranda farklı bir şey yaptırdığı gün tam switch'e çevrilir.
+            Debug.Log($"[Board] '{placer.Name}' placement at ({x},{y}) -> {outcome}.", this);
+        }
+
+        /// <summary>
+        /// Yapıyı tahtaya koyar, savaşa katar ve görselini oluşturur.
+        /// </summary>
+        /// <returns>
+        /// Yerleştirmenin cevabı. Ret sebepleri <see cref="PlacementOutcome"/>
+        /// içinde ZATEN adlandırılmış durumda ve buradan bool'a ezilmiyor —
+        /// çağıran oyuncuya hangi cümleyi söyleyeceğini ancak sebebi görerek
+        /// bilir.
+        /// </returns>
+        // "TAHTAYA GİRDİ" İLE "EKRANDA VAR" ARTIK TEK KAPIDAN GEÇİYOR ve bu
+        // dosyanın bir kez ödediği bir bedelin karşılığı: structureViews
+        // tablosunun üstünde yazılı olduğu gibi, yapı görseli bir zamanlar
+        // doğuyor ama hiçbir yere yazılmıyordu ve temizlik onu bulamıyordu. İki
+        // çağıran (klavyeli kip ve sürükleme) aynı satırları kopyalasaydı o
+        // kelepçenin ikinci bir kopyası doğar, biri değiştiği gün öbürü sessizce
+        // eskirdi.
+        //
+        // NewStructure BURADA ÇAĞRILMIYOR ve yokluğu bir karardır: Inspector'daki
+        // tek structureMaxHealth sayısı bütün yapı türlerine aynı canı verirdi,
+        // oysa canın sahibi artık yapı türünün kendi tanımı. Yapıyı dışarıdan
+        // almak, o sahipliği bu dosyanın hiç görmemesini sağlıyor.
+        //
+        // TEK BİR DEĞERLE KARŞILAŞTIRMA, TAM SWITCH DEĞİL — ve bu bilinçli bir
+        // eksikliktir: buradaki tek soru "kondu mu" ve bu dosyanın ret sebebine
+        // göre yapacağı FARKLI bir işi yok; sebebi ekrana taşımak çağıranın işi.
+        // EŞİK: bir ret sebebi burada farklı bir şey yaptırdığı gün tam switch'e
+        // çevrilir.
+        public PlacementOutcome PlaceStructure(Unit identity, Structure structure, int x, int y)
+        {
+            // Önce KURAL, sonra görsel — SpawnUnit'in sırasıyla birebir aynı ve
+            // aynı sebeple: reddedilen bir yerleştirme ekranda gerçekleşmiş
+            // görünmemeli.
+            PlacementOutcome outcome = BattleActions.PlaceStructure(battle, identity, structure, x, y);
+
             if (outcome == PlacementOutcome.Placed)
             {
-                CreateStructureVisual(x, y);
+                CreateStructureVisual(identity, x, y);
             }
 
-            Debug.Log($"[Board] '{placer.Name}' placement at ({x},{y}) -> {outcome}.", this);
+            return outcome;
         }
 
         /// <summary>
@@ -535,6 +691,69 @@ namespace GridStrategy.Unity
             if (placementGhost != null)
             {
                 placementGhost.enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Yerleştirme önizlemesini gösterir ya da gizler.
+        ///
+        /// Yeni bir mekanizma DEĞİL, var olanın kapısı: tahtadaki hayalet
+        /// klavyeli yerleştirme kipinden beri duruyor ve sürükleme için ikinci
+        /// bir önizleme çizmek aynı işi yapan iki nesne demek olurdu.
+        /// </summary>
+        // SESSİZ null KONTROLÜ BİLEREK: aynı eksiklik Awake'te ZATEN bir kez
+        // bağırıyor ve TryEnterPlacementMode'da ikinci kez. Orası teşhis,
+        // burası hayatta kalma.
+        //
+        // ██ ÇAKIŞMA KARARI: KİP HAYALETİ SAHİPLENİR, SÜRÜKLEME GERİ ÇEKİLİR ██
+        // Aynı hayaleti iki taraf yazıyor: placementModeKey ile açılan kip
+        // UpdatePlacement içinde HER KARE konumluyor, bu üye ise yalnız
+        // sürükleme olaylarında. Ölçülen zarar bir titreme DEĞİL, sessiz bir
+        // körlüktür: kip açıkken biten bir sürükleme buraya visible=false ile
+        // gelir, UpdatePlacement ise hayaleti yalnızca KONUMLAR ve bir daha hiç
+        // açmaz — oyuncu kipte kalır, hayaleti göremez ve sonraki tıklaması
+        // görünmeyen bir yapı koyar. Aynı hata OnDisable'ın CancelPlacement
+        // çağırma gerekçesinde adıyla yazılı; kapatılan yol oydu, bu ikincisi.
+        //
+        // ERKEN ÇIKIŞIN YÖNÜ ÖLÇÜYLE SEÇİLDİ: kip KALICI bir durumdur, oyuncu
+        // ona bir tuşa basarak girer ve bir tuşa basarak çıkar; sürükleme ise
+        // parmak kalkınca biten geçici bir jesttir. Kalıcı olanın önizlemesini
+        // geçici olana bozdurmak, oyuncunun kendi verdiği kararı görünmez kılar.
+        // KAYBEDİLEN ŞEY YOK: kip açıkken hayalet zaten her karede imlecin
+        // hücresine konuyor, yani sürükleyen oyuncu önizlemeyi olduğu gibi
+        // görmeye devam ediyor — geri çekilen tek şey ikinci bir yazar.
+        //
+        // İKİ SEÇENEK REDDEDİLDİ. Birincisi "kipi bırak, titreme zararsız" idi
+        // ve üstteki ölçüm onu çürüttü; zarar titreme değil sessiz körlüktür.
+        // İkincisi TryEnterPlacementMode'un dinleyicinin IsPlacing üyesine
+        // bakıp erken çıkmasıydı: bu, tahtanın üretim katmanını ADIYLA tanıması
+        // demekti ve sözleşmenin tek yönlü olma sebebini tam o satırda
+        // çökertirdi. Buradaki çözüm tahtanın YALNIZ KENDİ alanına bakıyor.
+        //
+        // GERİYE KALAN VE SESSİZ OLMAYAN ARTIK: kip açıkken bırakılan bir
+        // sürükleme ile kipin kendi bırakışı aynı kareye düşerse ikisi de aynı
+        // hücreye yazmayı dener; ikincisi PlacementOutcome.RejectedCellOccupied
+        // alır ve iki taraf da bunu Console'a yazar.
+        public void SetPlacementGhost(bool visible, int x, int y)
+        {
+            if (placementGhost == null)
+            {
+                return;
+            }
+
+            if (isPlacingStructure)
+            {
+                return;
+            }
+
+            placementGhost.enabled = visible;
+
+            // Konum yalnız görünürken yazılıyor: gizli bir hayaleti taşımak
+            // hiçbir şeyi değiştirmez ama "gizlerken nereye" sorusunu doğurur
+            // ve çağıranı anlamsız bir hücre uydurmaya zorlardı.
+            if (visible)
+            {
+                placementGhost.transform.position = CellCentre(x, y);
             }
         }
 
@@ -560,12 +779,21 @@ namespace GridStrategy.Unity
         // NEDEN PREFAB DEĞİL, KODLA KURULAN BİR GameObject: kod tarafı sahne ve
         // prefab dosyalarını üretemez, dolayısıyla yeni bir atanabilir alan
         // "Inspector'da boş kalan alan" riskini büyütürdü. Sprite hayaletten
-        // okunuyor. GÖRSEL BİR TABLOYA KAYDEDİLMİYOR: bugün onu tekrar bulması
-        // gereken hiçbir çağıran yok.
+        // okunuyor.
+        //
+        // ESKİ ÖLÇÜ YANLIŞTI VE DÜZELTİLDİ: burada "görsel bir tabloya
+        // kaydedilmiyor, bugün onu tekrar bulması gereken hiçbir çağıran yok"
+        // yazıyordu. Çağıran ilk günden beri VARDI — AdvanceBattleTime'ın
+        // süpürmesi enkaz süresi dolan yapıyı DespawnView'a veriyor ve o da
+        // görseli tabloda arıyordu; bulamadığı için LogError basıyor, enkaz
+        // ekranda kalıyordu. Tablo bu yüzden var.
         // → BoardAdapter.md#createstructurevisualint-x-int-y
-        private void CreateStructureVisual(int x, int y)
+        private void CreateStructureVisual(Unit structureUnit, int x, int y)
         {
-            var structureObject = new GameObject($"Structure_{x}_{y}");
+            // AD KİMLİKTEN OKUNUYOR, BURADA İKİNCİ KEZ KURULMUYOR: aynı metin
+            // iki yerde üretilseydi biri değiştiği gün Hierarchy'deki ad ile
+            // Console'daki ad ayrışır ve hiçbir şey patlamazdı.
+            var structureObject = new GameObject(structureUnit.Name);
             structureObject.transform.SetParent(transform, worldPositionStays: false);
             structureObject.transform.position = CellCentre(x, y);
 
@@ -574,20 +802,71 @@ namespace GridStrategy.Unity
 
             // Zemin 0, birimler ve yapılar 1: yapı zeminin üstünde çizilir.
             renderer.sortingOrder = 1;
+
+            // TABLOYA YAZMA EN SONDA: yukarıdaki kurulum satırlarından biri
+            // patlarsa tabloda yarım kurulmuş bir görsele ok kalmamalı. Aynı
+            // sıra Battle.AddUnit'in aboneliği en sona koymasıyla aynı sebepten.
+            structureViews.Add(structureUnit, structureObject);
         }
 
         /// <summary>
         /// Fare konumunu dünya koordinatına ve hücre indeksine çevirir.
-        /// Bir Unity tipinin Core'un diline çevrildiği TEK yer burasıdır.
         /// </summary>
-        // İKİ ÇAĞIRAN, TEK ÇEVİRİ (tıklama akışı ve yerleştirme kipi):
+        // ÇEVİRİ ARTIK BURADA DEĞİL, ALTINDA — ve ayrılmasının sebebi üçüncü bir
+        // çağıranın doğması: sürükleme yolu ekran noktasını dışarıdan getiriyor
+        // ve Input'a hiç uğramıyor. Geriye kalan tek iş fareyi okumak, ve bu üye
+        // tam olarak o kadar. SINIR HÂLÂ SORULMUYOR: iki çağıranı da tahta dışı
+        // koordinatla anlamlı bir iş yapıyor (biri "OUTSIDE" yazıyor, öteki
+        // hayaleti imlecin altında tutuyor).
+        // → BoardAdapter.md#tryreadpointercell
+        private bool TryReadPointerCell(out float worldX, out float worldY, out int x, out int y)
+        {
+            // FAREYİ OKUYAN TEK SATIR BU, çeviri değil: çeviri aşağıdaki ortak
+            // çekirdekte yaşıyor ve sürükleme yolu oraya kendi noktasıyla
+            // giriyor. Input.mousePosition'ın z bileşeni her zaman sıfırdır,
+            // dolayısıyla Vector2'ye inmek hiçbir bilgi kaybettirmiyor.
+            return TryScreenPointToWorldCell(Input.mousePosition, out worldX, out worldY, out x, out y);
+        }
+
+        /// <summary>
+        /// Ekran noktasını tahta hücresine çevirir.
+        /// </summary>
+        /// <returns>Nokta tahtanın dışına düşüyorsa false.</returns>
+        // ██ TryReadPointerCell'İN KARDEŞİ, İKİZİ DEĞİL — VE FARK İKİ TANE ██
+        // Birincisi noktanın nereden geldiği: bu üye ekran noktasını DIŞARIDAN
+        // alıyor, çünkü sürükle-bırak olayları fareyi zaten okumuş durumda ve
+        // tahtanın ikinci kez okuması, parmağın bırakıldığı yer ile sorulan yer
+        // arasında bir kare fark açardı.
+        // İkincisi ve önemlisi: bu üye tahta SINIRINI SORUYOR, kardeşi sormuyor.
+        // Kardeşi soramaz da — HandleClick tahta dışı bir tıklamayı Console'a
+        // "OUTSIDE the board" diye yazıyor ve UpdatePlacement hayaleti tahta
+        // dışında da imlecin altında tutuyor; sınır oraya taşınsaydı ikisi de
+        // sessizce ölürdü. Burada ise sınırın cevabı "vazgeçildi" demektir:
+        // sürükleme tahtanın dışında biterse çağıran hiçbir şey koymaz.
+        // AYRIŞMA BİLİNÇLİDİR VE KOPYALANMAMALIDIR; ortak olan tek şey çeviridir
+        // ve o zaten tek yerde duruyor.
+        public bool TryScreenPointToCell(Vector2 screenPoint, out int x, out int y)
+        {
+            if (!TryScreenPointToWorldCell(screenPoint, out _, out _, out x, out y))
+            {
+                return false;
+            }
+
+            return battle.IsInsideGrid(x, y);
+        }
+
+        /// <summary>
+        /// Bir ekran noktasını dünya koordinatına ve hücre indeksine çeviren TEK
+        /// yer. Bir Unity tipinin Core'un diline çevrildiği yer de burasıdır.
+        /// </summary>
+        // ÜÇ ÇAĞIRAN, TEK ÇEVİRİ (tıklama akışı, yerleştirme kipi, sürükleme):
         // kopyalansaydı fare ile hayalet farklı hücreleri gösterirdi ve hiçbir
         // şey patlamazdı. DÖNÜŞ bool + out, nullable DEĞİL — "kamera yok" bir
         // programcı hatasıdır. Camera.main "MainCamera" ETİKETLİ kamerayı bulur.
         // ScreenToWorldPoint çevirisi olmasaydı aynı tıklama 1920'lik ve
         // 2560'lık ekranda farklı hücreyi seçerdi.
-        // → BoardAdapter.md#tryreadpointercell
-        private bool TryReadPointerCell(out float worldX, out float worldY, out int x, out int y)
+        private bool TryScreenPointToWorldCell(
+            Vector2 screenPoint, out float worldX, out float worldY, out int x, out int y)
         {
             worldX = 0f;
             worldY = 0f;
@@ -600,7 +879,7 @@ namespace GridStrategy.Unity
                 return false;
             }
 
-            Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 worldPoint = Camera.main.ScreenToWorldPoint(screenPoint);
             worldX = worldPoint.x;
             worldY = worldPoint.y;
 
@@ -610,6 +889,31 @@ namespace GridStrategy.Unity
             x = cell.x;
             y = cell.y;
             return true;
+        }
+
+        /// <summary>Hücre tahtanın içinde ve boş mu.</summary>
+        // İKİ SORU TEK ÜYEDE ve sıra zorunlu: sınır önce sorulur, çünkü
+        // TryGetUnit tahta dışı bir koordinatta anlamlı bir cevap veremez.
+        // BU ÜYE OLMASAYDI SIRA BOZULURDU: üretim, hücre sorusundan ÖNCE
+        // yapılamaz — üretim bekleme sayacını başlatır ve reddedilen bir
+        // yerleştirme o sayacı yakardı; oyuncu neden beklediğini anlamazdı.
+        // KURALIN KOPYASI DEĞİL, SORUNUN KAPISI: doluluğun tek sahibi hâlâ
+        // tahtanın kendisi ve cevabı burada hesaplanmıyor, soruluyor.
+        public bool IsCellFree(int x, int y)
+        {
+            return battle.IsInsideGrid(x, y) && !battle.TryGetUnit(x, y, out Unit _);
+        }
+
+        /// <summary>
+        /// Bir kimliğin karşılığı olan yapıyı verir; o kimlik bir yapı değilse
+        /// false.
+        /// </summary>
+        // DÜZ BİR İLETİM, ve öyle olması gerekiyor: tahta zaten birimleri ve
+        // yapıları ayrı defterlerde tutuyor, buraya ikinci bir "bu bir yapı mı"
+        // bayrağı koymak o ayrımın ikinci bir kopyasını üretirdi.
+        public bool TryGetStructure(Unit identity, out Structure structure)
+        {
+            return battle.TryGetStructure(identity, out structure);
         }
 
         /// <summary>
@@ -634,6 +938,15 @@ namespace GridStrategy.Unity
             for (int i = 0; i < cleanupBuffer.Count; i++)
             {
                 DespawnView(cleanupBuffer[i]);
+
+                // YAYIN GÖRSELİN YANINDA, İÇİNDE DEĞİL: DespawnView görseli
+                // bulamadığında sessizce dönüyor, oysa bu olayın anlattığı şey
+                // savaşın kaydından çıkış — ikisi aynı satıra konsaydı görseli
+                // olmayan bir kimlik dinleyiciye hiç duyurulmazdı.
+                // SIRA DA BİR KARARDIR: önce ekran temizlenir, sonra haber
+                // verilir; ters sırada dinleyici, ekranda hâlâ duran bir enkazı
+                // yokmuş gibi işleyebilirdi.
+                UnitRemoved?.Invoke(cleanupBuffer[i]);
             }
         }
 
@@ -719,28 +1032,55 @@ namespace GridStrategy.Unity
         /// </summary>
         private void SpawnUnit(string name, Team team, int x, int y)
         {
-            var unit = new Unit(name);
-
-            // Önce KURAL, sonra görsel. AddUnit dolu hücreyi ve tahta dışını
-            // exception ile reddeder; o hata görsel doğmadan patlasın ki ekranda
-            // karşılığı olmayan bir birim asla oluşmasın.
-            //
-            // "Tahtada var" ile "savaşta var" İKİ ayrı olgudur ve ayrışmamaları
-            // ikisini AYNI çağrıda doğuran tek kapıya bağlı. Yan kapı
-            // (board.PlaceUnit) tahtada duran ama Combatant'ı OLMAYAN bir birim
-            // üretirdi; bugün açılamaması bir yasak değil bir YOKLUK.
+            // GÖVDE ARTIK PlaceUnit'TE ve bu üye yalnızca kimliği ile savaşçısını
+            // kuruyor. Ayrımın sebebi sahiplik: buradaki iki `new` çağrısı
+            // Inspector'daki sayılara bağlı ve o sayıların sahibi bu dosya,
+            // oysa sürükleme yolu savaşçısını üretim tanımından getiriyor.
             // → BoardAdapter.md#spawnunitstring-name-team-team-int-x-int-y
-            battle.AddUnit(unit, NewCombatant(team), x, y);
+            PlaceUnit(new Unit(name), NewCombatant(team), x, y);
+        }
+
+        /// <summary>
+        /// Savaşçıyı tahtaya koyar, savaşa katar ve görselini oluşturur.
+        /// </summary>
+        /// <returns>Hücre dolu ya da tahta dışıysa false.</returns>
+        // DÖNÜŞ bool, PlacementOutcome DEĞİL — ve yapı yerleştirmeyle arasındaki
+        // asimetri bilerek: yapının ret sebepleri bir OYUN eylemidir ve
+        // adlandırılmıştır, birim doğurmanın ret sebebi ise bu noktada tek bir
+        // olgudur (hücre uygun değil), çünkü geri kalan bütün retler bu
+        // çağrıdan ÖNCE, üretim kurallarında verilmiştir.
+        //
+        // "TAHTADA VAR" İLE "SAVAŞTA VAR" İKİ AYRI OLGUDUR ve ayrışmamaları
+        // ikisini AYNI çağrıda doğuran tek kapıya bağlı. O kapı artık burası ve
+        // iki çağıranı var (demo doğuşu ve sürükleme). Yan kapı — tahtaya yazıp
+        // savaşçıyı atlamak — tahtada duran ama Combatant'ı OLMAYAN bir birim
+        // üretirdi; bugün açılamaması bir yasak değil bir YOKLUK.
+        //
+        // HÜCRE SORUSU ÖNCE VE exception DEĞİL: AddUnit dolu hücreyi istisnayla
+        // reddeder, oysa buraya oyuncunun parmağı geliyor ve dolu bir hücreye
+        // bırakmak bir çağıran hatası değil sıradan bir oyun olgusudur.
+        public bool PlaceUnit(Unit identity, Combatant combatant, int x, int y)
+        {
+            if (!IsCellFree(x, y))
+            {
+                return false;
+            }
+
+            // Önce KURAL, sonra görsel — tahta dışı koordinat hâlâ istisnayla
+            // patlar ve o patlama görsel doğmadan olsun ki ekranda karşılığı
+            // olmayan bir birim asla oluşmasın.
+            battle.AddUnit(identity, combatant, x, y);
 
             // Instantiate prefab'dan YENİ bir kopya doğurur; ikinci parametre
             // ebeveyni verir, böylece tahta yok olunca birimler de gider.
             // Argüman UnitView olduğu için dönüş de UnitView'dır — bu yüzden
             // burada tek bir GetComponent yok.
             UnitView view = Instantiate(unitPrefab, transform);
-            view.name = $"Unit_{unit.Name}_{x}_{y}";
+            view.name = $"Unit_{identity.Name}_{x}_{y}";
             view.transform.position = CellCentre(x, y);
 
-            unitViews.Add(unit, view);
+            unitViews.Add(identity, view);
+            return true;
         }
 
         /// <summary>
@@ -822,11 +1162,49 @@ namespace GridStrategy.Unity
                 return;
             }
 
+            // BASILI TUŞ, TIKLAMANIN ANLAMINI DEĞİŞTİRİR — ve sorusu saldırıdan
+            // ÖNCE geliyor. Altına konsaydı düşmüş dostuna tıklayan oyuncunun
+            // eli tuşta olsa bile önce bir saldırı denemesi geçerdi; o deneme
+            // TargetingRules tarafından reddedilir ve Console'a diriltmeyle
+            // hiçbir ilgisi olmayan bir satır yazılırdı.
+            if (Input.GetKey(reviveModifierKey))
+            {
+                TryReviveTarget(clicked, x, y);
+                return;
+            }
+
             // Mesafe BURADA hesaplanmıyor ve hesaplatılmıyor bile: BattleActions
             // konumları Battle'dan bulup GridDistance'a ölçtürüyor. Bu satırın
             // bildiği tek şey "kim kime".
             AttackOutcome outcome = BattleActions.Attack(battle, selectedUnit, clicked);
             ReactToAttack(outcome, clicked, x, y);
+        }
+
+        /// <summary>
+        /// Diriltme denemesini savaşa SORAR ve cevabına göre Console'u günceller.
+        ///
+        /// Bu metot <see cref="BattleActions.Revive"/>'ın üretimdeki TEK
+        /// çağıranıdır. O eylem yazılmış, on iki testle korunmuş ve belgelenmişti
+        /// ama hiçbir girdiye bağlı değildi; <see cref="ReviveOutcome"/> bu dosyada
+        /// HİÇ geçmiyordu, yani ekrana ulaşan bir cevabı da yoktu. Bağlanması,
+        /// Revive'ın kendi belgesinde <c>Combatant.TryRevive</c> için yazdığı
+        /// cümlenin bir üst katmanda birebir tekrarıdır.
+        /// </summary>
+        private void TryReviveTarget(Unit target, int x, int y)
+        {
+            // YAPI DİRİLTİLMEZ, ve soru BURADA soruluyor — BattleActions'ta
+            // değil: orada bir yapıyı hedef göstermek bir oyun sonucu değil bir
+            // ÇAĞIRAN HATASIdır ve RequireCombatant istisna atar. Fareyle
+            // tıklanan hücre ise pekâlâ bir baraka olabilir; oyuncunun eli bir
+            // çağıran hatası üretemez.
+            if (!battle.TryGetCombatant(target, out Combatant _))
+            {
+                Debug.Log($"[Board] ({x},{y}) holds a structure; structures are not revived.", this);
+                return;
+            }
+
+            ReviveOutcome outcome = BattleActions.Revive(battle, selectedUnit, target);
+            ReactToRevive(outcome, target, x, y);
         }
 
         /// <summary>
@@ -864,6 +1242,34 @@ namespace GridStrategy.Unity
                 // → BoardAdapter.md#reacttoattackattackoutcome-outcome-unit-target-int-x-int-y
                 case AttackOutcome.HitAndDowned:
                     Debug.Log($"[Board] '{target.Name}' at ({x},{y}) was hit and went DOWN.", this);
+                    break;
+
+                // İKİZİN ÖTEKİ YARISI, ve dalın var olması bir tercih değil bir
+                // ONARIM: bu değer enum'da baştan beri duruyordu ama burada
+                // KARŞILIĞI YOKTU, yani yıkılan her yapı aşağıdaki default'a
+                // düşüp "Unhandled attack outcome" diye bir PROGRAMCI hatası
+                // basıyordu. Bugüne kadar görünmemesinin sebebi tahtaya hiç yapı
+                // konamamasıydı; o yol onarıldı ve dalın yokluğu erişilebilir
+                // oldu. Sigortanın bir oyun sonucuna harcanması, sigortayı yok
+                // etmekle aynı şeydir.
+                //
+                // BU SATIR BİR DUYURU DEĞİL, TEK DUYURU: birimler düştüğünde
+                // ekranı Battle.UnitStateChanged tazeliyor, ama yapılar o olaya
+                // KATILMIYOR — StructureLifecycle bilerek olaysız, çünkü tek
+                // geçişini yapan çağrı cevabı zaten dönüş değeriyle alıyor. O
+                // çağrının cevabının ulaştığı yer tam olarak burası.
+                //
+                // GÖRSELE DOKUNULMUYOR ve iki ayrı sebebi var: yapı görseli bir
+                // UnitView taşımıyor, yani söylenecek bir durum yok; enkazın
+                // sahneden kalkması ise AdvanceBattleTime'ın süpürmesinin işi ve
+                // enkaz süresi dolmadan kalkmamalı.
+                //
+                // DescribeCondition ÇAĞRILMIYOR ve bu ölçülmüş bir kaçınma: o üye
+                // cevabını savaşçı defterinden okuyor, yapı kimliği orada hiç
+                // bulunmuyor ve satır, savaşta duran bir parça için "(not in this
+                // battle)" yazardı.
+                case AttackOutcome.HitAndDestroyed:
+                    Debug.Log($"[Board] structure '{target.Name}' at ({x},{y}) was hit and DESTROYED.", this);
                     break;
 
                 case AttackOutcome.Hit:
@@ -943,6 +1349,44 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
+        /// Diriltme sonucuna göre Console'u günceller.
+        /// </summary>
+        // TAM SWITCH, ReactToAttack'teki kısmi karşılaştırmanın TERSİ — ve fark
+        // ölçülebilir: orada tek soru "kondu mu" idi, burada dört cevabın dördü
+        // de oyuncuya farklı bir şey söylüyor. GÖRSEL BURADAN TAZELENMİYOR:
+        // diriltme bir DURUM geçişi doğurur ve o geçişin tek tetiği
+        // Battle.UnitStateChanged'dır; elle tazeleme ekranın aynı olguya ikinci
+        // bir kaynağı olması demekti.
+        private void ReactToRevive(ReviveOutcome outcome, Unit target, int x, int y)
+        {
+            switch (outcome)
+            {
+                case ReviveOutcome.Revived:
+                    Debug.Log($"[Board] '{target.Name}' at ({x},{y}) was REVIVED. {DescribeCondition(target)}", this);
+                    break;
+
+                case ReviveOutcome.RejectedOutOfRange:
+                    Debug.Log($"[Board] '{target.Name}' at ({x},{y}) is too far to be revived.", this);
+                    break;
+
+                case ReviveOutcome.RejectedInvalidTarget:
+                    Debug.Log($"[Board] '{target.Name}' at ({x},{y}) cannot be revived. {DescribeCondition(target)}", this);
+                    break;
+
+                // MESAJ HEDEFİ DEĞİL DİRİLTENİ ANLATIYOR, ReactToAttack'teki
+                // ikiziyle aynı sebeple: değerin adındaki "Actor" sözcüğünün
+                // karşılığı budur.
+                case ReviveOutcome.RejectedActorCannotAct:
+                    Debug.Log($"[Board] '{selectedUnit.Name}' cannot act right now; the revive was rejected. {DescribeCondition(selectedUnit)}", this);
+                    break;
+
+                default:
+                    Debug.LogError($"[Board] Unhandled revive outcome: {outcome}.", this);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Bir birimin yaşam durumunu ekrana uygular.
         /// </summary>
         // ADI DEĞİŞTİ: eski ad RefreshDownedVisual üç değerli bir bilgiyi tek
@@ -978,7 +1422,13 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Savaştan çıkarılmış bir birimin görselini sahneden siler.
+        /// Savaştan çıkarılmış bir birimin ya da yapının görselini sahneden siler.
+        ///
+        /// TEK metot, iki tablo — ve şekli <see cref="Battle.RemoveUnit"/>'in
+        /// birebir ikizi, aynı sebeple: süpürme tamponu savaşçıları ve yapıları
+        /// AYNI listede veriyor, dolayısıyla çağıranın elinde yalnızca bir
+        /// <see cref="Unit"/> var ve o kimliğin hangi tabloda olduğunu bilmek bu
+        /// tipin işi.
         /// </summary>
         private void DespawnView(Unit unit)
         {
@@ -989,6 +1439,22 @@ namespace GridStrategy.Unity
             if (ReferenceEquals(unit, selectedUnit))
             {
                 selectedUnit = null;
+            }
+
+            // YAPI ÖNCE SORULUYOR ve sıra burada GÖZLENEMEZ: bir kimlik aynı
+            // anda hem savaşçı hem yapı OLAMAZ, o kelepçe ThrowIfCannotJoin'de
+            // duruyor. Sorunun ayrı bir dal olmasının sebebi sıra değil TİP —
+            // yapı görselinde bir UnitView yok, dolayısıyla TryGetView onu
+            // aramaya bile gidemez.
+            if (structureViews.TryGetValue(unit, out GameObject structureObject))
+            {
+                // Önce tablodan çıkar, sonra sahneden sil — gerekçe aşağıda,
+                // birim dalında bir kez yazılı ve burada TEKRAR EDİLMİYOR.
+                structureViews.Remove(unit);
+                Destroy(structureObject);
+
+                Debug.Log($"[Board] structure '{unit.Name}' was cleaned up and left the battle.", this);
+                return;
             }
 
             if (!TryGetView(unit, out UnitView view))
@@ -1021,6 +1487,19 @@ namespace GridStrategy.Unity
 
             selectedUnit = unit;
             SetSelectionVisual(unit, true);
+
+            // YAYIN EN SONDA: dinleyici uyandığında tahtanın seçim durumu ve
+            // ekrandaki çerçevesi ZATEN tutarlı olmalı. Üste konsaydı dinleyici,
+            // henüz yazılmamış bir seçimi sorabilirdi.
+            //
+            // BİR SEÇİMDEN ÖTEKİNE GEÇERKEN ARADA null GEÇİYOR — üstteki
+            // ClearSelection kendi yayınını yapıyor — ve bu ÖLÇÜLMÜŞ, sınırlı bir
+            // bedeldir: ara durum hiçbir kareye çıkmaz, yalnız dinleyici aynı
+            // tıklamada iki kez uyanır. Yayını bastırmak için ClearSelection'ın
+            // gövdesini buraya kopyalamak REDDEDİLDİ; o kopya "iki birim aynı
+            // anda seçili görünemez" kelepçesini iki yere böler ve biri
+            // değiştiği gün öbürü sessizce eskir.
+            SelectionChanged?.Invoke(unit);
         }
 
         /// <summary>
@@ -1035,6 +1514,12 @@ namespace GridStrategy.Unity
 
             SetSelectionVisual(selectedUnit, false);
             selectedUnit = null;
+
+            // YAYIN ERKEN ÇIKIŞIN ALTINDA ve bu bir yerleşim kazası değil: üste
+            // konsaydı seçim ZATEN yokken yapılan her tıklama aynı boş seçimi
+            // yeniden duyururdu. Dinleyici her yayında sağ panelini yeniden
+            // kuruyor, yani tekrar bedavaya gelmiyor.
+            SelectionChanged?.Invoke(null);
         }
 
         /// <summary>
