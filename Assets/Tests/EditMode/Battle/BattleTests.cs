@@ -951,5 +951,78 @@ namespace GridStrategy.Tests.EditMode.Battle
                 "the rejected add must leave the board untouched");
         }
 
+        /// <summary>
+        /// <c>HasUnitsLeft</c> zafer koşulunun İKİ girdisinden birini üretiyor;
+        /// kuralın kendisi <c>VictoryRulesTests</c> tarafında sınanıyor. Burada
+        /// sınanan tek şey KADRO okuması: kim sayılır, kim sayılmaz.
+        ///
+        /// DÜŞMÜŞ BİRİM SAYILIR ve bu testin en pahalı satırı budur: kurtarma
+        /// penceresi açıkken taraf hâlâ savaşta, çünkü bir diriltme onu geri
+        /// getirir. Kural "canı bitti" diye yazılsaydı burası sessizce yeşil
+        /// kalır ve oyun kurtarılabilir bir birimin üstüne biterdi.
+        /// </summary>
+        [Test]
+        public void HasUnitsLeft_CountsAliveAndDowned_ButNotDead()
+        {
+            var battle = new Battle(3, 5);
+            Combatant combatant = NewCombatant(maxHealth: 10, team: Team.Player);
+            battle.AddUnit(new Unit("Vanguard"), combatant, 1, 2);
+
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.True, "alive");
+
+            combatant.TakeDamage(10);
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed), "setup");
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.True,
+                "a downed unit can still be revived, so the side is still in the fight");
+
+            battle.Tick(10f);
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Dead), "setup");
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.False, "dead");
+        }
+
+        /// <summary>
+        /// Soru TARAFA soruluyor: bir tarafın kadrosu ötekinin cevabını
+        /// değiştirmemeli. Bu ayrım kaybolursa zafer koşulu her savaşta
+        /// "kazanan yok" derdi ve hiçbir test kırmızıya dönmezdi.
+        /// </summary>
+        [Test]
+        public void HasUnitsLeft_AsksTheGivenTeamOnly()
+        {
+            var battle = new Battle(3, 5);
+            battle.AddUnit(new Unit("Vanguard"), NewCombatant(team: Team.Player), 1, 2);
+
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.True);
+            Assert.That(battle.HasUnitsLeft(Team.Enemy), Is.False);
+            Assert.That(battle.HasUnitsLeft(Team.None), Is.False);
+        }
+
+        /// <summary>
+        /// YAPILAR SAYILMAZ. Ayakta duran bir baraka tarafı savaşta tutmaz —
+        /// kimseyi vuramaz, kimseyi diriltemez, sıra ona hiç geçmez. Bu test
+        /// olmasaydı "tek barakası kalan taraf yenilmez" diye bir kural sessizce
+        /// doğardı.
+        /// </summary>
+        [Test]
+        public void HasUnitsLeft_IgnoresStructuresEntirely()
+        {
+            var battle = new Battle(3, 5);
+            battle.AddStructure(new Unit("Depot"), NewStructure(team: Team.Player), 0, 0);
+
+            Assert.That(battle.StructureCount, Is.EqualTo(1), "setup");
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.False);
+        }
+
+        /// <summary>
+        /// Boş savaşta hiçbir tarafın kadrosu yoktur. Ayrı yazılıyor çünkü
+        /// döngünün boş kümede ne döndürdüğü bir varsayım değil bir olgu olmalı.
+        /// </summary>
+        [Test]
+        public void HasUnitsLeft_OnAnEmptyBattle_IsFalseForEverySide()
+        {
+            var battle = new Battle(3, 5);
+
+            Assert.That(battle.HasUnitsLeft(Team.Player), Is.False);
+            Assert.That(battle.HasUnitsLeft(Team.Enemy), Is.False);
+        }
     }
 }

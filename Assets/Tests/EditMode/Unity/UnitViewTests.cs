@@ -9,9 +9,9 @@ namespace GridStrategy.Tests.EditMode.Unity
     /// Unity katmanının Unity'siz sınanamayan kısmı BoardAdapter'dır, bu tip
     /// değil. Ayrımın ölçüsü basit: <see cref="UnitView"/> yalnızca bir
     /// GameObject ister; sahne, kamera, tıklama ve Play mode istemez.
-    /// BoardAdapter ise Input, Camera.main, prefab ve Instantiate ister — bu
-    /// yüzden onun testi burada YOK ve bu bir kusur değil, o dosyadaki KOKU
-    /// etiketinin ölçülmüş hâlidir.
+    /// BoardAdapter ise Input, Camera.main, prefab ve Instantiate ister — ESKİ
+    /// ÖLÇÜ ("onun testi burada YOK") ARTIK YANLIŞ: <see cref="BoardAdapterTests"/>
+    /// VAR ve o sınırı yansımayla aşıyor, ortadan kaldırarak değil.
     ///
     /// BoardAdapter'a giren yerleştirme kipi ve olay aboneliği o sınırı
     /// GENİŞLETMEDİ, yalnızca bir kez daha ölçtü: kipin kararını veren

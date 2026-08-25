@@ -4,6 +4,7 @@
   "references": [
     "GridStrategy.Core",
     "GridStrategy.Combat",
+    "GridStrategy.Battle",
     "GridStrategy.Unity",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
