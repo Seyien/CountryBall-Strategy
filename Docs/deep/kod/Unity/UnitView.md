@@ -290,7 +290,7 @@ kaynakta karşılığı **YOK** — o alan hiç yazılmadı; figür onu gözlenm
 olarak değil, bu iki satırın birbirine bakmaya başladığı gün doğacak olan şey
 olarak gösteriyor.
 
-> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — `lastState` ikinci kopyası
+> ***YOKLUK SENEDİ — DÜŞÜLDÜ*** — `lastState` ikinci kopyası
 >
 > **GEREKÇE:** Reddedilen düğüm, dışarıda sahibi olan bir bilginin bu dosyada
 > tutulan kopyasıdır. Bir alttaki başlık bunu açıkça yasaklıyor: bu tip alan
@@ -433,7 +433,7 @@ REDDEDILEN — SetDowned(bool) + SetDead(bool)
    true     false     yatık, soluk         Downed     ✓
    true     true      yatık, gri           Dead       ✓
    false    true      AYAKTA ama GRİ       ◄── YALAN
-                      ██ KARŞILIĞI YOK ██
+                      >> KARŞILIĞI YOK <<
                       bu satıra düşmenin tek yolu
                       SetDead(true) demeyi unutmaktır
 
@@ -561,7 +561,7 @@ REDDEDILEN SIRA — iki ayrı adım
      beyaz "makul" göründüğü için hata fark bile edilmez
 
 BUGÜNKÜ SIRA — atlanacak adım YOK
-  her çağıran ──► Body { get }    ██ TEK KAPI ██
+  her çağıran ──► Body { get }    >> TEK KAPI <<
                     ├── body = GetComponent<SpriteRenderer>()
                     └── authoredColor = body.color
                         (aynı if, arka arkaya iki satır)

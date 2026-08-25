@@ -30,7 +30,7 @@ ResolveRemaining(current, amount) girdi uzayı
 │   │ 0 <= current <= max, amount >= 0  │         │
 │   └───────────────────────────────────┘         │
 └─────────────────────────────────────────────────┘
-██ private kalsaydı SINANABİLİR alan iç dikdörtgene inerdi ██
+>> private kalsaydı SINANABİLİR alan iç dikdörtgene inerdi <<
 ```
 
 ### KAPSAM: her doğrulama ayrı bir kural dosyasına ÇIKMAZ
@@ -111,7 +111,7 @@ yol 2  amount current'ten BÜYÜK ► 10 - 25 = -15
        (tamamen meşru: aşırı      ► Math.Max(0, ...) ► 0
         hasar)                      ◄── BU SATIR
 
-██ İKİ YOL, İKİ AYRI KAPI ██ İlki bir sözleşme ihlali, ikincisi normal
+>> İKİ YOL, İKİ AYRI KAPI << İlki bir sözleşme ihlali, ikincisi normal
 oynanış. Aynı kapı ikisini birden kapatamaz: birine `throw`, öbürüne
 kelepçe gerekiyor.
 ```

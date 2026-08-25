@@ -1,7 +1,7 @@
 # Assembly duvarı — kim kimi göremez, ve bunun bedeli ne
 
 > **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar.* Önce dört
-> `.asmdef` — ██ duvarın tamamı bu dört JSON dosyasında yazılı ██:
+> `.asmdef` — ***duvarın tamamı bu dört JSON dosyasında yazılı***:
 > `Assets/Game/Core/GridStrategy.Core.asmdef` · `Assets/Game/Core/Combat/GridStrategy.Combat.asmdef`
 > · `Assets/Game/Battle/GridStrategy.Battle.asmdef` · `Assets/Game/Unity/GridStrategy.Unity.asmdef`
 > sonra faturayı ödeyen `.cs` dosyaları, akış sırasıyla:
@@ -14,8 +14,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -27,9 +27,9 @@ yazılmıyor: satır kayar, üye adı kaymaz. ██
 | `Assets/Game/Battle/Battle.cs` | `Battle` (tip başlığı — var olma sebebi) | ✓ |
 | `Assets/Game/Unity/BoardAdapter.cs` | `using Battle = global::…` alias satırı | ██ HENÜZ YOK ██ |
 
-██ **"HENÜZ YOK" ne demek:** o satır burada gerçekten anlatılıyor, ama **kodun
-yorumunda buraya geri getiren bir işaretçi yok** — o satırdan yola çıkıp bu
-belgeye ulaşamazsın, yalnız tersi çalışır. ██
+***"HENÜZ YOK" ne demek:* o satır burada gerçekten anlatılıyor, ama *kodun
+yorumunda buraya geri getiren bir işaretçi yok* — o satırdan yola çıkıp bu
+belgeye ulaşamazsın, yalnız tersi çalışır.**
 
 ---
 
@@ -76,7 +76,7 @@ başka hiçbir şey tarafından değil.
 ║  İşi     : savaş. Can, hasar, taraf, menzil, yaşam döngüsü    ║
 ║  Bilir   : Combatant, Health, AttackProfile, AttackResolver,  ║
 ║            TargetingRules, MovementRules, Team, UnitState     ║
-║  BİLMEZ  : ██ TAHTAYI ██ hücre yok, koordinat yok, uzaklık    ║
+║  BİLMEZ  : >> TAHTAYI << hücre yok, koordinat yok, uzaklık    ║
 ║            yok. Ve sıra yok. Ve motor yok.                    ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -89,21 +89,21 @@ başka hiçbir şey tarafından değil.
 
 ╔═ GridStrategy.Unity ══════════════════════════════════════════╗
 ║  references : [ Core, Combat, Battle ]                        ║
-║                            noEngineReferences : ██ FALSE ██   ║
+║                            noEngineReferences : >> FALSE <<   ║
 ║  İşi     : çevirmenlik. Motor burada başlıyor                 ║
 ║  Bilir   : MonoBehaviour, SerializeField, Grid, fare          ║
 ║  BİLMEZ  : tek bir oyun kuralı bile yazmaz                    ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+### ***KUTULARIN GERÇEK SATIR KARŞILIĞI***
 
-██ **Bu dördü AKTÖR kutusudur, tip kutusu değil.** ██ Hiçbirinin bir `.cs` tanım
+***Bu dördü AKTÖR kutusudur, tip kutusu değil.*** Hiçbirinin bir `.cs` tanım
 satırı **yok** ve aranmamalı: bir assembly bir sınıf gibi bildirilmez, bir JSON
 dosyasıyla kurulur. Bu yüzden aşağıda her kutu için **iki** satır var — kilidi
 **kuran** satır (`.asmdef`) ve o kilidin faturasını **ödeyen** satır (`.cs`).
-Kutunun iddiası ancak ikisi yan yana konunca ölçülebiliyor. ██ Satır numarası
-bilerek yazılmıyor: satır kayar, anahtar adı kaymaz. ██
+Kutunun iddiası ancak ikisi yan yana konunca ölçülebiliyor. ***Satır numarası
+bilerek yazılmıyor: satır kayar, anahtar adı kaymaz.***
 
 **`GridStrategy.Core` bu projede** — kilidi kuran satır:
 `Assets/Game/Core/GridStrategy.Core.asmdef` → `references`
@@ -142,7 +142,7 @@ Faturayı ödeyen satır: `Assets/Game/Core/Combat/AttackAction.cs` → `Execute
         public static AttackOutcome Execute(Combatant attacker, Combatant target, int distance)
 ```
 
-Kutudaki «BİLMEZ : ██ TAHTAYI ██ hücre yok, koordinat yok, uzaklık yok» satırı
+Kutudaki «BİLMEZ : ***TAHTAYI*** hücre yok, koordinat yok, uzaklık yok» satırı
 bu imzada tek bir kelimeye iniyor: `int distance`. Uzaklık **ölçülmüş** olarak
 geliyor; ölçen tip Core'da ve üstteki boş dizi onun adını bu dosyada aranamaz
 kılıyor. Duvarı geçen şeyin bir sayı olduğu, gözle görülebilir biçimde, bu
@@ -184,7 +184,7 @@ Faturayı ödeyen satır: `Assets/Game/Unity/BoardAdapter.cs` → `using Battle`
     using Battle = global::GridStrategy.Battle.Battle;
 ```
 
-Kutudaki «noEngineReferences : ██ FALSE ██» satırı motorun projeye girdiği tek
+Kutudaki «noEngineReferences : ***FALSE***» satırı motorun projeye girdiği tek
 kapı — üç kutuda `true`, yalnız burada `false`. Alttaki alias ise aynı kutunun
 `references` dizisine `GridStrategy.Battle` yazmanın kesilen faturası: tek bir
 `Battle` kelimesi hem bir ad alanını hem onun içindeki sınıfı adlandırıyor,
@@ -192,7 +192,7 @@ kapı — üç kutuda `true`, yalnız burada `false`. Alttaki alias ise aynı ku
 "çevirmenlik" işi burada bir satırlık bakım borcuna dönüşüyor; gerekçesinin
 tamamı o satırın hemen üstünde, kodun kendi yorumunda.
 
-██ **DERLEYİCİNİN KENDİSİ İÇİN AYRI BİR KUTU YOK — ve olmamalı.** ██ Yukarıdaki
+***DERLEYİCİNİN KENDİSİ İÇİN AYRI BİR KUTU YOK — ve olmamalı.*** Yukarıdaki
 dört kutunun hiçbiri derleyiciyi adlandırmıyor, ama dördünün de uygulayıcısı o.
 Derleyicinin bu projedeki gözlemlenebilir karşılığı bir dosya ya da üye değil,
 **bir hata kodu**: `CS0118`. Nerede doğduğu yazılı — `BoardAdapter.cs`'teki
@@ -222,7 +222,7 @@ Aynı dosyayı — `Assets/Game/Core/Combat/AttackProfile.cs` — üç ayrı gö
                       ╰─► "Core'un İÇİNDEyim"
 
   ② AD ALANI          namespace GridStrategy.Combat
-                      ╰─► "Core'un KARDEŞİyim"      ◄── ██ AYRIŞMA ██
+                      ╰─► "Core'un KARDEŞİyim"      ◄── >> AYRIŞMA <<
 
   ③ ASSEMBLY          GridStrategy.Combat.asmdef
                       references: []
@@ -295,7 +295,7 @@ assembly'deki hiçbir tipin **adını yazamaz**. Tam nitelenmiş yazsan da olmaz
               ▲    ✗ OK YOK ── iki yönde de ──  ✗ OK YOK    ▲
               └────────────────────┬───────────────────────┘
                                    │
-                    ██ DURUŞ NOKTASI: her iki dizi de []  ██
+                    >> DURUŞ NOKTASI: her iki dizi de []  <<
                        yasak değil — İMKÂNSIZ. Engellenen
                        şey unutulabilir; doğmayan şey unutulamaz.
                                    │
@@ -379,7 +379,7 @@ Sayı duvarı geçiyor, koordinat geçmiyor. Yolculuğu izle:
       ▼
   AttackResolver.IsWithinRange(distance, profile)
 
-  ██ DUVARI GEÇEN: bir SAYI. Geçemeyen: koordinat, tahta, metrik. ██
+  >> DUVARI GEÇEN: bir SAYI. Geçemeyen: koordinat, tahta, metrik. <<
         Mesafenin Chebyshev mi Manhattan mı olduğu Core'da kalıyor;
         Combat "kaç hücre" sorusunun cevabını alıyor, sorusunu değil.
 ```
@@ -416,7 +416,7 @@ Sebep: o değerin cevabı `MovementRules.CanMove(state)`'te ve `MovementRules`
   RejectedOutOfRange             ✓  iki koordinat arası      GridDistance│Core
   Moved                          ✓  yazma başarılı           UnitGrid    │Core
   ────────────────────────────   ─────────────────────────   ────────────────
-  RejectedActorCannotAct         ✗  ██ SIRA / DURUM ██       TurnRules   │Battle
+  RejectedActorCannotAct         ✗  >> SIRA / DURUM <<       TurnRules   │Battle
                                     ◄── AYRIŞMA NOKTASI      MovementRules│Combat
 ```
 
@@ -438,7 +438,7 @@ Core'dan çıkmadığını tutuyor.
   BAŞKA yoldan sızma  ► MoveAction_NeverReturnsRejectedActorCannotAct
                         (çalışma zamanı, davranışsal)
 
-  ██ Biri kapıyı kilitliyor, öteki kapının kilitli kaldığını ölçüyor. ██
+  >> Biri kapıyı kilitliyor, öteki kapının kilitli kaldığını ölçüyor. <<
      asmdef'e Combat referansı eklenirse birinci koruma AYNI GÜN düşer
      ve kuralı tutan tek şey test kalır.
 ```
@@ -467,8 +467,8 @@ farklı assembly'lerde:
   │  MoveAction              │        │  AttackAction            │
   │  MoveProfile   ◄── BURADA│        │  AttackProfile ◄── ORADA │
   │      Range : int         │        │      Range  : int        │
-  └──────────────────────────┘        │      Damage : int  ◄─────┼── ██ AYIRAN
-           ▲                          └──────────────────────────┘   ŞEY BU ██
+  └──────────────────────────┘        │      Damage : int  ◄─────┼── >> AYIRAN
+           ▲                          └──────────────────────────┘   ŞEY BU <<
            │  ✗ OK YOK — references: []
            └──────────────────────────────┘
 
@@ -482,7 +482,7 @@ yaşadığı**. `MoveProfile`'ın ihtiyacı olan her şey — hücre, uzaklık, 
 zaten Core'da. `AttackProfile`'ın yanında `Damage` var ve hasarın Core'da
 karşılığı olan bir kavram **yok**. <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette -->
 
-> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — Core'da bir hasar kavramı
+> ***YOKLUK SENEDİ — DÜŞÜLDÜ*** — Core'da bir hasar kavramı
 >
 > **GEREKÇE:** Bu cümle bir ölü son değil, bir YERLEŞTİRME gerekçesidir. Hasar
 > Core'da bir kavram olarak yaşamadığı için `AttackProfile` bir kat ötede
@@ -546,7 +546,7 @@ Arama merdiveni — ve nerede durduğu:
                  │                                       (BoardAdapter.cs:48)
   SEVİYE 2   GridStrategy'nin ÜYELERİ
              Battle, Combat, Core, Unity                     ✓ BULDU
-             ██ ARAMA BİTTİ ██ bulunan şey bir AD ALANI, tip değil
+             >> ARAMA BİTTİ << bulunan şey bir AD ALANI, tip değil
                               ────────────────────────► CS0118
                  │
   SEVİYE 3   dosya BAŞINDAKİ using'ler
@@ -596,8 +596,8 @@ Bu yüzden `using` ile alias örtüşmüyor, **bölüşüyor**:
   BattleActions      çakışmıyor  ► using halleder   (alias gereksiz)
   PlacementOutcome   çakışmıyor  ► using halleder   (alias gereksiz)
 
-  ██ İkisi de gerekli: using silinirse alttaki ikisi kırılır,
-     alias silinirse üstteki kırılır. ██
+  >> İkisi de gerekli: using silinirse alttaki ikisi kırılır,
+     alias silinirse üstteki kırılır. <<
 ```
 
 > **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → dosyanın başındaki
@@ -637,8 +637,8 @@ Ve `Battle`'ın üstlendiği eşleme, duvarın en sessiz faturası:
               ┌─ GridStrategy.Battle ─────────────────┐
               │  Dictionary<Unit, Combatant>          │
               │  Dictionary<Unit, Structure>          │
-              │  Dictionary<Unit, Action<…>>  ◄───────┼── ██ BU SÖZLÜĞÜN
-              │       stateForwarders                 │      KÖKÜ DUVAR ██
+              │  Dictionary<Unit, Action<…>>  ◄───────┼── >> BU SÖZLÜĞÜN
+              │       stateForwarders                 │      KÖKÜ DUVAR <<
               └───────────────────────────────────────┘
 ```
 
@@ -670,7 +670,7 @@ zorunda kalıyor.
                              ▼
               ╔═ GridStrategy.Battle ══════════╗
               ║ references: [Core, Combat]     ║
-              ║ ██ İLK BİRLEŞME NOKTASI ██     ║
+              ║ >> İLK BİRLEŞME NOKTASI <<     ║
               ╚════════════════┬═══════════════╝
                                ▼
               ╔═ GridStrategy.Unity ═══════════╗
@@ -692,7 +692,7 @@ zorunda kalıyor.
   DUVARIN KESMEDİĞİ ŞEY
   ───────────────────────────────────────────────────────────────
   ✗ AD ÇÖZÜMLEME.  BoardAdapter → Battle oku AÇIK, görünürlük TAM,
-    ve çıplak `Battle` yine de derlenmiyor.  ██ İKİ MEKANİZMA BAĞIMSIZ ██
+    ve çıplak `Battle` yine de derlenmiyor.  >> İKİ MEKANİZMA BAĞIMSIZ <<
 ```
 
 ---
@@ -707,7 +707,7 @@ zorunda kalıyor.
       birden çok kutuda  → ②
 
 ② İhtiyaç duyduğu şeyi bir SAYIYA / DEĞERE indirebilir misin?
-      EVET  → ██ tipi alt kutuda bırak, değeri PARAMETRE al ██
+      EVET  → >> tipi alt kutuda bırak, değeri PARAMETRE al <<
               kanıt: IsWithinRange(int distance, …) — koordinat değil,
               ölçüm geçiyor
       HAYIR → ③
@@ -716,7 +716,7 @@ zorunda kalıyor.
       VAR   → akışı oraya koy (kanıt: BattleActions)
       YOK   → ④
 
-④ ██ Şimdi asmdef'e referans eklemeyi düşünüyorsun. DUR. ██
+④ >> Şimdi asmdef'e referans eklemeyi düşünüyorsun. DUR. <<
       Sor: bu oku açtığım gün hangi TEST kutusu tahtaya bağlanır?
       Combat.EditModeTests bugün YALNIZ Combat'ı referans ediyor.
       Cevabın "hiçbiri" ise ok meşru; değilse ② ye geri dön.
@@ -739,7 +739,7 @@ tam olarak bu ikisi ve zıt karar alıyorlar.
                (alias tek kullanım için gürültü olur)
       N kez  → ③
 
-③ ██ ALIAS — ve namespace GÖVDESİNE yaz ██
+③ >> ALIAS — ve namespace GÖVDESİNE yaz <<
       dosya başına yazarsan SEVİYE 3'e düşer, hata geri gelir
       sağ tarafa `global::` koy → hedefin gelecekte kaymasın
 
@@ -825,7 +825,7 @@ Yani liste kısa değil. Dört faturanın üçü siliniyor.
 Ve asıl mesele son satırda. Bu değişikliğin en tehlikeli yanı şu:
 
 ```
-  ██ DUVAR KALDIRILDIĞI GÜN HİÇBİR ŞEY KIRILMAZ. ██
+  >> DUVAR KALDIRILDIĞI GÜN HİÇBİR ŞEY KIRILMAZ. <<
 
   derleyici : hiçbir şey der
   testler   : hepsi yeşil kalır
@@ -864,13 +864,13 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`03-tahta-sahipligi.md`](03-tahta-sahipligi.md) — okuma yolunun **3.** adımı
 > **NEDEN ORASI:** `03`'ün üç katmanlı figürünün **orta katmanı** (`internal Board`)
 > doğrudan bu duvara dayanıyor ve `03` *"Sözleşme assembly duvarında biter"*
-> diyor — o cümle ancak bu dosya okunduktan sonra okunabilir hâle geldi. ██ Bu
-> adımdan önce ██ [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
+> diyor — o cümle ancak bu dosya okunduktan sonra okunabilir hâle geldi. ***Bu
+> adımdan önce*** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
 > **DURMA NOKTASI 1**'i geç: testleri koştur, sonra test `asmdef`'inin
 > `references` dizisine gözünle bak.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

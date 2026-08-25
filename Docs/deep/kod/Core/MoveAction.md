@@ -310,7 +310,7 @@ ANDA doğru; dönen tek bir tane olacak:
 
 ```
 SEVİYE 1  board.IsInsideGrid(9,9)          ✗
-          ██ AKIŞ BİTTİ ██ ──► RejectedInvalidDestination
+          >> AKIŞ BİTTİ << ──► RejectedInvalidDestination
 SEVİYE 2  GridDistance.Between > moveRange ✗  ── BURAYA GELİNMEZ
 SEVİYE 3  hedefte BAŞKASI var mı           ✗  ── BURAYA GELİNMEZ
 ```
@@ -483,7 +483,7 @@ hatasıdır — `AttackResolver`'ın profil için koyduğu koruma ile aynı gere
 imza              çağıranları
 ───────────────   ────────────────────────────────────────
 int moveRange     MoveActionTests, BattleActionsTests
-                  ██ ÜRETİMDE ÇAĞIRANI KALMADI ██  ◄── ①
+                  >> ÜRETİMDE ÇAĞIRANI KALMADI <<  ◄── ①
 MoveProfile       BattleActions.Move — tek üretim çağıranı
                   + MoveActionTests'in karşılaştırma testi
 ```

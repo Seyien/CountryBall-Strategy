@@ -63,10 +63,10 @@ Diriltme sıfır candan başladığı için sonuç doğrudan verilen paydır; ve
   birim        Max    sabit 50 can           Max / 2
   ──────────────────────────────────────────────────────────────
   sıhhiyeci     40    40'a kelepçelenir      20  (yarısı)
-                      = TAM İYİLEŞME ◄── ██ ANLAM KAYDI ██
+                      = TAM İYİLEŞME ◄── >> ANLAM KAYDI <<
   asker        100    50 = yarısı            50  (yarısı)
   kule         400    50 = %12,5 ≈ HİÇ       200 (yarısı)
-                      ◄── ██ ANLAM KAYDI ██
+                      ◄── >> ANLAM KAYDI <<
   ──────────────────────────────────────────────────────────────
   sabit sayı : tek satır, ÜÇ farklı kural
   oran       : tek satır, TEK kural — "yarısıyla kalkar"
@@ -157,10 +157,10 @@ içinde reddedilen "her kare State'i oku ve karşılaştır" seçeneğinin ta ke
   Downed → Dead     Tick                 Dead   -> Downed   ✓ bugün
   Downed → Alive    TryRevive            Alive  -> Downed   ✓ bugün
   ───────────────────────────────────    ─────────────────────────
-         ◄── ██ ÜÇÜ DE DOĞRU: TEHLİKELİ OLAN TAM BU ██
+         ◄── >> ÜÇÜ DE DOĞRU: TEHLİKELİ OLAN TAM BU <<
 
   UnitLifecycle'a dördüncü bir durum girdiği an (örn. Stunned → Alive):
-    Alive -> "önceki: Downed"   ◄── ██ YALAN ██  birim hiç düşmemişti
+    Alive -> "önceki: Downed"   ◄── >> YALAN <<  birim hiç düşmemişti
 ```
 
 Tabloyu genişleten kişi `UnitLifecycle.cs`'i açar; buraya bakması için hiçbir
@@ -276,7 +276,7 @@ takım, uydurulmuş bir taraf değil, açıkça tarafsızlık demektir.
   attackProfile   YOK — "kaç hasar, kaç menzil"             yok  ✓
   ─────────────────────────────────────────────────────────────────
   team            VAR — Team.None, ve anlamı uydurma değil  VAR  ✓
-                  ◄── ██ TUTARSIZLIK DEĞİL, AYNI TESTİN SONUCU ██
+                  ◄── >> TUTARSIZLIK DEĞİL, AYNI TESTİN SONUCU <<
 ```
 
 `Team.None`'ın "sıfır BİLEREK tarafsız" olması `Team.cs`'te yazılı; bu varsayılan
@@ -363,7 +363,7 @@ atanmayı unutulmuş birimi sessizce `Team.None` yapardı.
     ┌─okçu#1──┐  ┌─okçu#2──┐        ┌─okçu#200┐
     │ profil ─┼─►A│ profil ─┼─►B ... │ profil ─┼─►Z
     └─────────┘  └─────────┘        └─────────┘
-    ◄── ██ AYNI TANIM, 200 AYRI NESNE ██
+    ◄── >> AYNI TANIM, 200 AYRI NESNE <<
     "okçu hasarını 1 artır" -> 200 nesnenin hepsi değişmeli
     ve test, gerçek parçayı değil kurucunun ürettiğini sınar
 
@@ -374,7 +374,7 @@ atanmayı unutulmuş birimi sessizce `Team.None` yapardı.
                └────────────┴────┘
                            ▼
                  ╔════════════════════╗
-                 ║ TEK AttackProfile  ║ ◄── ██ TANIM, PAYLAŞILIR ██
+                 ║ TEK AttackProfile  ║ ◄── >> TANIM, PAYLAŞILIR <<
                  ╚════════════════════╝
 ```
 
@@ -486,12 +486,12 @@ ilk satırda ne yapmak zorunda kaldığını belirler.
     Combatant ──olay(this, p, n)──► Battle'ın dinleyicisi
       elde: Combatant                aranılan: Unit
       └─► Dictionary<Unit, Combatant> DEĞERDEN taranır
-          ◄── ██ TERS ARAMA ██ sözlük bu yön için kurulmadı
+          ◄── >> TERS ARAMA << sözlük bu yön için kurulmadı
 
   SEÇİLEN — Action<UnitState, UnitState>
     Combatant ──olay(p, n)──► (p, n) => ...Invoke(unit, p, n)
       elde: yalnız geçiş       unit ZATEN kapanışın İÇİNDE
-          ◄── ██ ARAMA YOK ██ kimlik aboneliğe gömülü
+          ◄── >> ARAMA YOK << kimlik aboneliğe gömülü
 ```
 
 Kimliği ekleyen kapanışın nerede saklandığı ve neden saklanmak zorunda olduğu
@@ -574,14 +574,14 @@ taşıyor SANILIR ve eşleşmeye ikinci bir sahip doğurur.
                                  │ add { lifecycle.StateChanged += value; }
                                  ▼
                             UnitLifecycle'ın dinleyici listesi
-                            ◄── ██ BAĞ İÇ PARÇAYA DÜŞTÜ ██
+                            ◄── >> BAĞ İÇ PARÇAYA DÜŞTÜ <<
     Combatant aradan çekilse bile bu bağ ayakta kalır; onu kesecek bir
     kol artık hiçbir yerde yoktur.
 
   SEÇİLEN — proxy
     dış dinleyici ──abone──► Combatant.StateChanged  (kendi listesi)
     Combatant     ──abone──► UnitLifecycle
-                            ◄── ██ İÇ LİSTEDE HEP TEK ABONE ██
+                            ◄── >> İÇ LİSTEDE HEP TEK ABONE <<
     ve o tek abone bir METOT: adı olan, sökülebilir bir hedef.
 ```
 
@@ -702,9 +702,9 @@ dinleyicinin kodu zincirin İÇİNDE koşar.
 ```
   REDDEDILEN — `{ get; set; }`
     t0  AttackAction ► CanBeAttacked(durum, saldıran, hedef)  ✓ onay
-    t1  hedef.Team = saldıranın takımı  ◄── ██ ARAYA GİREN ATAMA ██
+    t1  hedef.Team = saldıranın takımı  ◄── >> ARAYA GİREN ATAMA <<
     t2  hedef.TakeDamage(...)           ► dost ateşi, onaysız
-        ◄── ██ t0'ın onayı t2'de ARTIK BAŞKA BİR OLGUYA AİT ██
+        ◄── >> t0'ın onayı t2'de ARTIK BAŞKA BİR OLGUYA AİT <<
 
   SEÇİLEN — `{ get; }`
     t0  onay ✓
@@ -783,7 +783,7 @@ Durumu soran TEK üye bu. Yanına bir kısayol `bool` eklemek reddedildi.
   ───────────────────────────────────────────────────
   Alive    Alive     true      true            false
   Downed   Downed    false ◄── true            true
-                     ██ AYNI BİRİM İÇİN ZIT CEVAP ██
+                     >> AYNI BİRİM İÇİN ZIT CEVAP <<
   Dead     Dead      false     false           false
   ───────────────────────────────────────────────────
 ```
@@ -870,13 +870,13 @@ Alan cevabını (Alive / Downed / Dead) o satırdan sonra `UnitLifecycle` verir.
 
 ```
   BUGÜN — tek ev
-    "kime vurulur"   ► TargetingRules.CanBeAttacked ◄── ██ TEK EV ██
+    "kime vurulur"   ► TargetingRules.CanBeAttacked ◄── >> TEK EV <<
     "ne kadar hasar" ► DamageRules
     "ne uygulanır"   ► burası — soru sormaz, uygular
 
   REDDEDILEN — erken çıkış eklenirse
     "kime vurulur"   ► TargetingRules.CanBeAttacked
-                     ► + bu metodun ilk satırı ◄── ██ İKİNCİ EV ██
+                     ► + bu metodun ilk satırı ◄── >> İKİNCİ EV <<
     iki ev ayrıştığı gün: TargetingRules "vurulabilir" der, burası
     vurmaz — ve ikisinin çeliştiğini gösteren tek satır hiçbir yerde
     yoktur.

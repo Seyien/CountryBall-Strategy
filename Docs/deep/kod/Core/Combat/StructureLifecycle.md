@@ -83,8 +83,8 @@ Kararı belirleyen şey durum sayısı değil, geçişlerin DOĞDUĞU yer:
 
   Downed → Dead                     (BÖYLE BİR GEÇİŞ YOK)
     Tick içinde, kimse sormadan
-    ◄── ██ EVENT'İ HAKLI ÇIKARAN
-        TEK SATIR ORASIYDI ██
+    ◄── >> EVENT'İ HAKLI ÇIKARAN
+        TEK SATIR ORASIYDI <<
 
   Dead → temizlik                   Destroyed → temizlik
     Tick, ama DURUM değişmiyor        Tick, ama DURUM değişmiyor
@@ -179,9 +179,9 @@ yazan tek satır kalmalı.
   ────────────────────────────────  ──────────────────────────────
   kurucu: State = Standing          kurucu: State = Alive
   OnHealthDepleted: = Destroyed     SetState(Downed)   ← OnHealthDepleted
-  ◄── ██ TOPLAM İKİ YAZAN ██        SetState(Alive)    ← TryRevive
+  ◄── >> TOPLAM İKİ YAZAN <<        SetState(Alive)    ← TryRevive
   ve ikisi de bir GEÇİŞ             SetState(Dead)     ← Tick
-  yayını tetiklemiyor               ◄── ██ ÜÇ YAZAN + BİR YAYIN ██
+  yayını tetiklemiyor               ◄── >> ÜÇ YAZAN + BİR YAYIN <<
 ```
 
 Orada `SetState`'in işi yönlendirme değil, her geçişte event'i tetiklemek ve aynı
@@ -242,12 +242,12 @@ BU çağrıyla yıkıldıysa `true`; zaten yıkıksa `false`.
 ```
   SEÇİLEN
     çağıran ─► OnHealthDepleted() ─► bool
-                 ◄── ██ CEVAP KAYNAĞINDA ÜRETİLİYOR ██
+                 ◄── >> CEVAP KAYNAĞINDA ÜRETİLİYOR <<
                  tek yer, tek satır, atlanacak adım yok
 
   REDDEDILEN — void
     çağıran şunu elle kurar:
-      ① var before = lifecycle.State;      ◄── ██ KIRILGAN ADIM ██
+      ① var before = lifecycle.State;      ◄── >> KIRILGAN ADIM <<
       ② lifecycle.OnHealthDepleted();
       ③ var after  = lifecycle.State;
       ④ bool destroyedNow = before != after;
@@ -335,7 +335,7 @@ Bu tipte `TryRepair` yok. Bu satır bir eksiklik değil, bir karar.
   ┌──────────────── Structure (bileşik) ────────────────┐
   │  health ────────► Health              (SAYI)        │
   │  lifecycle ─────► StructureLifecycle  (DURUM)       │
-  │       ◄── ██ İKİSİNİ AYNI ANDA GÖREN TEK YER ██     │
+  │       ◄── >> İKİSİNİ AYNI ANDA GÖREN TEK YER <<     │
   └─────────────────────────────────────────────────────┘
 
   BU TİPİN gördüğü:   DURUM
@@ -347,7 +347,7 @@ Bu tipte `TryRepair` yok. Bu satır bir eksiklik değil, bir karar.
       -> sıfır canla AYAKTA duran bir bina
       -> değen ilk hasar onu anında tekrar yıkar
       -> hata "bina bazen hemen yıkılıyor" diye gelir
-    ◄── ██ GEÇİŞ, GÖREMEDİĞİ BİR DEĞİŞMEZE DAYANIYOR ██
+    ◄── >> GEÇİŞ, GÖREMEDİĞİ BİR DEĞİŞMEZE DAYANIYOR <<
 ```
 
 ### KAPSAM: bu tip geçiş yapamaz DEĞİL

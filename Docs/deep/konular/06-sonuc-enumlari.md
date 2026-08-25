@@ -1,8 +1,8 @@
 # "Hayır" demenin dört yolu — ret değerlerinin anatomisi
 
 > **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar.* Önce dört
-> enum — ██ ikisi `Core`/`Combat` tarafında, ikisi `Battle` tarafında; bu bölünme
-> bu dosyanın konusudur ██:
+> enum — ***ikisi `Core`/`Combat` tarafında, ikisi `Battle` tarafında; bu bölünme
+> bu dosyanın konusudur***:
 > `Assets/Game/Core/MoveOutcome.cs` · `Assets/Game/Core/Combat/AttackOutcome.cs` ·
 > `Assets/Game/Battle/PlacementOutcome.cs` · `Assets/Game/Battle/ReviveOutcome.cs`
 > sonra tüketiciler: `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Unity/BoardAdapter.cs`
@@ -13,8 +13,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -54,7 +54,7 @@ bildikleri ve bilmedikleri var, ve bütün hikâye bilmediklerinden çıkıyor.
 ╔═ MoveOutcome ═════════════════ GridStrategy.Core ═════════════╗
 ║  İşi     : bir hareket DENEMESİNİN sonucunu adlandırmak       ║
 ║  Bilir   : 5 değer — 4 ret + Moved                            ║
-║  BİLMEZ  : ██ kendi beşinci değerini nasıl üreteceğini ██     ║
+║  BİLMEZ  : >> kendi beşinci değerini nasıl üreteceğini <<     ║
 ║            UnitState yok, MovementRules yok, TurnState yok    ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -74,7 +74,7 @@ bildikleri ve bilmedikleri var, ve bütün hikâye bilmediklerinden çıkıyor.
 ╔═ ReviveOutcome ═══════════════ GridStrategy.Battle ═══════════╗
 ║  İşi     : bir diriltme denemesinin sonucunu adlandırmak      ║
 ║  Bilir   : 4 değer — 3 ret + Revived                          ║
-║  BİLMEZ  : ██ bugün onu kimsenin OKUMADIĞINI ██               ║
+║  BİLMEZ  : >> bugün onu kimsenin OKUMADIĞINI <<               ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ BattleActions ═══════════════ üretici ═══════════════════════╗
@@ -110,7 +110,7 @@ gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaym
 RejectedActorCannotAct
 ```
 
-Kutudaki «██ kendi beşinci değerini nasıl üreteceğini ██» satırının karşılığı bu
+Kutudaki «***kendi beşinci değerini nasıl üreteceğini***» satırının karşılığı bu
 altı satırdır — ve dikkat çekici olan, tipin bunu **kendi belgesinde itiraf
 etmesi**. Değeri gerçekten döndüren satır başka bir assembly'de:
 `Assets/Game/Battle/BattleActions.cs` → `Move`, içindeki
@@ -162,7 +162,7 @@ sorulacağı imzada yazmıyor.
 Revived
 ```
 
-Kutudaki «██ bugün onu kimsenin OKUMADIĞINI ██» satırının karşılığı bir satır
+Kutudaki «***bugün onu kimsenin OKUMADIĞINI***» satırının karşılığı bir satır
 değil, bir **yokluk** — ve ölçülebilir: bu tipi üreten tek yer
 `Assets/Game/Battle/BattleActions.cs` → `Revive`, ve o metodu çağıran her satır
 `Assets/Tests/EditMode/Battle/BattleActionsTests.cs` içinde. Üretim tarafında tek
@@ -232,8 +232,8 @@ değil, bir **yerleştirme** kararı.
               ▼                                    ▼
      `private MoveOutcome last;`        `private MoveOutcome last;`
       atanmamış hâl = bir RET            atanmamış hâl = "TAŞINDI"
-      zararsız: zaten hiçbir şey         ██ hiç hareket denenmeden
-      olmadı demektir                       ekran "taşındı" der ██
+      zararsız: zaten hiçbir şey         >> hiç hareket denenmeden
+      olmadı demektir                       ekran "taşındı" der <<
 ```
 
 İki sütunda da **beş ad aynı**, anlamları da aynı. Değişen tek şey `Moved`'ın
@@ -245,7 +245,7 @@ başarıya bağlıyor.
 ```
    default(MoveOutcome)              ► açıkça yazılır, kimse şaşırmaz
    new MoveOutcome[n] hücreleri      ► dizi ayrıldığı anda n tane sıfır doğar
-   atanmayı unutulan bir alan        ► ██ burada kimse bir şey YAZMAZ ██
+   atanmayı unutulan bir alan        ► >> burada kimse bir şey YAZMAZ <<
 ```
 
 Üçüncüsü tehlikeli olan. Bir alan bildirdin, atamayı unuttun, kod derlendi,
@@ -297,7 +297,7 @@ Bakılması gereken şey, o "okunaklılık" için ödenen fatura:
      3     HitAndDowned               Hit                     ◄── 2'ydi
      4     HitAndDestroyed            HitAndDowned            ◄── 3'tü
      5     RejectedActorCannotAct     HitAndDestroyed         ◄── 4'tü
-                                      ██ TEK EKLEME, ÜÇ DEĞER KAYDI ██
+                                      >> TEK EKLEME, ÜÇ DEĞER KAYDI <<
 ```
 
 Sağdaki sütunda hiçbir **ad** değişmedi. Değişen tek şey üç değerin **sayısı**.
@@ -321,7 +321,7 @@ görsel düzeni satın alır.
    ────────────────────────────────
    index 4  HitAndDestroyed   ◄── beşinci sırada duran bir BAŞARI değeri
                                   ret ailesinin ortasında değil, ARADA
-   ██ Sıra bilgisini enum'dan okumaya çalışan göz burada ZATEN yanılır ██
+   >> Sıra bilgisini enum'dan okumaya çalışan göz burada ZATEN yanılır <<
 ```
 
 Yani ret değerlerini kümelemenin taşıdığı tek fayda — "sırayla bakarsam anlarım" —
@@ -343,7 +343,7 @@ adı:
    ──────────────────────   ─────────   ─────────
    HitAndDowned                 ✓           ✗
    HitAndDestroyed              ✗           ✓
-                            ██ AYRIŞAN TEK ÇİFT ██
+                            >> AYRIŞAN TEK ÇİFT <<
 ```
 
 Neden `HitAndDowned` yeniden kullanılmıyor: **bir baraka düşmez, yıkılır.**
@@ -380,7 +380,7 @@ Her biri akıştaki bir kapıya birebir karşılık geliyor:
    │   AddStructure(...) döndü ──► Placed                  ③   │
    │           │                                                │
    │           └─► "bu birim zaten savaşta" ──► ArgumentException
-   │               ██ BU ENUM'A GİRMEZ — çağıran hatası ██     │
+   │               >> BU ENUM'A GİRMEZ — çağıran hatası <<     │
    └────────────────────────────────────────────────────────────┘
 
    üç değer  ◄──►  üç kapı.  Artan yok, eksik yok.
@@ -399,8 +399,8 @@ değeri buraya da eklemek doğal görünür. Ekleyemezsin, ve sebep imzada:
    ┌──── EYLEYEN ────┐                 ┌──── EYLEYEN ────┐
    │   Unit actor    │                 │      YOK        │
    └────────┬────────┘                 └────────┬────────┘
-            │ Combatant.Team                    │ ██ ödünç alınabilecek
-            ▼                                   ▼    tek alan: ██
+            │ Combatant.Team                    │ >> ödünç alınabilecek
+            ▼                                   ▼    tek alan: <<
    TurnRules.CanAct(team, ...)          structure.Team
             │                                   │
             │                                   ▼
@@ -409,8 +409,8 @@ değeri buraya da eklemek doğal görünür. Ekleyemezsin, ve sebep imzada:
             │                                   │
             ▼                                   ▼
         doğru soru                     CanAct(Team.None, ...) → HER ZAMAN false
-                                       ██ nötr hiçbir yapı tahtaya bir daha
-                                          konamaz ██
+                                       >> nötr hiçbir yapı tahtaya bir daha
+                                          konamaz <<
 ```
 
 Olmayan özneyi bir başkasının tarafından ödünç almak, doğru kuralı yanlış şeye
@@ -436,7 +436,7 @@ Enum'un var olma sebebi tam olarak bu tablo:
    RejectedOutOfRange        MESAFE           yapay zekâ: "önce YAKLAŞ"
    RejectedActorCannotAct    EYLEYEN          sessiz kal — bekle
                              ▲
-              ██ Üçü ÖRTÜŞMÜYOR çünkü üçü farklı bir özneyi suçluyor ██
+              >> Üçü ÖRTÜŞMÜYOR çünkü üçü farklı bir özneyi suçluyor <<
 ```
 
 Üçüncüsü tek başına **iki sebebi** taşıyor: sıra o tarafta değil
@@ -450,7 +450,7 @@ Ve bir şey daha, dosyadan okunmuyor ama gerçek:
    ──────────────────────────────────────
    BattleActions.Revive     ► üretir
    BattleActionsTests       ► okur, sabitler
-   BoardAdapter             ► ██ HİÇ GÖRMÜYOR ██
+   BoardAdapter             ► >> HİÇ GÖRMÜYOR <<
 ```
 
 Yani üç ret sebebi bugün ekranda **hiçbir farklı davranış üretmiyor**; farkı yalnız
@@ -480,12 +480,12 @@ Ama **üretilebilirlikleri** aynı değil, ve farkı yaratan şey bir asmdef dos
    │     RejectedActorCannotAct   ✓    HitAndDestroyed  ✓        │
    │                              ▲                              │
    │            AttackRules.CanAttack AYNI KUTUDA → sorabilir    │
-   │                                              ██ 6 / 6 ██    │
+   │                                              >> 6 / 6 <<    │
    └─────────────────────────────────────────────────────────────┘
 
    ┌─ GridStrategy.Core ── references: [] ──────────────────────┐
    │   MoveOutcome     ← tip BURADA                             │
-   │   MovementRules, UnitState, TurnState ← ██ BURADA DEĞİL ██ │
+   │   MovementRules, UnitState, TurnState ← >> BURADA DEĞİL << │
    │                                                             │
    │   MoveAction.Execute üretebildikleri:                       │
    │     RejectedInvalidDestination  ✓                           │
@@ -496,7 +496,7 @@ Ama **üretilebilirlikleri** aynı değil, ve farkı yaratan şey bir asmdef dos
    │                                       bu kutudan GÖRÜNMEZ;  │
    │                                       ADINI YAZMAK bile     │
    │                                       DERLENMEZ             │
-   │                                              ██ 4 / 5 ██    │
+   │                                              >> 4 / 5 <<    │
    └──────────────────────────┬──────────────────────────────────┘
                               │ Battle, Core'u ve Combat'ı GÖRÜR
                               │ (ok tek yönlü — geri dönüşü yok)
@@ -506,7 +506,7 @@ Ama **üretilebilirlikleri** aynı değil, ve farkı yaratan şey bir asmdef dos
    │     MovementRules.CanMove(...)   ► değeri döndürür  ◄── ②  │
    │     ikisi de geçerse             ► akış Core'a iner         │
    │                                                              │
-   │   ██ Bu enum'un beşinci değerinin DÜNYADAKİ TEK ÇIKIŞI ██   │
+   │   >> Bu enum'un beşinci değerinin DÜNYADAKİ TEK ÇIKIŞI <<   │
    └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -535,7 +535,7 @@ Yani asmdef bir değeri değil, o değeri **hak etmenin yolunu** kapatıyor.
 > **NEDEN:** yukarıdaki yasağın taşıyıcı gerekçesi `asmdef` kelimesinin
 > üstünde duruyor ve bu dosya `asmdef`'i tanımlamıyor. `02` aynı `MoveOutcome`
 > değerini **öteki yönden** anlatıyor: burada "enum ne kaybetti", orada "duvar ne
-> kesti". ██ Aynı satır, iki fatura. ██
+> kesti". ***Aynı satır, iki fatura.***
 > **DÖNÜŞ:** bu dosyanın [«İki koruma, iki farklı kırılma»](#iki-koruma-iki-farkli-kirilma) bölümü
 
 > **⌨ KODU AÇ:** `Assets/Game/Core/MoveOutcome.cs` → `RejectedActorCannotAct`,
@@ -578,18 +578,18 @@ kontrol sırasıdır.
   SONUÇ TİPİ          ÜRETİCİ                       kaç değer   TÜKETİCİ
   ─────────────────   ───────────────────────────   ─────────   ──────────────────────
   MoveOutcome         MoveAction     (Core)           4 / 5     BoardAdapter.ReactToMove
-                      BattleActions.Move (Battle)     1 / 5     ██ TAM switch ██
-                                     ██ 4+1, ÇAKIŞMA YOK ██      + default: LogError
+                      BattleActions.Move (Battle)     1 / 5     >> TAM switch <<
+                                     >> 4+1, ÇAKIŞMA YOK <<      + default: LogError
 
   AttackOutcome       AttackAction   (Combat)         6 / 6     BoardAdapter.ReactToAttack
-                      BattleActions.Attack            1 / 6     ██ TAM switch ██
+                      BattleActions.Attack            1 / 6     >> TAM switch <<
                                      (zaten üretilebilir olan)   + default: LogError
 
   PlacementOutcome    BattleActions.PlaceStructure    3 / 3     BoardAdapter
                                                                  tek `== Placed`
                                                                  ◄── switch YOK
 
-  ReviveOutcome       BattleActions.Revive            4 / 4     ██ EKRAN TÜKETİCİSİ YOK ██
+  ReviveOutcome       BattleActions.Revive            4 / 4     >> EKRAN TÜKETİCİSİ YOK <<
                                                                  yalnız testler
 ```
 
@@ -604,7 +604,7 @@ Bu matriste okunacak **üç** şey var:
    ZATEN üretebildiği bir değer. Yani orada bir taviz YOK — aynı cevabı iki ayrı
    kapı veriyor: biri saldıranın durumuna, öteki sıraya bakıyor.
 
-③ ██ Tüketici sütunu üç FARKLI şekil taşıyor ve üçü de doğru. ██
+③ >> Tüketici sütunu üç FARKLI şekil taşıyor ve üçü de doğru. <<
    tam switch  ► her ret ayrı bir mesaj üretiyor
    tek `==`    ► ret sebebine göre yapılacak FARKLI bir iş yok
    yok         ► değeri okuyan ekran kodu henüz doğmadı
@@ -627,7 +627,7 @@ Kaybedilen şey enum'un içinde değil, **çağıranın kaybettiği daldadır:**
   RejectedInvalidDestination      "asla gidilemez" ile "şimdilik gidilemez"
       + RejectedCellOccupied      → tahta dışı hücreyi her turda yeniden dener
                                      VEYA dolu hücreden kalıcı vazgeçer
-                                     ██ hangisini yazarsan yaz, öteki YANLIŞ ██
+                                     >> hangisini yazarsan yaz, öteki YANLIŞ <<
   ────────────────────────────    ────────────────────────────────────────
   Hit + HitAndDowned              düşme animasyonu ve skor kaydı HER vuruşta
                                   tetiklenir
@@ -635,7 +635,7 @@ Kaybedilen şey enum'un içinde değil, **çağıranın kaybettiği daldadır:**
   HitAndDowned + HitAndDestroyed  kurtarma penceresi: biri açar, öteki AÇMAZ
                                   → enkaza sıhhiyeci gönderilir
   ────────────────────────────    ────────────────────────────────────────
-  RejectedActorCannotAct'ın       ██ BUGÜN HİÇBİR DAL KAYBOLMUYOR ██
+  RejectedActorCannotAct'ın       >> BUGÜN HİÇBİR DAL KAYBOLMUYOR <<
   üç sebebi (sıra / saldıran      üçünde de çağıranın yapabileceği tek şey
   düşmüş / hareket eden düşmüş)   aynı: BEKLE. O yüzden BİRLEŞTİRİLDİ.
 ```
@@ -646,15 +646,15 @@ bilerek birleştirdi — zıt görünen iki karar, tek ölçüt.
 
 > **◀ DÖNÜŞ:** [04-karar-sirasi.md](04-karar-sirasi.md#dorduncu-durak-sira-iner-ama-ayni-sirayla-iner) — «Üçüncü durak: iki ölçüt»ten
 > geldiysen artık şunu biliyorsun: aynı ölçüt (*"ayıraç sebep sayısı değil,
-> DAVRANIŞ sayısı"*) iki dosyada iki kez kuruluyor — ██ burada **kurulur**, orada
-> bir **sıra kararına uygulanır** ██ · oraya dön ve dördüncü duraktan devam et
+> DAVRANIŞ sayısı"*) iki dosyada iki kez kuruluyor — **burada *kurulur*, orada
+> bir *sıra kararına uygulanır*** · oraya dön ve dördüncü duraktan devam et
 
 ### Ayrımın doğacağı gün, ve tetiği
 
 `RejectedActorCannotAct` ikiye ne zaman ayrılır, kaynakta yazılı:
 
 ```
-  ██ EŞİK ██  arayüz oyuncuya "sıran değil" ile "birim düşmüş" farkını
+  >> EŞİK <<  arayüz oyuncuya "sıran değil" ile "birim düşmüş" farkını
               SÖYLEMEK zorunda kaldığı gün.
 
   Bugün neden aşılmadı: tek ekran tüketicisi BoardAdapter ve o yalnızca
@@ -674,7 +674,7 @@ Sırayla sor. Her adımın çıkışı bir eylem, "duruma bakarız" yok.
       EVET  → ②
 
 ② Çağıran bu sebebe, MEVCUT bir sebeple AYNI mı davranır?
-      AYNI  → ██ EKLEME ██ Mevcut değerin kapsamına gir.
+      AYNI  → >> EKLEME << Mevcut değerin kapsamına gir.
               (RejectedActorCannotAct üç sebebi böyle topluyor)
       FARKLI → ③
 
@@ -689,13 +689,13 @@ Sırayla sor. Her adımın çıkışı bir eylem, "duruma bakarız" yok.
               → ④
 
 ④ Bu değerin akışta bir ÜRETENİ var mı? (imzada özne, kodda kapı)
-      HAYIR → ██ EKLEME ██ Eşi olmayan bir değer doğar; çağıran asla
+      HAYIR → >> EKLEME << Eşi olmayan bir değer doğar; çağıran asla
               dönmeyecek bir dal yazar.
               (PlacementOutcome'un dördüncü değeri tam burada düştü)
       EVET  → ⑤
 
 ⑤ Değeri ARAYA mı SONA mı koyuyorsun?
-      SONA  → ██ DOĞRU ██
+      SONA  → >> DOĞRU <<
       ARAYA → sonrasındaki her değerin sayısı sessizce kayar.
               Tek kabul edilebilir gerekçe: kaynaktaki sıra GERÇEKTEN
               akış sırası ise ve hiçbir yerde sayı saklanmıyorsa.
@@ -706,7 +706,7 @@ Ve sıfırıncı hücre için ayrı, tek soruluk bir kural:
 
 ```
    Bu enum'un SIFIR hücresinde ne var?
-      bir BAŞARI  → ██ DUR ██ Atanmamış her alan, hiç denenmemiş bir işi
+      bir BAŞARI  → >> DUR << Atanmamış her alan, hiç denenmemiş bir işi
                     başarılı gösterir. Derleyici susar, test yeşil kalır.
       bir RET     → devam
       ne başarı   → o hâlin doğal karşılığını adlandırıyor mu diye bak
@@ -723,7 +723,7 @@ Enum'a bir değer eklediğinde **hiçbir şey kırılmaz.** Kırılmaması sorun
    switch (outcome)                    switch DEYİMİ (statement)
    {                                   ────────────────────────────
        case A: ... break;              yeni bir değer eklendiğinde:
-       case B: ... break;                derleyici: ██ SUSAR ██
+       case B: ... break;                derleyici: >> SUSAR <<
        // yeni değer C burada YOK        çalışma anı: hiçbir dal eşleşmez,
    }                                                  switch sessizce geçilir
 ```
@@ -747,7 +747,7 @@ Sözleşmenin tamamı bu iki satırda:
   ╔═ ÜRETİCİ (BattleActions) ═══════════════════════════════════╗
   ║  değer EKLEYEBİLİR — kimseye sormadan, derleme kırılmadan   ║
   ╚═══════════════════════════════╤═════════════════════════════╝
-                                  │  ██ derleyici burada SUSAR ██
+                                  │  >> derleyici burada SUSAR <<
                                   ▼
   ╔═ TÜKETİCİ (BoardAdapter) ═══════════════════════════════════╗
   ║  yeni değeri işlemezse: default dalına düşer                ║
@@ -804,9 +804,9 @@ yeniden üretir. Bilgiyi üretildiği yerde daraltmak tek yönlü bir kapıdır.
      if (!moved)                          kurallarını KOPYALAR
      {                                          │
          if (!board.IsInside(x, y)) ...         ▼
-         else if (board.HasUnit(x, y)) ...   ██ İKİ YERDE İKİ KURAL,
+         else if (board.HasUnit(x, y)) ...   >> İKİ YERDE İKİ KURAL,
          else if (dist > range) ...             biri değişince öteki
-     }                                          sessizce YALAN SÖYLER ██
+     }                                          sessizce YALAN SÖYLER <<
 ```
 
 **Kaçınılan şey `bool`'un kendisi değil, kuralın ikinci kopyası.**
@@ -831,7 +831,7 @@ tek satırla yazılı: *o hücreyi kim seçti?*
     tablosu, kayıt dosyası)
    ╔═ ArgumentException ═╗         ╔═ RejectedCellOccupied ═╗
    ╚═════════════════════╝         ╚════════════════════════╝
-   ██ AYRIM olguda DEĞİL, hücreyi SEÇENDE ██
+   >> AYRIM olguda DEĞİL, hücreyi SEÇENDE <<
 ```
 
 Oyuncu hamlesini istisnaya çevirseydin `BoardAdapter` her bırakmayı `try/catch`
@@ -869,11 +869,11 @@ burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`04-karar-sirasi.md`](04-karar-sirasi.md) — okuma yolunun **7.** adımı
-> **NEDEN ORASI:** ██ numara sırası `04 → 06` diyor; bağımlılık **tersini**
-> diyor ██ ve sen doğru olanı izledin. Bu dosya ölçütü **kurdu** (dört enum, on
+> **NEDEN ORASI:** **numara sırası `04 → 06` diyor; bağımlılık *tersini*
+> diyor** ve sen doğru olanı izledin. Bu dosya ölçütü **kurdu** (dört enum, on
 > bir ret değeri, tam tablo); `04` onu bir **sıra kararına uyguluyor**. Ayrıca
 > `04`'ün iki körlüğü (`AttackRules` sırayı soramaz, `MoveAction` durumu soramaz)
 > doğrudan **2. adımda** kapattığın duvara dayanıyor — iki ön koşulun da hazır.

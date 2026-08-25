@@ -65,7 +65,7 @@ değişikliğidir (can artar, durum aynı kalır).
               BİRİM                  YAPI
 saldırı       CanBeAttacked(         CanBeAttacked(
                 UnitState)             StructureState)
-diriltme      CanBeRevived(          ██ HÜCRE BOŞ ██
+diriltme      CanBeRevived(          >> HÜCRE BOŞ <<
                 UnitState)             ◄── KARARIN KENDİSİ
 
 Boş hücrenin karşılığı yok değil; BAŞKA bir evde:
@@ -518,7 +518,7 @@ sald. None    hayır/hayır   EVET/hayır     EVET/hayır ◄── SIZAN
 sald. Player  evet/evet     hayır/hayır    evet/evet      SATIR
 sald. Enemy   evet/evet     evet/evet      hayır/hayır
 
-██ TEK AYRIŞAN SATIR: saldıran None ██
+>> TEK AYRIŞAN SATIR: saldıran None <<
 ```
 
 Bu satır teorik değil: `Team.cs` sıfırıncı değeri **bilerek** `None` yaptı, yani

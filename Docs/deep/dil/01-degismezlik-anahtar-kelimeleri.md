@@ -21,17 +21,17 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki yerin **yorumunda** bu belgeye bir
 `DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
-██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***`DİL:`***). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
 | `Assets/Tests/EditMode/Battle/TurnRulesTests.cs` | `MoveAndAttack_ShareOneBudgetToday` | ✓ |
 | yukarıdaki altı üretim dosyasının hiçbiri | — | ██ HENÜZ YOK ██ |
 
-██ **Ölçüldü:** bu belgeye giden **tek** kod işaretçisi bir **test** dosyasında.
+***Ölçüldü:* bu belgeye giden *tek* kod işaretçisi bir *test* dosyasında.
 Beş kelimenin yaşadığı altı üretim dosyasının hiçbirinden buraya gelinemez;
-yalnız tersi çalışır. Bu bir kusur ve gizlenmiyor. ██
+yalnız tersi çalışır. Bu bir kusur ve gizlenmiyor.**
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı dil
 özelliklerini** anlatıyor. Bu beş kelimeyi biz tasarlamadık; C# derleyicisi
@@ -127,7 +127,7 @@ seçim. Hangisinin hangisi olduğu ikinci durakta.
 ║             olduğunu                                            ║
 ╚═══════════════════════════════════════════════════════════════╝
 
-        ██ BEŞİNİN DE ORTAK KÖRLÜĞÜ ██
+        >> BEŞİNİN DE ORTAK KÖRLÜĞÜ <<
         Beş "BİLMEZ" satırı aynı şeyi söylüyor: kelime OKA bakar,
         okun UCUNA değil. Ucundaki nesneyi donduran tek şey, o
         nesnenin kendi tipinin yazılışıdır.
@@ -137,8 +137,8 @@ seçim. Hangisinin hangisi olduğu ikinci durakta.
 
 Kutular **ne vaat edildiğini** yazıyor. Aşağıdaki beş blok o vaadin bu projede
 **hangi satırda** yaşadığını yazıyor. Beşi de ödünç: tanımları C# derleyicisinde,
-bizde değil — bu yüzden aranan şey "nerede tanımlı" değil, ██ "nerede
-karşılaşıyorsun" ██.
+bizde değil — bu yüzden aranan şey "nerede tanımlı" değil, ***"nerede
+karşılaşıyorsun"***.
 
 **`readonly` bu projede** — `Assets/Game/Battle/Battle.cs` → `board`
 
@@ -273,7 +273,7 @@ Ne dondu, ne donmadı:
 ```
 private readonly Unit[,] cells;
           │
-          ├── ██ KİLİTLEDİĞİ ŞEY: OKUN KENDİSİ ██
+          ├── >> KİLİTLEDİĞİ ŞEY: OKUN KENDİSİ <<
           │      cells = new Unit[9, 9];       ✗ CS0191
           │      "A readonly field cannot be assigned to
           │       (except in a constructor or a variable initializer)"
@@ -282,7 +282,7 @@ private readonly Unit[,] cells;
                  cells[x, y] = unit;           ✓ PlaceUnit'in tek satırı
                  cells[x, y] = null;           ✓ RemoveUnit'in tek satırı
                                                ▲
-                        ██ AYRIŞMA NOKTASI ██
+                        >> AYRIŞMA NOKTASI <<
                 Tahtanın BÜTÜN mutasyonu bu iki satırdan geçiyor
                 ve ikisi de readonly'nin altından geçiyor. Yani
                 `readonly` tahtanın DEĞİŞMEZLİĞİ hakkında tek
@@ -361,7 +361,7 @@ diye okunur; derleyici için tamamen farklı iki şeydir.
   TurnNumber = FirstTurnNumber;        TurnNumber = 1;
                      │                              ▲
                      └── derleyici burada ──────────┘
-                         ██ DEĞERİ KOPYALAR ██
+                         >> DEĞERİ KOPYALAR <<
                          (IL'de `ldc.i4.1`; alanı okuyan
                           hiçbir komut YOK)
 
@@ -375,8 +375,8 @@ diye okunur; derleyici için tamamen farklı iki şeydir.
                      └── derleyici burada          │
                          BİR OKUMA BIRAKIR   ◄─────┘
 
-  ██ AYRIŞMA NOKTASI: alttaki alan ÇALIŞMA ANINDA okunuyor,
-     üstteki sayı ise okunacak bir yer bile bırakmadan yok oldu. ██
+  >> AYRIŞMA NOKTASI: alttaki alan ÇALIŞMA ANINDA okunuyor,
+     üstteki sayı ise okunacak bir yer bile bırakmadan yok oldu. <<
 ```
 
 ### Neden bazıları `const` olmak ZORUNDA
@@ -472,7 +472,7 @@ Tercihin bedeli assembly sınırında ödenir:
                                     test DLL'inin IL'inde yazan şey:
                                     Assert.That(1, Is.EqualTo(1));
                                                 ▲
-                        ██ AYRIŞMA NOKTASI ██
+                        >> AYRIŞMA NOKTASI <<
               Sayı ARTIK İKİ DOSYADA. Tanımlayan DLL 2'ye çekilse
               ve KULLANAN DLL yeniden derlenmese, test hâlâ 1
               okur ve YEŞİL geçer.
@@ -532,7 +532,7 @@ Derleyici bunu açtığında ortaya `readonly` çıkıyor:
                                            │ set YOK — ne public, ne private
   Name = name;                 ──► <Name>k__BackingField = name;
   (kurucu içinde)                          ▲
-                                ██ AYRIŞMA NOKTASI ██
+                                >> AYRIŞMA NOKTASI <<
                     Bu atamayı derleyici doğrudan DESTEK ALANINA
                     yazar. `readonly` alan kuralı geçerli:
                     yalnız kurucuda serbest. Bir metot içinde aynı
@@ -583,7 +583,7 @@ battle.Turn.EndTurn();           ✓ Current: Player ──► Enemy
 battle.Turn.EndTurn();           ✓ Current: Enemy  ──► Player
                                      TurnNumber: 1 ──► 2
                                      ▲
-                       ██ AYRIŞMA NOKTASI ██
+                       >> AYRIŞMA NOKTASI <<
         Aynı `{ get; }` property'nin arkasındaki nesne iki çağrıda
         iki farklı sonuç verdi. Donmuş olan tek şey `Turn`'ün hangi
         `TurnState`'e baktığı; ne gösterdiği değil.
@@ -617,10 +617,10 @@ hatasıdır (`CS0441`).
         │  "cannot derive from sealed type"      ▼
         │                            ┌──── aynı Health örneği ────┐
         │                            │                            │
-   ██ KESTİĞİ ŞEY ██          Combatant a                  Combatant b
+   >> KESTİĞİ ŞEY <<          Combatant a                  Combatant b
    yukarı doğru büyüme        (sealed)                     (sealed)
                                      ▲                            ▲
-                              ██ AYRIŞMA NOKTASI ██
+                              >> AYRIŞMA NOKTASI <<
                     İkisi de `sealed`, ikisinin de alanı
                     `private readonly Health health;`.
                     Üç kelepçe üst üste — ve hiçbiri bu
@@ -640,7 +640,7 @@ var b = new Combatant(shared, new UnitLifecycle(), profile, Team.Enemy);
 a.TakeDamage(10);
 
 // a.CurrentHealth  →  20
-// b.CurrentHealth  →  20     ██ b'ye kimse vurmadı ██
+// b.CurrentHealth  →  20     >> b'ye kimse vurmadı <<
 ```
 
 `Combatant` mühürlü, alanı `readonly`, `Team`'i `{ get; }` — ve düşman biriminin
@@ -660,7 +660,7 @@ Fark tek satırda:
 paylaşılan şeyin İÇİ değişebiliyorsa   → Health        → sessiz hata
 paylaşılan şeyin İÇİ değişemiyorsa     → AttackProfile → kazanç (tahsis yok)
                                           ▲
-                       ██ AYRIŞMA NOKTASI ██
+                       >> AYRIŞMA NOKTASI <<
                     Ayrımı yapan `sealed` değil — iki tip de sealed.
                     Yapan şey AttackProfile'ın iki üyesinin de
                     `{ get; }`, Health'in `current`'ının ise düz
@@ -688,8 +688,8 @@ kalıtımın **yasaklanması** değil, kalıtımın **seçilmemesi**.
 
 ② Alan kurucudan sonra BAŞKA bir nesneye bakacak mı?
       evet → readonly YAZMA (yalan olur)
-      hayır→ readonly yaz — ama ██ ucundaki nesne için
-             hiçbir şey vaat etmediğini bil ██
+      hayır→ readonly yaz — ama >> ucundaki nesne için
+             hiçbir şey vaat etmediğini bil <<
              Değer tipiyse (float, int) tam kilit.
              Referans tipiyse yalnız niyet beyanı.
 
@@ -708,8 +708,8 @@ kalıtımın **yasaklanması** değil, kalıtımın **seçilmemesi**.
 
 ⑤ Tipten türeyen olacak mı?
       hayır (bugünkü on dört tipin hepsi) → sealed yaz
-      evet → sealed yazma; ama ██ sealed'i silmek nesne
-             paylaşımı hakkında hiçbir şeyi değiştirmez ██
+      evet → sealed yazma; ama >> sealed'i silmek nesne
+             paylaşımı hakkında hiçbir şeyi değiştirmez <<
 ```
 
 ---
@@ -769,7 +769,7 @@ Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İk
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`../konular/05-yasam-dongusu.md`](../konular/05-yasam-dongusu.md) — okuma yolunun **5.** adımı
 > **NEDEN ORASI:** `03` + `dil/01` çifti "kim yazabilir" sorusunu kapattı; sırada

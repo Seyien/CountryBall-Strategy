@@ -48,12 +48,12 @@ Satır satır sayıldığında üçü uyuyor, dördü kırılıyor:
   Team                      tarafı var                   ✓ uyar
   TakeDamage(int)           hasar alır                   ✓ uyar
   ─────────────────────────────────────────────────────────────────
-  TryRevive()               bina "diriltilebilir" olur   ✗ ██ KIRILIR ██
-  State : UnitState         binaya Downed hâli gelir     ✗ ██ KIRILIR ██
+  TryRevive()               bina "diriltilebilir" olur   ✗ >> KIRILIR <<
+  State : UnitState         binaya Downed hâli gelir     ✗ >> KIRILIR <<
   AttackProfile (zorunlu)   saldırmayan depo sahte
-                            profil uydurur               ✗ ██ KIRILIR ██
+                            profil uydurur               ✗ >> KIRILIR <<
   UnitLifecycle             10 saniyelik kurtarma
-                            penceresi binaya taşınır     ✗ ██ KIRILIR ██
+                            penceresi binaya taşınır     ✗ >> KIRILIR <<
 
   SEÇİLEN — ortak olan şey TABAN değil, PARÇANIN SINIFI
     ┌──── Combatant ────┐              ┌──── Structure ────┐
@@ -65,7 +65,7 @@ Satır satır sayıldığında üçü uyuyor, dördü kırılıyor:
                      ║ Health  ║ ║ Health  ║
                      ║ nesnesi ║ ║ nesnesi ║
                      ╚═════════╝ ╚═════════╝
-          ◄── ██ AYNI SINIF, AYRI NESNE — ortak REFERANS YOK ██
+          ◄── >> AYNI SINIF, AYRI NESNE — ortak REFERANS YOK <<
 ```
 
 ### KAPSAM: paylaşım yasağı DEĞİL, geçiş grafiği testi
@@ -153,7 +153,7 @@ davranış "saldırmaz"dır; isteğe bağlı parametre, kuralı değil İSTİSNA
   kapı             hayır         new AttackProfile(0, 1)  ✗ YALAN
   savunma kulesi   evet          gerçek profil            ✓
   ──────────────────────────────────────────────────────────────
-  ÇOĞUNLUK saldırmıyor   ◄── ██ KURAL BU SATIRDA ██
+  ÇOĞUNLUK saldırmıyor   ◄── >> KURAL BU SATIRDA <<
 ```
 
 Menzilin neden `0` değil `1` yazıldığına dikkat: `AttackProfile` kurucusu
@@ -299,13 +299,13 @@ olmak bir ALAN yargısıdır. Alan yargısının sahibi, alanı bilen taraftır 
 ```
   SEÇİLEN
     health.Current  ──► CurrentHealth        (SAYI)
-    lifecycle.State ──► ██ IsStanding ██     (ALAN YARGISI)
+    lifecycle.State ──► >> IsStanding <<     (ALAN YARGISI)
                         ◄── iki soru, İKİ kaynak, doğru eşleme
 
   REDDEDILEN — tek kaynak CAN olursa
     health.Current  ──┬─► CurrentHealth
-                      └─► IsStanding   ◄── ██ ALAN YARGISI SAYIYA
-                                            BAĞLANDI ██
+                      └─► IsStanding   ◄── >> ALAN YARGISI SAYIYA
+                                            BAĞLANDI <<
     lifecycle.State ──► (artık kimse sormuyor)
 
     zincir:
@@ -314,7 +314,7 @@ olmak bir ALAN yargısıdır. Alan yargısının sahibi, alanı bilen taraftır 
       yıkık binanın canı iyileştirilir -> bina kendiliğinden kalkar
       moloz sayacı hâlâ State'e bağlı -> sayı ile durum ayrışır
     ÖLÇÜLDÜ (yalıtılmış koşu): 41 testin 40'ı YEŞİL kalır
-      ◄── ██ TEK KIRMIZI: DestroyedStructure_HealthItselfStillHeals ██
+      ◄── >> TEK KIRMIZI: DestroyedStructure_HealthItselfStillHeals <<
 ```
 
 Yani bu kırılmayı gösteren şey test takımı değil, tek bir test.

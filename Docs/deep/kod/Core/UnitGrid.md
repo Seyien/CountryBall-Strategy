@@ -83,7 +83,7 @@ Sağ sütundaki «readonly width ◄── AYRIŞMA NOKTASI» kutusu bu yüzden 
 olgu değil, kaçınılmış bir gelecektir; o kutunun doğacağı koşulu bir sonraki
 paragraf yazıyor (dizinin yeniden boyutlandırıldığı gün).
 
-> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — saklanan `width` alanı
+> ***YOKLUK SENEDİ — DÜŞÜLDÜ*** — saklanan `width` alanı
 >
 > **GEREKÇE:** Buradaki boşluk bir eksiklik değil bir KARARDIR. Reddedilen sütun
 > aynı ölçüyü ikinci bir yerde saklıyor, oysa bu tipin tek alanı `cells` ve

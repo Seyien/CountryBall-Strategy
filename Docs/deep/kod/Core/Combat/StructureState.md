@@ -40,18 +40,18 @@ Karar değerlerin sayısında değil, aralarındaki okların ŞEKLİNDE:
   UnitLifecycle — üç durum ve GERİ DÖNEN bir ok
     Alive ──can bitti──► Downed ──10 sn dolar──► Dead ──► (temizlik)
       ▲                    │
-      └──── TryRevive ─────┘        ◄── ██ KURTARMA PENCERESİ ██
+      └──── TryRevive ─────┘        ◄── >> KURTARMA PENCERESİ <<
             Downed'ın var olma sebebi TAM OLARAK bu geri ok
 
   StructureLifecycle — iki durum, geri dönen ok YOK
     Standing ──can bitti──► Destroyed ──► (temizlik)
       ▲                        │
-      └── böyle bir ok YOK ────┘   ◄── ██ YOKLUĞU KURALDIR ██
+      └── böyle bir ok YOK ────┘   ◄── >> YOKLUĞU KURALDIR <<
             yıkık bina onarılmaz; yeniden İNŞA edilir ve o da
             bu tipin bir geçişi değil, YENİ bir Structure nesnesidir
 
   Ortak enum seçilseydi eşleme şöyle olurdu:
-    Standing → Alive ✓   Destroyed → Dead ✓   Downed → ██ KARŞILIĞI YOK ██
+    Standing → Alive ✓   Destroyed → Dead ✓   Downed → >> KARŞILIĞI YOK <<
     ve o karşılıksız değer her switch'te bir dal açmaya devam ederdi.
 ```
 
@@ -146,7 +146,7 @@ Enkaz, "burada bir şey yok"a en yakın değerdir.
   SEÇİLEN                     REDDEDILEN
   ad          sayı            ad          sayı
   ───────────────────         ───────────────────
-  Destroyed    0 ◄── default  Standing     0 ◄── ██ default ██
+  Destroyed    0 ◄── default  Standing     0 ◄── >> default <<
   Standing     1              Destroyed    1
 
   REDDEDILEN sıralamada zincir:
@@ -155,7 +155,7 @@ Enkaz, "burada bir şey yok"a en yakın değerdir.
       -> TargetingRules.CanBeAttacked(Standing) EVET der
       -> saldırı emri doğar, hücre dolu sayılır, üretim varsayılır
       -> hiçbiri gerçek değil ve kimse tek satır yazmadı
-    derleyici: hiçbir şey der  ◄── ██ SESSİZ ██
+    derleyici: hiçbir şey der  ◄── >> SESSİZ <<
     test: Default_StructureStateValue_IsDestroyedNotStanding kırmızı
 
   SEÇİLEN sıralamada aynı zincir hiç başlamaz: enkaz "burada bir şey
@@ -241,13 +241,13 @@ durum olması reddedildi.
   onarılabilir mi           hayır       hayır    ✗
   hücreyi kapatır mı        (UnitGrid bu değeri hiç sormuyor)  ✗
   ─────────────────────────────────────────────────────────────
-                   ◄── ██ HİÇBİR SATIRDA AYRIŞMIYOR ██
+                   ◄── >> HİÇBİR SATIRDA AYRIŞMIYOR <<
   ayrışan tek şey: "artık kaldırılabilirim" -> bu bir DURUM değil,
   bir İSTEK; ve isteği taşıyan yer zaten var: IsReadyForCleanup
 
   Üçüncü değer eklenseydi her switch şu şekli alırdı:
     case Destroyed: ... ┐
-    case Rubble:    ... ┘ ◄── ██ İKİ DAL, AYNI GÖVDE ██
+    case Rubble:    ... ┘ ◄── >> İKİ DAL, AYNI GÖVDE <<
   ve bir gün biri güncellenip diğeri unutulurdu.
 ```
 

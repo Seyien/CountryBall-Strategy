@@ -72,12 +72,12 @@ ayrı ayrı — yaşardı.
   ╔═ tur sayacı ════════════════╗  "herkes oynadı mı" sorusu
   ║ dizilim #2 : Player'a dönüş ║  "Current tekrar Player oldu"ya
   ╚═════════════════════════════╝  iner
-  ██ İKİ YER — ve ikisi de "tam iki taraf var" varsayıyor ██
+  >> İKİ YER — ve ikisi de "tam iki taraf var" varsayıyor <<
   Player, Enemy, Enemy dizilimi İKİ devirde tamamlanmış sayılır
 
   SEÇİLEN — Team[] order
   ╔══════════════ order ══════════════╗
-  ║ [0] Player   [1] Enemy   [2] ...  ║  ██ TEK YER ██
+  ║ [0] Player   [1] Enemy   [2] ...  ║  >> TEK YER <<
   ╚═══════════════════╤═══════════════╝
                       └── index sarmalı ──► tur tamamlandı
   Dizilim artık bir DAL değil bir DEĞER; uzunluğu okunabiliyor,
@@ -185,7 +185,7 @@ sıfıra bölme benzeri bir hatayla patlamaktan iyidir.
 ### HARİTA: atanmayı UNUTAN bir eleman ne olur
 
 ```
-  Team:  None = 0  ◄── ██ default(Team) ██
+  Team:  None = 0  ◄── >> default(Team) <<
          Player = 1
          Enemy  = 2
 
@@ -196,7 +196,7 @@ sıfıra bölme benzeri bir hatayla patlamaktan iyidir.
        │   (satır silinseydi ▼)
   order[i] = None ──► Current = None
        └──► TurnRules.CanAct(x, None) HER ZAMAN false
-            ◄── ██ o devirde hiç kimse eyleyemez ██
+            ◄── >> o devirde hiç kimse eyleyemez <<
 ```
 
 Hata "oyun ara sıra takılıyor" diye bildirilir; sıfır değerin tarafsız olması bir
@@ -284,12 +284,12 @@ girer.
     index = (index + 1) % order.Length;   ◄── ① sıra YENİ
   ┌─── olay tam BURADA yayılırdı ────────────────────────┐
   │  index      : YENİ taraf                             │
-  │  TurnNumber : ESKİ tur    ██ TUTARSIZ PENCERE ██     │
+  │  TurnNumber : ESKİ tur    >> TUTARSIZ PENCERE <<     │
   └──────────────────────────────────────────────────────┘
     if (index != 0) return false;
     TurnNumber++;                          ◄── ② tur YENİ
 
-  ██ ①+② birlikte doğru olduğu tek an EndTurn'ün DÖNÜŞÜDÜR ██
+  >> ①+② birlikte doğru olduğu tek an EndTurn'ün DÖNÜŞÜDÜR <<
 ```
 
 Pencerede `TurnRules`'a soran bir dinleyici, oyunun hiçbir anında doğru olmayan
@@ -384,7 +384,7 @@ farklı cevap verir. İkincisi bu tipe konmadı.
 
   Dictionary< ? , int > actionsUsed
               ▲
-              └── ██ ÜÇÜNDEN HANGİSİ? ██
+              └── >> ÜÇÜNDEN HANGİSİ? <<
 ```
 
 Bu dosyanın `using` listesinde `GridStrategy.Core` YOK: reddedilen satır
@@ -467,11 +467,11 @@ bir savaşta her devir bir turdur.
   devir        1     2     3     4     5     6
   index    0 ► 1  ►  2  ►  0  ►  1  ►  2  ►  0
                            ▲                 ▲
-                 ██ SARMAL ██      ██ SARMAL ██
+                 >> SARMAL <<      >> SARMAL <<
   TurnNumber   1     1     1     2     2     2     3
                            ▲                 ▲ burada artar
 
-  ██ TUR = index sıfıra döndüğü an ██ , yani herkes bir kez
+  >> TUR = index sıfıra döndüğü an << , yani herkes bir kez
 
   REDDEDILEN — her devir bir tur
   TurnNumber   1     2     3     4     5     6

@@ -41,7 +41,7 @@ KENDİSİNDE yaşamaya başlar:
                      isDowned = false      isDowned = true
                    ┌──────────────────┐  ┌──────────────────┐
   isAlive = true   │ Alive            │  │ ???              │
-                   │                  │  │ ◄── ██ ANLAMSIZ ██
+                   │                  │  │ ◄── >> ANLAMSIZ <<
                    └──────────────────┘  └── ama YAZILABİLİR ┘
   isAlive = false  ┌──────────────────┐  ┌──────────────────┐
                    │ Dead             │  │ Downed           │

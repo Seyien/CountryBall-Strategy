@@ -22,8 +22,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
-██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***`DİL:`***). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -34,10 +34,10 @@
 | `Assets/Game/Battle/Battle.cs` | `AddUnit` · `stateForwarders` | ██ HENÜZ YOK ██ |
 | `Assets/Game/Core/Combat/Combatant.cs` | kurucu | ██ HENÜZ YOK ██ |
 
-██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
-yorumunda buraya geri getiren bir satır yok** — ikisinin de `DİL:` satırı
+***"HENÜZ YOK" ne demek:* o üye burada gerçekten anlatılıyor, ama *kodun
+yorumunda buraya geri getiren bir satır yok* — ikisinin de `DİL:` satırı
 [`06-delege-arka-taraf.md`](06-delege-arka-taraf.md)'yi gösteriyor, bu dosyayı
-değil. ██
+değil.**
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** çalışma
 zamanı davranışını anlatıyor: C#'ın çöp toplayıcısını ve Unity'nin ikinci ömrünü.
@@ -68,7 +68,7 @@ mı — **dört ayrı olgu** ve hiçbiri ötekini gerektirmiyor.
 ║            karar vermek — KAPSAM                               ║
 ║  Bilir   : bloklar, süslü parantezler, adların görünürlüğü     ║
 ║  BİLMEZ  : çalışırken hangi nesnenin yaşadığını. Bir tek nesne ║
-║            bile göremez. ██ `}` ONUN İŞARETİ, GC'nin değil ██  ║
+║            bile göremez. >> `}` ONUN İŞARETİ, GC'nin değil <<  ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔═ JIT / ENİYİLEŞTİRİCİ ════════════════════════════════════════╗
@@ -91,7 +91,7 @@ mı — **dört ayrı olgu** ve hiçbiri ötekini gerektirmiyor.
 ║            nesneyi tutmak                                      ║
 ║  Bilir   : `Destroy` çağrıldı mı, sahne yüklü mü               ║
 ║  BİLMEZ  : C# tarafında o nesneye kaç değişkenin ok tuttuğunu  ║
-║            ██ İKİ TARAF BİRBİRİNİN ÖMRÜNÜ BELİRLEMEZ ██        ║
+║            >> İKİ TARAF BİRBİRİNİN ÖMRÜNÜ BELİRLEMEZ <<        ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔═ SEN (elle serbest bırakan) ══════════════════════════════════╗
@@ -103,12 +103,12 @@ mı — **dört ayrı olgu** ve hiçbiri ötekini gerektirmiyor.
 
 ### Beş kutunun GERÇEK SATIRLAR tarafındaki karşılığı
 
-██ Bu beşi TİP DEĞİL, AKTÖR. ██ Hiçbirinin kaynakta bir tanım satırı yoktur ve
+***Bu beşi TİP DEĞİL, AKTÖR.*** Hiçbirinin kaynakta bir tanım satırı yoktur ve
 aranmamalıdır — `Assets/` altında `DERLEYİCİ` diye bir şey bildirilmiyor.
 Aşağıda her kutu için yazılan şey **etkisinin nerede gözlendiği**; ikisinde de
 dürüst cevap "bu projede karşılığı yok" ve o da yazılı.
 
-**DERLEYİCİ (Roslyn) bu projede** — ██ TANIM SATIRI YOK ██; etkisi ÜRETTİĞİ ŞEKİLDE
+**DERLEYİCİ (Roslyn) bu projede** — ***TANIM SATIRI YOK***; etkisi ÜRETTİĞİ ŞEKİLDE
 gözleniyor: `Assets/Game/Battle/Battle.cs` → `AddUnit`
 
 ```csharp
@@ -118,7 +118,7 @@ Action<UnitState, UnitState> forwarder =
 
 `unit` bu metodun bir parametresi, yani kutunun dilinde saf bir KAPSAM olgusu —
 ama derleyici bu kapanışı bir yığın nesnesine çeviriyor ve `unit` o nesnenin
-**alanı** hâline geliyor. Kutudaki «██ `}` ONUN İŞARETİ, GC'nin değil ██» satırı
+**alanı** hâline geliyor. Kutudaki «***`}` ONUN İŞARETİ, GC'nin değil***» satırı
 tam burada ölçülüyor: `AddUnit`'in kapanış parantezi `unit` **adını** öldürür,
 derleyicinin ürettiği kapanış nesnesi ise `stateForwarders` sözlüğünde yaşamaya
 devam eder. Kutunun «BİLMEZ: çalışırken hangi nesnenin yaşadığını. Bir tek nesne
@@ -126,10 +126,10 @@ bile göremez.» satırının bedeli budur — bu aktör nesneyi ÜRETİR, sonra
 daha hiç görmez. Aynı aktörün daha ucuz ikinci gözlemi bir hata kodudur:
 [`06`](06-delege-arka-taraf.md)'nın CS0070 ölçüsü.
 
-**JIT / ENİYİLEŞTİRİCİ bu projede** — ██ TANIM SATIRI YOK ██, ve
-██ **bu projede gözlemlenebilir karşılığı YOK** ██. <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette --> Bir değerin son okumasının
+**JIT / ENİYİLEŞTİRİCİ bu projede** — ***TANIM SATIRI YOK***, ve
+***bu projede gözlemlenebilir karşılığı YOK***. <!-- YOK-MUAF · DÜŞÜLDÜ · gerekçe aşağıdaki senette --> Bir değerin son okumasının
 nerede olduğunu gösteren tek bir satır ya da ölçü yok; birinci duraktaki figür de
-bu satırın gözlemini «doğrudan gözlenemez» diye yazıyor. ██ Doğacağı koşul ██: bir
+bu satırın gözlemini «doğrudan gözlenemez» diye yazıyor. ***Doğacağı koşul***: bir
 nesnenin toplanmasını bir yerelin kapsamına dayanarak beklediğin gün — o gün bu
 aktör yereli son okumadan sonra ölü sayabilir ve nesne kapanış parantezinden ÖNCE
 toplanabilir.
@@ -146,7 +146,7 @@ okunmasaydı döngünün tamamen atılma hakkı doğardı ve "tahsis yok" sonucu
 ucuz olduğunu değil hiç çalışmadığını gösterirdi. Test geçtiği için o etkinin
 doğmadığını biliyoruz — yani kutunun tamamı bu depoda hâlâ **sınanmamış** bir vaat.
 
-> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — JIT / ENİYİLEŞTİRİCİ
+> ***YOKLUK SENEDİ — DÜŞÜLDÜ*** — JIT / ENİYİLEŞTİRİCİ
 >
 > **GEREKÇE:** Bu kutu bir tip değil bir AKTÖRDÜR, ve aktörün sahibi motor ile
 > çalışma zamanıdır. Projede yazılabilir bir yüzeyi bulunmuyor. ① dolmuyor:
@@ -164,7 +164,7 @@ doğmadığını biliyoruz — yani kutunun tamamı bu depoda hâlâ **sınanmam
 > bir özellik değil bir HATADIR, ve depodaki tek iz zaten bir gözlem değil bir
 > savunmadır.
 
-**ÇÖP TOPLAYICI (GC) bu projede** — ██ TANIM SATIRI YOK ██; etkisi tahsis testinde
+**ÇÖP TOPLAYICI (GC) bu projede** — ***TANIM SATIRI YOK***; etkisi tahsis testinde
 gözleniyor: `Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs` →
 `ResolveRemaining_Hic_Tahsis_Yapmaz`
 
@@ -178,11 +178,11 @@ gözleyen tek bir satır yok ve birinci duraktaki figür de erişilebilirliğin
 gözlemini «bellek profilcisi anlık görüntüsü (bu projede HENÜZ YOK)» diye yazıyor.
 Kutunun «Vaadi: erişilemeyen bir nesne er ya da geç toplanır» satırı bu yüzden
 burada **sınanmıyor**; sınanan şey o vaadin hiç tetiklenmemesi, yani kare başına
-çöp üretilmemesi. ██ Kutunun «dosya, soket, yerel motor nesnesi diye bir kavramı
-YOKTUR» satırının karşılığı da bir sonraki blokta ██ — orada `Destroy` var ve GC
+çöp üretilmemesi. ***Kutunun «dosya, soket, yerel motor nesnesi diye bir kavramı
+YOKTUR» satırının karşılığı da bir sonraki blokta*** — orada `Destroy` var ve GC
 onun varlığından habersiz.
 
-**UNITY'NİN YEREL TARAFI bu projede** — ██ TANIM SATIRI YOK ██; C# kaynağında
+**UNITY'NİN YEREL TARAFI bu projede** — ***TANIM SATIRI YOK***; C# kaynağında
 bildirilmiyor, gözlendiği yer tek bir çağrı: `Assets/Game/Unity/BoardAdapter.cs` →
 `DespawnView`
 
@@ -195,16 +195,16 @@ burada okunuyor: `Destroy` yalnız yerel eşi yıkım sırasına sokuyor, `view`
 değişkeni ise elde duran yönetilen nesneye bakmaya devam ediyor. Aynı metotta bu
 çağrıdan hemen önce gelen `unitViews.Remove(unit);` satırının neden ÖNCE yazıldığı
 da bu — ters sırada tabloda "null gibi ama null değil" bir referans kalırdı. Kutunun
-«██ İKİ TARAF BİRBİRİNİN ÖMRÜNÜ BELİRLEMEZ ██» satırı bu iki satırın **sırasıyla**
+«***İKİ TARAF BİRBİRİNİN ÖMRÜNÜ BELİRLEMEZ***» satırı bu iki satırın **sırasıyla**
 ödeniyor. Depoda `Destroy` geçen başka bir satır yok; seçim değil, tek aday.
 
-██ Sınırın kendisi ÖLÇÜLDÜ ve burada tekrar EDİLMİYOR ██ —
+***Sınırın kendisi ÖLÇÜLDÜ ve burada tekrar EDİLMİYOR*** —
 [`../../ogrenme/08-unity-altyapisi.md`](../../ogrenme/08-unity-altyapisi.md) yerel
 sınırın kaç metottan geçtiğini, hangi üyelerin `internalcall` damgalı olduğunu ve
 `Object.Destroy`'un bu şekillerden hangisine düştüğünü tek tek sayıyor. Bu kutunun
 sayısal dayanağı orası.
 
-**SEN (elle serbest bırakan) bu projede** — ██ TANIM SATIRI YOK ██; gözlendiği yer,
+**SEN (elle serbest bırakan) bu projede** — ***TANIM SATIRI YOK***; gözlendiği yer,
 elle yapılması gereken işin yazıldığı satır: `Assets/Game/Battle/Battle.cs` →
 `RemoveUnit`
 
@@ -219,9 +219,9 @@ kutu bu iki bloğu birlikte okumak zorunda. Kutunun «BİLMEZ: unuttuğunu. Eksi
 derleyici susardı, ve sözlükte kalan tek kapanış bütün savaşı erişilebilir tutardı
 (üçüncü durak bu zinciri sayıyor).
 
-██ Klasik anlamda elle serbest bırakma ise bu projede YOK ██ — ölçü:
+***Klasik anlamda elle serbest bırakma ise bu projede YOK*** — ölçü:
 `Assets/Game/` altında `IDisposable`, `Dispose()` ve sonlandırıcı (`~Tip`) **sıfır**
-kez geçiyor. ██ Doğacağı koşul ██: yönetilmeyen bir kaynağı (dosya, soket,
+kez geçiyor. ***Doğacağı koşul***: yönetilmeyen bir kaynağı (dosya, soket,
 `NativeArray`) sahiplenen ilk tip yazıldığı gün — o gün bu kutunun işi `-=` ile
 `Destroy`'dan ibaret olmaktan çıkar ve bir `using` bloğu borcu doğar.
 
@@ -251,31 +251,31 @@ gerektirmez.
 ```
 KAPSAM (lexical scope)
    soru   : derleyici bu ADI hangi metin bölgesinde görüyor
-   sahibi : DERLEYİCİ                             ██ DERLEME ZAMANI ██
+   sahibi : DERLEYİCİ                             >> DERLEME ZAMANI <<
    biter  : kapanış parantezinde
    gözlem : derleme hatası (CS0103: "adı geçerli bağlamda yok")
 
-        ██ AYRIŞMA ██  kapsam biter, nesne yaşayabilir
+        >> AYRIŞMA <<  kapsam biter, nesne yaşayabilir
 
 CANLILIK (liveness)
    soru   : bu değişken bir daha OKUNACAK mı
-   sahibi : JIT / ENİYİLEŞTİRİCİ                  ██ ÇEVİRİ ANI ██
+   sahibi : JIT / ENİYİLEŞTİRİCİ                  >> ÇEVİRİ ANI <<
    biter  : son okumadan sonra — kapanış parantezinden ÖNCE olabilir
    gözlem : doğrudan gözlenemez; ancak GC.KeepAlive ile SINIRI itilir
 
-        ██ AYRIŞMA ██  değişken ölü, nesne başka bir kökten erişilebilir
+        >> AYRIŞMA <<  değişken ölü, nesne başka bir kökten erişilebilir
 
 ERİŞİLEBİLİRLİK (reachability)
    soru   : bir KÖKTEN bu nesneye zincirle gidilebiliyor mu
-   sahibi : ÇÖP TOPLAYICI                         ██ ÇALIŞMA ZAMANI ██
+   sahibi : ÇÖP TOPLAYICI                         >> ÇALIŞMA ZAMANI <<
    biter  : son zincir koptuğunda — toplama İŞTE O AN olmak zorunda değil
    gözlem : bellek profilcisi anlık görüntüsü (bu projede HENÜZ YOK)
 
-        ██ AYRIŞMA ██  yönetilen bellek geri alınır, kaynak açık kalır
+        >> AYRIŞMA <<  yönetilen bellek geri alınır, kaynak açık kalır
 
 KAYNAK ÖMRÜ (resource lifetime)
    soru   : dosya / soket / yerel motor nesnesi / yerel bellek hâlâ duruyor mu
-   sahibi : SEN                                   ██ ELLE ██
+   sahibi : SEN                                   >> ELLE <<
    biter  : sen kapatınca. GC bu soruyu SORMAZ BİLE
    gözlem : bu projede iki yolla: `-=` satırı ve `Destroy` çağrısı
 ```
@@ -319,11 +319,11 @@ bitirir; yönetilen `UnitView` nesnesi orada silinmez.
    (managed heap)           dizisi, KAPANIŞ nesneleri, yönetilen
                             UnityEngine.Object temsilleri
 ③ YÖNETİLMEYEN / MOTOR      Unity'nin yerel nesneleri, doku/mesh/render hedefi
-   BELLEĞİ                  ██ BU PROJEDE BUGÜN YALNIZ MOTOR TARAFI VAR ██
+   BELLEĞİ                  >> BU PROJEDE BUGÜN YALNIZ MOTOR TARAFI VAR <<
                             yerel konteyner (NativeArray<T>) HENÜZ YOK
 ```
 
-### ██ Aynı `int` üç ayrı yerde — K21'in işlenmiş örneği ██
+### ***Aynı `int` üç ayrı yerde — K21'in işlenmiş örneği***
 
 Bir tipin **değer tipi olması** onun nerede durduğunu SÖYLEMEZ. Aynı `int`,
 onu SARAN şeye göre üç ayrı yerde yaşar. Üçü de bu projeden, üçü de gerçek:
@@ -342,7 +342,7 @@ onu SARAN şeye göre üç ayrı yerde yaşar. Üçü de bu projeden, üçü de 
                      ▲
        `Color` bir struct, yani DEĞER TİPİ. Ama bu değer bir
        UnitView nesnesinin alanı ve o nesne yönetilen yığında duruyor.
-       ██ DEĞER TİPİ, HEAP'TE ██  — çelişki değil, kuralın kendisi:
+       >> DEĞER TİPİ, HEAP'TE <<  — çelişki değil, kuralın kendisi:
        depolama yeri tipin değil, SARMALAYANIN sorusudur.
 
 ③ KAPANIŞ TARAFINDAN YAKALANMIŞ — YÖNETİLEN YIĞINDA, derleyicinin
@@ -353,7 +353,7 @@ onu SARAN şeye göre üç ayrı yerde yaşar. Üçü de bu projeden, üçü de 
    bir YERELE dokunmak derleyiciye bir kapanış SINIFI ürettirir; o
    sınıfın örneği yönetilen yığında doğar ve ölçüm penceresinin
    İÇİNDE bir tahsis olarak görünür.
-       ██ Aynı `int`, yalnızca YAKALANDIĞI için yığına taşındı ██
+       >> Aynı `int`, yalnızca YAKALANDIĞI için yığına taşındı <<
 ```
 
 Üç satırda da tip aynı. Değişen tek şey **bağlam**.
@@ -400,7 +400,7 @@ her çağrı yerine derleme anında kopyalanır (`Combatant.ReviveHealthDivisor`
                              ► bu kod kare başına tahsis yapıyor mu (ÖLÇÜLÜR)
 
   DEĞİŞTİRMEYEN soru         ► bu int stack'te mi heap'te mi
-      ██ ölçüsü şu: cevabı değiştir — kodun tek satırı bile değişmez ██
+      >> ölçüsü şu: cevabı değiştir — kodun tek satırı bile değişmez <<
 ```
 
 Depolama sorusu ancak **ölçülmüş bir tahsis** ile geri geldiğinde önem kazanır —
@@ -419,7 +419,7 @@ KÖKLER (GC roots)
 ├── STATİK referanslar          ◄── bu projede: TurnState.DefaultTurnOrder
 ├── çalışma zamanı tutamakları  ◄── Unity'nin sahnedeki nesneleri buradan tutması
 └── ve bu köklerden ULAŞILAN her nesne
-        └── alanlar / dizi elemanları / ██ DELEGE HEDEFLERİ ██ → daha fazlası
+        └── alanlar / dizi elemanları / >> DELEGE HEDEFLERİ << → daha fazlası
 ```
 
 **Bir alan kendiliğinden kök DEĞİLDİR.** Yalnızca onu barındıran nesne bir kökten
@@ -427,7 +427,7 @@ erişilebilir olduğu sürece tutar. Ölçü: `Battle.combatants` sözlüğü y�
 `Combatant` tutabilir; ama `Battle`'ın kendisine hiçbir kökten gidilemiyorsa, o
 sözlük de içindekiler de topluca erişilemez olur.
 
-### ██ Bu projedeki canlı örnek: `Battle.stateForwarders` ve okun yönü ██
+### ***Bu projedeki canlı örnek: `Battle.stateForwarders` ve okun yönü***
 
 `Battle.AddUnit` her savaşçı için bir kapanış üretip abone ediyor (Battle.cs:226-229):
 
@@ -445,7 +445,7 @@ sökmedi ve bir yerde (bir test fixture'ı, bir gün gelecek birim havuzu) o
 `Combatant`'a canlı bir referans kaldı. Zinciri say:
 
 ```
-   ██ OK YÖNÜ: YAYINCI → ABONE ██  Combatant, Battle'ı TUTUYOR — tersi değil
+   >> OK YÖNÜ: YAYINCI → ABONE <<  Combatant, Battle'ı TUTUYOR — tersi değil
 
 canlı yerel ──► Combatant (YAYINCI)
                    └── StateChanged davet listesi
@@ -500,16 +500,16 @@ Battle.cs:338-342
 > **▶ ARA DURAK:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#sokulmezse-ne-olur-ok-yonune-dikkat)
 > **NEDEN:** yukarıdaki `-=`'in **ikinci** faturası burada anlatılmıyor. Orası
 > aboneliğin dört durağını ve sökülmezse ÖNCE neyin patladığını veriyor: silinmiş
-> birimin görseli aranır, `LogError` düşer. ██ Aynı eksik `-=`, iki ayrı fatura —
-> ve davranış faturası her zaman önce gelir. ██ Bellek faturası ancak davranış
+> birimin görseli aranır, `LogError` düşer. ***Aynı eksik `-=`, iki ayrı fatura —
+> ve davranış faturası her zaman önce gelir.*** Bellek faturası ancak davranış
 > faturası ödendikten sonra anlam kazanıyor.
 > **DÖNÜŞ:** bu dosyanın [«Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»](#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) bölümü
 
 > **▶ ARA DURAK:** [06-delege-arka-taraf.md](06-delege-arka-taraf.md#birinci-durak-delegenin-ici-target-method)
 > **NEDEN:** bu bölümün taşıyıcı cümlesi *"delege `Battle`'ı tutuyor"* — ama
 > **hangi alan** tuttuğunu bu dosya söylemiyor. Adı `Target`, ve `-=`'in kimliği
-> neye göre karşılaştırdığı da orada. ██ Burada yalnız **tutma** var, mekanizma
-> orada. ██ Sözleşme tarafı için:
+> neye göre karşılaştırdığı da orada. **Burada yalnız *tutma* var, mekanizma
+> orada.** Sözleşme tarafı için:
 > [`dil/04`](04-delege-olay-ve-kapanis.md#dorduncu-durak-kapanis-kimligi---neye-bakiyor).
 > **DÖNÜŞ:** bu dosyanın [«Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»](#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) bölümü
 
@@ -517,7 +517,7 @@ Battle.cs:338-342
 > **BAK:** `-=` satırı ile `stateForwarders.Remove` satırı **yan yana** duruyor
 > ve sırası önemli: sözlükten silmeden önce sökülmek zorunda, çünkü sökülecek
 > nesneyi veren tek yer o sözlük. Aynı metotta `combatants.Remove` da var —
-> ██ üç silme, tek tur ██.
+> ***üç silme, tek tur***.
 > **DÖNÜŞ:** bu dosyanın «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var» bölümü
 
 ### Sökülmediği hâlde sızıntı OLMAYAN abonelik — karşı örnek
@@ -536,7 +536,7 @@ Zincir bir DÖNGÜ:
    Combatant ──alan──► UnitLifecycle ──davet listesi──► delege ──Target──► Combatant
        ▲                                                                       │
        └───────────────────────────────────────────────────────────────────────┘
-                  ██ KAPALI HALKA — dışarıya hiçbir ok çıkmıyor ██
+                  >> KAPALI HALKA — dışarıya hiçbir ok çıkmıyor <<
 ```
 
 Kimse `Combatant`'a erişemez olduğunda halkanın tamamı erişilemez olur ve
@@ -550,8 +550,8 @@ lifecycle'ının SAHİBİ, abonelik sınır geçmiyor."*
 
 ```
 lifecycle → Combatant   sınır GEÇMEZ (parça ile sahibi)   → sökme gerekmez
-Combatant → Battle      sınır GEÇER  (iki ayrı ömür)      → ██ SÖKMEK ŞART ██
-battle → BoardAdapter   sınır GEÇER  (motor ile çekirdek) → ██ SÖKMEK ŞART ██
+Combatant → Battle      sınır GEÇER  (iki ayrı ömür)      → >> SÖKMEK ŞART <<
+battle → BoardAdapter   sınır GEÇER  (motor ile çekirdek) → >> SÖKMEK ŞART <<
 ```
 
 Üçüncü satır `BoardAdapter.OnEnable`/`OnDisable` (BoardAdapter.cs:288-301) ve kodun
@@ -580,10 +580,10 @@ yıkım SIRAYA KOYULUR                     hiçbir şey olmaz;
 yerel nesne yıkılır                               ▼
        │                            hiçbir kök ona ulaşamayınca GC'ye
        │                            UYGUN olur; SONRAKİ bir toplama alır
-       └───────────────────────► ██ İKİSİ AYNI AN DEĞİL ██
+       └───────────────────────► >> İKİSİ AYNI AN DEĞİL <<
 ```
 
-### ██ Bu yüzden yıkılmış bir nesne `== null` DER ama null DEĞİLDİR ██
+### ***Bu yüzden yıkılmış bir nesne `== null` DER ama null DEĞİLDİR***
 
 `UnityEngine.Object` `operator ==`'i bilerek aşırı yükler:
 
@@ -592,7 +592,7 @@ Destroy(view.gameObject) çağrıldıktan ve yıkım gerçekleştikten SONRA:
 
    body == null                 ►  true    ◄── Unity öyle diyor
    ReferenceEquals(body, null)  ►  false   ◄── C# öyle diyor
-                                             ██ İKİSİ DE DOĞRU ██
+                                             >> İKİSİ DE DOĞRU <<
 ```
 
 Bu iki cevabın neden çeliştiği, hangisinin ne zaman doğru araç olduğu ve
@@ -674,7 +674,7 @@ Dört ayrı mekanizma var; bu proje bugün **ikisine** dokunuyor:
 tahsis testi dosyası, üç test:
 
 ```
-① Olcum_Aygiti_Tahsisi_Gorebiliyor   ██ NEGATİF KONTROL ██
+① Olcum_Aygiti_Tahsisi_Gorebiliyor   >> NEGATİF KONTROL <<
      `new int[64]` + GC.KeepAlive  ►  UnityIs.AllocatingGCMemory()
      Aracın kör OLMADIĞINI kanıtlar. Bu kırmızıysa alttaki ikisinin
      yeşili hiçbir şey ifade etmez.
@@ -687,7 +687,7 @@ tahsis testi dosyası, üç test:
      zamanı bedeli olsaydı burada görünürdü.
 ```
 
-### ██ Aracın kendisi hakkında ölçülmüş olgu ██
+### ***Aracın kendisi hakkında ölçülmüş olgu***
 
 ```
 ÖLÇÜLDÜ, Unity 2021.3.45f2 Mono, 2026-08-17:
@@ -755,7 +755,7 @@ DOĞUM HIZI seçer.** Bu proje bugün birinci satırda oturuyor.
 BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
        │
   KAPSAM ──────────────────────────► `}` ile biter
-       │  DERLEYİCİ                   ██ VE BURADA HİÇBİR ŞEY SİLİNMEZ ██
+       │  DERLEYİCİ                   >> VE BURADA HİÇBİR ŞEY SİLİNMEZ <<
        ▼
   CANLILIK ────────────────────────► son okumada biter
        │  JIT                         (kapanış parantezinden ÖNCE olabilir)
@@ -763,19 +763,19 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
   ERİŞİLEBİLİRLİK ─────────────────► son zincir koptuğunda biter
        │  GC: kökten yürü, ulaşabildiklerini tut
        │
-       │  ██ AYRIŞMA #1: bu projede zinciri koparan yer BELLİ ██
+       │  >> AYRIŞMA #1: bu projede zinciri koparan yer BELLİ <<
        │     Battle.RemoveUnit  →  StateChanged -= forwarder  (Battle.cs:349)
        │     Battle.RemoveUnit  →  combatants.Remove(unit)    (Battle.cs:353)
        │     BoardAdapter       →  unitViews.Remove(unit)     (BoardAdapter.cs:1002)
        ▼
   yönetilen bellek geri alınır ────► NE ZAMAN: GC bilir, sen bilmezsin
        │
-       │  ██ AYRIŞMA #2: UnityEngine.Object burada İKİYE bölünür ██
+       │  >> AYRIŞMA #2: UnityEngine.Object burada İKİYE bölünür <<
        ▼
   KAYNAK ÖMRÜ ─────────────────────► Destroy(view.gameObject)  (BoardAdapter.cs:1007)
        ├─► YEREL taraf    : sıraya girer, güncelleme döngüsünden sonra yıkılır
        └─► YÖNETİLEN taraf: yerinde durur, "yıkılmış" işaretlenir
-                            == null ► true   ██ ama null DEĞİL ██
+                            == null ► true   >> ama null DEĞİL <<
                             ReferenceEquals(x, null) ► false
 ```
 
@@ -789,7 +789,7 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
       EVET  → Yayıncı ile abone AYRI ÖMÜRLERE mi ait?
                  hayır (parça ve sahibi) → sökme gerekmez, GERİ DÖN
                                             (örnek: Combatant → lifecycle)
-                 evet  → ██ SÖKME YERİNİ ŞİMDİ YAZ ██ ve sorunu değiştir:
+                 evet  → >> SÖKME YERİNİ ŞİMDİ YAZ << ve sorunu değiştir:
                          "sökülmezse hangi nesne, hangi zincirle
                           erişilebilir kalır" — cevabı yazamıyorsan
                           henüz anlamamışsındır
@@ -801,8 +801,8 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
                  yerel taraf     → Destroy çağrıldı mı
                  yönetilen taraf → o nesneye ok tutan tablo/alan/liste
                                    TEMİZLENDİ Mİ
-              ██ İkincisini atlarsan tabloda "null gibi ama null
-                 değil" bir referans kalır ██
+              >> İkincisini atlarsan tabloda "null gibi ama null
+                 değil" bir referans kalır <<
               SIRA: önce tablodan çıkar, SONRA Destroy et
 
 ③ Bir PERFORMANS iddiası mı yazacaksın? ("bu tahsis yapmaz", "bu ucuz")
@@ -812,10 +812,10 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
                  2. ısınma (JIT'in tek seferlik maliyeti dışarıda kalsın)
                  3. ölçüm penceresi (kod pencerenin İÇİNDE koşsun)
                  4. eleme koruması (sonucu oku, döngü atılmasın)
-              ██ Sözdizimi kanıt değildir ██
+              >> Sözdizimi kanıt değildir <<
 
 ④ Sorduğun şey "bu değer stack'te mi heap'te mi" mi?
-      EVET  → ██ SORUYU BIRAK ██ Doğru soru ①, ② ya da ③'tü.
+      EVET  → >> SORUYU BIRAK << Doğru soru ①, ② ya da ③'tü.
       HAYIR → soru gerçekten bellekle ilgili değil. Kaldığın yere dön.
 ```
 
@@ -823,8 +823,8 @@ BİR NESNENİN ÖMRÜ — dört soru, dört sahip     `new Unit("Piyade")`
 
 ## Yanlış hatırlanan dört şey
 
-**"Değer tipi stack'te durur, referans tipi heap'te."** ██ Bu dosyanın en pahalı
-yanlışı ██ ve yaygın olması onu doğru yapmıyor. Değer/referans ayrımı bir
+**"Değer tipi stack'te durur, referans tipi heap'te."** ***Bu dosyanın en pahalı
+yanlışı*** ve yaygın olması onu doğru yapmıyor. Değer/referans ayrımı bir
 **semantik** kuraldır: değer tipi kopyalanarak aktarılır. **Depolama yeri bağlama
 bağlıdır** — bir `struct` bir sınıfın alanıysa yönetilen yığındadır
 (`UnitView.authoredColor`), bir lambda tarafından yakalanırsa yığındadır
@@ -917,15 +917,15 @@ Assets/Game/Core/Combat/Combatant.cs:90   this.lifecycle.StateChanged += OnLifec
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
-> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımı, ██ sıra serbest ██
+> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımı, ***sıra serbest***
 > **NEDEN ORASI:** üçü de **referans** belge: baştan sona okunabilirler ama asıl
 > işlevleri bir soru doğduğunda açılmak. `dil/05` bu dosyanın açık ön koşuluydu —
 > depolama bölümünde sıkıştıysan borç orada kapanıyor. `dil/02` kısa (296 satır)
-> ve bu bir eksiklik değil: ██ konusu küçük, dosya değil ██; `konular/08` ile bu
+> ve bu bir eksiklik değil: ***konusu küçük, dosya değil***; `konular/08` ile bu
 > dosya ona **dayanıyor** ve tekrar etmiyor.
 > **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, okuma yolunun **14.** ve
-> son adımı. ██ Desenlerin ADI orada ██, ve "bu projede hangi desenleri
+> son adımı. ***Desenlerin ADI orada***, ve "bu projede hangi desenleri
 > kullandın" sorusunun cevabı da.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

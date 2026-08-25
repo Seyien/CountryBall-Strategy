@@ -1,6 +1,6 @@
 # Sonraki aşamalar — bugün ne yok, ne zaman gelir
 
-██ Bu dosya **hiçbir şey önermez**. ██ İçinde "şunu şimdi ekleyelim" cümlesi
+***Bu dosya **hiçbir şey önermez**.*** İçinde "şunu şimdi ekleyelim" cümlesi
 yoktur ve olmamalıdır. Her bölüm bir **tetikleyici koşul** yazar; o koşul
 gerçekleşene kadar doğru cevap "bugün yok" olarak kalır.
 
@@ -19,7 +19,8 @@ Sebebi tek cümle: **"bugün önemli değil" eksik bir cümledir.** Onu tamamlay
 | **E · ÖN KOŞUL** | Hangi kavram önce kapanmalı |
 
 Her bölümün sonunda bir **ÜÇ OYUN** satırı var: Slay the Spire · Vampire
-Survivors · Stardew Valley. Eşleşmeyen satır `██ EŞLEŞMEZ ██` ile işaretli.
+Survivors · Stardew Valley. Eşleşmeyen satır işaretli: düz yazıda ***EŞLEŞMEZ***, figür ve
+tablolarda `██ EŞLEŞMEZ ██`.
 
 ---
 
@@ -52,7 +53,7 @@ ve tanım nesneleri her doğuşta yeniden kuruluyor
 (`BoardAdapter.cs:756-760`, `BoardAdapter.cs:554`). Yani bugün "tasarımcı dosyası" diye bir
 şey yok; tek yazma yolu Inspector'daki bir bileşendir.
 
-██ Kararın kendisi kodda zaten adı konmuş ██ — `AttackProfile.cs:13-14`:
+***Kararın kendisi kodda zaten adı konmuş*** — `AttackProfile.cs:13-14`:
 "bugün düz C# nesnesi; ScriptableObject kararı geldiğinde bu satır değişir,
 rol değişmez." Bu, bekleyen bir borcun **yazılı** hâli.
 
@@ -86,7 +87,7 @@ Inspector'da** çalışır ve koddan üretilen profil hiç sınanmazdı. Bugün
 `AttackProfile.cs:59-62`'deki `range < 1` kelepçesi profil hangi yoldan gelirse
 gelsin geçerli — kod, test, gelecekteki bir yükleyici.
 
-② **██ EN SIK HATA ██ Bir varlık, çalışma zamanı durumu taşımaya başlar.**
+② *****EN SIK HATA*** Bir varlık, çalışma zamanı durumu taşımaya başlar.**
 `ScriptableObject` bir **dosyadır**: onu gösteren yüzlerce birim **aynı** nesneyi
 gösterir. Örneğe özel değişen bir alan (kalan bekleme süresi, mevcut can, bu
 turda kaç kez vurdu) o dosyanın içine girerse **bütün** birimler aynı değeri
@@ -130,7 +131,7 @@ Assets/Game/Unity/BoardAdapter.cs:667   new GameObject($"Cell_{x}_{y}")      ←
 Assets/Game/Unity/BoardAdapter.cs:568   new GameObject($"Structure_{x}_{y}") ← yapı görseli
 ```
 
-██ ÖLÇÜ ██ — `Instantiate`'in tek çağıranı `SpawnUnit` (`BoardAdapter.cs:720`), onun da tek
+***ÖLÇÜ*** — `Instantiate`'in tek çağıranı `SpawnUnit` (`BoardAdapter.cs:720`), onun da tek
 çağıranları `Awake` içindeki iki satır (`:267`, `:268`). Yani **kare başına
 sıfır** birim doğuyor. `Destroy` yalnızca ceset süresi dolduğunda çalışıyor
 (`AdvanceBattleTime :625` → `DespawnView :983`). Bugün havuzun azaltacağı bir
@@ -159,7 +160,7 @@ tahsis yapardı.
 - `Instantiate`/`Destroy` çifti `Update` yolundan çağrılmaya başladığında.
   Bugün ikisi de o yolda değil.
 
-██ Ölçüsüz havuz erken iyileştirmedir ██ — ve bedeli ödenir: havuz, sıfırlama
+***Ölçüsüz havuz erken iyileştirmedir*** — ve bedeli ödenir: havuz, sıfırlama
 sözleşmesi olmadan **yanlış** çalışır ve o sözleşme yalnızca bir liste değil,
 bir bakım borcudur (konum ve ebeveyn, hız ve fizik, can, sayaç ve sahiplik,
 parçacık ve animasyon, olay abonelikleri, çift bırakma, yabancı nesne reddi,
@@ -199,7 +200,7 @@ kararı (`:1072`) o gün yanlış alarm üretmeye başlar.
 — `Awake`'in bir `event` **olmadığı** (birinci durak) ve çağrı sırasının
 sahipleriyle birlikte (ikinci durak) orada yazılı.
 
-**ÜÇ OYUN** — Slay the Spire: ██ EŞLEŞMEZ ██ orada kare başına doğan/ölen nesne
+**ÜÇ OYUN** — Slay the Spire: ***EŞLEŞMEZ*** orada kare başına doğan/ölen nesne
 akışı yok; savaş sıra tabanlı ve ekrandaki eleman sayısı onlarla sınırlı ·
 Vampire Survivors: ekranda aynı anda yüzlerce düşman ve mermi doğup ölür, bu
 akış oyunun tanımıdır · Stardew Valley: balık tutarken, ağaç keserken ve
@@ -212,6 +213,38 @@ madende her vuruşta parçacık ve eşya damlası doğar.
 **Olay veri yolu nedir:** Yayıncı ile aboneyi birbirine hiç bağlamadan,
 ortadaki bir dağıtıcı üzerinden haber geçirmek. Yayıncı "kim dinliyor"
 bilmez, abone "kim yayınladı" bilmez.
+
+> **▶ ARA DURAK:** [../deep/dil/06-delege-arka-taraf.md](../deep/dil/06-delege-arka-taraf.md#bu-iki-tuzagi-da-kapatan-yapi)
+> **NEDEN:** aşağıdaki tablo veri yolunun **hangi arızayı** kapattığını söylüyor
+> ama o arızaların **mekanizmasını** anlatmıyor. Bir abone fırlatınca kalanların
+> neden hiç çağrılmadığı, ve bir `-=` eksik kalınca yayıncının aboneyi neden
+> hayatta tuttuğu orada yazılı. ***Arızayı burada gör, çalışma biçimini orada.***
+
+**KAPATTIĞI ÖLÇÜLMÜŞ ARIZA** — veri yolu üç ayrı arızayı birden kapatır.
+
+```
+A  İSTİSNA YAYILMASI   bir abone fırlatınca kalan aboneler hiç çağrılmaz VE
+                       yayıncının Invoke'tan sonraki satırları da çalışmaz
+   bugünkü ölçü        3 olay · her birinin 1 abonesi · hiçbiri fırlatmıyor
+   veri yolu ne yapar  dağıtımı GetInvocationList() üstünde tek tek yapar,
+                       her aboneyi kendi try/catch'ine alır
+
+B  ABONELİK ŞİŞMESİ    += , -= 'den sık çalışırsa abone listede iki kez durur;
+   ve SIZINTI          yayıncı aboneyi hayatta tutar
+   bugünkü ölçü        += 3 yer · -= 2 yer · OnEnable/OnDisable çifti 1 dosyada
+                       bugün şişme YOK — tutan şey derleyici değil disiplin
+   veri yolu ne yapar  aboneliğe karşılık bir iptal tokeni verir; ömrü o tutar
+
+C  BAĞLILIK            yayıncı her yeni dinleyiciyi adıyla tanımak zorunda
+   bugünkü ölçü        tek dinleyici (BoardAdapter); ikincisi hâlâ düz += ile
+                       eklenebiliyor, yani C bugün acımıyor
+   veri yolu ne yapar  yayıncı ile aboneyi birbirinden hiç haberdar etmez
+```
+
+***Bu üçünden yalnız C, aşağıdaki tetikleyici koşulun konusudur.*** A ve B bugün
+ödenmemiş bir bedel değil; birer **risk**tir ve ikisini de derleyici değil
+disiplin tutuyor. Veri yolu kararını A ya da B'ye dayandırmak, henüz kanamayan
+bir yarayı dikmek olur — kararmetre C'dir.
 
 **A · BUGÜNKÜ KARŞILIĞI** — Doğrudan bağlı, dört duraklı bir olay zinciri:
 
@@ -244,7 +277,7 @@ düz bir `+=` ile eklenebilir. Somut eşik:
 - Yayıncı sayısı **birden fazla** olduğunda. Bugün `UnitStateChanged`'in tek
   yayıncısı var (`Battle`).
 
-██ Şu üç durumda veri yolu **yanlış** cevaptır ██ ve ölçüsü bu projede
+***Şu üç durumda veri yolu **yanlış** cevaptır*** ve ölçüsü bu projede
 mevcut: (a) çağıran bir **değer** istiyorsa — `TurnRules.CanAct`
 (`Assets/Game/Battle/TurnRules.cs:59`) bir sorudur, bir duyuru değil;
 (b) eylem doğrulanmalı, sıraya alınmalı ya da geri alınmalıysa; (c) tek
@@ -257,7 +290,7 @@ kuruyor, kim söküyor, yükün sahibi kim. Kapsamsız bir yol, tek bir global
 `GameEvents` sınıfına dönüşür ve o gün olay sahipliği, yük tipi ve dinleyici
 listesi keşfedilemez hâle gelir.
 
-**D · NE KIRAR** — ██ Çağrı zinciri **görünmez** olur. ██ Bugün "ekrandaki
+**D · NE KIRAR** — ***Çağrı zinciri **görünmez** olur.*** Bugün "ekrandaki
 gri ton nereden geldi" sorusunun cevabı dört dosya açılarak bulunur ve
 [../deep/konular/01-olay-zinciri.md](../deep/konular/01-olay-zinciri.md) bu yolu
 hikâye olarak anlatabiliyor. Veri yolu geldiğinde yayıncı ile abone arasında
@@ -293,8 +326,8 @@ etkinlikleri ve mektup kutusu aynı duyuruyu dinler.
 her yerden erişilebilmesini garanti eden kalıp; Unity'de genellikle
 `static Instance` alanı olarak yazılır.
 
-██ Bu proje singleton'ı **bilerek kullanmıyor**, ve reddedilişin kendisi
-dersin ta kendisi. ██
+***Bu proje singleton'ı **bilerek kullanmıyor**, ve reddedilişin kendisi
+dersin ta kendisi.***
 
 **A · BUGÜNKÜ KARŞILIĞI** — Bağımlılıklar üç yoldan geliyor ve üçü de görünür:
 
@@ -307,7 +340,7 @@ Inspector'dan      Assets/Game/Unity/BoardAdapter.cs:124     unitPrefab
 sahibinden         Assets/Game/Battle/Battle.cs:53           tahtayı kendisi kurar, dışarıdan ALMAZ
 ```
 
-██ ÖLÇÜLDÜ ██ — `Assets/Game/` altında **değiştirilebilir hiçbir `static`
+***ÖLÇÜLDÜ*** — `Assets/Game/` altında **değiştirilebilir hiçbir `static`
 alan yok**. Tek `static` alan `Assets/Game/Battle/TurnState.cs:44`
 (`DefaultTurnOrder`) ve o da `readonly` **ve** `Array.AsReadOnly` ile sarılmış
 bir salt okunur görünüm. `Instance`, `DontDestroyOnLoad` ve `FindObjectOfType`
@@ -384,7 +417,7 @@ aynı türden bileşenleri bellekte **bitişik** tutarak işlemcinin önbelleği
 verimli kullanmayı hedefler. **DOTS**, Unity'nin bunu içeren paket ailesi
 (Entities, Burst derleyici, Job System).
 
-██ Dürüst cümle: bu proje ECS'e **yakın bir şekle** sahip ama ECS **değil**. ██
+***Dürüst cümle: bu proje ECS'e **yakın bir şekle** sahip ama ECS **değil**.***
 
 **A · BUGÜNKÜ KARŞILIĞI** — Üçlünün üç parçasının da bir karşılığı var:
 
@@ -420,7 +453,7 @@ yerleşimi bilinci** yok — ve ikisi ayrı şeyler.
 **B · TETİKLEYİCİ KOŞUL** — Varlık sayısı **ve** kare başına iş, ölçülmüş bir
 darboğaz hâline geldiğinde.
 
-██ Ve bu eşik sıra tabanlı bir tahta oyununda **çok yüksektir** ██ — bu cümle
+***Ve bu eşik sıra tabanlı bir tahta oyununda **çok yüksektir***** — bu cümle
 yumuşatma değil, ölçü. Bugünkü tahta `3×5`, yani **15 hücre**, ve tahtadaki
 parça sayısı iki:
 
@@ -448,7 +481,7 @@ dizilere döner ve `Unit` bir nesne olmaktan çıkıp bir indekse dönüşür. O
 `Unit.cs:51-55`'te yazılı olan "anahtar referans eşitliğidir" cümlesi geçersiz
 olur.
 
-██ Ama gerçek ilk adım kod değil ölçüdür ██ — Aşama 6.
+***Ama gerçek ilk adım kod değil ölçüdür*** — Aşama 6.
 
 **D · NE KIRAR** — İki şey, ikisi de büyük:
 
@@ -472,10 +505,10 @@ ile bir `Dictionary` düğümünün dağınık durması arasındaki fark, ve bun
 işlemci önbelleğinde ne anlama geldiği) ve **ölçüm** (Aşama 6). Birincisi
 `HENÜZ YOK → bu ağaç dışında bir sahip`.
 
-**ÜÇ OYUN** — Slay the Spire: ██ EŞLEŞMEZ ██ ekranda aynı anda onlarca eleman
+**ÜÇ OYUN** — Slay the Spire: ***EŞLEŞMEZ*** ekranda aynı anda onlarca eleman
 var, kare başına iş yok denecek kadar az · Vampire Survivors: ekranda aynı anda
 binlerce düşman ve mermi her karede konum, çarpışma ve ömür günceller —
-eşiğin gerçekten aşıldığı yer burasıdır · Stardew Valley: ██ EŞLEŞMEZ ██
+eşiğin gerçekten aşıldığı yer burasıdır · Stardew Valley: ***EŞLEŞMEZ***
 kasabanın tamamı bile yüzlerce varlıkla ölçülür ve çoğu iş günde bir kez olur.
 
 ---
@@ -486,8 +519,8 @@ kasabanın tamamı bile yüzlerce varlıkla ölçülür ve çoğu iş günde bir
 **ölçmek**. Unity'de araçları Profiler, Profile Analyzer, Frame Debugger ve
 Memory Profiler.
 
-██ Bu bölüm olmadan yukarıdaki beş "tetikleyici: ölçülünce" cümlesi **boş
-kalır**. ██
+***Bu bölüm olmadan yukarıdaki beş "tetikleyici: ölçülünce" cümlesi **boş
+kalır**.***
 
 **A · BUGÜNKÜ KARŞILIĞI** — Ölçüm var, ve tam olarak nereye kadar geçerli
 olduğu yazılı:
@@ -502,7 +535,7 @@ Tools/run-editmode-tests.ps1        testleri Editor'e dokunmadan koşar
 Tools/.test-results/                koşu çıktıları (XML + Unity log)
 ```
 
-██ İKİ ÖLÇÜLMÜŞ OLGU ██, ikisi de bu dosyada yazılı:
+***İKİ ÖLÇÜLMÜŞ OLGU***, ikisi de bu dosyada yazılı:
 
 ① `GC.GetAllocatedBytesForCurrentThread()` bu projenin Unity sürümünde
 (2021.3.45f2, Mono) **her zaman sıfır döndürüyor**
@@ -537,9 +570,9 @@ profil kaydedicisini, kendi çizim yolunu ve kendi yönetilen yığınını taş
 Mono ile IL2CPP farklı çalışma zamanlarıdır ve bir mobil cihazın ısınma
 davranışı masaüstünde hiç görünmez.
 
-██ Bu yüzden yukarıdaki beş aşamada geçen "ölçülebilir hâle geldiğinde"
+***Bu yüzden yukarıdaki beş aşamada geçen "ölçülebilir hâle geldiğinde"
 cümlelerinin hepsi eksiktir; tam hâli şudur: **hedef cihazda, öncesi ve
-sonrası eşleşen bir ölçümle görünür hâle geldiğinde.** ██
+sonrası eşleşen bir ölçümle görünür hâle geldiğinde.*****
 
 **C · İLK ADIM** — Değişecek ilk dosya `Tools/run-editmode-tests.ps1`
 **değil**; o zaten var ve EditMode kanıtını üretiyor. İlk adım bir dosya
@@ -566,7 +599,7 @@ numaralandırıcı tarafı için
 yönetilen yığın ve çöp toplama tarafı için
 [../deep/dil/07-bellek-canlilik-ve-yikim.md](../deep/dil/07-bellek-canlilik-ve-yikim.md).
 
-**ÜÇ OYUN** — Slay the Spire: ██ EŞLEŞMEZ ██ oyuncunun gördüğü bir kare
+**ÜÇ OYUN** — Slay the Spire: ***EŞLEŞMEZ*** oyuncunun gördüğü bir kare
 bütçesi yok; oyun oyuncunun düşünme hızında ilerler · Vampire Survivors:
 ekrandaki düşman sayısı arttıkça kare hızının düşmesi doğrudan **görünür** ve
 oyunun zorluk eğrisiyle iç içedir · Stardew Valley: gün sonu hesabının

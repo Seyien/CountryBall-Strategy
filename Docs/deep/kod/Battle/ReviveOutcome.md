@@ -86,7 +86,7 @@ karşılığı yok, ve karşılığının olmaması iki tipin birleşmemesinin s
   (karşılığı YOK)            ✗     Revived
   ──────────────────────────       ──────────────────────────
   kesişim: 3        birleşim: 7
-  ██ BİREBİR DEĞİL — S-13'ün paylaşma şartı burada düşüyor ██
+  >> BİREBİR DEĞİL — S-13'ün paylaşma şartı burada düşüyor <<
 ```
 
 Birleştirilseydi her çağıran, kendi eylemi için ASLA dönmeyecek değerleri de

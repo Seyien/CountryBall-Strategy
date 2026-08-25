@@ -19,13 +19,13 @@
 > bir üyeye erişim belirteci yazarken, "burada bir `interface` olmalı mıydı" diye
 > sorduğunda, ya da `internal` görüp "aynı klasör demek" diye okuduğunda.
 
-**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
-işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+**BURAYA KODDAN GELDİYSEN** — **gelemezsin: bu belgeye giden *hiçbir* kod
+işaretçisi yok.** Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
 yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
 belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
-koda gidilir, koddan buraya gelinmez — ██ `Battle.Board`'un yorumundaki işaretçi
+koda gidilir, koddan buraya gelinmez — ***`Battle.Board`'un yorumundaki işaretçi
 bile [`konular/03`](../konular/03-tahta-sahipligi.md)'ü gösteriyor, bu dosyayı
-değil. ██
+değil.***
 
 Bu dosya iki soruyu birden sahipleniyor ve ikisi aynı sorunun iki ucu:
 
@@ -54,7 +54,7 @@ mekanizmaları sözün *neye* verildiğini yazar.
 
 ---
 
-## ██ ÖNCE SAYILAR — hepsi bu depoya karşı sayıldı ██
+## ***ÖNCE SAYILAR — hepsi bu depoya karşı sayıldı***
 
 Sayma yöntemi, tekrar edilebilir olsun diye açık yazılıyor. Önce `//` ile
 başlayan satır yorumları siliniyor (yoksa yorumda geçen `public` kelimesi de
@@ -68,10 +68,10 @@ find Assets/Game -name "*.cs" -exec sed 's://.*::' {} \; \
 `Assets/Game` altında, 33 üretim dosyasında:
 
 ```
-  public              156          interface             0   ██ SIFIR ██
-  private              98          abstract              0   ██ SIFIR ██
-  internal              1   ◄──    virtual               0   ██ SIFIR ██
-  protected             0          override              0   ██ SIFIR ██
+  public              156          interface             0   >> SIFIR <<
+  private              98          abstract              0   >> SIFIR <<
+  internal              1   ◄──    virtual               0   >> SIFIR <<
+  protected             0          override              0   >> SIFIR <<
   protected internal    0
   private protected     0          sealed class         14
                                    static class         12
@@ -102,7 +102,7 @@ Sayılar yalnız kaynağa değil **derlenmiş çıktıya** da soruldu.
   TOPLAM                        34       0            0         12
 
   Erişim damgası `Assembly` taşıyan ÜYE — dört DLL'de toplam:
-      Battle.get_Board                            ◄── ██ BİR TANE ██
+      Battle.get_Board                            ◄── >> BİR TANE <<
   Erişim damgası `Family` / `FamORAssem` / `FamANDAssem` taşıyan üye:
       yok
   `Virtual` damgası taşıyan metot:
@@ -137,7 +137,7 @@ Altı belirteç. Her kutunun ikinci satırı asıl mesele: **duvar NEREDE bitiyo
 ```
 ╔═ public ══════════════════════════════════════════════════════╗
 ║  Kim görür : referans veren HER assembly                      ║
-║  Duvar     : ██ YOK ██ — bu üye artık bir SÖZ                 ║
+║  Duvar     : >> YOK << — bu üye artık bir SÖZ                 ║
 ║  BİLMEZ    : kaç çağıranı olduğunu. Geri almak, bilmediğin    ║
 ║              çağıranları kırmak demektir                      ║
 ╠═ private ═════════════════════════════════════════════════════╣
@@ -147,7 +147,7 @@ Altı belirteç. Her kutunun ikinci satırı asıl mesele: **duvar NEREDE bitiyo
 ║              dosya değil TİP                                  ║
 ╠═ internal ════════════════════════════════════════════════════╣
 ║  Kim görür : aynı ASSEMBLY'deki her tip                       ║
-║  Duvar     : ██ .asmdef ██ — klasör değil, ad alanı değil     ║
+║  Duvar     : >> .asmdef << — klasör değil, ad alanı değil     ║
 ║  BİLMEZ    : test assembly'sini. Referans vermek yetmez;      ║
 ║              InternalsVisibleTo gerekir ve bu projede YOK     ║
 ╚═══════════════════════════════════════════════════════════════╝
@@ -155,11 +155,11 @@ Altı belirteç. Her kutunun ikinci satırı asıl mesele: **duvar NEREDE bitiyo
   Kalan üçü kalıtıma bağlı ve bu projede üçü de sıfır kez geçiyor:
 
     protected            bu tip + TÜREYENLER  (assembly'den bağımsız)
-    protected internal   aynı assembly ██ VEYA ██ türeyenler — BİRLEŞİM
-                         ██ internal'den DAHA GENİŞ; kesişim sanılır ██
-    private protected    aynı assembly ██ VE ██ türeyenler — KESİŞİM
+    protected internal   aynı assembly >> VEYA << türeyenler — BİRLEŞİM
+                         >> internal'den DAHA GENİŞ; kesişim sanılır <<
+    private protected    aynı assembly >> VE << türeyenler — KESİŞİM
 
-        ██ ALTISININ ORTAK KÖRLÜĞÜ ██
+        >> ALTISININ ORTAK KÖRLÜĞÜ <<
         Altısı da bir ÜYEYE bakar, o üyenin döndürdüğü NESNEYE
         değil. `private` bir alan, `public` bir metottan geri
         verilebilir; duvar o anda çoktan aşılmıştır. Aynı körlük
@@ -168,8 +168,8 @@ Altı belirteç. Her kutunun ikinci satırı asıl mesele: **duvar NEREDE bitiyo
 
 ### Kutunun GERÇEK SATIRLAR tarafındaki karşılığı
 
-██ Altısı da ÖDÜNÇ, yani aşağıda gösterilen yer **tanım yeri değil KULLANIM
-YERİDİR**. ██
+**Altısı da ÖDÜNÇ, yani aşağıda gösterilen yer *tanım yeri değil KULLANIM
+YERİDİR*.**
 
 **`internal` bu projede** — `Assets/Game/Battle/Battle.cs` → `Board`
 
@@ -177,26 +177,26 @@ YERİDİR**. ██
 internal UnitGrid Board => board;
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — kutu altı belirteç taşıyor ama kaynağa bağlanacak satır
+***EN ÖĞRETİCİ SEÇİMİ*** — kutu altı belirteç taşıyor ama kaynağa bağlanacak satır
 tek: `Assets/Game/` altında `internal` bir **belirteç olarak** yalnız burada
 geçiyor (ölçüldü; kalan iki eşleşme aynı üyenin üstündeki yorum satırları).
 `public` ile `private` onlarca satırda, dolayısıyla ayırt edici değil;
 `protected`, `protected internal` ve `private protected` ise kutunun kendi
-söylediği gibi sıfır kez. Kutudaki «Duvar: ██ .asmdef ██ — klasör değil, ad alanı
+söylediği gibi sıfır kez. Kutudaki «Duvar: ***.asmdef*** — klasör değil, ad alanı
 değil» satırının karşılığı tam bu satır ve iddia bu depoda ölçülebilir:
 `BattleActions` bu tahtayı GERÇEKTEN kullanıyor —
 `MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);` —
 çünkü `Assets/Game/Battle/GridStrategy.Battle.asmdef` içinde; `BoardAdapter` ise
 `.Board`'u hiç anmıyor çünkü `Assets/Game/Unity/GridStrategy.Unity.asmdef` içinde —
-oysa ikisi de aynı `Assets/Game/` ağacında duruyor. ██ Duvarı çizen şey klasör
-olsaydı ikisi de görürdü. ██ Ve kutunun «Referans vermek yetmez» uyarısının en
+oysa ikisi de aynı `Assets/Game/` ağacında duruyor. ***Duvarı çizen şey klasör
+olsaydı ikisi de görürdü.*** Ve kutunun «Referans vermek yetmez» uyarısının en
 temiz kanıtı da burada: o `.asmdef`in `references` listesinde
 `GridStrategy.Battle` **yazılı**, yani `BoardAdapter` `Battle` tipini görüyor —
 `Board` üyesini yine de göremiyor. Kutunun «BİLMEZ: test assembly'sini» satırının
 faturası da burada: `Board`'u doğrudan sınayan bir EditMode testi yazılamaz, çünkü
 `InternalsVisibleTo` bu depoda yok.
 
-Kutunun alt bölümündeki «██ ALTISININ ORTAK KÖRLÜĞÜ ██» satırı da aynı satırda
+Kutunun alt bölümündeki «***ALTISININ ORTAK KÖRLÜĞÜ***» satırı da aynı satırda
 görünür: `internal` olan şey **üye**, döndürdüğü `UnitGrid` nesnesi değil. Onu bir
 kez alan `BattleActions`'ın elinde artık sıradan bir referans var ve duvar o anda
 çoktan aşılmıştır.
@@ -219,7 +219,7 @@ cevap bulunduğun yere göre değişir. Ezberlenmesi gereken tek tablo bu:
   bir enum'un değeri                     public (başka türlü olamaz)
 ```
 
-██ Bu projede o varsayılanların hiçbirine güvenilmiyor. ██ 34 tipin 34'ü de
+***Bu projede o varsayılanların hiçbirine güvenilmiyor.*** 34 tipin 34'ü de
 `public` yazıyor — üstveri de bunu doğruluyor (yukarıdaki ikinci ölçüm:
 `Public` 34, `NotPublic` 0). Yani "yazmadım, `internal` olur" diye bir satır
 yok; her tip kararını açıkça söylüyor.
@@ -240,7 +240,7 @@ bir üslup kararı değil: **bu projede kalıtım satırı toplam iki** ve ikisi
 motorun zorunlu kıldığı satır (dördüncü durak). Türeyen yoksa `protected`
 `private` ile aynı odayı açar — yani hiçbir şey söylemez.
 
-██ "Bugün yok" eksik bir cümledir. ██ `protected`'in bu projeye gireceği gün
+***"Bugün yok" eksik bir cümledir.*** `protected`'in bu projeye gireceği gün
 tektir: gerçek bir alt tip ailesi doğduğu ve o ailenin **ortak ama dışarı
 kapalı** bir durumu paylaştığı gün. Bugün böyle bir aile yok; nedeni üçüncü ve
 dördüncü duraklarda ölçüyle yazılı.
@@ -256,7 +256,7 @@ ortaya çıkıyor:
   GridStrategy.Core          31        7      açık kütüphane
   GridStrategy.Combat        82       18      açık kütüphane
   GridStrategy.Battle        39       11      açık kütüphane + 1 internal
-  GridStrategy.Unity          4       62      ██ TERS ██
+  GridStrategy.Unity          4       62      >> TERS <<
   ──────────────────────────────────────────────────────────────
   toplam                    156       98
 ```
@@ -274,8 +274,8 @@ UnitView.cs:142
     public void SetSelected(bool isSelected)
 ```
 
-Dördüncüsü `UnitView.cs`'in 173. satırındaki `SetState`. ██ `BoardAdapter`'ın
-tek bir `public` ÜYESİ yok. ██ Yalnız sınıfın kendisi `public` — o da motorun
+Dördüncüsü `UnitView.cs`'in 173. satırındaki `SetState`. ***`BoardAdapter`'ın
+tek bir `public` ÜYESİ yok.*** Yalnız sınıfın kendisi `public` — o da motorun
 bileşeni tanıyabilmesi için.
 
 Okunuşu tek cümle: **`GridStrategy.Unity` bir yaprak.** Onu çağıran başka bir
@@ -285,7 +285,7 @@ kütüphane: yüzeyleri geniş, çünkü hepsinin bir çağıranı var. `UnitVie
 assembly'de, ama bu bir karar değil bir tesadüf ve `internal` yazmak
 taşınabilirliği bugünkü klasör düzenine bağlamak olurdu.
 
-### ██ AYRIŞMA NOKTASI: `internal`in duvarı ASSEMBLY'dir ██
+### ***AYRIŞMA NOKTASI: `internal`in duvarı ASSEMBLY'dir***
 
 Bu, dosyanın en pahalı yanlış okuma adayı. `internal`i "aynı klasör" ya da
 "aynı ad alanı" diye okuyan biri **bu projede yanılır** ve yanıldığını derleyici
@@ -303,8 +303,8 @@ Karşı örnek uydurulmuş değil, diskte duruyor:
   KLASÖR olarak  : Combat, Core'un İÇİNDE
   ASSEMBLY olarak: Combat, Core'un KARDEŞİ — references: [], iki yönde de
 
-  ██ Core'a yazılacak bir `internal` üyeyi Core/Combat/ İÇİNDEKİ
-     hiçbir dosya göremez. ██ Klasör iç içe, assembly ayrı.
+  >> Core'a yazılacak bir `internal` üyeyi Core/Combat/ İÇİNDEKİ
+     hiçbir dosya göremez. << Klasör iç içe, assembly ayrı.
      Ve tersi de doğru: Combat'ın `internal`ini Core göremez.
 ```
 
@@ -331,7 +331,7 @@ Sonucu somut: `GridStrategy.Battle.EditModeTests`, `references` dizisinde
 `GridStrategy.Battle`'ı taşıyor — yani `Battle` sınıfını görüyor, ama `Board`
 üyesini **göremiyor**. Referans vermek `internal`i açmaz.
 
-██ `HENÜZ YOK → sahipsiz` ██ — bu niteliğin tam mekanizması (imzalı
+***`HENÜZ YOK → sahipsiz`*** — bu niteliğin tam mekanizması (imzalı
 assembly'lerde açık anahtar zorunluluğu, Unity'de hangi dosyaya yazıldığı) bu
 ağaçta anlatılmıyor. Onu yazacak an: bir testin `internal` bir üyeye erişmesi
 gerektiği ilk gün.
@@ -367,7 +367,7 @@ BattleActions.cs:207
                 MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
 ```
 
-██ Bir üye, bir çağıran. ██ Ve o çağıran bir konfor değil bir zorunluluk:
+***Bir üye, bir çağıran.*** Ve o çağıran bir konfor değil bir zorunluluk:
 `MoveAction.Execute` imzasında bir `UnitGrid` istiyor, `MoveAction` ise
 `GridStrategy.Core`'da yaşıyor ve savaşı tanımıyor. Tahtayı ona uzatabilecek tek
 tip `Battle`; uzatmasa hareket hiç çözülemez.
@@ -383,7 +383,7 @@ mi?** Cevap dosya sisteminde:
   ├── Battle.cs · BattleActions.cs · TurnRules.cs · TurnState.cs
   └── PlacementOutcome.cs · ReviveOutcome.cs
 
-  ██ Battle ve BattleActions AYNI assembly'de → `internal` ÇALIŞIYOR. ██
+  >> Battle ve BattleActions AYNI assembly'de → `internal` ÇALIŞIYOR. <<
 ```
 
 Farklı olsaydı ne olurdu, ölçülebilir: `BoardAdapter` `GridStrategy.Unity`'de
@@ -443,9 +443,9 @@ ve onları eline geçiren herkes tahtayı değiştirebilir.
   BoardAdapter                ║        Battle       ── tahtanın sahibi
     battle.Board  ✗ DERLEMEZ  ║          internal Board
                               ║        BattleActions
-         ██ DERLEYİCİ ██      ║          battle.Board  ✓ görüyor
-                              ║          ██ SÖZ BURADAN SONRA
-                              ║             DİSİPLİNE DAYANIYOR ██
+         >> DERLEYİCİ <<      ║          battle.Board  ✓ görüyor
+                              ║          >> SÖZ BURADAN SONRA
+                              ║             DİSİPLİNE DAYANIYOR <<
 ```
 
 Yani `internal` **çağıran kümesini bire indirdi**, sıfıra değil. `BattleActions`
@@ -471,7 +471,7 @@ tipli referans üzerinden yalnız sözleşmedeki üyeler çağrılabilir; nesnen
 geri kalanı **görünmez olur, yok olmaz**.
 
 ```
-                 ██ TEK NESNE, İKİ FARKLI PENCERE ██
+                 >> TEK NESNE, İKİ FARKLI PENCERE <<
 
   Combatant somut referansı ─┐
     .TakeDamage()            │      ╔═══════════════════════════╗
@@ -481,13 +481,13 @@ geri kalanı **görünmez olur, yok olmaz**.
                              │      ║   lastObservedState       ║
   IDamageable arayüz ────────┘      ╚═══════════════════════════╝
   referansı (varsayımsal)                        ▲
-    .TakeDamage()                     ██ AYRIŞMA NOKTASI ██
-    ██ ötekiler GÖRÜNMÜYOR ██        Görünmüyor ≠ yok. Nesne aynı
+    .TakeDamage()                     >> AYRIŞMA NOKTASI <<
+    >> ötekiler GÖRÜNMÜYOR <<        Görünmüyor ≠ yok. Nesne aynı
                                      nesne, alanları aynı alanlar,
                                      boyutu aynı boyut.
 ```
 
-### ██ Bir arayüzün YAPMADIĞI dört şey ██
+### ***Bir arayüzün YAPMADIĞI dört şey***
 
 Bunlar tahmin değil, dilin tanımı:
 
@@ -505,8 +505,8 @@ Bunlar tahmin değil, dilin tanımı:
      referansla bakıldığına değil. Arayüz eklemek bir alanı silmez.
 
   ④ BELLEĞİ VE PERFORMANSI OTOMATİK İYİLEŞTİRMEZ
-     ██ Bu, en sık duyulan yanlış modeldir ve tersi bile mümkündür:
-        arayüz çağrısı somut çağrıdan FARKLI çözülür. ██
+     >> Bu, en sık duyulan yanlış modeldir ve tersi bile mümkündür:
+        arayüz çağrısı somut çağrıdan FARKLI çözülür. <<
 ```
 
 Değer ve referans tiplerinin, "aynı olmak"ın ve `ReferenceEquals`'in tam
@@ -522,7 +522,7 @@ Somut bir sınıfın metodu çağrıldığında hedef, derleme zamanında biline
 adı arayüz gönderim tablosudur. İki çağrı aynı işi yapmıyor.
 
 ```
-  ██ ÖLÇÜLMEDİ ██
+  >> ÖLÇÜLMEDİ <<
   Bu farkın bu projedeki NANOSANİYE ya da BAYT karşılığı ölçülmedi ve
   bugün ÖLÇÜLEMEZ: dört üretim assembly'sinde interface tanımı 0,
   interface uygulaması 0 (üstveriden okundu) — karşılaştırılacak ikinci
@@ -530,7 +530,7 @@ adı arayüz gönderim tablosudur. İki çağrı aynı işi yapmıyor.
   etikettir, ve etiket yazılmaz.
 ```
 
-### ██ NE ZAMAN GEREKİR ██
+### ***NE ZAMAN GEREKİR***
 
 Ölçüt tek cümle, ve `unity-expert-code-quality` skill'inin *Ownership Map*
 tablosundan geliyor:
@@ -542,7 +542,7 @@ tablosundan geliyor:
 ```
   GEREKİR   : bir ÇAĞIRAN, aynı yetenek sözleşmesi arkasında GERÇEKTEN
               birden fazla uygulamaya ihtiyaç duyuyorsa
-  GEREKMEZ  : ██ varlık SAYISI tek başına gerekçe DEĞİLDİR ██
+  GEREKMEZ  : >> varlık SAYISI tek başına gerekçe DEĞİLDİR <<
               "üç tip var, o hâlde bir arayüz olmalı" bir ölçü değil
 ```
 
@@ -562,8 +562,8 @@ BattleActions.cs:127-129
 ```
 
 Bir çağıran, tek bir yetenek ("bu şeye saldırılır"), iki farklı uygulama
-(`Combatant` hedef, `Structure` hedef). ██ Bu, kitaptaki arayüz basıncının
-şekli. ██ Aynı ikilik üç yerde daha görünüyor: `Battle.Tick` iki döngü
+(`Combatant` hedef, `Structure` hedef). ***Bu, kitaptaki arayüz basıncının
+şekli.*** Aynı ikilik üç yerde daha görünüyor: `Battle.Tick` iki döngü
 çeviriyor, `Battle.RemoveReadyForCleanup` iki döngü tarıyor,
 `Battle.RemoveUnit` iki sözlüğe birden bakıyor.
 
@@ -586,7 +586,7 @@ maliyetle değil:
   ③ Arayüzün bool'u Downed ile Destroyed'ı AYNI cevabın arkasına düşürürdü
      — AttackOutcome.HitAndDowned / HitAndDestroyed ayrımı silinirdi
 
-  ██ "Soyutlamanın bugün sildiği tek şey iki metot." ██
+  >> "Soyutlamanın bugün sildiği tek şey iki metot." <<
      Kazanç iki metot, bedel üç karar. Ölçü bu.
 ```
 
@@ -627,7 +627,7 @@ bir arayüz gerekir, çünkü iki tip de `sealed`. Ve blok kazancı da yazıyor:
 sahteleme "yalıtacak bir şey varsa" kazanç; saf ve hızlı parçalarda yalnızca
 sınanan kuralı siler.
 
-### ██ K43: bugün gerekmiyor — peki hangi gün gerekir ██
+### ***K43: bugün gerekmiyor — peki hangi gün gerekir***
 
 "Bugün yok" eksik bir cümledir. Arayüzü doğuracak somut olaylar, en olasıdan
 en az olasıya, ve her biri koda bakılarak seçildi:
@@ -636,8 +636,8 @@ en az olasıya, ve her biri koda bakılarak seçildi:
   ① İKİNCİ BİR HEDEF TÜRÜ
      Bugün "saldırılabilir" iki şey var ve BattleActions.Attack ikisi
      arasında dallanıyor. ÜÇÜNCÜSÜ eklendiği gün AttackAction'a ÜÇÜNCÜ
-     bir aşırı yükleme yazılır. ██ Eşik burada: kazanç "iki metot"
-     olmaktan çıkıp "N metot ve N dallı bir ifade" olur. ██
+     bir aşırı yükleme yazılır. >> Eşik burada: kazanç "iki metot"
+     olmaktan çıkıp "N metot ve N dallı bir ifade" olur. <<
 
   ② KURULUMU PAHALI BİR PARÇA
      CombatantTests'in KAZANIRDI satırı bunu ADIYLA söylüyor: bir parça
@@ -683,7 +683,7 @@ UnitView.cs:43
     public sealed class UnitView : MonoBehaviour
 ```
 
-██ Başka hiçbir tip hiçbir şeyden türemiyor. ██ Ve türeyen bu ikisi bile
+***Başka hiçbir tip hiçbir şeyden türemiyor.*** Ve türeyen bu ikisi bile
 **mühürlü** — yön burada okunur: `sealed` bir tipin altını keser, üstünü değil.
 
 Sonucu doğrudan: `abstract`, `virtual`, `override` için **proje içinden örnek
@@ -700,12 +700,12 @@ tipini seçer.**
 
   `Calis` VIRTUAL DEĞİLSE  → Taban.Calis çalışır   (derleyici seçti)
   `Calis` VIRTUAL İSE      → Turemis.Calis çalışır (çalışma zamanı seçti)
-                             ██ AYRIŞMA NOKTASI ██
+                             >> AYRIŞMA NOKTASI <<
                     Aynı satır, aynı değişken, iki farklı gövde.
                     Seçimi yapan şey `t`nin TİPİ değil, İÇİNDEKİ nesne.
 ```
 
-### ██ `Awake` ve `Update` BUNLAR DEĞİLDİR ██
+### ***`Awake` ve `Update` BUNLAR DEĞİLDİR***
 
 En yaygın yanlış model burada:
 
@@ -716,9 +716,9 @@ En yaygın yanlış model burada:
   event   DEĞİL  →  += ile abone olunmaz
   arayüz  DEĞİL  →  hiçbir sözleşmede tanımlı değil
 
-  ██ Onlar AD TABANLI mesaj geri çağrılarıdır: motor tipi tarar,
+  >> Onlar AD TABANLI mesaj geri çağrılarıdır: motor tipi tarar,
      o adı taşıyan metodu bulur ve çağırır. Sözleşme derleyicide
-     değil, MOTORUN kendisinde yaşıyor. ██
+     değil, MOTORUN kendisinde yaşıyor. <<
 ```
 
 Ölçülmüş kanıtı ve bütün sonuçları
@@ -736,8 +736,8 @@ tabi değil.
 > | genuine subtype family shares invariant state/behavior | abstract base | inheritance exists only to reuse a few lines |
 
 Yani: gerçek bir alt tip AİLESİ ortak bir DEĞİŞMEZ durumu/davranışı paylaşıyorsa
-ve her alt tip taban sözleşmesini koruyorsa gerekir; ██ kalıtım yalnızca birkaç
-satırı tekrar kullanmak içinse gerekmez ██. Bu projede sınav bir kez yapıldı ve
+ve her alt tip taban sözleşmesini koruyorsa gerekir; ***kalıtım yalnızca birkaç
+satırı tekrar kullanmak içinse gerekmez***. Bu projede sınav bir kez yapıldı ve
 **kaybedildi** — gerekçe `Structure`'ın başında duruyor:
 
 ```
@@ -767,7 +767,7 @@ koruma sağlar**, çünkü tartışılan şey kalıtımın yasaklanması değil,
                                                                        12
 ```
 
-██ Bunlar `interface`in yerine geçen şey DEĞİL. ██ Başka bir sorunun cevabı:
+***Bunlar `interface`in yerine geçen şey DEĞİL.*** Başka bir sorunun cevabı:
 "durum taşımayan saf kural nereye yazılır". Desenin adı **saf kural sınıfı** ve
 tam anlatımı — hangi basınçtan doğduğu, dokuz tipin ortak şekli, SOLID
 karşılığı —
@@ -783,8 +783,8 @@ Burada tekrar edilmiyor.
   abstract  →  örnek alınamaz     (new AttackRules() ✗)
   sealed    →  türetilemez        (: AttackRules    ✗)
 
-  ██ Bu yüzden `static sealed class` yazmak derleme hatasıdır (CS0441):
-     `sealed` zaten orada; iki kez söylemeye çalışıyorsun. ██
+  >> Bu yüzden `static sealed class` yazmak derleme hatasıdır (CS0441):
+     `sealed` zaten orada; iki kez söylemeye çalışıyorsun. <<
 ```
 
 ### `static class` ne YAPAMAZ — ve dördüncüsü asıl mesele
@@ -793,7 +793,7 @@ Burada tekrar edilmiyor.
   ① örnek alınamaz            → new ile kurulamaz
   ② kalıtılamaz               → ne türer ne türetilir
   ③ arayüz uygulayamaz        → : IFoo yazılamaz
-  ④ ██ PARAMETRE OLARAK GEÇİRİLEMEZ ██
+  ④ >> PARAMETRE OLARAK GEÇİRİLEMEZ <<
         void Kur(??? kural)   → yazılacak bir tip YOK.
         `AttackRules` bir DEĞER değil, yalnız bir ad.
 ```
@@ -802,8 +802,8 @@ Dördüncüsü bir kısıtlama maddesi değil, **değişim maliyetinin kendisi**
 kuralı DEĞİŞTİRİLEBİLİR kılmak istediğin gün önce bir DEĞER gerekir — ya bir
 delege (`Func<UnitState, bool>`) ya bir arayüz. İkisi de `static`in yapamadığı
 şey. Yani `static` bugünkü kararı ucuzlatıyor, yarınki değişimi
-pahalılaştırıyor. ██ Bu bir kusur değil bir TAKAS ve ölçüsü şu: bugün hiçbir
-kuralın ikinci bir uygulaması yok. ██ Takas doğru tarafta duruyor — ama nerede
+pahalılaştırıyor. ***Bu bir kusur değil bir TAKAS ve ölçüsü şu: bugün hiçbir
+kuralın ikinci bir uygulaması yok.*** Takas doğru tarafta duruyor — ama nerede
 durduğu yazılı olmazsa, ilk değişim isteği geldiği gün kimse sebebi hatırlamaz.
 
 Delegeyi bir alanda tutmanın ne getirip ne götürdüğü ayrı bir dosyanın işi:
@@ -814,7 +814,7 @@ Delegeyi bir alanda tutmanın ne getirip ne götürdüğü ayrı bir dosyanın i
 
 ## Üç oyun: "aynı işe farklı cevap veren şeyler nasıl ifade edilir"
 
-> ██ DOĞRULAMA SINIRI: üç oyunun da kaynağı KAPALIDIR. ██ Aşağıdaki üç hücrenin
+> ***DOĞRULAMA SINIRI: üç oyunun da kaynağı KAPALIDIR.*** Aşağıdaki üç hücrenin
 > hiçbiri kaynak koda ya da resmî belgeye karşı **doğrulanmadı**; hepsi
 > *oyuncunun gördüğü* olgular. Mekanizma adı bilerek yazılmıyor — bu tabloda
 > yalnız **ad** ve **iş** var.
@@ -825,7 +825,7 @@ Delegeyi bir alanda tutmanın ne getirip ne götürdüğü ayrı bir dosyanın i
 | **Vampire Survivors** | Silahlar. Hepsi kendiliğinden ateşlenir ve hepsi aynı ana ("sayaç doldu") cevap verir — ama biri halka çizer, biri kırbaç savurur, biri hedefe yönelir. |
 | **Stardew Valley** | Aletler. Aynı tıklama, aynı karo: balta ağaç keser, kazma taş kırar, kova su alır, orak biçer. Cevabı belirleyen şey hedef değil, elde tutulan alet. |
 
-### ██ EŞLEŞMEYEN SATIR: Slay the Spire ██
+### ***EŞLEŞMEYEN SATIR: Slay the Spire***
 
 En öğretici satır bu, çünkü bizim şeklimiz oraya **oturmuyor** — ve ayıran şey
 mekanizma değil, iki sayı:
@@ -838,8 +838,8 @@ mekanizma değil, iki sayı:
   bir tip YAZILARAK doğar               yeni davranış yeni derleme
   seçim DERLEME zamanında               istemez, seçim ÇALIŞMA
   (aşırı yükleme çözümlemesi)           zamanında ve liste VERİDEN
-  ölçü: tek bir ikili koşul, iki dal    ██ o ölçekte "her tip için bir
-                                           dal" şekli hiç yazılamaz ██
+  ölçü: tek bir ikili koşul, iki dal    >> o ölçekte "her tip için bir
+                                           dal" şekli hiç yazılamaz <<
 ```
 
 Asimetrinin adı: bizde davranış sayısı **tip sayısıyla** büyüyor ve tip sayısı
@@ -861,16 +861,16 @@ cevabımıza benziyor.
    ① KİM GÖRÜR          ② KİM YAZAR          ③ NEYE BAĞLANIR
    erişim belirteci     get-only / set       somut tip / sözleşme
 
-   public   156         { get; }             somut sınıf  ██ 34 ██
-   private   98         private set          arayüz       ██  0 ██
-   internal   1  ◄──    düz alan             abstract taban██ 0 ██
+   public   156         { get; }             somut sınıf  >> 34 <<
+   private   98         private set          arayüz       >>  0 <<
+   internal   1  ◄──    düz alan             abstract taban>> 0 <<
    protected  0
         │                    │                    │
    duvar: assembly      sahibi: dil/01       sahibi: bu dosya
         │
-   ██ TEK ÖRNEK: Battle.Board — garantisi assembly duvarında BİTER ██
+   >> TEK ÖRNEK: Battle.Board — garantisi assembly duvarında BİTER <<
 
-  ██ Üçü BAĞIMSIZ ve hiçbiri ötekinin işini yapmaz: ██
+  >> Üçü BAĞIMSIZ ve hiçbiri ötekinin işini yapmaz: <<
      public + get-only bir nesneyi dondurmaz (dil/01)
      private bir alan public bir metottan geri verilebilir
      arayüz görünürlüğü daraltır ama nesneyi küçültmez
@@ -888,7 +888,7 @@ cevabımıza benziyor.
       EVET  → ②
 
 ② Çağıran aynı ASSEMBLY'de mi? (soruyu klasöre değil .asmdef'e sor)
-      EVET  → ██ internal ██ — ve garantinin duvarda bittiğini YAZ
+      EVET  → >> internal << — ve garantinin duvarda bittiğini YAZ
       HAYIR → ③
 
 ③ Çağıran bu tipten TÜREYEN bir tip mi?
@@ -899,7 +899,7 @@ cevabımıza benziyor.
                         (dikkat: bu ikisinin GENİŞİdir, dar olanı değil)
 
 ④ Geriye public kaldı. Son soru: bunu bir gün GERİ ALABİLECEK misin?
-      ██ public bedava değildir. ██ Daraltmak bir kırıcı değişikliktir
+      >> public bedava değildir. << Daraltmak bir kırıcı değişikliktir
       ve derleyici onu ancak ÇAĞIRANIN tarafında gösterir.
 ```
 
@@ -907,7 +907,7 @@ cevabımıza benziyor.
 
 ```
 ① Bu yeteneği KAÇ uygulama üzerinden görmek zorunda — ÇAĞIRAN açısından?
-      1 → ██ somut / sealed sınıf. Bitti. ██
+      1 → >> somut / sealed sınıf. Bitti. <<
           Varlık SAYISI bu soruya cevap DEĞİLDİR.
       ≥2 → ②
 
@@ -916,7 +916,7 @@ cevabımıza benziyor.
       EVET → abstract taban        HAYIR → ③
 
 ③ Yetenekler birbirinden BAĞIMSIZ değişiyor mu?
-      EVET → ██ BİLEŞİM ██ — parçayı alan olarak tut, devralma
+      EVET → >> BİLEŞİM << — parçayı alan olarak tut, devralma
              (bu projenin cevabı: Combatant, Structure)
       HAYIR→ ④
 
@@ -927,7 +927,7 @@ cevabımıza benziyor.
               (ölçülmüş örnek: CombatantTests'in reddi)
       VARSA → ⑤
 
-⑤ ██ ARAYÜZ ██ — ve DAR tut: sözleşmeye yalnız ÇAĞIRANIN ihtiyacı olan
+⑤ >> ARAYÜZ << — ve DAR tut: sözleşmeye yalnız ÇAĞIRANIN ihtiyacı olan
    üyeler girer. Fazladan giren her üye, ikinci uygulamanın ödeyeceği
    vergidir.
 ```
@@ -939,7 +939,7 @@ cevabımıza benziyor.
 **"Arayüz kullanmak performansı iyileştirir."** Hayır — ve tersi bile mümkün.
 Bir arayüz tipli referans ikinci bir nesne yaratmaz, örneği küçültmez, alan
 silmez; yalnız **görünen üye kümesini daraltır**. Çağrı ise somut çağrıdan
-farklı çözülür. ██ Bu projede o farkın bedeli ÖLÇÜLMEDİ ██ ve ölçülemez:
+farklı çözülür. ***Bu projede o farkın bedeli ÖLÇÜLMEDİ*** ve ölçülemez:
 dört üretim assembly'sinde arayüz uygulaması sıfır, karşılaştırılacak taraf yok.
 Arayüzün gerekçesi hız değil, **çağıranın ikinci bir uygulamaya ihtiyacı**dır.
 
@@ -952,8 +952,8 @@ Combat dosyaları **göremez**. Sınırı çizen şey klasör değil, en yakın 
 **"On iki `static class` var, demek ki arayüzlerin yerine onlar konmuş."**
 Hayır — ikisi farklı sorunun cevabı. `static class` "durum taşımayan bir kural
 nereye yazılır" sorusuna cevap veriyor; arayüz "bir çağıran kaç uygulama
-görmeli" sorusuna. ██ Ölçü: bir `static class` arayüz uygulayamaz ve parametre
-olarak geçirilemez ██ — yani bir arayüzün yaptığı işi yapamaz bile. İkisi
+görmeli" sorusuna. ***Ölçü: bir `static class` arayüz uygulayamaz ve parametre
+olarak geçirilemez*** — yani bir arayüzün yaptığı işi yapamaz bile. İkisi
 birbirinin alternatifi değil; biri seçildi diye öteki elenmedi.
 
 ---
@@ -964,7 +964,7 @@ birbirinin alternatifi değil; biri seçildi diye öteki elenmedi.
   internal Board'u        → ① katmanı (dışarıda ok HİÇ doğmasın) aynı gün
   public yap                boşa çıkar; BoardAdapter tek satırda tahtaya
                             yazabilir. Derleyici susar, testler yeşil kalır.
-                            ██ En ucuz görünen, en pahalı değişiklik. ██
+                            >> En ucuz görünen, en pahalı değişiklik. <<
 
   Battle.board'u          → BattleActions'ın MoveAction'a verecek bir tahtası
   hiç dışarı verme          kalmaz. İki çıkış: ya hareket kuralı Battle'a
@@ -984,8 +984,8 @@ birbirinin alternatifi değil; biri seçildi diye öteki elenmedi.
                             olmak zorunda kalır — bir kompozisyon kökü gerekir.
 
   hepsini public yap      → hiçbir şey KIRILMAZ. Ve mesele tam olarak bu:
-                            ██ erişim daraltmanın faydası ödemediğin
-                            faturalarda saklıdır. ██ Bedel görünür (bir
+                            >> erişim daraltmanın faydası ödemediğin
+                            faturalarda saklıdır. << Bedel görünür (bir
                             internal, bir dolaylı çağrı), fayda görünmez
                             (yazılmamış çağıranlar). Karar bu asimetriyle
                             veriliyor.
@@ -993,7 +993,7 @@ birbirinin alternatifi değil; biri seçildi diye öteki elenmedi.
 
 ---
 
-## ██ Adı geçen ama anlatılmayan mekanizmalar ██
+## ***Adı geçen ama anlatılmayan mekanizmalar***
 
 ```
   InternalsVisibleTo (tam mekanizma)   → HENÜZ YOK → sahipsiz.
@@ -1042,9 +1042,9 @@ Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İk
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
-> **▶ SIRADA:** ██ Bu dosya 14 adımlık okuma yolunda **yok** ██ —
+> **▶ SIRADA:** **Bu dosya 14 adımlık okuma yolunda *yok*** —
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md) yazıldığında henüz sıraya girmemişti. Yolda bir
 > yer arıyorsan doğru komşusu **4. adım**: [`01-degismezlik-anahtar-kelimeleri.md`](01-degismezlik-anahtar-kelimeleri.md)
 > ("kim YAZABİLİR") ile bu dosya ("kim GÖREBİLİR") aynı sorunun iki ucu.

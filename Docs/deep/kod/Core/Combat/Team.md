@@ -41,8 +41,8 @@ değil.
   SEÇİLEN                        REDDEDILEN
   ad        sayı                 ad        sayı
   ──────────────────────         ──────────────────────
-  None       0  ◄── ██ default(Team) BURAYA DÜŞER ██
-  Player     1                   Player     0  ◄── ██ default ██
+  None       0  ◄── >> default(Team) BURAYA DÜŞER <<
+  Player     1                   Player     0  ◄── >> default <<
   Enemy      2                   Enemy      1
                                  (tarafsız değer YOK)
 ```

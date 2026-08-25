@@ -2,7 +2,7 @@
 
 > **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
 > `Assets/Game/Unity/BoardAdapter.cs` → `Assets/Game/Core/PointerGesture.cs`
-> → ██ duvar ██ → `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Unity/UnitView.cs`
+> → ***duvar*** → `Assets/Game/Battle/BattleActions.cs` → `Assets/Game/Unity/UnitView.cs`
 >
 > **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
 > giriş akışına yeni bir jest eklemeden önce (uzun basma, çift tıklama, sağ tık),
@@ -10,8 +10,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -21,10 +21,10 @@ yazılmıyor: satır kayar, üye adı kaymaz. ██
 | `Assets/Game/Core/PointerGesture.cs` | `Phase` · `Press` | ██ HENÜZ YOK ██ |
 | `Assets/Game/Unity/UnitView.cs` | `SetSelected` | ██ HENÜZ YOK ██ |
 
-██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
-yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
+***"HENÜZ YOK" ne demek:* o üye burada gerçekten anlatılıyor, ama *kodun
+yorumunda buraya geri getiren bir satır yok* — o üyeden yola çıkıp bu belgeye
 ulaşamazsın, yalnız tersi çalışır. Listeden silmedim; silmek boşluğu görünmez
-kılardı. ██
+kılardı.**
 
 ---
 
@@ -53,14 +53,14 @@ Beş oyuncu. Hikâyeyi ilginç kılan yine bilmedikleri.
 ╔═ BoardAdapter (MonoBehaviour) ════════════════════════════════╗
 ║  İşi     : çevirmenlik — motorun kare düzenini okumak         ║
 ║  Bilir   : Input, Camera, Grid, Time, sahne, seçili birim     ║
-║  BİLMEZ  : ██ BİR JESTİN NE OLDUĞUNU ██ — "bu tıklama mıydı"  ║
+║  BİLMEZ  : >> BİR JESTİN NE OLDUĞUNU << — "bu tıklama mıydı"  ║
 ║            sorusunu kendisi cevaplamaz, SORAR                 ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ PointerGesture (saf sınıf, Core) ════════════════════════════╗
 ║  İşi     : karar — nokta akışını bir KİP'e çevirmek           ║
 ║  Bilir   : basmanın başladığı yer, eşik, içinde bulunduğu kip ║
-║  BİLMEZ  : ██ CİHAZI ██ hangi düğme, kaç saniye, hangi hücre, ║
+║  BİLMEZ  : >> CİHAZI << hangi düğme, kaç saniye, hangi hücre, ║
 ║            hangi kamera, hatta eşiğin BİRİMİ bile             ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -74,7 +74,7 @@ Beş oyuncu. Hikâyeyi ilginç kılan yine bilmedikleri.
 ╔═ BattleActions (statik, Battle) ══════════════════════════════╗
 ║  İşi     : geçerlilik — "kural izin veriyor mu"               ║
 ║  Bilir   : tahta, savaşçılar, sıra, menzil, doluluk           ║
-║  BİLMEZ  : ██ NİYETİ ██ fare diye bir şey duymadı; ona göre    ║
+║  BİLMEZ  : >> NİYETİ << fare diye bir şey duymadı; ona göre    ║
 ║            her çağrı zaten kasıtlıdır                         ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -111,7 +111,7 @@ PointerPhase phase = FeedGesture(worldX, worldY);
 switch (phase)
 ```
 
-Kutudaki «██ BİR JESTİN NE OLDUĞUNU ██ — "bu tıklama mıydı" sorusunu kendisi
+Kutudaki «***BİR JESTİN NE OLDUĞUNU*** — "bu tıklama mıydı" sorusunu kendisi
 cevaplamaz, SORAR» satırının karşılığı bu iki satırın **sırasıdır**: birincisi
 soruyu dışarı veriyor, ikincisi yalnızca gelen cevaba bakıyor. Arada bir karar
 satırı yok — bu dosyada eşiği karşılaştıran, mesafe kareleyen ya da "yeterince
@@ -137,7 +137,7 @@ public PointerPhase MoveTo(float x, float y)
     return Phase;
 ```
 
-Kutudaki «██ CİHAZI ██ hangi düğme, kaç saniye, hangi hücre, hangi kamera,
+Kutudaki «***CİHAZI*** hangi düğme, kaç saniye, hangi hücre, hangi kamera,
 hatta eşiğin BİRİMİ bile» satırının karşılığı **imzanın kendisidir**: iki çıplak
 `float`. `Vector2` bile değil — o tip `UnityEngine`'de yaşıyor ve bu assembly onu
 göremiyor. Birimin bilinmediği de imzada görünüyor: parametrelerin adı `x` ve
@@ -165,7 +165,7 @@ karşılığı da bu yoldur: dosyanın adı `PointerGesture.cs`, ama içindeki i
 public static MoveOutcome Move(Battle battle, Unit unit, int toX, int toY, int moveRange)
 ```
 
-Kutudaki «██ NİYETİ ██ fare diye bir şey duymadı; ona göre her çağrı zaten
+Kutudaki «***NİYETİ*** fare diye bir şey duymadı; ona göre her çağrı zaten
 kasıtlıdır» satırının karşılığı bu tek satırdır: savaş, birim, iki hücre indeksi
 ve bir menzil. İmzada `PointerPhase` yok, "sürükledi mi" diye bir `bool` yok,
 "oyuncu gerçekten istedi mi" diye sorulacak bir parametre yok. Niyet duvarın öteki
@@ -211,7 +211,7 @@ Bu `if` bir optimizasyon değil, bir **anlam ayrımı**. Aynı sol tık:
    Update ──► GetMouseButtonDown       Update ──► UpdatePlacement
           ──► HandleClick                     ──► FeedGesture
           ──► seç / saldır / hareket ettir    ──► hayaleti taşı / yerleştir
-   ██ JEST HİÇ SORULMAZ ██             ██ JEST BURADA YAŞIYOR ██
+   >> JEST HİÇ SORULMAZ <<             >> JEST BURADA YAŞIYOR <<
 ```
 
 Ve burada, bu dosyanın en kolay yanlış hatırlanan gerçeği duruyor:
@@ -255,7 +255,7 @@ Input.mousePosition          EKRAN pikseli, sol alt (0,0)
         ▼
 worldPoint (x, y)            DÜNYA birimi  ──┬──► jest eşiği bunu ölçer
         │                                    │
-        │  unityGrid.WorldToCell(...)        └──► ██ duvarı geçen şey ██
+        │  unityGrid.WorldToCell(...)        └──► >> duvarı geçen şey <<
         ▼
 cell (x, y)                  HÜCRE indeksi  ─────► kural bunu konuşur
 ```
@@ -326,7 +326,7 @@ FeedGesture ne çağırır
 kip                    Pressed  Pressed  Dragging Dragging  Drag-     Drag-
                                                             Released  Released
                                     ▲                          ▲
-                       eşik burada aşıldı          ██ SONUÇ KİPİ KALICI ██
+                       eşik burada aşıldı          >> SONUÇ KİPİ KALICI <<
                                                    bir sonraki Press'e kadar
 ```
 
@@ -343,18 +343,18 @@ aynı karede hem `Press` hem `MoveTo` çağrılsaydı, basmanın hemen ardından
   ✗ GetMouseButtonDown yok
       ► ölçümün BAŞLANGIÇ noktası hiç kurulmaz
       ► `Press` çağrılmaz → jest hiç doğmaz → beş kipin beşi de Idle
-      ██ ÖLEN KAVRAM: jestin kendisi ██
+      >> ÖLEN KAVRAM: jestin kendisi <<
 
   ✗ GetMouseButton yok
       ► basılı geçen kareler görünmez, `MoveTo` hiç çağrılmaz
       ► eşik yalnızca bırakma karesinde sınanır
-      ██ ÖLEN KAVRAM: SÜRÜKLEME ██ — "basılıyken hareket etti mi"
+      >> ÖLEN KAVRAM: SÜRÜKLEME << — "basılıyken hareket etti mi"
          sorusu sorulamaz; yalnız "nerede bıraktı" bilinir
 
   ✗ GetMouseButtonUp yok
       ► bırakma karesi hiç görülmez, `Release` çağrılmaz
       ► kip sonsuza kadar Pressed/Dragging'de asılı kalır
-      ██ ÖLEN KAVRAM: BİTİŞ ██ — hiçbir jest sonuca varmaz,
+      >> ÖLEN KAVRAM: BİTİŞ << — hiçbir jest sonuca varmaz,
          hiçbir yapı yerleşmez
 ```
 
@@ -376,12 +376,12 @@ kare                    1
 SEÇİLEN
   if / else if          Press
   AYRI if               Release   ► ClickReleased
-                        ██ tam bir jest, tek karede ██
+                        >> tam bir jest, tek karede <<
 
 REDDEDILEN — hepsi TEK zincirde
   if      Down    → Press      ◄── kazanır
   else if Button  → MoveTo
-  else if Up      → Release    ◄── ██ BURAYA HİÇ GELİNMEZ ██
+  else if Up      → Release    ◄── >> BURAYA HİÇ GELİNMEZ <<
                         ► bırakış sessizce YUTULUR
                         ► kip Pressed'de asılı kalır
                         ► hayalet fareye yapışır ve bir daha bırakmaz
@@ -409,7 +409,7 @@ REDDEDILEN — hepsi TEK zincirde
                     duvarı GEÇEN her şey:  worldX, worldY  (+ kurucuda eşik)
                               │
    ═══════════════════════════▼═══════════════════════════════════════
-   ██  A S M D E F   D U V A R I  ██   GridStrategy.Core
+   >>  A S M D E F   D U V A R I  <<   GridStrategy.Core
    "noEngineReferences": true
    Input ✗   Camera ✗   Time ✗   Vector2 ✗   MonoBehaviour ✗
    ═══════════════════════════╤═══════════════════════════════════════
@@ -429,14 +429,14 @@ bir tuş, ya da kayıttan oynatılan bir girdi aynı üç metoda aynı şekilde 
 > **NEDEN:** yukarıdaki figürün ortasındaki çizgi bu dosyanın taşıyıcı
 > gerekçesi ve burada tanımlanmıyor. `"noEngineReferences": true` satırının
 > **neden** `Vector2`'yi bile yasakladığı, ve yasağın bir üslup kuralı değil
-> ██ derleyici tarafından uygulanan bir görünürlük kısıtı ██ olduğu orada.
+> ***derleyici tarafından uygulanan bir görünürlük kısıtı*** olduğu orada.
 > **DÖNÜŞ:** bu dosyanın [«Faturanın adı: EditMode'da sınanabilirlik»](#faturanin-adi-editmodeda-sinanabilirlik) bölümü
 
 > **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → `FeedGesture`, sonra
 > `Assets/Game/Core/PointerGesture.cs` → `Press` · `MoveTo` · `Release`
 > **BAK:** birinci dosyada `Input.GetMouseButtonDown` var; ikinci dosyada `Input`
 > kelimesi **hiç** geçmiyor. Duvarı geçen tek şey iki `float`. `PointerGesture`
-> dosyasında `using UnityEngine;` satırını ara — ██ yok ██.
+> dosyasında `using UnityEngine;` satırını ara — ***yok***.
 > **DÖNÜŞ:** bu dosyanın «Dördüncü durak: duvar» bölümü
 
 ### Duvarın yasakladığı şey VERİ değil, CİHAZ BİLGİSİ
@@ -493,7 +493,7 @@ Duvarın altında tek bir tablo var ve üç metot bu tablodan başka bir şey ya
  Idle              Pressed        — yok sayılır             — yok sayılır
  Pressed           Pressed*       aşıldı   ► Dragging       aşıldı   ► DragReleased
                                   aşılmadı ► Pressed        aşılmadı ► ClickReleased
- Dragging          Pressed*       ██ HER ZAMAN Dragging ██  DragReleased
+ Dragging          Pressed*       >> HER ZAMAN Dragging <<  DragReleased
                                        ◄── ① YASAK GEÇİŞ
  ClickReleased     Pressed*       — yok sayılır             — yok sayılır
  DragReleased      Pressed*       — yok sayılır             — yok sayılır
@@ -585,7 +585,7 @@ yapmaya başlar. Ölçünün sahibi bu tip değil.
 
  REDDEDILEN — public set
    çağıranın herhangi bir satırı ──► ╔═══════╗
-                                     ║ Phase ║ ◄── ██ KIRILMA ██
+                                     ║ Phase ║ ◄── >> KIRILMA <<
                                      ╚═══════╝
    Tablo artık bir SÖZ değil, bir ÖNERİ: "Dragging'den Pressed'e
    dönüş yok" güvencesi tek bir atamayla aşılır.
@@ -682,8 +682,8 @@ kalır. Bu yüzden kararı üreten kare ile tüketen kare aynı olmak zorunda de
 > ayrı soru — ancak geçerliliğin nerede sorulduğu bilinirse anlam kazanıyor.
 > Aşağıdaki ağaç bir niyet üretiyor ve hiçbir dalında sınır, doluluk ya da sıra
 > kontrolü **yok**; o üç soru `BattleActions`'ın çizgisinin üst yarısında
-> soruluyor. ██ `04` o çizgiyi kuruyor; bu dosya çizginin yalnız giriş ucunu
-> gösteriyor. ██
+> soruluyor. ***`04` o çizgiyi kuruyor; bu dosya çizginin yalnız giriş ucunu
+> gösteriyor.***
 > **DÖNÜŞ:** bu dosyanın [«Altıncı durak: niyet ile geçerlilik»](#altinci-durak-niyet-ile-gecerlilik) bölümü — aşağıdaki niyet ağacından devam et
 
 Kip kapalıyken tıklama `HandleClick`'e gidiyor ve orada bambaşka bir ayrım var.
@@ -695,7 +695,7 @@ Kip kapalıyken tıklama `HandleClick`'e gidiyor ve orada bambaşka bir ayrım v
    │
    ├── hücre DOLU  ──┬── seçim YOK            ──► SEÇ
    │                 ├── tıklanan == seçili   ──► SEÇİMİ BIRAK    ◄── ██
-   │                 │      ██ AKIŞ BURADA BİTER ██
+   │                 │      >> AKIŞ BURADA BİTER <<
    │                 └── tıklanan != seçili   ──► SALDIR
    │
    └── hücre BOŞ   ──┬── seçim YOK            ──► Debug.Log, çık
@@ -760,7 +760,7 @@ Bu metotta ne bir sınır kontrolü, ne "hücre dolu mu" sorusu, ne de bir sıra
 sorusu var. Hepsi `PlaceStructure`'ın içinde. Çeviri ile karar arasındaki sınır
 tam olarak burası.
 
-### ██ BUGÜNKÜ SINIR: bu yol Play'de baştan sona KOŞMUYOR ██
+### ***BUGÜNKÜ SINIR: bu yol Play'de baştan sona KOŞMUYOR***
 
 Yukarıdaki anlatı **sınırı** doğru çiziyor, ama yolun kendisi çalışma anında
 kesiliyor. Play'e basıp bir birim seçer, `B`'ye basar ve **tahta içindeki boş
@@ -777,7 +777,7 @@ Sebebi tam olarak yukarıdaki alıntının ikinci satırı:
 BoardAdapter.cs:502   Unit placer = selectedUnit;
 BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
                                                           ▲
-                      ██ YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR ██
+                      >> YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR <<
         │
         ▼
 BattleActions.cs:365  battle.AddStructure(unit, structure, x, y);
@@ -796,18 +796,18 @@ BoardAdapter.cs:359   private void TryEnterPlacementMode()
 BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
 ```
 
-██ Hangi hücrede ne olduğu ölçüldü — üç dal, ve **sağlıklı** iki dalı ret
-değeri döndürüyor: ██
+**Hangi hücrede ne olduğu ölçüldü — üç dal, ve *sağlıklı* iki dalı ret
+değeri döndürüyor:**
 
 ```
   tahta DIŞI hücre  ──► BattleActions.cs:347  RejectedInvalidCell    ✓ ret, istisna yok
   DOLU hücre        ──► BattleActions.cs:357  RejectedCellOccupied   ✓ ret, istisna yok
-  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure           ██ HER SEFERİNDE İSTİSNA ██
+  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure           >> HER SEFERİNDE İSTİSNA <<
 ```
 
 Yani **başarılı olması gereken tek dal** patlıyor:
-██ `PlacementOutcome.Placed` arayüzden ULAŞILAMAZ ve `CreateStructureVisual`
-üretimde HİÇ çağrılmaz. ██
+***`PlacementOutcome.Placed` arayüzden ULAŞILAMAZ ve `CreateStructureVisual`
+üretimde HİÇ çağrılmaz.***
 
 ```
 BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
@@ -818,7 +818,7 @@ veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir t
 yok. `BoardAdapterTests.cs` diye bir dosya da yok — `00-iskelet.md:330-332` bunu
 zaten yazıyor.
 
-██ **Bunu önceden bil.** ██ Bilmezsen kırılanın belge değil **sen** olduğunu
+***Bunu önceden bil.*** Bilmezsen kırılanın belge değil **sen** olduğunu
 sanırsın. Bilerek bakarsan bu on dakika turun en öğretici anı olur: burası
 [`../README.md`](../README.md)'nin ilk kuralının — *"İkisi çelişirse **kod
 kazanır**"* — koşturulabilir tek örneği. **Düzeltme bu turun işi değil:** not al,
@@ -871,7 +871,7 @@ kural, ve nihayet açılan bir `enabled` bayrağı.
         ▼                      │
  x, y (hücre)                  │              HÜCRE indeksi
         │                      │
-        │                      │  ██ ASMDEF DUVARI ██  yalnız float geçer
+        │                      │  >> ASMDEF DUVARI <<  yalnız float geçer
         │                      ▼
         │              ┌─ PointerGesture ──────────────────────┐
         │              │  Press / MoveTo / Release / Reset     │
@@ -889,7 +889,7 @@ kural, ve nihayet açılan bir `enabled` bayrağı.
         ▼        ▼                            ▼              ▼
  ┌──────────────────────┐            ┌──────────────────────────┐
  │  HandleClick         │            │  CommitPlacement         │
- │  ██ NİYET ██         │            │  ██ NİYET ██             │
+ │  >> NİYET <<         │            │  >> NİYET <<             │
  │  boş → hareket       │            │  bırakıldığı yer         │
  │  dolu → saldırı      │            │                          │
  │  kendine → bırak     │            │                          │
@@ -898,7 +898,7 @@ kural, ve nihayet açılan bir `enabled` bayrağı.
             ▼                                   ▼
        ┌────────────────── BattleActions ──────────────────┐
        │  Attack / Move / PlaceStructure                   │
-       │  ██ GEÇERLİLİK ██  sıra, menzil, doluluk, sınır   │
+       │  >> GEÇERLİLİK <<  sıra, menzil, doluluk, sınır   │
        └────────────────────────┬──────────────────────────┘
                                 │
                     MoveOutcome / AttackOutcome / PlacementOutcome
@@ -907,7 +907,7 @@ kural, ve nihayet açılan bir `enabled` bayrağı.
                    ┌──────────────────────────┐
                    │  UnitView.SetSelected    │
                    │  CreateStructureVisual   │
-                   │  ██ UYGULAMA ██          │
+                   │  >> UYGULAMA <<          │
                    └──────────────────────────┘
 ```
 
@@ -930,7 +930,7 @@ Uzun basma, çift tıklama, sağ tık, iki parmakla kaydırma. Sırayla sor:
 ① Bu jestin cevabı YALNIZCA nokta akışından türetilebilir mi?
    (basma noktası + şu anki nokta + eşik — başka HİÇBİR ŞEY)
 
-      EVET  → ██ PointerGesture ██
+      EVET  → >> PointerGesture <<
               geçiş tablosuna yeni bir satır/sütun, PointerPhase'e yeni
               bir kip. Testi EditMode'da yazılır, Unity açılmaz.
               örnek: "eşiği aştıktan sonra geri dönerse iptal olsun"
@@ -942,7 +942,7 @@ Uzun basma, çift tıklama, sağ tık, iki parmakla kaydırma. Sırayla sor:
 
       EVET  → yine PointerGesture, ama zaman GİRDİ olarak verilir:
               Press(x, y, elapsed)  ya da  Tick(deltaSeconds)
-              ██ Time.deltaTime OKUNMAZ ██ — duvarı Time geçemez
+              >> Time.deltaTime OKUNMAZ << — duvarı Time geçemez
               saat BoardAdapter'da kalır, ölçüm Core'da yapılır
               (aynı desen zaten var: Battle.Tick(Time.deltaTime))
 
@@ -951,7 +951,7 @@ Uzun basma, çift tıklama, sağ tık, iki parmakla kaydırma. Sırayla sor:
 ③ Cevap için TAHTANIN DURUMU gerekiyor mu?
    (çift tıklama → "aynı türden hepsini seç"; sağ tık → "hedefi önizle")
 
-      EVET  → ██ PointerGesture DEĞİL ██
+      EVET  → >> PointerGesture DEĞİL <<
               Bu tip tahtayı bilmez ve bilmemeli. İstenen şey dosyanın
               başında adı konmuş "PointerGesture'ın ikizi": (x, y) +
               tahta durumu alan, bir NİYET değeri döndüren saf tip.
@@ -963,7 +963,7 @@ Uzun basma, çift tıklama, sağ tık, iki parmakla kaydırma. Sırayla sor:
 ④ Cevap yalnızca motorun KARE DÜZENİNDEN mi geliyor?
    (hangi düğme, kaçıncı tık, hangi tuş basılı)
 
-      EVET  → ██ BoardAdapter'ın çeviri yarısı ██
+      EVET  → >> BoardAdapter'ın çeviri yarısı <<
               FeedGesture'a yeni bir sorgu; jest tipine yeni bir metot
               DEĞİL. Örnek: sağ tık için GetMouseButtonDown(1) —
               PointerGesture'a "hangi düğme" diye bir kavram GİRMEZ,
@@ -1058,7 +1058,7 @@ Otuz satır yerine on beş. Yeni bir dosya yok, yeni bir tip yok, dolaylılık y
      Eşiği sınamak için gerçek bir fare sürüklemek gerekir. Titreyen
      el, hızlı savurma, alt+tab'da yutulan olay, tam eşikteki eşitlik —
      dördü de elle denenen, kayda geçmeyen senaryolara döner.
-     ██ EN AĞIR KAYIP BU ██
+     >> EN AĞIR KAYIP BU <<
 
   ② İki BAYRAK, tek KİP yerine
      `isDragging` bir bool ve beş hâl bir bool'a sığmaz: Idle ile
@@ -1112,15 +1112,15 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`08-motor-cagri-dongusu.md`](08-motor-cagri-dongusu.md) — okuma yolunun **9.** adımı
 > **NEDEN ORASI:** bu dosya `Update`'in **içini** anlattı; `08` `Update`'i
 > **kimin çağırdığını** anlatıyor. Bölüşmeyi `08` kendisi yazıyor. Ayrıca `08`
 > zincirin **en iyi bağlanmış** dosyası (23 çıkış bağlantısı + bir `## İlgili`
-> bölümü): oradan sonra kaybolmazsın. ██ Bu adımdan önce ██
+> bölümü): oradan sonra kaybolmazsın. ***Bu adımdan önce***
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
 > **DURMA NOKTASI 4**'ü geç — Unity'de Play, dört dalı yürüt, sonra `B` ile
-> yerleştirme kipini dene: ██ patlayacak, ve bu senin hatan değil ██. Gerekçesi
+> yerleştirme kipini dene: ***patlayacak, ve bu senin hatan değil***. Gerekçesi
 > yukarıdaki [«BUGÜNKÜ SINIR»](#bugunku-sinir-bu-yol-playde-bastan-sona-kosmuyor) bölümünde.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

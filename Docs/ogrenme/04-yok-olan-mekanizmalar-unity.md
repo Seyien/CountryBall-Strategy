@@ -1,7 +1,7 @@
 # Yok olan mekanizmalar — motorun sunduğu ama bu projenin henüz almadığı
 
-██ Bir mekanizmanın projede **olmadığını** bilmek, onun **arkada ne yaptığını**
-bilmek DEĞİLDİR. ██ Bu dosya ikincisini yazıyor. `grep` sana beş sıfır verir;
+***Bir mekanizmanın projede **olmadığını** bilmek, onun **arkada ne yaptığını**
+bilmek DEĞİLDİR.*** Bu dosya ikincisini yazıyor. `grep` sana beş sıfır verir;
 sıfırlar hangi işleyişin yokluğunu ölçtüğünü söylemez.
 
 ## `02-sonraki-asamalar.md` ile iş bölümü — burada ne YOK
@@ -13,7 +13,7 @@ sıfırlar hangi işleyişin yokluğunu ölçtüğünü söylemez.
 | Bugün kodda hangi desen zaten duruyor | [01-koda-gomulu-desenler.md](01-koda-gomulu-desenler.md) |
 | Hangi kavramın sahibi var, hangisi borç | [03-kavram-borc-defteri.md](03-kavram-borc-defteri.md) |
 
-██ Tetikleyici koşullar burada **tekrar edilmiyor**; ██ "ne zaman" sorusunun tek
+***Tetikleyici koşullar burada **tekrar edilmiyor**;*** "ne zaman" sorusunun tek
 sahibi `02`'dir ve bu dosya o satırlara link verir:
 
 ```
@@ -37,7 +37,7 @@ Doğrulama şekli  : ① repo dosyaları (Assets/ · ProjectSettings/ · Docs/)
                       YANSIMA sorgusu (tip ağacı ve generic kısıtlar)
 ```
 
-██ Sürüme bağlanmamış bir motor iddiası kusurdur. ██ Bu turda **Editor
+***Sürüme bağlanmamış bir motor iddiası kusurdur.*** Bu turda **Editor
 koşturulmadı**, Play'e basılmadı, Profiler açılmadı — bu bir belge turudur. Bu
 yüzden her mekanizmanın **③ ÖLÇÜ** alanı var: iddia bir etikettir, ölçü onu
 kanıta çevirir. Ölçülemeyen iddia "doğrulanmadı" diye işaretli.
@@ -55,7 +55,7 @@ kanıta çevirir. Ölçülemeyen iddia "doğrulanmadı" diye işaretli.
 
 ## Sahip etiketi sözlüğü
 
-██ "Unity'nin özelliği" diye anılan şeylerin çoğu Unity'nin değildir. ██
+***"Unity'nin özelliği" diye anılan şeylerin çoğu Unity'nin değildir.***
 
 | Etiket | Ne demek | Örnek |
 |---|---|---|
@@ -88,7 +88,7 @@ proje kararı.
 de bir borcun yazılı hâli — `AttackProfile.cs:13-14`: "bugün düz C# nesnesi;
 ScriptableObject kararı geldiğinde bu satır değişir, rol değişmez."
 
-██ Ama yokluk mutlak değil. ██ Bu tablo bir tuzak üretebilir: "bu projede global
+***Ama yokluk mutlak değil.*** Bu tablo bir tuzak üretebilir: "bu projede global
 arama yok" cümlesi **yanlıştır**. `Camera.main` tam olarak bir aramadır ve
 projede iki satırda çalışıyor (ayrıntısı üçüncü mekanizmada). Bir mekanizmanın
 **adını** aramak, mekanizmayı aramak değildir.
@@ -117,11 +117,11 @@ anlatıyor; tekrar etmiyorum. **Üzerine koyduğum şey zincirin başı.** Orada
 BUGÜN                              static Instance OLSAYDI
 canlı yerel ► Battle ► her şey     Battle.Instance ► Battle ► her şey
       ▲                                  ▲
-metot bitince ok DÜŞER             ██ KÖK ██ — hiç düşmez
+metot bitince ok DÜŞER             >> KÖK << — hiç düşmez
 toplama MÜMKÜN                     toplama İMKÂNSIZ, oyun kapanana kadar
 ```
 
-██ "Sızdırır" bir etiket değil bir SAYIDIR: ██ kök kümesinden erişilebilen nesne
+***"Sızdırır" bir etiket değil bir SAYIDIR:*** kök kümesinden erişilebilen nesne
 sayısı. Bugün `BoardAdapter` yok olunca `battle` alanına kimse ok tutmaz ve iki
 sözlük topluca erişilemez olur. Statik alanla bu **hiç** olmaz; ikinci savaş
 başlasa bile birincisi bellekte durur.
@@ -147,11 +147,11 @@ durağında ölçülmüş:
       ►  Instance ESKİ, YIKILMIŞ nesnede KALIR
       ►  sonraki her Instance.X → MissingReferenceException ya da sessiz yanlış
 
-  ██ Ve hiçbiri kendini onarmaz: static bir OLAY aboneliği. ██
+  >> Ve hiçbiri kendini onarmaz: static bir OLAY aboneliği. <<
      Yıkılmış nesnenin metodu davet listesinde durmaya devam eder.
 ```
 
-██ İlk Play çalışır, ikincisi bozulur, ve kırılan satır hiç değişmemiştir. ██
+***İlk Play çalışır, ikincisi bozulur, ve kırılan satır hiç değişmemiştir.***
 
 **`Instance` bir SÖZLEŞME DEĞİL, bir GELENEKTİR.** `static` "tek örnek" demez,
 "tipe ait alan" der. Ölçüsü: `Instance` alanına kaç kez yazılabileceğini
@@ -179,12 +179,12 @@ gerekmiyor, çünkü sıfırlanacak statik durum yok.
 ```
 static anahtar kelimesi          ►  C# dili
 alanın adının `Instance` olması  ►  proje kararı (Current, Main, Shared de olur)
-"tek örnek" garantisi            ►  proje kararı — ██ derleyici VERMEZ ██
+"tek örnek" garantisi            ►  proje kararı — >> derleyici VERMEZ <<
 Domain Reload'ın sıfırlaması     ►  Editor aracı (Play'e giriş davranışı)
 sahneler arası yaşam             ►  UnityEngine API — AYRI mekanizma, bkz. 2
 ```
 
-██ Üçü ayrı karardır: teklik · sahneler arası ömür · global erişim. ██ Ayrımın
+***Üçü ayrı karardır: teklik · sahneler arası ömür · global erişim.*** Ayrımın
 kendisi `02`'nin
 [Aşama 4](02-sonraki-asamalar.md#asama-4-singleton-ve-reddedilisin-kendisi)'ünde.
 
@@ -197,7 +197,7 @@ kendisi `02`'nin
 Enter Play Mode Options KAPALI (bugünkü: m_EnterPlayModeOptionsEnabled: 0)
     ardışık Play  ►  1, 1, 1, ...
 Reload Domain KAPATILIRSA
-    ardışık Play  ►  1, 2, 3, ...   ██ statik alan oturumu AŞTI ██
+    ardışık Play  ►  1, 2, 3, ...   >> statik alan oturumu AŞTI <<
 ```
 
 **(b) İkilik deneyi.** Sahnedeki `Board` nesnesini çoğalt. Bugün ne olur kodda
@@ -233,7 +233,7 @@ private Battle battle;
 battle = new Battle(width, height);
 ```
 
-██ ÖLÇÜLDÜ ██ — `battle.` ifadesi `BoardAdapter.cs` içinde **15 kez** geçiyor ve
+***ÖLÇÜLDÜ*** — `battle.` ifadesi `BoardAdapter.cs` içinde **15 kez** geçiyor ve
 `Assets/Game/` altında başka **hiçbir dosyada** geçmiyor. Savaşa erişen tek tip
 var, o da savaşı **kuran** tiptir; `Battle.Instance` diye bir şey yok ve
 kimsenin ona ihtiyacı olmadı. Bunun kazandırdığı üç şey:
@@ -278,7 +278,7 @@ konusu; `Instance` o zincire ikinci bir giriş kapısı açardı.
 
 ### ① ARKADA NE OLUYOR
 
-██ Sahneyi değil, **nesnenin sahnesini** değiştirir. ██ En sık yanlış model
+***Sahneyi değil, **nesnenin sahnesini** değiştirir.*** En sık yanlış model
 budur: "bu nesne artık silinmez" diye okunur. Yaptığı iş nesneyi
 `DontDestroyOnLoad` adlı **özel bir sahneye taşımaktır**; yeni sahne
 yüklendiğinde motor eski sahnedeki nesneleri yıkar, taşınan nesne artık o
@@ -298,9 +298,9 @@ M:UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(
 
 Üç şey imzada okunuyor: aldığı şey bir `UnityEngine.Object`, döndürdüğü şey
 **yok**, ve **geri alma yolu yok** — dönmek başka bir tipten başka bir çağrı
-ister. ██ Asimetri buradadır: gitmek tek çağrı, dönmek başka bir API. ██
+ister. ***Asimetri buradadır: gitmek tek çağrı, dönmek başka bir API.***
 
-**Yalnız KÖK nesnede çalışır mı — ██ DOĞRULANMADI ██.** Yerel API belgesi kök
+**Yalnız KÖK nesnede çalışır mı — ***DOĞRULANMADI***.** Yerel API belgesi kök
 koşulundan **hiç söz etmiyor**, yalnızca yukarıdaki tek cümleyi veriyor; Editor
 koşturulmadığı için davranış da gözlenmedi. Bu yüzden burada iddia olarak
 **yazılmıyor**. Doğrulanabilir olan şu: `Transform` hiyerarşisinde ebeveyni olan
@@ -343,7 +343,7 @@ sıfır satır.
 
 **(a) Nesne hangi sahnede.** `gameObject.scene` ile aktif sahne
 karşılaştırıldığında taşınma **görünür** olur: çağrıdan önce ikisi aynı, sonra
-farklı. ██ Bu deney bu projede koşturulamaz ██ — yükleyecek ikinci sahne yok
+farklı. ***Bu deney bu projede koşturulamaz*** — yükleyecek ikinci sahne yok
 (ölçü: `find Assets -name "*.unity"` → **1** dosya).
 
 **(b) Yığılma sayacı.** Sahneyi üç kez yükle ve başlık altındaki nesne sayısını
@@ -357,7 +357,7 @@ fazlaysa kalıcı nesne her yüklemede yeniden abone olmuştur —
 
 ### ④ BU PROJEDE NEREYE DÜŞERDİ
 
-██ Hiçbir yere — ve bu bir eksiklik değil, bir kapsam ölçüsüdür. ██ Sahne sayısı
+***Hiçbir yere — ve bu bir eksiklik değil, bir kapsam ölçüsüdür.*** Sahne sayısı
 **1**; `SceneManager`, `LoadScene` ve `DontDestroyOnLoad` üretim kodunda **0**.
 Bugün bu işi yapan şey **sahnenin kendisidir**: bütün nesnelerin ömrü Play
 oturumuna eşittir, sahne bir kez yüklenir, dolayısıyla "sahne değişirken ne
@@ -417,7 +417,7 @@ FindObjectOfType(Type,bool)   FindObjectsOfType(Type,bool)
                               FindObjectsOfTypeIncludingAssets(Type)
 ```
 
-██ Bir sürüm tuzağı, ölçülmüş: ██ "yeni API Unity 2022'de geldi" cümlesi bu sürüm
+***Bir sürüm tuzağı, ölçülmüş:*** "yeni API Unity 2022'de geldi" cümlesi bu sürüm
 için **yanlıştır** — `FindObjectsByType(Type, FindObjectsInactive,
 FindObjectsSortMode)` ve `FindAnyObjectByType()` aynı kurulumda zaten var. Fark
 tek kelimede: eski sürüm sonucu **sıralar**, yeni sürüm sıralamayı bir
@@ -442,10 +442,10 @@ Awake bittiğinde sahnede kaç GameObject var:
                                21  GameObject   (~46 bileşen)
 ```
 
-██ 21 nesnede tarama ölçülemez: bu projede maliyet argümanı GEÇERSİZDİR ██ ve onu
+***21 nesnede tarama ölçülemez: bu projede maliyet argümanı GEÇERSİZDİR*** ve onu
 ileri sürmek dürüst olmaz.
 
-**██ Asıl kusur maliyet DEĞİL: bağımlılık GÖRÜNMEZ olur. ██** Bir tipin neye
+*****Asıl kusur maliyet DEĞİL: bağımlılık GÖRÜNMEZ olur.***** Bir tipin neye
 ihtiyacı olduğu üç yerden okunur ve üçünün görünürlüğü aynı değildir:
 
 ```
@@ -453,17 +453,17 @@ KURUCU PARAMETRESİ     ►  imzada durur; derleyici çağıranı ZORLAR
                           Combatant.cs:59 — dört bağımlılık da imzada
 SERİLEŞTİRİLMİŞ ALAN   ►  Inspector'da durur; boş bırakılırsa GÖRÜLÜR
                           BoardAdapter'da 13 alan · UnitView'da 3 alan
-METOT GÖVDESİNDE ARAMA ►  ██ HİÇBİR YERDE DURMAZ ██ — yalnız o metodun
+METOT GÖVDESİNDE ARAMA ►  >> HİÇBİR YERDE DURMAZ << — yalnız o metodun
                           gövdesini okuyan görür
 ```
 
 Kalite kapısının kuralı bunu tek satırda söylüyor
 (`unity-csharp-quality-flow.archive`, *Dependency visibility*): "reject broad
-`Find`/locator access as a default." ██ Kural yazılı; arka tarafı budur:
+`Find`/locator access as a default." ***Kural yazılı; arka tarafı budur:
 reddedilen şey yavaşlık değil, **imzanın yalan söylemesidir** — parametresiz bir
-metot "hiçbir şeye ihtiyacım yok" der. ██
+metot "hiçbir şeye ihtiyacım yok" der.***
 
-**██ Ve bu projede o arama ZATEN VAR. ██** Adı `FindObjectOfType` değil,
+*****Ve bu projede o arama ZATEN VAR.***** Adı `FindObjectOfType` değil,
 `Camera.main`. Yerel belgesinden doğrulandı: *"The first enabled Camera component
 that is tagged "MainCamera" (Read Only)."* — *ilk* · *etkin* · *etiketi eşleşen*.
 Bu bir aramadır; ölçütü tip değil **etikettir**.
@@ -479,12 +479,12 @@ if (Camera.main == null)
 Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 ```
 
-██ ÖLÇÜ ██ — `TryReadPointerCell` `Camera.main`'i çağrı başına **iki kez** okuyor
+***ÖLÇÜ*** — `TryReadPointerCell` `Camera.main`'i çağrı başına **iki kez** okuyor
 ve iki çağıranı var: `HandleClick` (`BoardAdapter.cs:773`, tıklama başına) ve `UpdatePlacement`
 (`:415`) — ikincisi **yerleştirme kipindeyken her karede** koşuyor. Okumanın
 motor içinde önbelleklenip önbelleklenmediği bu turda **doğrulanmadı**; yerel
-belge önbellekten söz etmiyor. ██ Zaten konumuz o değil: maliyet bilinmiyor,
-görünmezlik ölçülmüş — ⑤'te. ██
+belge önbellekten söz etmiyor. ***Zaten konumuz o değil: maliyet bilinmiyor,
+görünmezlik ölçülmüş — ⑤'te.***
 
 ### ② SAHİP ETİKETİ
 
@@ -499,19 +499,19 @@ Camera.main                             ►  UnityEngine API (etikete göre aram
 ### ③ ÖLÇÜ
 
 **(a) Sayım deneyi.** Play'e bas ve `FindObjectsOfType<Transform>().Length`
-yazdır. **Tahmin: 21.** ██ Bu sayı Editor'de doğrulanmadı ██ — sahne dosyası,
+yazdır. **Tahmin: 21.** ***Bu sayı Editor'de doğrulanmadı*** — sahne dosyası,
 prefab dosyası ve `BuildCellVisuals`'ın `3 × 5` döngüsünden türetildi. Deneyin
 değeri sayı değil: tahminin tutması, "tarama neyi tarıyor" sorusunun cevabının
 senin elinde olduğunu gösterir.
 
-**(b) Görünmezlik deneyi — ██ asıl deney budur ██.** İki bağımlılığı da sil, sonra
+**(b) Görünmezlik deneyi — ***asıl deney budur***.** İki bağımlılığı da sil, sonra
 hatanın **ne zaman** göründüğüne bak:
 
 ```
 serileştirilmiş alan silinir  ►  Inspector'da boş kutu GÖRÜNÜR, ve Awake'te
                                  LogError yazılabilir — bu projede yazılıyor:
                                  BoardAdapter.cs:272 "unitPrefab is not assigned"
-                                 ██ hata, ihtiyaç duyulmadan ÖNCE bildirilir ██
+                                 >> hata, ihtiyaç duyulmadan ÖNCE bildirilir <<
 Find çağrısı boş döner        ►  hiçbir yerde görünmez. Hata o metot ÇAĞRILDIĞI
                                  anda doğar — belki hiç, belki üçüncü dakikada,
                                  belki yalnız bir kip açıkken
@@ -522,8 +522,8 @@ Editor gösterir; bir `Find` çağrısının **kimi bulacağını** hiçbir ara�
 gösteremez, çünkü cevap çalışma zamanına aittir.
 
 **(d) Deaktif deneyi.** Aranan nesneyi kapat, parametresiz sürümü çağır: `null`.
-`includeInactive: true` alan sürümü çağır: nesne. ██ Aynı sahne, aynı satır, iki
-farklı cevap. ██
+`includeInactive: true` alan sürümü çağır: nesne. ***Aynı sahne, aynı satır, iki
+farklı cevap.***
 
 ### ④ BU PROJEDE NEREYE DÜŞERDİ
 
@@ -538,7 +538,7 @@ Bağımlılıklar bugün üç yoldan geliyor ve **sayıldı**:
 | ██ Etikete göre arama ██ | **2 satır** | `BoardAdapter.cs:597` ve `:603` — `Camera.main` |
 | Tip taraması (`Find*`) | **0** | — |
 
-██ İki `GetComponent`, bir `Find` DEĞİLDİR ██ — `GetComponent` **bu nesnenin**
+***İki `GetComponent`, bir `Find` DEĞİLDİR*** — `GetComponent` **bu nesnenin**
 bileşen listesinde arar, sahnede değil; kodda yazılı (`BoardAdapter.cs:234-236`): "bileşen
 listesinde arar ... Listede bir Grid bulunacağını RequireComponent garanti eder."
 Kapsam farkı ölçülebilir: `GetComponent<Grid>()` için aday sayısı bu
@@ -555,7 +555,7 @@ yani **kullanımdan önce**: `unitPrefab` (`BoardAdapter.cs:272`), `placementGho
 üretemez — "atanmamış" diye bir hâl yoktur, yalnız "bulunamadı" vardır ve o da
 çağrı anında öğrenilir.
 
-② **██ Bedeli ZATEN ödenmiş bir yer var ██ — ve yazılı.** `UnitView`'ın test
+② *****Bedeli ZATEN ödenmiş bir yer var*** — ve yazılı.** `UnitView`'ın test
 dosyası `BoardAdapter`'ın neden sınanmadığını açıkça sayıyor:
 
 ```csharp
@@ -564,9 +564,9 @@ dosyası `BoardAdapter`'ın neden sınanmadığını açıkça sayıyor:
 ```
 
 26 EditMode test dosyası var ve `BoardAdapter`'ı sınayan yok; gerekçe dört
-kalemle sayılmış ve ikincisi `Camera.main`. ██ "Global arama testi zorlaştırır"
+kalemle sayılmış ve ikincisi `Camera.main`. ***"Global arama testi zorlaştırır"
 bir etikettir; ölçüsü budur — bir tip test yüzeyinin dışında kaldı ve gerekçe
-dosyada yazılı. ██
+dosyada yazılı.***
 
 ③ **`02`'nin ölçüsü bayatlar.**
 [Aşama 4](02-sonraki-asamalar.md#asama-4-singleton-ve-reddedilisin-kendisi)
@@ -583,7 +583,7 @@ yol açıldığı gün o cümle yanlış olur.
 | **Kökte bir kez `Find`, sonra dağıt** | Yazamadığın bir sahneyi ya da eklentiyi bağlarken. Kural: arama **kenarda** kalır, oyun kodunun içine inmez |
 | **`FindObjectsOfTypeAll`** | Editör aracı yazarken — deaktif ve varlık nesnelerini de bulur, ve o iş zaten çalışma zamanına ait değildir |
 
-██ `Find` ne zaman kazanır: ██ tek seferlik göç betiği, editör aracı, test
+***`Find` ne zaman kazanır:*** tek seferlik göç betiği, editör aracı, test
 kurulumu, "sahneyi ben kurmadım" durumları. Ortak yanları: **oyun döngüsünde
 koşmuyor** olmaları.
 
@@ -594,7 +594,7 @@ koşmuyor** olmaları.
 ### ① ARKADA NE OLUYOR
 
 **Bir `UnityEngine.Object` türevidir ama bir `Component` DEĞİLDİR.** Tek başına
-en önemli cümle, ve ██ yansımayla ölçüldü ██ (2021.3.45f2,
+en önemli cümle, ve ***yansımayla ölçüldü*** (2021.3.45f2,
 `UnityEngine.CoreModule.dll`):
 
 ```
@@ -603,7 +603,7 @@ MonoBehaviour    ──► Behaviour                           │
 Behaviour        ──► Component                     UnityEngine.Object
 Component        ──► UnityEngine.Object            ┌─────┴──────────────┐
 UnityEngine.Object ► System.Object            Component          ScriptableObject
-                                                   │     ██ DAL BURADA AYRILIYOR ██
+                                                   │     >> DAL BURADA AYRILIYOR <<
                                               Behaviour
                                                    │
                                              MonoBehaviour
@@ -617,19 +617,19 @@ durağının konusu.
 **Bu yüzden bir GameObject'e BAĞLANAMAZ — ve reddi derleyici verir.** Yansımadan
 okunan kısıt: `AddComponent<T>()` üzerinde `where T : UnityEngine.Component`, ve
 tip alan `AddComponent(System.Type)`'ın dönüş tipi `UnityEngine.Component`.
-██ Generic sürüm derleme hatası verir, tip alan sürüm çalışma zamanında
-reddeder. ██ Yani "ScriptableObject'i bir nesneye ekleyemezsin" bir öğüt değil,
+***Generic sürüm derleme hatası verir, tip alan sürüm çalışma zamanında
+reddeder.*** Yani "ScriptableObject'i bir nesneye ekleyemezsin" bir öğüt değil,
 imzada yazılı bir kuraldır.
 
 **Bir VARLIKTIR (asset).** Diskte bir dosya olarak yaşar, bir `.meta` dosyası ve
 içindeki GUID ile kimliklenir, sahneden bağımsızdır, oyun boyunca **tek
 örnektir**. `new` ile kurulmaz; doğrulanan üretim yolu
 `ScriptableObject.CreateInstance` (üç aşırı yükleme). `[CreateAssetMenu]` de
-doğrulandı (`T:UnityEngine.CreateAssetMenuAttribute`) — ██ ama bu attribute
-hiçbir şey yaratmaz ██: tek işi Editor'ün `Assets > Create` menüsüne bir satır
+doğrulandı (`T:UnityEngine.CreateAssetMenuAttribute`) — ***ama bu attribute
+hiçbir şey yaratmaz***: tek işi Editor'ün `Assets > Create` menüsüne bir satır
 eklemektir. Etiket `Unity attribute`, üreten taraf `Editor aracı`.
 
-**██ EN SIK HATA: bir varlık, çalışma zamanı durumu taşımaya başlar. ██**
+*****EN SIK HATA: bir varlık, çalışma zamanı durumu taşımaya başlar.*****
 Mekanizması tek cümlede: bir `ScriptableObject` **bir dosyadır**, onu gösteren
 yüzlerce nesne **aynı** nesneyi gösterir. Örneğe özel değişen bir alan — kalan
 bekleme süresi, mevcut can, bu turda kaç kez vurdu — o dosyanın içine yazılırsa
@@ -642,15 +642,15 @@ EDITOR'DE          Play sırasında yazılan değer diske YAZILIR ve Stop'tan so
 DERLENMİŞ OYUNDA   yazılmaz; varlık salt okunur bir pakettedir, değer oturum
                    bitince kaybolur.
 
-██ Bu asimetri tek başına bir tuzaktır: Editor'de görülen hata derlemede
-   kaybolur, derlemede görülen hata Editor'de üretilemez. ██
+>> Bu asimetri tek başına bir tuzaktır: Editor'de görülen hata derlemede
+   kaybolur, derlemede görülen hata Editor'de üretilemez. <<
 ```
 
 Doğrulama sınırı: bu iki satırın **davranışı** Editor koşturularak gözlenmedi —
-██ doğrulanmadı ██. Doğrulanan şey, o davranışı mümkün kılan **yolun varlığıdır**.
+***doğrulanmadı***. Doğrulanan şey, o davranışı mümkün kılan **yolun varlığıdır**.
 
 **Yaşam döngüsü geri çağrıları `MonoBehaviour`'ınkinden FARKLIDIR.** `Awake`,
-`OnEnable`, `OnDisable`, `OnDestroy` vardır; ██ `Update` YOKTUR ██ — ve sebebi
+`OnEnable`, `OnDisable`, `OnDestroy` vardır; ***`Update` YOKTUR*** — ve sebebi
 yukarıdaki tip ağacında duruyor, ezberde değil: motor kare başına dolaştığı
 listeyi `Behaviour`'lardan kurar, `ScriptableObject` `Behaviour`'dan **türemez**
 (yansımayla ölçüldü), o listeye giremez, `Update` diye bir ad hiç aranmaz. Geri
@@ -670,7 +670,7 @@ ScriptableObject tipi · CreateInstance    ►  UnityEngine API
 .asset üretimi · .meta+GUID · Inspector   ►  Editor aracı
 OnValidate                                ►  Editor aracı (derlemede koşmaz)
 hangi sayının varlığa taşınacağı          ►  proje kararı
-"içine çalışma zamanı durumu koyma"       ►  proje kararı — ██ motor ENGELLEMEZ ██
+"içine çalışma zamanı durumu koyma"       ►  proje kararı — >> motor ENGELLEMEZ <<
 ```
 
 Son satır önemlidir: motorun `ScriptableObject`'e yazmayı yasaklayan hiçbir
@@ -681,15 +681,15 @@ kuralı yoktur. Alan `public` ise herkes yazar; kelepçe yine `proje kararı`.
 **(a) Paylaşım deneyi — mekanizmanın kendisi.** Bir `ScriptableObject`'e
 `public int counter;` koy, iki ayrı sahne nesnesine **aynı** varlığı ata,
 birinden `counter++` yap, ikincisinden oku. Sonuç: **1**. İki nesne, tek sayı.
-██ Aynı deney hem "paylaşılan tanım" cümlesinin hem de "runtime durumu buraya
-yazma" kuralının kanıtıdır. ██
+***Aynı deney hem "paylaşılan tanım" cümlesinin hem de "runtime durumu buraya
+yazma" kuralının kanıtıdır.***
 
 **(b) Kalıcılık asimetrisi deneyi.** Aynı deneyi iki kez koştur: Editor'de
 (Play → artır → Stop → Inspector) ve derlenmiş oyunda (aynı akış, sonra kapat/aç).
-Beklenen fark: birincisinde değer kalır, ikincisinde sıfırlanır. ██ Bu deney bu
-turda koşturulmadı; sonuç doğrulanmadı. ██
+Beklenen fark: birincisinde değer kalır, ikincisinde sıfırlanır. ***Bu deney bu
+turda koşturulmadı; sonuç doğrulanmadı.***
 
-**(c) Doğrulama kaybı deneyi — ██ bu proje için en keskin ölçü ██.**
+**(c) Doğrulama kaybı deneyi — ***bu proje için en keskin ölçü***.**
 `AttackProfile` bugün kurucusunda doğruluyor ve bunun bir testi **var**:
 
 ```csharp
@@ -702,7 +702,7 @@ turda koşturulmadı; sonuç doğrulanmadı. ██
 `CreateInstance` parametre almaz — yani kurucu **hiç çağrılmaz**. Doğrulama
 `OnValidate`'e kayar, `OnValidate` yalnız Editor'de koşar, koddan üretilen profil
 hiç sınanmaz. Bu, `AttackProfile.cs:42-46`'de **zaten yazılı** olan gerekçenin
-ölçüsüdür. ██ SAYILDI ██ — kaç satır kırılır: `new AttackProfile` testlerde
+ölçüsüdür. ***SAYILDI*** — kaç satır kırılır: `new AttackProfile` testlerde
 **16**, üretimde **1**; `new MoveProfile` testlerde **7**, üretimde **1**.
 
 ### ④ BU PROJEDE NEREYE DÜŞERDİ
@@ -722,9 +722,9 @@ assembly'nin içinde (`noEngineReferences: true` — `GridStrategy.Core` ve
 //          sınıfı tek bir örneği paylaşabilir
 ```
 
-██ İKİSİ DE "PAYLAŞILABİLİR" DİYOR. ██ Şimdi üretimde ne olduğuna bak.
+***İKİSİ DE "PAYLAŞILABİLİR" DİYOR.*** Şimdi üretimde ne olduğuna bak.
 
-**██ KOD SORUSU — doğrulandı ██**
+*****KOD SORUSU — doğrulandı*****
 
 ```csharp
 // BattleActions.cs:178   (Move metodunun İÇİNDE)
@@ -736,7 +736,7 @@ aynı değerlerle, her seferinde:
 
 ```
 "bütün süvari sınıfı tek bir örneği paylaşabilir"   ◄── MoveProfile.cs:6-7
-                    ██ ÖLÇÜ ██
+                    >> ÖLÇÜ <<
 üretimde paylaşılan MoveProfile örneği sayısı        ◄── 0
 her Move çağrısında kurulan MoveProfile sayısı       ◄── 1
 ```
@@ -748,18 +748,18 @@ aynı `damage`, aynı `attackRange`, iki ayrı nesne.
 iç durum yarısının var olduğunu zaten yazıyor; borç defteri de "paylaşımı yöneten
 havuz/fabrika yok" diye adlandırmış.
 
-██ Buradaki katkı tek cümle: "paylaşılan tanım" iddiasının bugün üretimde
+***Buradaki katkı tek cümle: "paylaşılan tanım" iddiasının bugün üretimde
 karşılığı YOKTUR, ve bu, `ScriptableObject`'in çözdüğü problemin işlenmiş <!-- YOK-MUAF · DEVREDİLDİ · çapa aşağıda -->
-örneğidir. ██ Bir `.asset` dosyası tam olarak *o* paylaşılan tek örnektir: onu
+örneğidir.*** Bir `.asset` dosyası tam olarak *o* paylaşılan tek örnektir: onu
 kullanan herkes aynı GUID'i gösterir, çünkü gösterecek başka bir şey yoktur.
 
-██ Dürüst karşı cümle: ██ bu kusuru düzeltmek için `ScriptableObject`
+***Dürüst karşı cümle:*** bu kusuru düzeltmek için `ScriptableObject`
 **gerekmez** — `Move`'un içindeki `new`'i dışarı çıkarmak aynı işi yapar ve
 motoru hiç davet etmez. `ScriptableObject`'in satın aldığı şey paylaşım değil,
 **tasarımcının kod derlemeden düzenleyebileceği bir dosyadır**. O günün koşulu
 [Aşama 1](02-sonraki-asamalar.md#asama-1-scriptableobject)'de.
 
-> ██ YOKLUK SENEDİ — DEVREDİLDİ ██
+> ***YOKLUK SENEDİ — DEVREDİLDİ***
 >
 > **GEREKÇE:** Bu boşluğun borcunu `02-sonraki-asamalar.md` zaten ödüyor. O
 > dosya her aşamada beş alan taşıyor, ve bu belgenin kendi başlığı «ne zaman»
@@ -803,28 +803,28 @@ verilir.
 ```
 BUGÜN                              HAVUZLA
 Instantiate ► yeni nesne           Get     ► listede varsa ESKİSİ
-              yeni alanlar                   ██ ESKİ ALANLARIYLA ██
+              yeni alanlar                   >> ESKİ ALANLARIYLA <<
               Awake koşar                    Awake KOŞMAZ · OnEnable koşar
 Destroy     ► yıkım sırasına       Release ► SetActive(false) + listeye koy
               girer                          OnDisable koşar
               OnDestroy koşar                OnDestroy KOŞMAZ
 ```
 
-██ Havuzun asıl işi bellek değil, SIFIRLAMA SÖZLEŞMESİDİR: ██ kim temizleyecek,
+***Havuzun asıl işi bellek değil, SIFIRLAMA SÖZLEŞMESİDİR:*** kim temizleyecek,
 ne zaman, hangi alanı. Sıfırlanmayan bir alan bir sonraki kullanıcının hatası
 olur — ve o hata **yeni** nesnede görünür, **eski** nesnenin kodunda yatar.
 
-**Sözleşmenin kendisi bir API imzasında duruyor** — ve o API bu sürümde ██ ZATEN
-VAR ██ (yansımayla doğrulandı, 2021.3.45f2):
+**Sözleşmenin kendisi bir API imzasında duruyor** — ve o API bu sürümde ***ZATEN
+VAR*** (yansımayla doğrulandı, 2021.3.45f2):
 
 ```
 UnityEngine.Pool.ObjectPool<T>   where T : class
 
   ctor(Func<T>   createFunc,        ◄── nasıl doğar
-       Action<T> actionOnGet,       ◄── ██ SIFIRLAMA burada ██
-       Action<T> actionOnRelease,   ◄── ██ ya da burada ██
+       Action<T> actionOnGet,       ◄── >> SIFIRLAMA burada <<
+       Action<T> actionOnRelease,   ◄── >> ya da burada <<
        Action<T> actionOnDestroy,   ◄── havuz taşarsa gerçekten yok et
-       bool      collectionCheck,   ◄── ██ ÇİFT BIRAKMA kapısı ██
+       bool      collectionCheck,   ◄── >> ÇİFT BIRAKMA kapısı <<
        int defaultCapacity, int maxSize)
 
   Get() · Release(T) · Clear() · Dispose()
@@ -835,7 +835,7 @@ Aynı ad alanında hazır koleksiyon havuzları da var (yansımayla doğrulandı
 `ListPool<T>`, `DictionaryPool<,>`, `HashSetPool<T>`, `LinkedPool<T>`,
 `GenericPool<T>`, `CollectionPool<,>`, `UnsafeGenericPool<T>`, `PooledObject<T>`.
 
-██ İmzayı okumak sözleşmeyi okumaktır: ██ dört delege dört ayrı soruya karşılık
+***İmzayı okumak sözleşmeyi okumaktır:*** dört delege dört ayrı soruya karşılık
 geliyor, ve `actionOnGet` ile `actionOnRelease` arasındaki seçim bir **karardır**
 — alma anında mı temizlersin, bırakma anında mı. İkisi de boşsa sözleşme yoktur;
 ikisi de doluysa iş iki kez yapılır.
@@ -846,14 +846,14 @@ Ayrımın kendisi motor tarafında yazılı:
 Üzerine koyduğum şey **hangi çiftin havuzdan sağ çıktığı**:
 
 ```
-Awake / OnDestroy çifti     ►  ██ HAVUZDA KOPAR ██
+Awake / OnDestroy çifti     ►  >> HAVUZDA KOPAR <<
                                Awake bir kez koştu, OnDestroy hiç koşmayacak
-OnEnable / OnDisable çifti  ►  ██ HAVUZDA SAĞ KALIR ██
+OnEnable / OnDisable çifti  ►  >> HAVUZDA SAĞ KALIR <<
                                her Get bir OnEnable, her Release bir OnDisable
 ```
 
-██ Bu yüzden havuzlanan bir tipte kurulum `Awake`'te değil `OnEnable`'da
-olmalıdır. ██ Ama tam orada ikinci bir sorun oturuyor: **abonelikler de
+***Bu yüzden havuzlanan bir tipte kurulum `Awake`'te değil `OnEnable`'da
+olmalıdır.*** Ama tam orada ikinci bir sorun oturuyor: **abonelikler de
 `OnEnable`'dadır**, ve `+=` bir "listeye ekleme" değildir — arkasında
 `Delegate.Combine` durur ve o **elemez**. Aynı hedef iki kez eklenirse davet
 listesinde iki kez durur ve olay yayınlandığında dinleyici **iki kez** koşar;
@@ -867,7 +867,7 @@ private void OnEnable()  { battle.UnitStateChanged += OnUnitStateChanged; }
 private void OnDisable() { battle.UnitStateChanged -= OnUnitStateChanged; ... }
 ```
 
-██ İyi haber: bu çift havuzda bozulmaz. ██ Kötü haber: onu simetrik tutan şey
+***İyi haber: bu çift havuzda bozulmaz.*** Kötü haber: onu simetrik tutan şey
 derleyici değil, kodda adı konmuş bir disiplin (`BoardAdapter.cs:282-283`). Havuz o disiplini
 **çoğaltır**: bir nesne yüz kez alınıp bırakılırsa disiplin yüz kez sınanır.
 
@@ -882,10 +882,10 @@ UnityEngine.Pool.ObjectPool<T>      ►  UnityEngine API — 2021.3.45f2'de VAR
 Func<T> · Action<T> · where T:class ►  C# dili
 Delegate.Combine (`+=`'in arkası)   ►  .NET kütüphanesi
 SetActive / OnEnable / OnDisable    ►  UnityEngine API
-sıfırlama sözleşmesinin METNİ       ►  ██ proje kararı — hiçbir API vermez ██
+sıfırlama sözleşmesinin METNİ       ►  >> proje kararı — hiçbir API vermez <<
 ```
 
-██ Son satır mekanizmanın kalbidir: ██ `ObjectPool<T>` sana dört **boş** delege
+***Son satır mekanizmanın kalbidir:*** `ObjectPool<T>` sana dört **boş** delege
 parametresi verir; içini dolduran sensin ve havuzun doğruluğu tamamen o dört
 gövdededir.
 
@@ -896,7 +896,7 @@ boyunca yazdır. `CountAll` büyümeyi bıraktığı an havuz doymuştur; o ana 
 havuz **tahsis yapıyordur** ve "kare başına sıfır" iddiası o pencerede
 geçersizdir.
 
-**(b) Sıfırlama deneyi — ██ bu proje için somut ██.** `UnitView`'ın üç görsel hâli
+**(b) Sıfırlama deneyi — ***bu proje için somut***.** `UnitView`'ın üç görsel hâli
 var ve gri tonu bir alanda yazılı (`deadTint`, `UnitView.cs:66`). Bir birimi
 öldür, görselini havuza bırak, hemen yeni bir birim al: **gri kalıyorsa**
 sıfırlama sözleşmesi eksiktir. Bugün o sözleşmenin metni **var** ama yanlış yerde:
@@ -907,7 +907,7 @@ SetState(UnitState.Alive);
 SetSelected(false);
 ```
 
-██ Havuzdan çıkan nesnede `Awake` koşmaz, yani bu iki satır da koşmaz. ██ Havuz
+***Havuzdan çıkan nesnede `Awake` koşmaz, yani bu iki satır da koşmaz.*** Havuz
 geldiği gün ilk iş bunları çağrılabilir bir metoda taşımaktır.
 
 **(c) Çift abonelik deneyi.** Aynı hedefi `+=` ile iki kez ekle, olayı **bir kez**
@@ -919,29 +919,29 @@ görünür; havuzun her `Get`'inde `OnEnable` koştuğu için tam olarak ilgilid
 (`Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs:103`) ve negatif
 kontrolü (`:69`).
 
-### ④ BU PROJEDE NEREYE DÜŞERDİ — ██ SAYILDI ██
+### ④ BU PROJEDE NEREYE DÜŞERDİ — ***SAYILDI***
 
 ```
 ÜRETİM KODU (Assets/Game/)
 Instantiate       1 çağrı yeri   BoardAdapter.cs:739  Instantiate(unitPrefab, transform)
                                  tek çağıranı SpawnUnit (:709); onun tek
                                  çağıranları :260 · :261 (Awake)
-                                 ██ ömür boyu toplam 2 çağrı ██
+                                 >> ömür boyu toplam 2 çağrı <<
 Destroy           1 çağrı yeri   BoardAdapter.cs:1007  Destroy(view.gameObject)
 new GameObject    2 çağrı yeri   :656 Cell_{x}_{y} ► 15 kez · :557 Structure_{x}_{y}
 AddComponent      2 çağrı yeri   :671 (hücre) · :561 (yapı)
 DestroyImmediate  0              (yalnız testlerde: 2 satır)
 
-██ KARE BAŞINA DOĞAN NESNE: 0 ██
+>> KARE BAŞINA DOĞAN NESNE: 0 <<
 ```
 
 Buna karşılık **tahsis bilinci** projede zaten var ve havuzsuz uygulanmış — kap
 yeniden kullanılıyor (`BoardAdapter.cs:205-210`, `cleanupBuffer`): "her karede
-yeni bir List kurmak kare başına çöp üretirdi." ██ Bu, `ListPool<T>`'nin elle
-yazılmış ve tek kullanıcılı hâlidir; ██ havuzun çözdüğü problemin en küçük örneği
+yeni bir List kurmak kare başına çöp üretirdi." ***Bu, `ListPool<T>`'nin elle
+yazılmış ve tek kullanıcılı hâlidir;*** havuzun çözdüğü problemin en küçük örneği
 zaten burada ve doğru çözülmüş.
 
-**██ KOD SORUSU — doğrulandı ██.** Yapı görselinin bir sahibi yok:
+*****KOD SORUSU — doğrulandı***.** Yapı görselinin bir sahibi yok:
 
 ```csharp
 // BoardAdapter.cs:563-564
@@ -952,15 +952,15 @@ zaten burada ve doğru çözülmüş.
 Ama `StructureState.Destroyed` bir hâl olarak **var** (`StructureState.cs:47`) ve
 `Destroy` üretim kodunda yalnız **birim** görseline uygulanıyor. Havuz geldiği
 gün ilk soru bu olur: **bırakma çağrısını kim yapacak** — bugün yapı görselini
-bulabilen hiçbir çağıran yok. ██ Bu bir düzeltme önerisi değil bir tespit:
+bulabilen hiçbir çağıran yok. ***Bu bir düzeltme önerisi değil bir tespit:
 sıfırlama sözleşmesinin ilk maddesi "geri veren kim" sorusudur ve bu projede o
-sorunun bir yerde cevabı yok. ██
+sorunun bir yerde cevabı yok.***
 
 ### ⑤ NE KIRAR
 
 `02`'nin **D** alanı üç kırılmayı zaten yazıyor (`Awake` bir daha koşmaz · ölçüm
-penceresi kayar · `unitViews` üçüncü bir hâl kazanır). ██ Üzerine koyduğum iki
-tanesi: ██
+penceresi kayar · `unitViews` üçüncü bir hâl kazanır). ***Üzerine koyduğum iki
+tanesi:***
 
 ① **Ebeveyn eski kullanımdan kalır.** `Instantiate`'in ikinci parametresi bugün
 bir yaşam döngüsü kararı — `BoardAdapter.cs:735-736`: "ikinci parametre ebeveyni verir, böylece
@@ -977,8 +977,8 @@ view.name = $"Unit_{unit.Name}_{x}_{y}";
 
 Ad **doğuşta** yazılıyor ve konumu içeriyor; havuzda nesne taşınır ama adı
 değişmez, yani Hierarchy'de `Unit_Raider_1_3` yazan nesne başka bir hücrede
-durur. ██ Bu bir hata değil bir **kanıt kirliliğidir** — ve kanıt kirliliği
-hatanın kendisinden pahalıya mal olur. ██
+durur. ***Bu bir hata değil bir **kanıt kirliliğidir** — ve kanıt kirliliği
+hatanın kendisinden pahalıya mal olur.***
 
 ### ⑥ EN YAKIN ALTERNATİF
 
@@ -994,10 +994,11 @@ hatanın kendisinden pahalıya mal olur. ██
 
 ## 6 · Üç oyun — altı mekanizma, tek tablo
 
-██ DOĞRULAMA SINIRI: üç oyunun kaynağı kapalıdır. ██ Hiçbir hücre kaynak koda ya
+***DOĞRULAMA SINIRI: üç oyunun kaynağı kapalıdır.*** Hiçbir hücre kaynak koda ya
 da resmî belgeye karşı doğrulanmadı; hepsi **oyuncunun gördüğü** olgular
 üzerinden yazıldı ve motor tarafındaki karşılıkları **doğrulanmamıştır**.
-Eşleşmeyen satır `██ EŞLEŞMEZ ██` ile işaretli.
+Eşleşmeyen satır işaretli: düz yazıda ***EŞLEŞMEZ***, figür ve tablolarda
+`██ EŞLEŞMEZ ██`.
 
 | Mekanizma | Slay the Spire | Vampire Survivors | Stardew Valley |
 |---|---|---|---|
@@ -1008,12 +1009,12 @@ Eşleşmeyen satır `██ EŞLEŞMEZ ██` ile işaretli.
 | **`ScriptableObject`** — tanım ile örneğin ayrımı | Her kartın adı, maliyeti ve metni bir yerde tanımlıdır ve destedeki iki kopya aynı tanımı okur — ama birinin **yükseltilmiş** olması kopyaya aittir, tanıma değil | Her silahın seviye tablosu önceden yazılıdır; o silahın **şu anki** seviyesi ve bekleme sayacı koşuya aittir | Her tohumun büyüme günleri ve mevsimi sabittir; tarladaki bitkinin **kaçıncı gününde** olduğu o karoya aittir |
 | **Nesne havuzu** — sıfırlama sözleşmesi | ██ EŞLEŞMEZ ██ Masada sürekli doğup ölen bir nesne akışı yok; eleman sayısı onlarla ölçülür ve tur başına değişir | Aynı anda yüzlerce düşman ve mermi doğar ve ölür; bir düşman öldüğünde yerine geleninin canı, hızı ve görüntüsü **sıfırlanmış** olmak zorundadır — yoksa yeni düşman öncekinin yarım canıyla doğar | Her vuruşta odun parçası, taş kırığı ve eşya damlası doğar; toplandığında ya da gün bittiğinde kaybolur |
 
-██ Beşinci satır bu tablonun en öğretici satırıdır ██ ve tesadüf değil: üçünde de
+***Beşinci satır bu tablonun en öğretici satırıdır*** ve tesadüf değil: üçünde de
 aynı ayrım görünüyor — **tanım sabit, örnek değişken**. Kartın metni tanımdır,
 yükseltilmiş olması örneğe aittir; bu tam olarak `ScriptableObject`'in en sık
 ihlal edilen kuralıdır ve oyuncunun gözünde zaten görünür.
 
-██ Doğrulanmadı diye işaretlenenler: tablonun **on sekiz hücresinin tamamı**. ██
+***Doğrulanmadı diye işaretlenenler: tablonun **on sekiz hücresinin tamamı**.***
 Doğrulananlar bu dosyanın başka yerlerinde: `Assets/` altındaki sayımlar,
 `ProjectVersion.txt`, yerel `UnityEngine.CoreModule.xml` ve yansıma çıktısı.
 
@@ -1034,7 +1035,7 @@ Doğrulananlar bu dosyanın başka yerlerinde: `Assets/` altındaki sayımlar,
 
   ① evet · ② hayır · ③ hayır  ►  sahibi olan bir tip  (bugünkü Battle)
   ① evet · ② evet  · ③ hayır  ►  kalıcı bootstrap sahnesi
-  ① evet · ② evet  · ③ evet   ►  ██ önce ③'ü TEKRAR sor ██ — cevap genellikle
+  ① evet · ② evet  · ③ evet   ►  >> önce ③'ü TEKRAR sor << — cevap genellikle
                                   "yazmaktan kaçınmak"tır ve o bir gerekçe değil
 
 ┌ Bir sayıyı kod derlemeden değiştirmek ────────────────────────┐
@@ -1042,12 +1043,12 @@ Doğrulananlar bu dosyanın başka yerlerinde: `Assets/` altındaki sayımlar,
 │  Hiç değişmeyecek mi?             ► const / static readonly   │
 │  Tasarımcı Editor'de mi yazacak?   ► ScriptableObject          │
 │  Veri depo DIŞINDAN mı geliyor?    ► yükleyici (JSON/CSV)      │
-│  ██ Yalnız PAYLAŞIM mı? ██         ► kökte tek örnek —         │
-│                                      ██ motor GEREKMİYOR ██    │
+│  >> Yalnız PAYLAŞIM mı? <<         ► kökte tek örnek —         │
+│                                      >> motor GEREKMİYOR <<    │
 └───────────────────────────────────────────────────────────────┘
 
 ┌ Çok fazla nesne doğup ölüyor GİBİ geliyor ────────────────────┐
-│  ██ "gibi geliyor" bir ölçü DEĞİLDİR ██                        │
+│  >> "gibi geliyor" bir ölçü DEĞİLDİR <<                        │
 │  hedef cihazda, öncesi/sonrası eşleşen bir ölçüm var mı?      │
 │      HAYIR ► hiçbir şey yapma  (bugünkü cevap)                │
 │      EVET  ► sabit sayıda nesne yeter mi?                     │
@@ -1065,7 +1066,7 @@ Doğrulananlar bu dosyanın başka yerlerinde: `Assets/` altındaki sayımlar,
    Ölçü: Assets/Game/ altında değiştirilebilir static alan sayısı 0, ama
          bir savaşta bir tahta olması GERÇEK bir değişmez ve Battle onu
          SAHİPLENEREK sağlıyor; iki BoardAdapter iki ayrı savaş üretiyor
-         (BoardAdapter.cs:69-71). ██ Teklik VAR, `static` YOK. ██
+         (BoardAdapter.cs:69-71). >> Teklik VAR, `static` YOK. <<
 
 "FindObjectOfType kötüdür çünkü yavaştır"
    YANLIŞ SEBEP. Bu projede tarama 21 GameObject üzerinde biter; maliyet
@@ -1102,7 +1103,7 @@ Havuz YOK             ►  doğrudan Instantiate/Destroy, mümkünse hiç doğur
                          bir tahsis farkı.
 ```
 
-██ Beşinin de ortak yanı: hiçbiri "iyi mimari" olduğu için gelmez. ██ Her biri
+***Beşinin de ortak yanı: hiçbiri "iyi mimari" olduğu için gelmez.*** Her biri
 **ölçülmüş bir baskının** cevabıdır; baskı yoksa mekanizma bir maliyetten
 ibarettir — öğrenilmesi, yazılması, sınanması ve bozulduğunda anlaşılması gereken
 bir maliyet.

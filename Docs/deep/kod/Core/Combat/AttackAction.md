@@ -152,7 +152,7 @@ Merdiven düzeltilemeyenden düzeltilebilire doğru iner.
 
 ```
 0   attacker/target null ► throw — çağıran HATASI, cevap değil
-██ BURADAN SONRASI CEVAPTIR ██
+>> BURADAN SONRASI CEVAPTIR <<
 1   AttackRules.CanAttack(attacker.State)
     ► RejectedActorCannotAct  çağıran DÜZELTEMEZ: hedef de hücre de
       değişse cevap aynı
@@ -515,7 +515,7 @@ Execute(attacker, Structure, distance) saldıranın durumunu HİÇ sormaz
    ─► yüzeye çıktığı yer: Execute_DownedAttackerAgainstStructure_
       IsRejectedAndDealsNoDamage kırmızıya döner; birim ikizi
       Execute_DownedAttacker_IsRejectedAndDealsNoDamage YEŞİL kalır
-      ██ ayakta duran tek fark hedefin TİPİ ██
+      >> ayakta duran tek fark hedefin TİPİ <<
 ```
 
 Saldıranın tipi iki akışta da `Combatant`, yani soru **değişmiyor**; değişen tek

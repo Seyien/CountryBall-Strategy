@@ -76,8 +76,8 @@ Ders kitabı değil, hikâye. Sırasıyla:
 2. **Karakterler** — ilgili tipler; her biri için *bilir* ve **BİLMEZ**
    listesi. Hikâyeyi ilginç kılan bilmedikleridir.
 3. **Duraklar** — olay/veri hangi tipten hangisine, ne kazanarak geçiyor
-4. **Tek bakışta zincir** — figürün tamamı, **ayrışma noktası** `██` ile
-   işaretli (terimin tanımı: [Sözlük](#sozluk))
+4. **Tek bakışta zincir** — figürün tamamı, **ayrışma noktası**
+   `>> … <<` ile işaretli (terimin tanımı: [Sözlük](#sozluk))
 5. **Kural** — okuyucunun kendi kodunda uygulayacağı karar ağacı
 6. **Yanlış hatırlananlar** — bu konuda tipik iki üç yanlış model, adıyla
 7. **Kaçış yolu** — bu tasarımdan nasıl kaçılırdı ve neden kaçılmadı
@@ -88,13 +88,21 @@ Bu ağaçta tekrar tekrar geçen, ama tek bir yerde tanımlanmadığı için oku
 tökezleten üç terim. Tanım burada bir kez veriliyor; dosyalar onu tekrar
 etmiyor.
 
-**AYRIŞMA NOKTASI.** Bir figürde `██ … ██` ile işaretlenen satır, o figürde
+**AYRIŞMA NOKTASI.** Bir figürde `>> … <<` ile işaretlenen satır, o figürde
 **iki şeyin birbirinden ayrıldığı** yerdir: sezginin bir şey, kodun başka bir
 şey söylediği satır. Bir kavram değil, bir **işaret**; her figürde ayrışan iki
 şey **farklıdır** ve neyin neyden ayrıldığını figürün kendi metni söyler.
 Örnekler: `konular/02`'de klasör ile ad alanının çeliştiği satır; `konular/03`'te
 `readonly`'nin bakmadığı satır; `dil/07`'de kapsam ile canlılığın ayrıldığı yer.
-██ İşareti gördüğünde sorulacak soru tektir: *burada hangi iki şey ayrışıyor?* ██
+***İşareti gördüğünde sorulacak soru tektir: *burada hangi iki şey ayrışıyor?****
+
+***İşaretin biçimi 2026-08-24'te değişti.*** Eskiden `██ … ██` yazılıyordu.
+Blok karakteri (`U+2588`) her yazı tipinde çözülmüyor ve çözülmediğinde boş bir
+kutu gibi görünüyor — okuyucu onu doldurulacak bir boşluk sanıyor. Yerine iki
+ASCII karakter kondu, ve genişlik birebir aynı olduğu için figürlerin sütun
+hizası bozulmadı. Ağaçta hâlâ `██` gören olursa ya bir **çizimin** parçasıdır
+(kutu duvarı, ayırıcı, çubuk) ya da rolü çıkarılamadığı için kasten bırakılmış
+bir işarettir — ikisi de vurgu değildir.
 
 **AKIŞ SAHİBİ** (transaction script). Birden fazla kuralı **belirli bir sırayla**
 soran, ama kuralların hiçbirini kendisi yazmayan tip. Bu projede `BattleActions`,
@@ -108,8 +116,8 @@ alınabilir bir "komut nesnesi" ortada yok). Deseni adıyla anlatan yer:
 bir **beyaz listeye** düşen sonuç değerleri için. "Beyaz liste", devri
 tetikleyecek sonuçların tek tek sayılmasıdır; karşıtı olan kara liste
 (*"şunlar hariç hepsi devreder"*) yeni bir ret değeri eklendiği gün sessizce
-yanlış cevap verirdi. ██ Zincirin geri dönülemez adımı budur: bir kez devredilen
-sıra geri alınmaz. ██ Yeri: `konular/04` ADIM 7.
+yanlış cevap verirdi. ***Zincirin geri dönülemez adımı budur: bir kez devredilen
+sıra geri alınmaz.*** Yeri: `konular/04` ADIM 7.
 
 ## Üç ağaç
 
@@ -125,7 +133,7 @@ Docs/deep/
 
 ## Dosyalar — konular/
 
-██ **Numara bir DOSYA KİMLİĞİDİR, bir sıra değil.** ██ Aşağıdaki tablo bir
+***Numara bir DOSYA KİMLİĞİDİR, bir sıra değil.*** Aşağıdaki tablo bir
 **indekstir**: hangi soru hangi dosyaya gider. Öğrenme sırası ayrı bir belgede
 ve numaralara **uymuyor** — ölçüldü, sekiz `konular/` dosyasından yalnız ikisi
 (03 ve 08) numara sırasında doğru yerde duruyor:

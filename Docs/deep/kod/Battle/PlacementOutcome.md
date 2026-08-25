@@ -48,8 +48,8 @@ cevabı hayır, çünkü hareketin bir KAYNAK hücresi vardır.
             kaynak   hedef            ► RejectedInvalidDestination
   YERLEŞTİRME       (yok) ──► [9,9]     kaynak YOK
                              doğum yeri ► RejectedInvalidCell
-                    ▲ ██ AYRIM: bir yolculuğun sonu mu,
-                      bir şeyin başlangıcı mı ██
+                    ▲ >> AYRIM: bir yolculuğun sonu mu,
+                      bir şeyin başlangıcı mı <<
 ```
 
 ---
@@ -83,7 +83,7 @@ hamle).
   hücreyi KAYIT seçti             hücreyi FARE seçti
   ╔═ ArgumentException ═╗         ╔═ RejectedCellOccupied ═╗
   ╚═════════════════════╝         ╚════════════════════════╝
-  ██ AYRIM NOKTASI olguda DEĞİL, hücreyi SEÇENDE ██
+  >> AYRIM NOKTASI olguda DEĞİL, hücreyi SEÇENDE <<
 ```
 
 ### KAPSAM: aynı akışta bile her ret bu tarafa geçmez
@@ -157,13 +157,13 @@ eksiklik değil, bir karardır.
   ┌── EYLEYEN ──┐                 ┌── EYLEYEN ──┐
   │ Unit        │                 │    YOK      │
   └──────┬──────┘                 └──────┬──────┘
-         │ Combatant.Team                │ ██ ödünç alınacak
-         ▼                               ▼    tek alan: ██
+         │ Combatant.Team                │ >> ödünç alınacak
+         ▼                               ▼    tek alan: <<
   TurnRules.CanAct(team, ...)      structure.Team
                                          │
   Structure.Team bir SAHİPLİK değil, bir AİDİYETtir:
   nötr duvar ──► Team.None ──► CanAct HER ZAMAN false
-             ──► ██ nötr hiçbir yapı tahtaya bir daha konamaz ██
+             ──► >> nötr hiçbir yapı tahtaya bir daha konamaz <<
 ```
 
 ### KAPSAM: bu değer başka yerlerde DOĞRU

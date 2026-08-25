@@ -174,14 +174,14 @@ olarak o nesnenin kendisi.
   REDDEDILEN — Combatant[,] , anahtar = HÜCRE
     önce   [2,3] ──► Combatant(A)
     board.MoveUnit(2,3 ► 2,4)   ◄── MoveAction doğrudan çağırır
-    sonra  [2,3] ──► Combatant(A)   ██ ANAHTAR BOZULDU ██
+    sonra  [2,3] ──► Combatant(A)   >> ANAHTAR BOZULDU <<
            [2,4] ──► (boş)          birim yeni hücrede,
                                     canı eski hücrede
 
   SEÇİLEN — Dictionary<Unit,Combatant> , anahtar = NESNE
     önce   Unit(A) ──► Combatant(A)
     board.MoveUnit(2,3 ► 2,4)
-    sonra  Unit(A) ──► Combatant(A)  ██ DEĞİŞMEDİ ██
+    sonra  Unit(A) ──► Combatant(A)  >> DEĞİŞMEDİ <<
            anahtar tahtaya HİÇ bakmıyor; kırılacak bağ yok
 ```
 
@@ -261,7 +261,7 @@ soru zaten sözlüğün cevapladığı sorudur.
   SEÇİLEN — TEK tahta, İKİ defter
   ╔═════════ UnitGrid ═════════╗  "bu hücre dolu mu" ► TEK SORU
   ║ [2,3] ──► Unit(asker)      ║
-  ║ [4,1] ──► Unit(baraka)     ║  ██ DOLULUĞUN TEK SAHİBİ ██
+  ║ [4,1] ──► Unit(baraka)     ║  >> DOLULUĞUN TEK SAHİBİ <<
   ╚════════════╤═══════════════╝
          ┌─────┴──────┐
          ▼            ▼
@@ -269,10 +269,10 @@ soru zaten sözlüğün cevapladığı sorudur.
 
   REDDEDILEN — İKİ tahta
   ╔═ UnitGrid ═╗      ╔═ structureBoard ═╗
-  ║ [2,3] asker║      ║ [2,3] baraka     ║ ◄── ██ AYNI HÜCRE ██
+  ║ [2,3] asker║      ║ [2,3] baraka     ║ ◄── >> AYNI HÜCRE <<
   ╚════════════╝      ╚══════════════════╝     ve çelişen kimse yok
   "dolu mu" sorusu İKİYE bölünür; dört yerleştirme yolundan biri
-  ikinci tahtayı sormayı unutur ── ██ KIRILMA NOKTASI ██
+  ikinci tahtayı sormayı unutur ── >> KIRILMA NOKTASI <<
 ```
 
 ### KAPSAM: ikiye bölmek yasak DEĞİL
@@ -352,10 +352,10 @@ sökmek için tam olarak ABONE OLUNAN örneği saklamak gerekir.
   RemoveUnit'te aynı METİN yeniden yazılsaydı:
     ╔══ delege nesnesi #2 ══╗──✗ eşit DEĞİL──► çözülemez
     ╚═══════════════════════╝
-    -= sessizce hiçbir şey yapmaz  ◄── ██ ABONE YERİNDE KALIR ██
+    -= sessizce hiçbir şey yapmaz  ◄── >> ABONE YERİNDE KALIR <<
 ```
 
-██ Eşitlik ölçütü **METİN** değil **NESNE** ██ — bu bir dil kuralı (delegate
+**Eşitlik ölçütü *METİN* değil *NESNE*** — bu bir dil kuralı (delegate
 eşitliği hedef + metot çiftine bakar ve her lambda ifadesi yeni bir örnek üretir),
 bir Unity ayrıntısı değil.
 
@@ -423,7 +423,7 @@ sayı doğru, ad geniş.
   └──────────────────────────────────────────┘
         ▲                        ▲
         │ UnitCount BUNU sayar   │ ad BUNU da kapsıyor gibi
-        ██ 3 ██                  ██ okuyucunun beklediği 5 ██
+        >> 3 <<                  >> okuyucunun beklediği 5 <<
 ```
 
 Ayrışma noktası imzada **DEĞİL**: `int UnitCount` iki dünyada da aynı satır.
@@ -507,7 +507,7 @@ birbirine karışmıyor: burada tek bir izin/yasak satırı yok.
 
   static alan    sahip = SÜREÇ  ► iki savaş TEK sırayı paylaşır
   BoardAdapter   sahip = SAHNE  ► savaş Unity'siz koşamaz
-  Battle örneği  sahip = SAVAŞ  ◄── ██ ÖMÜRLER TAM ÇAKIŞIYOR ██
+  Battle örneği  sahip = SAVAŞ  ◄── >> ÖMÜRLER TAM ÇAKIŞIYOR <<
 ```
 
 Sıra savaşla doğar, savaşla ölür; üstteki iki kutu da savaştan **UZUN** yaşıyor ve
@@ -632,7 +632,7 @@ yaşıyor.
   UnitLifecycle.StateChanged        "hangi duruma"
          ▲  Combatant devreder
   Combatant.StateChanged            "nereden nereye"
-         ▲  stateForwarders kapanışı  ██ KİMLİK BURADA EKLENİR ██
+         ▲  stateForwarders kapanışı  >> KİMLİK BURADA EKLENİR <<
   Battle.UnitStateChanged           "KİM, nereden nereye"
 ```
 
@@ -712,7 +712,7 @@ kimliğe bağlı mı" diye sorar.
 
   Yalnız ilki yazılsaydı açık kalan yön SESSİZ:
     Unit(A) ─┐
-             ├──► Combatant(X)  ██ İKİ forwarder ██
+             ├──► Combatant(X)  >> İKİ forwarder <<
     Unit(B) ─┘                  tek geçiş İKİ kimlikle yayılır
                                 dinleyici aynı ölümü iki kez
                                 görür, derleyici susar
@@ -739,14 +739,14 @@ dokunmadan patlar.
     ThrowIfCannotJoin          kimlik içeride mi     SORU
     combatants.ContainsValue   parça bağlı mı        SORU
   ────────────────────────────────────────────────────────
-    board.PlaceUnit(...)       ██ YAZMA 1 ██
-    combatants.Add(...)        ██ YAZMA 2 ██
-    StateChanged += forwarder  ██ YAZMA 3 ██
+    board.PlaceUnit(...)       >> YAZMA 1 <<
+    combatants.Add(...)        >> YAZMA 2 <<
+    StateChanged += forwarder  >> YAZMA 3 <<
 
   REDDEDILEN — soru yok, çakışmayı Dictionary.Add bildirir
-    board.PlaceUnit(...)       ██ YAZMA 1 ██ ── BAŞARILI
+    board.PlaceUnit(...)       >> YAZMA 1 << ── BAŞARILI
     combatants.Add(...)        ✗ patlar
-  ◄── ██ YARIM KALMA ██ hata mesajı doğru, tahta yanlış:
+  ◄── >> YARIM KALMA << hata mesajı doğru, tahta yanlış:
       aynı Unit İKİ hücrede birden durur
 ```
 
@@ -906,12 +906,12 @@ dolaşmak gerekir ve kümeyi dolaşabilen başka kimse yok.
 ```
   SEÇİLEN   foreach (var pair in combatants)
     Dictionary<,>.Enumerator ──► struct, YIĞINDA kalır
-    ██ kare başına 0 tahsis ██
+    >> kare başına 0 tahsis <<
 
   REDDEDILEN  public IEnumerable<Unit> Units => combatants.Keys;
     KeyCollection.Enumerator ──► IEnumerator<Unit> ARDINDA
             ╔═══════════════╗
-            ║   KUTULANIR   ║ ◄── ██ her Update bir tahsis ██
+            ║   KUTULANIR   ║ ◄── >> her Update bir tahsis <<
             ╚═══════════════╝
 ```
 
@@ -1000,14 +1000,14 @@ bir dal açardı.
 ```
   SEÇİLEN — kaynak: SAVAŞ KAYDI
     combatants ∪ structures ──► IsReadyForCleanup ──► removed
-    ██ görselsiz savaşçı da bu kümededir ██
+    >> görselsiz savaşçı da bu kümededir <<
 
   REDDEDILEN — kaynak: GÖRSEL TABLO
     unitViews ──► battle.TryGetCombatant ──► removed
         │
         └── savaşa görselsiz eklenen savaşçı (takviye, yapay zekâ)
-            bu kümede YOK ◄── ██ asla temizlenmez; hücresini
-            sonsuza dek tutar ve tahta sessizce dolar ██
+            bu kümede YOK ◄── >> asla temizlenmez; hücresini
+            sonsuza dek tutar ve tahta sessizce dolar <<
 ```
 
 İki küme bugün eşit olduğu için fark **GÖRÜNMEZ**; ayrıştıkları gün fark bir hata
@@ -1086,7 +1086,7 @@ sayan bir çağıran onu sessizce köşe sanardı. `-1` ise tahtaya verildiği a
 
 ```
   SEÇİLEN
-        ╔═══ UnitGrid ═══╗ ██ TEK GERÇEK ██
+        ╔═══ UnitGrid ═══╗ >> TEK GERÇEK <<
         ╚═══════▲════════╝
       ┌─────────┼──────────────┐
       │ yazar   │ sorar        │ sorar
@@ -1097,7 +1097,7 @@ sayan bir çağıran onu sessizce köşe sanardı. `-1` ise tahtaya verildiği a
         ╚═══════▲════════╝      ╚════════▲════════╝
       yazar     │                        │ yalnız AddUnit /
   MoveAction ───┘                        │ RemoveUnit yazar
-                                         ██ HABERİ OLMAZ ██
+                                         >> HABERİ OLMAZ <<
 ```
 
 `MoveAction` tahtayı **DOĞRUDAN** değiştirir; sözlük duymaz. Birim yaklaşmıştır ama

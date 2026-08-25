@@ -18,8 +18,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki yerlerin **yorumunda** bu belgeye bir
 `DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
-██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***`DİL:`***). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -73,7 +73,7 @@ Bu tek istisnanın neden istisna olduğu, bu dosyanın omurgası.
 ║             parametre olarak geçer, sözlükte saklanır          ║
 ║  Vaadi    : imzası uyan her metot buraya sığar                 ║
 ║  BİLMEZ   : metodun ne yaptığını, kimin yazdığını              ║
-║  DÖNÜŞ    : ██ YERİ YOK ██ — Action her zaman void'dir         ║
+║  DÖNÜŞ    : >> YERİ YOK << — Action her zaman void'dir         ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ event (anahtar kelime — tip DEĞİL) ══════════════════════════╗
@@ -85,7 +85,7 @@ Bu tek istisnanın neden istisna olduğu, bu dosyanın omurgası.
 ╔═ lambda / kapanış (closure) ══════════════════════════════════╗
 ║  Ne yapar : yazıldığı yerde isimsiz bir metot doğurur          ║
 ║  Vaadi    : çevredeki değişkeni İÇİNE alıp taşır               ║
-║  BİLMEZ   : aynı metinle yazılmış ikizini ██ TANIMAZ ██        ║
+║  BİLMEZ   : aynı metinle yazılmış ikizini >> TANIMAZ <<        ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ metot grubu (parantezsiz ad: `OnFoo`) ═══════════════════════╗
@@ -98,7 +98,7 @@ Bu tek istisnanın neden istisna olduğu, bu dosyanın omurgası.
 ### Dört kutunun gerçek satır karşılığı
 
 Dördü de ödünç: `Action<…>` .NET'in tipi, kalan üçü C# derleyicisinin ürettiği
-şeyler. Aşağıda tanım yerleri değil, ██ bu projede karşılaşıldıkları yerler ██
+şeyler. Aşağıda tanım yerleri değil, ***bu projede karşılaşıldıkları yerler***
 yazılı.
 
 **`System.Action<…>` bu projede** — `Assets/Game/Battle/Battle.cs` → `stateForwarders`
@@ -110,7 +110,7 @@ private readonly Dictionary<Unit, Action<UnitState, UnitState>> stateForwarders 
 
 Kutudaki «Ne yapar: bir METODU değer gibi taşır — değişkende tutulur, parametre
 olarak geçer, sözlükte saklanır» satırının karşılığı doğrudan bu tip
-ifadesinde: sözlüğün **değeri** bir fonksiyon. «DÖNÜŞ: ██ YERİ YOK ██ — Action
+ifadesinde: sözlüğün **değeri** bir fonksiyon. «DÖNÜŞ: ***YERİ YOK*** — Action
 her zaman void'dir» satırının karşılığı da orada — iki tip argümanının ikisi de
 girdi (`UnitState`, `UnitState`); dönüş için yazılacak bir yer yok, olsaydı tip
 `Func<…>` olurdu.
@@ -141,10 +141,10 @@ Action<UnitState, UnitState> forwarder =
     (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
 ```
 
-██ Projedeki tek lambda bu ██ — geri kalan bütün abonelikler metot adıyla
+***Projedeki tek lambda bu*** — geri kalan bütün abonelikler metot adıyla
 yazılmış, yani seçilecek ikinci bir kullanım yok. Kutudaki «Vaadi: çevredeki
 değişkeni İÇİNE alıp taşır» satırının karşılığı `unit`: parametre listesinde
-yok, gövdede var. «BİLMEZ: aynı metinle yazılmış ikizini ██ TANIMAZ ██»
+yok, gövdede var. «BİLMEZ: aynı metinle yazılmış ikizini ***TANIMAZ***»
 satırının karşılığı ise hemen bir sonraki satırda:
 
 ```csharp
@@ -179,7 +179,7 @@ Testlerdeki en yalın hâli:
 ```csharp
 lifecycle.StateChanged += seen.Add;
 //                             ▲
-//                    ██ PARANTEZ YOK ██
+//                    >> PARANTEZ YOK <<
 ```
 
 `seen.Add` burada bir çağrı **değil**. Parantez yazılsaydı `Add` hemen çalışır,
@@ -200,8 +200,8 @@ liste dolardı.
 > **◀ DÖNÜŞ:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#ve-iste-sozlugun-dogdugu-an) — `01`'in başındaki
 > künye tablosundan («`Action<…>`, `event`, `?.Invoke`'un ne vaat ettiği»)
 > geldiysen artık şunu biliyorsun: `+=` bir çağrı değil bir **saklama**, ve
-> saklanan şey bir nesne — ██ `Battle`'ın sözlüğü tam olarak o nesneyi elde
-> tutmak için var ██ · oraya dön ve sözlüğün doğduğu andan devam et
+> saklanan şey bir nesne — ***`Battle`'ın sözlüğü tam olarak o nesneyi elde
+> tutmak için var*** · oraya dön ve sözlüğün doğduğu andan devam et
 
 ### `Action<…>` nasıl okunur
 
@@ -241,7 +241,7 @@ tip argümanı dönüş tipidir. Projede tek bir `Func` geçmiyor ve bu tesadüf
 ```
 Action → YAYIN.  N abone, N kez çalışır, cevap toplanmaz
 Func   → SORU.   N abone, N kez çalışır,
-                 ██ ama geriye YALNIZ SONUNCUNUN cevabı döner ██
+                 >> ama geriye YALNIZ SONUNCUNUN cevabı döner <<
 ```
 
 `Invoke` davet listesini abone olunma sırasıyla dolaşır ve elinde tek bir dönüş
@@ -305,7 +305,7 @@ yayınlandığı sorusu orada patlardı.
                         │
                         ▼
               davet listesi TEK elemana iner
-    ██ iki abone de sessizce düşer — derleme hatası YOK, uyarı YOK ██
+    >> iki abone de sessizce düşer — derleme hatası YOK, uyarı YOK <<
 ```
 
 `event` bu satırı derleme zamanında imkânsız kılıyor ve karşılığında hiçbir şey
@@ -327,7 +327,7 @@ bildirilmiş **tek bir olay yok**.
 > **◀ DÖNÜŞ:** [../konular/08-motor-cagri-dongusu.md](../konular/08-motor-cagri-dongusu.md#private-void-awake-motor-bunu-nasil-buluyor) — «Birinci durak: `Awake` bir `event` DEĞİLDİR»den
 > geldiysen artık şunu biliyorsun: `event`'in tek işi **dışarıdan `=` yazılmasını
 > derleme zamanında imkânsız kılmak** — yani bir abonelik sözleşmesi; Unity mesaj
-> geri çağrısında ise abonelik diye bir şey yok, ██ ada göre bulunma var ██ ·
+> geri çağrısında ise abonelik diye bir şey yok, ***ada göre bulunma var*** ·
 > oraya dön ve motorun adı nasıl çözdüğünden devam et
 
 ### Ama her `Action` alanı olay değil
@@ -360,7 +360,7 @@ başlangıç        StateChanged = null
 += handler1      StateChanged = [handler1]
 += handler2      StateChanged = [handler1, handler2]
 -= handler2      StateChanged = [handler1]
--= handler1      StateChanged = ██ null ██   ◄── boş listeye DÜŞMEZ, null'a döner
+-= handler1      StateChanged = >> null <<   ◄── boş listeye DÜŞMEZ, null'a döner
 ```
 
 **Ölçü (projede koşuyor):**
@@ -380,7 +380,7 @@ yok: UI kapalıyken de birim düşer.
               └──────────┬────────────┘
                          ▼
               YENİ NESNE [h1, h2]  ──►  alana atanır
-   ██ eski [h1] nesnesi olduğu gibi durur; kimse ona dokunmadı ██
+   >> eski [h1] nesnesi olduğu gibi durur; kimse ona dokunmadı <<
 ```
 
 İki sonucu var:
@@ -445,7 +445,7 @@ yeni lambda    -= (p, n) => …      ① BAŞKA örnek  ② BAŞKA metot  ──
 > **NEDEN:** yukarıdaki kural dil düzeyinde bir olgu; bu projede o olgunun
 > **bedeli** bir alana dönüşmüş ve o alan burada anlatılmıyor. `Battle`'ın
 > `stateForwarders` sözlüğü tam olarak ②'nin faturası: sökülecek nesneyi elde
-> tutmanın tek yolu. ██ Kuralı burada gör, faturasını orada. ██
+> tutmanın tek yolu. ***Kuralı burada gör, faturasını orada.***
 > **DÖNÜŞ:** bu dosyanın [«Dördüncü durak: kapanış kimliği — `-=` neye bakıyor»](#dorduncu-durak-kapanis-kimligi---neye-bakiyor) bölümü
 
 Ve `Remove` eşleşme bulamazsa: listeyi **olduğu gibi** geri verir.
@@ -453,7 +453,7 @@ Ve `Remove` eşleşme bulamazsa: listeyi **olduğu gibi** geri verir.
 ```csharp
 combatant.StateChanged -= (p, n) => UnitStateChanged?.Invoke(unit, p, n);
 //                        ╰─ metin aynı, NESNE başka
-//  ██ liste kımıldamaz. İstisna YOK, uyarı YOK, dönüş değeri YOK. ██
+//  >> liste kımıldamaz. İstisna YOK, uyarı YOK, dönüş değeri YOK. <<
 ```
 
 Sessizliğin sebebi: `-=` bir ifade değil bir atama; "kaç eleman çıkardım" diye
@@ -484,7 +484,7 @@ Combatant kurucusu
 
 Battle.AddUnit
    combatant.StateChanged += forwarder;
-   └─ KAPANIŞ  ·  `unit` yakalanıyor  ·  ██ sözlükte saklanıyor ██
+   └─ KAPANIŞ  ·  `unit` yakalanıyor  ·  >> sözlükte saklanıyor <<
       ·  RemoveUnit söküyor
 
 BoardAdapter.OnEnable
@@ -516,7 +516,7 @@ kapanırdı. Gerekçe `Combatant.cs`'te, `OnLifecycleStateChanged`'in üstünde.
 
 ② Bu üyeyi dışarıdan biri EZEBİLMELİ mi?
       evet  → düz Action alanı (bu projede hiç yok, ve olmamalı)
-      hayır → ██ event ██ — bedeli sıfır, += / -= zaten yeterli
+      hayır → >> event << — bedeli sıfır, += / -= zaten yeterli
 
 ③ Tetiklerken: her zaman `?.Invoke`
       abonesiz olay boş liste değil NULL'dur; `?` olmadan NRE
@@ -528,7 +528,7 @@ kapanırdı. Gerekçe `Combatant.cs`'te, `OnLifecycleStateChanged`'in üstünde.
 
 ⑤ İleride sökecek misin?
       hayır → saklama; nesne ölünce olay da ölür
-      evet  → ██ ÜRETTİĞİN NESNEYİ SAKLA ██
+      evet  → >> ÜRETTİĞİN NESNEYİ SAKLA <<
               ikinci kez yazılan aynı metin onu SÖKMEZ
 ```
 
@@ -566,8 +566,8 @@ public delegate void StateChangedHandler(UnitState previous, UnitState next);
 
 EventHandler<StateChangedArgs>
         → .NET'in (sender, args) geleneği. Gönderen imzada gelir, yani kapanış
-          gereksizleşirdi ██ ama bu proje gönderen olarak Combatant'ı değil
-          Unit'i istiyor ██ ve her yayında bir args nesnesi doğardı.
+          gereksizleşirdi >> ama bu proje gönderen olarak Combatant'ı değil
+          Unit'i istiyor << ve her yayında bir args nesnesi doğardı.
 
 düz Action<…> alanı
         → aynı yayın; dışarıya `= null` ve sahte `Invoke` açık. Kazandırdığı
@@ -595,13 +595,13 @@ Kodda **karar**, burada **ödünç alınan dil özelliğinin sözleşmesi**. İk
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`06-delege-arka-taraf.md`](06-delege-arka-taraf.md) — okuma yolunun **11.** adımının ikinci yarısı
-> **NEDEN ORASI:** ██ Bu sıra bir tercih değil, zincirdeki **tek açık ön koşul
-> beyanı**: ██ `06` kendi başında *"Orayı okumadan buraya girme; burada hiçbiri
+> **NEDEN ORASI:** **Bu sıra bir tercih değil, zincirdeki *tek açık ön koşul
+> beyanı*:** `06` kendi başında *"Orayı okumadan buraya girme; burada hiçbiri
 > tekrar edilmiyor"* diyor. Bölüşme tek cümlelik — bu dosya `+=`'in ne **vaat
 > ettiğini** anlattı, `06` `+=` **çalıştığında** ne olduğunu anlatacak: nesne,
 > `Target`/`Method`, çağrı listesi. `06`'da koşturulabilir bir ölçü de var
-> (`DescribeSubscribers()`): ██ yaz, ölç, sil ██.
+> (`DescribeSubscribers()`): ***yaz, ölç, sil***.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

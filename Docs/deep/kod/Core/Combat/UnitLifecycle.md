@@ -54,7 +54,7 @@ yalnızca bir geri sayım işler.
   Downed   İŞLİYOR           boşta             İŞLİYOR
   Dead     boşta             İŞLİYOR           İŞLİYOR
   ────────────────────────────────────────────────────────────────
-       ◄── ██ HİÇBİR SATIRDA İKİSİ BİRDEN İŞLEMİYOR ██
+       ◄── >> HİÇBİR SATIRDA İKİSİ BİRDEN İŞLEMİYOR <<
 ```
 
 "Hangisi işliyor" bilgisi zaten `State`'te duruyor. İki alan onu İKİNCİ kez saklar
@@ -157,11 +157,11 @@ yerde.**
                          └─► Battle.UnitStateChanged  (kimlikli)
                                └─► BoardAdapter.OnUnitStateChanged
        └─► (ses, skor, başarım ... henüz yazılmamış dinleyiciler)
-    ◄── ██ TICK'İ HİÇ BİLMEYENE DE ULAŞIR ██
+    ◄── >> TICK'İ HİÇ BİLMEYENE DE ULAŞIR <<
 
   REDDEDILEN — her kare oku ve karşılaştır
     Tick'i çeviren taraf ─► before/after karşılaştırması
-    ◄── ██ ZİNCİR BURADA BİTER: GEÇİŞİ YALNIZ O GÖRÜR ██
+    ◄── >> ZİNCİR BURADA BİTER: GEÇİŞİ YALNIZ O GÖRÜR <<
     UI, ses ve skor geçişi öğrenmek isterse her biri KENDİ "önceki
     durum" kopyasını tutmak zorunda kalır:
         üç kopya -> biri güncellemeyi unutur -> hata sessizdir
@@ -280,7 +280,7 @@ SetState(Downed) durum ZATEN Downed iken çağrılsın
    ─► StateChanged?.Invoke(next)    ◄── yine de YAYILIR
    ─► Combatant.OnLifecycleStateChanged onu ikiliye çevirir ve
       previous == next olan bir StateChanged(previous, next) gider
-      ██ çağıran, OLMAYAN bir geçişi geçiş diye duyar ██
+      >> çağıran, OLMAYAN bir geçişi geçiş diye duyar <<
 ```
 
 Aynı desenin **gerekmediği** yer kardeş tiptir: `StructureLifecycle`'da event
@@ -304,7 +304,7 @@ gelmez — bu ayrım bilinçlidir, çünkü "karar" ile "uygulama" farklı sahip
   REDDEDILEN — event
     oyun döngüsü: foreach (var c in ...) c.Tick(dt);
       ① Tick içinde remainingSeconds <= 0
-      ② OnReadyForCleanup?.Invoke()   ◄── ██ TICK'İN ORTASI ██
+      ② OnReadyForCleanup?.Invoke()   ◄── >> TICK'İN ORTASI <<
       ③ abone HEMEN yok etmeye başlar
       ④ dönmekte olan foreach yok edilmiş birime dokunur
     ② ile ④ AYNI yığın çerçevesinde: ikisi arasında hiçbir güvenli
@@ -315,7 +315,7 @@ gelmez — bu ayrım bilinçlidir, çünkü "karar" ile "uygulama" farklı sahip
     ① Tick içinde IsReadyForCleanup = true   (kimse çağrılmıyor)
     ② döngü BİTER
     ③ çağıran AYRI bir geçişte bayrağı okur ve temizler
-    ◄── ██ YOK ETME, TICK'TEN SONRAKİ ADIMDA ██
+    ◄── >> YOK ETME, TICK'TEN SONRAKİ ADIMDA <<
     bayrak hiçbir referans tutmaz: sızdıracak bir abonelik yok.
 ```
 
@@ -399,12 +399,12 @@ koymak, tasarımdaki iki ayrı `Downed → Dead` yolunu bire indirirdi.
   İZİN VERİLEN                     YASAKLANAN (bu karar)
   ─────────────────────────────    ─────────────────────────
   Alive ──can bitti──► Downed      Downed ──can bitti──► Dead
-  Downed ──10 sn dolar──► Dead              ◄── ██ KESTİRME ██
+  Downed ──10 sn dolar──► Dead              ◄── >> KESTİRME <<
   Downed ──TryRevive──► Alive
 
   Bu metodun kapısı — tek `if` — üç durumu şöyle ayırır:
     Alive   ► geçer, düşer                              ✓
-    Downed  ► sessizce döner  ◄── ██ PENCERE KORUNDU ██
+    Downed  ► sessizce döner  ◄── >> PENCERE KORUNDU <<
     Dead    ► sessizce döner
 
   Tasarımda Downed → Dead'in İKİ yolu var ve yalnız biri yazıldı:
@@ -506,13 +506,13 @@ EditMode'da sınanabilmesinin tek sebebi budur.
   çalıştığı yer        Time.deltaTime          sonuç
   ──────────────────────────────────────────────────────────────
   PlayMode / oyun      gerçek kare süresi      doğru
-  EditMode testi       0,017675  ◄── ██ SIFIR DEĞİL ██  SESSİZ YANLIŞ
+  EditMode testi       0,017675  ◄── >> SIFIR DEĞİL <<  SESSİZ YANLIŞ
   ──────────────────────────────────────────────────────────────
   Sıfır DÖNSEYDİ test sonsuza kadar ilerlemez ve hata GÖRÜNÜRDÜ.
   Sıfır dönmediği için test yeşil kalır ve hiçbir şey ölçmez:
     10 saniyelik pencereyi doldurmak için ≈566 Tick çağrısı gerekir
     (10 / 0,017675) ve "Tick(10.1f) verince öldü" diyen test HİÇ
-    YAZILAMAZ  ◄── ██ KAYBEDİLEN ŞEY BU ██
+    YAZILAMAZ  ◄── >> KAYBEDİLEN ŞEY BU <<
 
   SEÇİLEN — saniye parametreden gelir
     test:  lifecycle.Tick(10.1f)  -> tek çağrı, tek satır, kesin

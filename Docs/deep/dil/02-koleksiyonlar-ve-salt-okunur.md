@@ -15,16 +15,16 @@
 > bir koleksiyonu dışarıya açarken, ya da `IReadOnlyList` görüp "demek ki
 > değişmez" diye düşündüğünde.
 
-**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
-işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+**BURAYA KODDAN GELDİYSEN** — **gelemezsin: bu belgeye giden *hiçbir* kod
+işaretçisi yok.** Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
 yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
 belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
 koda gidilir, koddan buraya gelinmez.
 
-██ Buraya belgeden gelen iki yol var ve ikisi de canlı:
+**Buraya belgeden gelen iki yol var ve ikisi de canlı:
 [`konular/08`](../konular/08-motor-cagri-dongusu.md) `IEnumerator`'un birinci
 hayatı için, [`dil/07`](07-bellek-canlilik-ve-yikim.md) `object Current` için.
-Kısalığın sebebi kapsam değil, **iş bölümü**. ██
+Kısalığın sebebi kapsam değil, *iş bölümü*.**
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** tipleri
 anlatıyor. Onların kodunu biz yazmadık; ama neyi vaat ettiklerini bilmeden
@@ -59,7 +59,7 @@ anahtar kelime. Hiçbiri projeye ait değil, hepsi .NET'ten geliyor.
 ╔═ ReadOnlyCollection<T> ═══════════════════════════════════════╗
 ║  Ne yapar : bir diziyi/listeyi SARMALAR                        ║
 ║  Vaadi    : bu sarmalayıcı üzerinden yazma yolu YOK             ║
-║  BİLMEZ   : alttaki diziyi başka kimin tuttuğunu ██ KRİTİK ██  ║
+║  BİLMEZ   : alttaki diziyi başka kimin tuttuğunu >> KRİTİK <<  ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ IReadOnlyList<T> (arayüz) ═══════════════════════════════════╗
@@ -72,8 +72,8 @@ anahtar kelime. Hiçbiri projeye ait değil, hepsi .NET'ten geliyor.
 ### Üç kutunun gerçek satır karşılığı
 
 Üçü de ödünç: `Team[]` dilin, `ReadOnlyCollection<T>` ile `IReadOnlyList<T>`
-.NET'in. Tanımları bizde olmadığı için aşağıda tanım yerleri değil ██ karşılaşma
-yerleri ██ yazılı — ve üçü de aynı dosyada karşılaşılıyor, çünkü `TurnState`
+.NET'in. Tanımları bizde olmadığı için aşağıda tanım yerleri değil ***karşılaşma
+yerleri*** yazılı — ve üçü de aynı dosyada karşılaşılıyor, çünkü `TurnState`
 üçünü tek zincirde üst üste diziyor.
 
 **`Team[]` (dizi) bu projede** — `Assets/Game/Battle/TurnState.cs` → `order`
@@ -105,7 +105,7 @@ Sarmalayıcı kurucuda bir kez doğuyor:
 orderView = Array.AsReadOnly(copy);
 ```
 
-Kutudaki «BİLMEZ: alttaki diziyi başka kimin tuttuğunu ██ KRİTİK ██» satırının
+Kutudaki «BİLMEZ: alttaki diziyi başka kimin tuttuğunu ***KRİTİK***» satırının
 karşılığı tam olarak `copy` kelimesinde. Sarmalanan dizi az önce burada doğdu;
 `order` ile `orderView` aynı diziye bakıyor ama ikisi de `private`. Sarmalayıcı
 gerçek bir kilide **ancak bu yüzden** dönüşüyor — tipin kendi vaadinden değil.
@@ -272,7 +272,7 @@ Cevap tasarım değil, **takvim**:
 uyumluluk borcu**. Bugün `foreach` tipli olanı kullanır; `object` olan yalnızca
 2002'de yazılmış kodun derlenmeye devam etmesi için orada.
 
-### ██ Hangi `Object` ██ — en pahalı karışıklık
+### ***Hangi `Object`*** — en pahalı karışıklık
 
 ```
 System.Object        C#'ın KÖK tipi. Her şey ondan türer: int, string,
@@ -333,7 +333,7 @@ foreach döngüsünde her adım:
       evet                     → ③
 
 ③ Alttaki koleksiyonu başka biri tutuyor mu?
-      evet → ██ AsReadOnly SAHTE GÜVENLİK ██ — önce kopyala
+      evet → >> AsReadOnly SAHTE GÜVENLİK << — önce kopyala
       hayır → Array.AsReadOnly + IReadOnlyList<T> gerçek kilit olur
 ```
 
@@ -376,15 +376,15 @@ kazanır — orası çalışan metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
-> **▶ SIRADA:** [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) · [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **▶ SIRADA:** [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) · [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) — okuma yolunun **13.** adımının kalanı, ***sıra serbest***
 > **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
 > açılmak. Bu dosyanın *"salt okunur ≠ değişmez"* cümlesi `dil/05`'in "aynı"
 > ölçülerine, `dil/03` ise sınırın aşıldığı anda hangi istisnanın atılacağına
 > bağlanıyor.
 > **BU DOSYA KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL:** ölçüldü — `dil/README.md`'nin
-> saydığı beş konunun **beşi de** burada. ██ Konusu küçük, dosya değil ██;
+> saydığı beş konunun **beşi de** burada. ***Konusu küçük, dosya değil***;
 > [`konular/08`](../konular/08-motor-cagri-dongusu.md) ve [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) buna **dayanıyor** ve tekrar etmiyor.
 > **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

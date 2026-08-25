@@ -54,7 +54,7 @@ soru                     okuduğu veri   sahibi
                          (tur durumu)   (GridStrategy.Battle —
                                         bu assembly'den GÖRÜNMEZ)
 
-██ AYRIŞMA NOKTASI ██ Team parametresi eklenirse bu metot iki taraflı
+>> AYRIŞMA NOKTASI << Team parametresi eklenirse bu metot iki taraflı
 soruların İKİNCİ evi olur ve "tarafsız ama SALDIRGAN şeyler" günü hangi
 evin güncelleneceği belirsizleşir.
 ```

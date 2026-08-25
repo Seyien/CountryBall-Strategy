@@ -11,8 +11,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -25,10 +25,10 @@ yazılmıyor: satır kayar, üye adı kaymaz. ██
 | `Assets/Game/Battle/Battle.cs` | `RemoveReadyForCleanup` | ✓ |
 | `Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs` | `Revived_ThenDownedAgain_StartsAFullWindow` | ✓ |
 
-██ **"HENÜZ YOK" ne demek:** o üye bu dosyanın konusudur ve burada gerçekten
-anlatılıyor, ama **kodun yorumunda buraya geri getiren bir satır yok** — yani o
+***"HENÜZ YOK" ne demek:* o üye bu dosyanın konusudur ve burada gerçekten
+anlatılıyor, ama *kodun yorumunda buraya geri getiren bir satır yok* — yani o
 üyeden yola çıkarak bu belgeye ulaşamazsın, yalnız tersi çalışır. Listeden
-silmedim, çünkü silmek boşluğu görünmez kılardı. ██
+silmedim, çünkü silmek boşluğu görünmez kılardı.**
 
 ---
 
@@ -63,14 +63,14 @@ Yaşam ekseninde altı tip çalışıyor. Hikâyeyi ilginç kılan, her birinin
 ╔═ UnitLifecycle ═══════════════════════════════════════════════╗
 ║  İşi     : durum + tek bir geri sayım alanı                   ║
 ║  Bilir   : hangi durumdayım, ne kadar kaldı, hangi geçiş yasak║
-║  BİLMEZ  : ██ CANIN KAÇ OLDUĞUNU ██ · kimin dirilttiğini ·    ║
+║  BİLMEZ  : >> CANIN KAÇ OLDUĞUNU << · kimin dirilttiğini ·    ║
 ║            sahnede neyin silineceğini · Time.deltaTime'ı      ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ Health ══════════════════════════════════════════════════════╗
 ║  İşi     : bir sayı tutmak                                    ║
 ║  Bilir   : current, Max, "kalan var mı"                       ║
-║  BİLMEZ  : ██ SAHİBİNİN NE OLDUĞUNU ██ — asker mi baraka mı;  ║
+║  BİLMEZ  : >> SAHİBİNİN NE OLDUĞUNU << — asker mi baraka mı;  ║
 ║            "canlı", "ayakta", "sağlam" diyemez                ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -83,7 +83,7 @@ Yaşam ekseninde altı tip çalışıyor. Hikâyeyi ilginç kılan, her birinin
 ╔═ StructureLifecycle ══════════════════════════════════════════╗
 ║  İşi     : birimin ikizi — iki durum ve enkaz sayacı          ║
 ║  Bilir   : Standing / Destroyed, kalan enkaz süresi           ║
-║  BİLMEZ  : ██ OLAY DİYE BİR ŞEYİ ██ · diriltmeyi · onarımı ·  ║
+║  BİLMEZ  : >> OLAY DİYE BİR ŞEYİ << · diriltmeyi · onarımı ·  ║
 ║            canı · takımı                                      ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -142,7 +142,7 @@ SetState(UnitState.Downed);
 remainingSeconds = downedWindowSeconds;
 ```
 
-Kutudaki «██ CANIN KAÇ OLDUĞUNU ██» satırının karşılığı bu yedi satırın
+Kutudaki «***CANIN KAÇ OLDUĞUNU***» satırının karşılığı bu yedi satırın
 **imzasıdır**: düşme kararı burada veriliyor ve metodun parametresi yok —
 ortada ne bir `Health`, ne bir sayı, ne de doğrulanacak bir haber var. Sayacı
 kuran `downedWindowSeconds` de kurucudan gelmiş bir alan. Aynı kutunun
@@ -155,7 +155,7 @@ imzasıdır: saniye bu tipe okunarak değil, **argüman olarak** giriyor.
 public bool HasRemaining => current > 0;
 ```
 
-Kutudaki «██ SAHİBİNİN NE OLDUĞUNU ██ — asker mi baraka mı» satırının karşılığı
+Kutudaki «***SAHİBİNİN NE OLDUĞUNU*** — asker mi baraka mı» satırının karşılığı
 tam olarak bu **ad**: cümle "kalan var mı" diyor, "canlı mı" demiyor. Sağ taraf
 da yalnız bir sayıyı sıfırla karşılaştırıyor; sahibe giden bir alan olsaydı bu
 satır `owner`'a bakabilirdi — bakmıyor, çünkü öyle bir alan yok.
@@ -184,7 +184,7 @@ remainingSeconds = rubbleWindowSeconds;
 return true;
 ```
 
-Kutudaki «██ OLAY DİYE BİR ŞEYİ ██» satırının karşılığı **üçüncü satırdır**.
+Kutudaki «***OLAY DİYE BİR ŞEYİ***» satırının karşılığı **üçüncü satırdır**.
 Birim ikizinde durum yazıldıktan hemen sonra `StateChanged?.Invoke(next)` geliyor;
 burada onun yerinde bir `return true` var. Cevap yayınlanmıyor, **çağırana geri
 veriliyor** — ve tam bu yüzden bu dosyada ne bir `event` ne de bir `SetState`
@@ -231,10 +231,10 @@ kaybediyor:
 
 ```
    "yaşıyor" sayarsan  ► yürür, vurur, diriltmeye ihtiyacı olmaz
-                         ◄── ██ PENCERE HİÇ AÇILMAZ ██
+                         ◄── >> PENCERE HİÇ AÇILMAZ <<
    "ölü" sayarsan      ► CanBeAttacked hayır der, işini bitirme yolu kapanır
                          ve diriltme "ölüyü diriltme"ye dönüşür
-                         ◄── ██ PENCERE KAPANMAZ, YOK OLUR ██
+                         ◄── >> PENCERE KAPANMAZ, YOK OLUR <<
    iki bool yazarsan   ► isAlive && isDowned yazılabilir hâle gelir
                          dördüncü hücre anlamsız ama DERLENİR
 ```
@@ -277,7 +277,7 @@ duruyor:
 ```csharp
 public void OnHealthDepleted()
 {
-    if (State != UnitState.Alive)   // ◄── ██ KESTİRME BURADA KAPANIYOR ██
+    if (State != UnitState.Alive)   // ◄── >> KESTİRME BURADA KAPANIYOR <<
     {
         return;                     //     sessizce; soran yok, cevap da yok
     }
@@ -298,7 +298,7 @@ Tasarımda `Downed → Dead`'in **iki** yolu var ve bugün yalnız biri yazılı
 ```
    ① geri sayımın dolması      ► Tick'te, YAZILI
    ② "işini bitirme"           ► kendi kuralı (düşme canı), HENÜZ YAZILMADI
-                                 ◄── ██ o kuralın yazılacağı yer, bu if ██
+                                 ◄── >> o kuralın yazılacağı yer, bu if <<
 ```
 
 Kestirmeyi sessizce eklemek ②'yi ①'in yerine koyardı ve ikinci kuralın
@@ -325,7 +325,7 @@ farklı hedef kümesi** var ve `Downed` onların **kesişimi**:
      ┌────────────────────┐        ┌───────────────┐
      │ Alive              │        │               │
      │         ┌──────────┼────────┼──────┐        │
-     │         │  Downed  │ ◄── ██ KESİŞİM ██      │
+     │         │  Downed  │ ◄── >> KESİŞİM <<      │
      │         └──────────┼────────┼──────┘        │
      └────────────────────┘        └───────────────┘
               Dead: İKİSİNİN DE DIŞINDA
@@ -346,7 +346,7 @@ diğeri kaldırmaya. `Downed` bir durum değil, bir **yarıştır**.
                                             beklemekten başka bir şey yapamaz
    CanBeRevived'dan Downed çıkarılsaydı   ► kaldırma yolu kapanır, dost
                                             beklemekten başka bir şey yapamaz
-   ◄── ██ İKİ HÂLDE DE PENCERE BOŞ BİR GERİ SAYIMA DÖNÜŞÜR ██
+   ◄── >> İKİ HÂLDE DE PENCERE BOŞ BİR GERİ SAYIMA DÖNÜŞÜR <<
 ```
 
 Ve bu iki cevabı sabitleyen tek bir test var —
@@ -367,7 +367,7 @@ Aynı `Downed` birim, **eyleyen** olarak sorulduğunda her kapıdan geri dönüy
    Dead          ✗          ✗           ✗     │       ✗              ✗
    ─────────────────────────────────────────────────────────────────────
                                               ▲
-              ██ Downed satırı: EYLEYEN DEĞİL, ama HEDEF ██
+              >> Downed satırı: EYLEYEN DEĞİL, ama HEDEF <<
 ```
 
 Yerdeki asker vuramaz, yürüyemez, arkadaşını kaldıramaz — ama vurulabilir ve
@@ -379,7 +379,7 @@ kaldırılabilir. Sol blok üç ayrı dosyaya (`MovementRules`, `AttackRules`,
 > **BAK:** iki metot aynı `UnitState`'i alıyor ve **`Downed`'da ikisi de `true`**
 > dönüyor. Kesişimin tek elemanı orada. Sınayan test —
 > `Assets/Tests/EditMode/Combat/TargetingRulesTests.cs` → `Downed_IsTheOnlyStateBothAbilitiesAccept`
-> — ██ adı doğrudan kesişimi söylüyor ██.
+> — ***adı doğrudan kesişimi söylüyor***.
 > **DÖNÜŞ:** bu dosyanın «Ama hedef olmakla eyleyen olmak ayrı eksenler» bölümü
 
 > **◀ DÖNÜŞ:** [04-karar-sirasi.md](04-karar-sirasi.md#besinci-durak-ayni-iskelet-dort-farkli-yuruyus) — «Eyleyen kuralı ile hedef kuralı bilerek çelişir»den
@@ -394,14 +394,14 @@ kaldırılabilir. Sol blok üç ayrı dosyaya (`MovementRules`, `AttackRules`,
 `UnitLifecycle` zamanı **okumuyor**; zaman ona dört katman yukarıdan geliyor:
 
 ```
-Time.deltaTime                              ◄── ██ TEK MOTOR TEMASI ██
+Time.deltaTime                              ◄── >> TEK MOTOR TEMASI <<
    │
    ▼  BoardAdapter.Update()  →  AdvanceBattleTime()
 battle.Tick(Time.deltaTime)
    │
    ├─► foreach (combatants) → Combatant.Tick(dt) → lifecycle.Tick(dt)
    └─► foreach (structures) → Structure.Tick(dt) → lifecycle.Tick(dt)
-        ◄── ██ İKİ DÖNGÜ, TEK ÇAĞRI: ayrı metot olsaydı biri unutulurdu ██
+        ◄── >> İKİ DÖNGÜ, TEK ÇAĞRI: ayrı metot olsaydı biri unutulurdu <<
 ```
 
 `Update` içinde `AdvanceBattleTime` **erken çıkışların üstünde** duruyor ve bu
@@ -419,7 +419,7 @@ yani düşmüş bir birim, el sürülmediği sürece asla ölmezdi.
    Downed   İŞLİYOR           boşta             İŞLİYOR
    Dead     boşta             İŞLİYOR           İŞLİYOR
    ────────────────────────────────────────────────────────────────
-        ◄── ██ HİÇBİR SATIRDA İKİSİ BİRDEN İŞLEMİYOR ██
+        ◄── >> HİÇBİR SATIRDA İKİSİ BİRDEN İŞLEMİYOR <<
 ```
 
 "Hangisi işliyor" bilgisi zaten `State`'te duruyor. İkinci bir alan onu ikinci
@@ -439,7 +439,7 @@ public void Tick(float deltaSeconds)
 
     if (State == UnitState.Downed)
     {
-        SetState(UnitState.Dead);               // ◄── ██ PENCERE KAPANDI ██
+        SetState(UnitState.Dead);               // ◄── >> PENCERE KAPANDI <<
         remainingSeconds = corpseWindowSeconds; // 5f — ikinci sayaç başladı
         return;
     }
@@ -481,7 +481,7 @@ Ceset sayacının dolduğu `Tick` bu dosyanın en sessiz anı:
                                                    ekran griye döner
    Dead → temizlik olan Tick    ► DURUM DEĞİŞMEZ → StateChanged TETİKLENMEZ
                                   yalnız bir bayrak açılır
-                                  ◄── ██ OLAYIN GÖREMEDİĞİ AN ██
+                                  ◄── >> OLAYIN GÖREMEDİĞİ AN <<
 ```
 
 Bu tek satır, `Battle.UnitStateChanged` olayının neden süpürmenin **yerine
@@ -498,7 +498,7 @@ Süpürme `Battle.RemoveReadyForCleanup` içinde, iki döngü tek tampon:
                        │
                        ▼
    ikinci geçiş: for (i...) RemoveUnit(removed[i])
-   ◄── ██ İKİ GEÇİŞ ZORUNLU: sözlükte dönerken silmek fırlatır ██
+   ◄── >> İKİ GEÇİŞ ZORUNLU: sözlükte dönerken silmek fırlatır <<
 ```
 
 Çağıran ceset ile enkazı **ayırt etmiyor** ve etmesine gerek de yok: elindeki iş
@@ -515,11 +515,11 @@ ikisinde de aynı — o kimliğin görselini sahneden kaldırmak.
                           BİRİM                    YAPI
    ─────────────────────────────────────────────────────────────────────
    durum sayısı           3 (Alive/Downed/Dead)    2 (Standing/Destroyed)
-   geri dönen ok          TryRevive ✓              ██ YOK ██
-   StateChanged olayı     ✓                        ██ YOK ██
-   SetState tek kapısı    ✓                        ██ YOK ██ (2 yazan var)
+   geri dönen ok          TryRevive ✓              >> YOK <<
+   StateChanged olayı     ✓                        >> YOK <<
+   SetState tek kapısı    ✓                        >> YOK << (2 yazan var)
    geri sayım             10 sn + 5 sn             8 sn (enkaz)
-   OnHealthDepleted       void                     ██ bool ██ döndürür
+   OnHealthDepleted       void                     >> bool << döndürür
    onarım/iyileştirme     Combatant.TryRevive      Structure.TryRepair
                           (durum + can)            (durum + can)
    ─────────────────────────────────────────────────────────────────────
@@ -544,7 +544,7 @@ bir `Structure` nesnesidir.
 
    Downed → Dead                     (BÖYLE BİR GEÇİŞ YOK)
      Tick içinde, kimse sormadan
-     ◄── ██ EVENT'İ HAKLI ÇIKARAN TEK SATIR ORASIYDI ██
+     ◄── >> EVENT'İ HAKLI ÇIKARAN TEK SATIR ORASIYDI <<
 
    Dead → temizlik                   Destroyed → temizlik
      Tick, DURUM değişmiyor            Tick, DURUM değişmiyor
@@ -568,7 +568,7 @@ olan UI **yıkım sesini iki kez çalardı**.
    ┌──────────────── Structure (bileşik) ────────────────┐
    │  health ────────► Health              (SAYI)        │
    │  lifecycle ─────► StructureLifecycle  (DURUM)       │
-   │       ◄── ██ İKİSİNİ AYNI ANDA GÖREN TEK YER ██     │
+   │       ◄── >> İKİSİNİ AYNI ANDA GÖREN TEK YER <<     │
    └─────────────────────────────────────────────────────┘
 
    lifecycle.TryRepair() burada dursaydı:
@@ -609,19 +609,19 @@ getireceği bir olgu yoktu — "yıkık olmak" tek başına "onarılabilir" demi
 ║                  │                        │                          ║
 ║                  ▼                        │                          ║
 ║              ╔════════╗───────────────────┘                          ║
-║              ║ Downed ║  ◄── ██ KURTARMA PENCERESİ — 10 sn ██        ║
+║              ║ Downed ║  ◄── >> KURTARMA PENCERESİ — 10 sn <<        ║
 ║              ╚═══╤════╝      vurulabilir VE diriltilebilir           ║
 ║                  │           (kesişim: TEK durum)                    ║
 ║      Tick: sayaç dolar                                               ║
 ║      sayaç = 5 sn (ceset)                                            ║
 ║                  │                                                   ║
 ║                  ▼                                                   ║
-║              ╔══════╗   ◄── ██ SON DURUM: GERİ OK YOK ██             ║
+║              ╔══════╗   ◄── >> SON DURUM: GERİ OK YOK <<             ║
 ║              ║ Dead ║       hedeflenemez, diriltilemez               ║
 ║              ╚══╤═══╝                                                ║
 ║                 │                                                    ║
 ║      Tick: ceset sayacı dolar                                        ║
-║      ██ DURUM DEĞİŞMEZ — StateChanged TETİKLENMEZ ██                 ║
+║      >> DURUM DEĞİŞMEZ — StateChanged TETİKLENMEZ <<                 ║
 ║                 │                                                    ║
 ║                 ▼                                                    ║
 ║      IsReadyForCleanup = true                                        ║
@@ -631,17 +631,17 @@ getireceği bir olgu yoktu — "yıkık olmak" tek başına "onarılabilir" demi
 
    YASAK GEÇİŞLER — her biri tek bir `if` tarafından tutuluyor
    ─────────────────────────────────────────────────────────────────────
-   Downed ──can bitti──► Dead    ██ YOK ██  OnHealthDepleted:
+   Downed ──can bitti──► Dead    >> YOK <<  OnHealthDepleted:
                                             `if (State != Alive) return;`
                                             "işini bitirme" ayrı kural,
                                             HENÜZ YAZILMADI
-   Dead ──TryRevive──► Alive     ██ YOK ██  TryRevive:
+   Dead ──TryRevive──► Alive     >> YOK <<  TryRevive:
                                             `if (State != Downed) return false;`
-   Alive ──TryRevive──► Alive    ██ YOK ██  aynı kapı; false döner
-   Dead ──► Downed               ██ YOK ██  hiçbir yol yazmıyor
-   Alive ──Tick──► herhangi bir  ██ YOK ██  Tick:
+   Alive ──TryRevive──► Alive    >> YOK <<  aynı kapı; false döner
+   Dead ──► Downed               >> YOK <<  hiçbir yol yazmıyor
+   Alive ──Tick──► herhangi bir  >> YOK <<  Tick:
                                             `if (State == Alive) return;`
-   X ──► X (aynı duruma geçiş)   ██ YOK ██  SetState: `if (State == next) return;`
+   X ──► X (aynı duruma geçiş)   >> YOK <<  SetState: `if (State == next) return;`
                                             olay iki kez tetiklenmez
    ─────────────────────────────────────────────────────────────────────
    Üç kapı, üç FARKLI yanlış durumu tutuyor. Biri silinirse:
@@ -654,7 +654,7 @@ getireceği bir olgu yoktu — "yıkık olmak" tek başına "onarılabilir" demi
 ╔═══════════════ YAPI — StructureLifecycle (ikiz) ═════════════════════╗
 ║                                                                      ║
 ║   kurucu ──► ╔══════════╗                                            ║
-║              ║ Standing ║   ◄── ██ GERİ OK YOK — YOKLUĞU KURALDIR ██ ║
+║              ║ Standing ║   ◄── >> GERİ OK YOK — YOKLUĞU KURALDIR << ║
 ║              ╚════╤═════╝       yıkık bina onarılmaz, yeniden        ║
 ║                   │             İNŞA edilir (= yeni nesne)           ║
 ║      OnHealthDepleted() ──► bool döner: "bu vuruş mu yıktı"          ║
@@ -669,7 +669,7 @@ getireceği bir olgu yoktu — "yıkık olmak" tek başına "onarılabilir" demi
 ║                    │                                                 ║
 ║                    └──► Battle.RemoveReadyForCleanup ──► AYNI tampon ║
 ╚══════════════════════════════════════════════════════════════════════╝
-   ██ OLAY YOK · DİRİLTME YOK · ARA DURUM YOK · SetState YOK ██
+   >> OLAY YOK · DİRİLTME YOK · ARA DURUM YOK · SetState YOK <<
    ve dördü de ayrı ayrı gerekçelendirilmiş birer RED.
 ```
 
@@ -691,7 +691,7 @@ Durum okuyan altı kuralın **beşi kapalı uçlu** (`==`), yalnız biri açık 
    TargetingRules.CanBeAttacked(Structure)   == Standing  ✗ hedeflenemez
    ──────────────────────────────────────────────────────────────────────────
                                              ▲
-                    ██ TEK AÇIK UÇLU KURAL — ve bilerek öyle ██
+                    >> TEK AÇIK UÇLU KURAL — ve bilerek öyle <<
 ```
 
 Bugün ikisi de aynı cevabı veriyor; fark **enum büyüdüğü gün** doğuyor:
@@ -733,7 +733,7 @@ isteniyor**: `Frozen`, `Stunned`, `Burning` — hepsi vurulabilir olmalı.
 
 ```
 ① Bu değer en az BİR kuralın cevabını değiştiriyor mu?
-     HAYIR → ██ EKLEME ██. Bu bir durum değil, bir İSTEK.
+     HAYIR → >> EKLEME <<. Bu bir durum değil, bir İSTEK.
              İstekler bayrakla yazılır (IsReadyForCleanup gibi).
              Kanıt: Rubble tam bu sınavda reddedildi — dört kuralın
              hiçbirinde Destroyed'dan ayrışmıyordu.
@@ -744,7 +744,7 @@ isteniyor**: `Frozen`, `Stunned`, `Burning` — hepsi vurulabilir olmalı.
      dönen yok  → son durumdur; Dead'in yanına oturur
      ikisi de   → ③   ◄── Downed tam olarak buraya düşmüştü
 
-③ ██ ALTI KURALI TEK TEK AÇ ██ — derleyici hiçbirini göstermez:
+③ >> ALTI KURALI TEK TEK AÇ << — derleyici hiçbirini göstermez:
      TargetingRules.CanBeAttacked(UnitState)   != Dead    ► SESSİZCE EVET der
      TargetingRules.CanBeRevived (UnitState)   == Downed  ► sessizce hayır der
      MovementRules.CanMove                     == Alive   ► sessizce hayır der
@@ -752,7 +752,7 @@ isteniyor**: `Frozen`, `Stunned`, `Burning` — hepsi vurulabilir olmalı.
      ReviveRules.CanRevive                     == Alive   ► sessizce hayır der
      UnitView.TintFor                          switch     ► default'a düşer,
                                                             LogError basar
-                                              ◄── ██ TEK GÜRÜLTÜ ÇIKARAN YER ██
+                                              ◄── >> TEK GÜRÜLTÜ ÇIKARAN YER <<
 
 ④ UnitLifecycle'ın ÜÇ KAPISINI aç:
      OnHealthDepleted `!= Alive`  ► yeni durumdayken can biterse ne olmalı?
@@ -762,10 +762,10 @@ isteniyor**: `Frozen`, `Stunned`, `Burning` — hepsi vurulabilir olmalı.
 ⑤ Geri sayım eklediysen: `remainingSeconds` TEK alan.
      Yeni durum, mevcut bir sayaçla AYNI ANDA mı işleyecek?
        HAYIR → tek alan yeter, hiçbir şey yapma
-       EVET  → ██ ancak o gün ikinci alan hak edilir ██
+       EVET  → >> ancak o gün ikinci alan hak edilir <<
 
 ⑥ Yapı tarafına da eklenecek mi?
-     Aynı DEĞER  ama farklı GEÇİŞ  → ██ EKLEME ██, iki enum ayrı kalsın
+     Aynı DEĞER  ama farklı GEÇİŞ  → >> EKLEME <<, iki enum ayrı kalsın
      Aynı GEÇİŞ                    → o gün tek enum tartışılabilir (aşağı bak)
 ```
 
@@ -811,7 +811,7 @@ kaldırıldığını **asla öğrenemez**; onu bulan tek yol
 Eşleme neredeyse tutuyor:
 
 ```
-   Standing → Alive ✓      Destroyed → Dead ✓      Downed → ██ KARŞILIĞI YOK ██
+   Standing → Alive ✓      Destroyed → Dead ✓      Downed → >> KARŞILIĞI YOK <<
 ```
 
 Ve o karşılıksız değer her yapı `switch`'inde bir dal açmaya **devam ederdi**.
@@ -878,14 +878,14 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`06-sonuc-enumlari.md`](06-sonuc-enumlari.md) — okuma yolunun **6.** adımı
 > **NEDEN ORASI:** `06` sıfırıncı enum değerini **bu dosyadan** ödünç alıyor —
 > `UnitState.Alive`'ın sıfırıncı hücrede durması orada bir kurala dönüşecek. Ve
-> ██ `06`, `04`'ten ÖNCE okunur ██: ikisi de aynı ölçütü kuruyor (*"ayıraç sebep
+> ***`06`, `04`'ten ÖNCE okunur***: ikisi de aynı ölçütü kuruyor (*"ayıraç sebep
 > sayısı değil, DAVRANIŞ sayısı"*), `06` onu **kurar**, `04` bir sıra kararına
-> **uygular**; kuran önce okunur. ██ Bu adımdan önce ██
+> **uygular**; kuran önce okunur. ***Bu adımdan önce***
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
 > **DURMA NOKTASI 2**'yi geç: `Downed_IsTheOnlyStateBothAbilitiesAccept` testini
 > aç ve gövdesini oku.

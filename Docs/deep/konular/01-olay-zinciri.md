@@ -11,8 +11,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -23,12 +23,12 @@ yazılmıyor: satır kayar, üye adı kaymaz. ██
 | `Assets/Game/Unity/UnitView.cs` | `SetState` | ██ HENÜZ YOK ██ |
 | `Assets/Tests/EditMode/Combat/CombatantTests.cs` | `TransitionLog` | ✓ |
 
-██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
-yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
+***"HENÜZ YOK" ne demek:* o üye burada gerçekten anlatılıyor, ama *kodun
+yorumunda buraya geri getiren bir satır yok* — o üyeden yola çıkıp bu belgeye
 ulaşamazsın, yalnız tersi çalışır. Listeden silmedim; silmek boşluğu görünmez
-kılardı. ██
+kılardı.**
 
-> ██ **ÖNCE OKU — bu dosya bir GİRİŞ değil, bir BULUŞMA NOKTASI.** ██ Numarası
+> ***ÖNCE OKU — bu dosya bir GİRİŞ değil, bir BULUŞMA NOKTASI.*** Numarası
 > `01` ama üç ayrı ipliğin düğümlendiği yer burası, ve üçünün de tanımı başka
 > dosyalarda:
 >
@@ -77,7 +77,7 @@ hikâyeyi ilginç kılan tam olarak bilmedikleri.
 ╔═ Combatant ═══════════════════════════════════════════════════╗
 ║  İşi     : bir savaşçının niteliklerini bir arada tutmak      ║
 ║  Bilir   : can, taraf, saldırı profili, yaşam döngüsü          ║
-║  BİLMEZ  : ██ KENDİ KİMLİĞİNİ ██ ve nerede durduğunu          ║
+║  BİLMEZ  : >> KENDİ KİMLİĞİNİ << ve nerede durduğunu          ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ Battle ══════════════════════════════════════════════════════╗
@@ -93,12 +93,12 @@ hikâyeyi ilginç kılan tam olarak bilmedikleri.
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+### ***KUTULARIN GERÇEK SATIR KARŞILIĞI***
 
 Yukarıdaki dört kutu tipleri **tanıtıyor** ama hiçbirinin bu projede nerede
 yaşadığını söylemiyor. Aşağıda her kutu için üç şey var: tanımın yeri, o iddiayı
 karşılayan **gerçek satırın kendisi**, ve kutunun hangi ifadesini o satırın
-karşıladığı. ██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+karşıladığı. ***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 **`UnitLifecycle` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `SetState`
 
@@ -117,7 +117,7 @@ gönderecek bir yeri olmadığı için.
         public event Action<UnitState, UnitState> StateChanged;
 ```
 
-Kutudaki «BİLMEZ : ██ KENDİ KİMLİĞİNİ ██» satırı burada okunuyor: açılı
+Kutudaki «BİLMEZ : ***KENDİ KİMLİĞİNİ***» satırı burada okunuyor: açılı
 parantezin içinde **iki** `UnitState` var ve başka hiçbir şey yok. Kimlik
 eklenebilseydi bu satıra eklenirdi — üçüncü bir tür parametresi olarak. Satır
 iki değerde kalıyor.
@@ -146,14 +146,14 @@ Kutudaki «BİLMEZ : savaş kurallarını. Tek satır kural yazmaz.» satırı b
 üç değerin ikisi olduğu gibi bir görsel çağrısına aktarılıyor. Karar yukarıda
 verilmiş; burada yalnız çevriliyor.
 
-██ **BLOK KONMAYAN KUTU — bir tane var ve sebebi yazılı.** ██ «Combatant #1 ·
+***BLOK KONMAYAN KUTU — bir tane var ve sebebi yazılı.*** «Combatant #1 ·
 StateChanged davet listesi» kutusu ([«Sökülmezse ne olur»](#sokulmezse-ne-olur-ok-yonune-dikkat) bölümünde) bir
 tip kutusu değil, **çalışma anındaki bir davet listesinin** şekli. Kod karşılığı
 zaten aynı dosyada, «Ve işte sözlüğün doğduğu an» bölümünde alıntılı ve yeri
 `Assets/Game/Battle/Battle.cs` → `AddUnit` / `RemoveUnit` olarak orada yazılı.
 İkinci kez yazmak yeni bir yer bilgisi eklemezdi, yalnız tekrar olurdu.
 
-### ██ KADRO — dört kutu arasındaki ZİNCİR ██
+### ***KADRO — dört kutu arasındaki ZİNCİR***
 
 Yukarıdaki dört kutu dört ayrı tipi tanıtıyor ama **aralarındaki oku
 göstermiyor**. O oku okuyucunun kendi kafasından çıkarması gerekiyordu; artık
@@ -174,7 +174,7 @@ BoardAdapter           motor ile savaş arasında çevirmen; KURAL BİLMEZ
       ▼  GameObject · Sprite · renk
 ```
 
-██ **Koda karşı doğrulandı** ██ — üç olayın imzası sırasıyla
+***Koda karşı doğrulandı*** — üç olayın imzası sırasıyla
 `Action<UnitState>`, `Action<UnitState, UnitState>` ve
 `Action<Unit, UnitState, UnitState>`: **bir, iki, üç** değer. Her aşağı ok
 kodda tek bir `+=` satırıdır ve üçü de açılabilir.
@@ -207,7 +207,7 @@ sadece "ne kadar canı var" sorusuna cevap veriyor.
 > **▶ ARA DURAK:** [02-assembly-duvari.md](02-assembly-duvari.md#uc-ayri-sey-uc-ayri-is)
 > **NEDEN:** yukarıdaki cümle bu dosyanın **taşıyıcı gerekçesi** ve üç tanımsız
 > kavram taşıyor: *klasör*, *ad alanı* ve *assembly* üç **ayrı** şeydir. `02` o
-> kararın bir tercih değil ██ derleyici tarafından uygulanan bir kısıt ██
+> kararın bir tercih değil ***derleyici tarafından uygulanan bir kısıt***
 > olduğunu gösteriyor — ve aynı kararı öteki yönden anlatıyor (`02:440`).
 > **DÖNÜŞ:** bu dosyanın [«Birinci durak: sayaç konuşuyor»](#birinci-durak-sayac-konusuyor) bölümü
 
@@ -330,7 +330,7 @@ Buraya aynı metni yeniden yazarsan **hiçbir şey olmaz**:
 ```csharp
 combatant.StateChanged -= (p, n) => UnitStateChanged?.Invoke(unit, p, n);
 //                        ╰─ bu YENİ bir nesne (#4). Listede #1 var.
-//                        ██ -= sessizce başarısız olur. Hata YOK. ██
+//                        >> -= sessizce başarısız olur. Hata YOK. <<
 ```
 
 C#'ta iki fonksiyon nesnesi, **metinleri aynı olsa bile** eşit değildir. Eşitlik
@@ -391,17 +391,17 @@ kadar üç halka daha var, ve üçü de kodda açılabilir:
   BoardAdapter.cs:290       battle.UnitStateChanged += OnUnitStateChanged;
   BoardAdapter.cs:293   private void OnDisable()
   BoardAdapter.cs:295       battle.UnitStateChanged -= OnUnitStateChanged;
-        │  ██ Abonelik ÇİFTİ burada; sökme sözü tutan tek şey DİSİPLİN ██
+        │  >> Abonelik ÇİFTİ burada; sökme sözü tutan tek şey DİSİPLİN <<
         ▼
   BoardAdapter.cs:310   private void OnUnitStateChanged(Unit unit, UnitState from, UnitState to)
   BoardAdapter.cs:312       ApplyStateVisual(unit, to);
-        │  ██ AYRIŞMA NOKTASI ██ olay ÜÇ değer taşıyor, kullanılan İKİ
+        │  >> AYRIŞMA NOKTASI << olay ÜÇ değer taşıyor, kullanılan İKİ
         │     `from` bugün okunmuyor — eksiklik değil, adı hazır bir alan
         ▼
   BoardAdapter.cs:954       private void ApplyStateVisual(Unit unit, UnitState state)
   BoardAdapter.cs:956-959       if (!TryGetView(unit, out UnitView view))
   BoardAdapter.cs:964       view.SetState(state);
-        │  ██ ÇEVİRİ YOK ██ durum OLDUĞU GİBİ geçiyor. Bir zamanlar burada
+        │  >> ÇEVİRİ YOK << durum OLDUĞU GİBİ geçiyor. Bir zamanlar burada
         │     üç değer ikiye iniyordu ve Downed ile Dead ekranda aynı görünüyordu
         ▼
   UnitView.cs:173       public void SetState(UnitState state)
@@ -409,7 +409,7 @@ kadar üç halka daha var, ve üçü de kodda açılabilir:
   UnitView.cs:190           bodyRenderer.color = authoredColor * TintFor(state);
         │
         ▼
-  ██ ASKER EKRANDA YATIK VE SOLGUN ██
+  >> ASKER EKRANDA YATIK VE SOLGUN <<
 ```
 
 Son iki satır **üç durumu iki eksenle** yazıyor: `flipY` yalnız "ayakta mı"
@@ -417,7 +417,7 @@ sorusunu soruyor (`Downed` ile `Dead` o eksende **aynı**), rengi ayıran ise
 çarpım. Üçünü ayıran şey iki eksenin **birleşimi** — tek eksenle yazılamayacak
 bir cümle. Gerekçesinin tamamı `UnitView.cs`'in kendi yorumunda.
 
-██ **Bu ekseni `konular/07` tamamlamıyor** ██ — orada da bir "ekran" durağı var
+***Bu ekseni `konular/07` tamamlamıyor*** — orada da bir "ekran" durağı var
 ama o **seçim** ekseninde (`SetSelected` → çerçeve), bu **durum** ekseninde
 (`SetState` → yatıklık + renk). `07:658` iki ekseni açıkça ayırıyor:
 *"İKİ EKSEN BURADA KESİŞMEZ."* Aynı `UnitView`, iki ayrı soru.
@@ -433,25 +433,60 @@ UnitLifecycle.StateChanged          Action<UnitState>
    "Downed"                         1 değer
         │
         │  ① abone: Combatant.OnLifecycleStateChanged
-        │     ██ metot adı ██   1 kaynak   ekleyecek: önceki durum (sahibi o)
+        │     >> metot adı <<   1 kaynak   ekleyecek: önceki durum (sahibi o)
         ▼
 Combatant.StateChanged              Action<UnitState, UnitState>
    "Alive → Downed"                 2 değer      ◄── kim YOK
         │
         │  ② abone: Battle'ın forwarder'ı
-        │     ██ KAPANIŞ ██     N kaynak   ekleyecek: kimlik (sahibi o)
+        │     >> KAPANIŞ <<     N kaynak   ekleyecek: kimlik (sahibi o)
         │     ╰─► her biri ayrı nesne ╰─► sökmek için SÖZLÜK
         ▼
 Battle.UnitStateChanged             Action<Unit, UnitState, UnitState>
    "unitA: Alive → Downed"          3 değer
         │
         │  ③ abone: BoardAdapter.OnUnitStateChanged
-        │     ██ metot adı ██   1 kaynak   ekleyecek: yok
+        │     >> metot adı <<   1 kaynak   ekleyecek: yok
         ▼
    ekran güncellendi
 ```
 
 **Üç abonelik var. Sadece biri sözlük gerektiriyor.**
+
+### Aynı zincir, ikinci bir çizimle: dört ADIM değil, dört ÇERÇEVE
+
+Üstteki figür veriyi izliyor ve okuması kolay. Ama bir şeyi söylemiyor, ve
+söylemediği şey ilerideki bütün tuzakların kaynağı: ***bu dört durak arka arkaya
+gelen dört adım değil; üst üste binen dört çağrı çerçevesidir.***
+
+`Invoke` bir mesajı kuyruğa **atmaz**. Abonenin metodunu o anda, aynı iş
+parçacığında çağırır ve o metot bitene kadar geri dönmez. Yani zincir aşağı
+doğru akmıyor — **aşağı doğru kazıyor.**
+
+```
+OnHealthDepleted()                                    UnitLifecycle
+  └─ SetState(Downed)                                 UnitLifecycle
+      │  State = Downed                  yazildi
+      └─ StateChanged?.Invoke(Downed)                 (1) yayin
+          └─ OnLifecycleStateChanged(Downed)          Combatant
+              │  lastObservedState = next  yazildi
+              └─ StateChanged?.Invoke(prev, next)     (2) yayin
+                  └─ forwarder(prev, next)            Battle . kapanis
+                      └─ UnitStateChanged?.Invoke(unit, prev, next)   (3) yayin
+                          └─ OnUnitStateChanged(unit, from, to)       BoardAdapter
+                              └─ ApplyStateVisual(unit, to)           EN DERIN NOKTA
+```
+
+Bu yığının tamamı geri dönmeden `OnHealthDepleted`'in kendi bir sonraki satırına
+sıra gelmez. Sıra beklemiyor çünkü ortada bir kuyruk yok; satır, çağrının
+altında duruyor.
+
+***Bunun bedeli ne zaman ödenir*** — bir abone fırlattığı gün. Fırlatan çerçeve
+en derindedir ve istisna yukarı tırmanırken yoldaki her çerçeveyi yarım bırakır.
+`Invoke`tan ÖNCE yazılmış olan her şey yazılı kalır, SONRA yazılacak olan hiç
+yazılmaz. Ayıran tek ölçüt satır sırasıdır ve bu projede o sıranın somut bedeli
+[../dil/06-delege-arka-taraf.md](../dil/06-delege-arka-taraf.md#bu-iki-tuzagi-da-kapatan-yapi)
+bölümünde ölçülmüş durumda.
 
 ---
 
@@ -470,7 +505,7 @@ Zincirden çıkan ölçüt tek. Sırayla sor:
 
 ③ Lambda neden gerekti? Dışarıdan bir değişken YAKALADIĞIN için mi?
       HAYIR → metoda çevir, ②'ye dön. Sorun biter.
-      EVET  → ██ SAKLA ██
+      EVET  → >> SAKLA <<
 ```
 
 Ve ③'e düşmenin tek gerçek sebebi şudur: **N kaynağa abone oluyorsun ve olay
@@ -478,7 +513,27 @@ kimlik taşımıyor.** Bir kaynağa abone olsaydın "hangisi" diye sormazdın.
 
 ---
 
-## Yanlış hatırlanan iki şey
+## Yanlış hatırlanan dört şey
+
+**"`next` önceki durumları da barındırıyordur."** Barındırmıyor. `UnitState` düz
+bir enum — `[Flags]` etiketi **yok**, üç değeri var (`Alive`, `Downed`, `Dead`)
+ve tek bir yer tutuyor. `State = next` üzerine yazar, biriktirmez.
+
+***Peki "önceki durum" nereden geliyor?*** Enum'dan değil, birinin
+**hatırlamasından**. `Combatant` onu `lastObservedState` adlı bir alanda tutuyor
+ve her yayından hemen önce güncelliyor. Zincirin her durağı bir bilgi ekliyor ve
+o bilgiyi ekleyen şey her seferinde ayrı bir sahiptir:
+
+```
+UnitLifecycle.StateChanged   Action<UnitState>                    yalniz YENI
+Combatant.StateChanged       Action<UnitState, UnitState>         + ONCEKI    (lastObservedState)
+Battle.UnitStateChanged      Action<Unit, UnitState, UnitState>   + KIM       (kapanisin yakaladigi unit)
+```
+
+**"`Invoke` haberi gönderir, sonra yayıncı yoluna devam eder."** Etmez. `Invoke`
+bir **çağrıdır**; abonenin metodunu o anda çalıştırır ve bitmeden geri dönmez.
+Ortada kuyruk yoktur. Yığın hâli yukarıdaki
+«***Aynı zincir, ikinci bir çizimle***» bölümünde çizili.
 
 **"Structure'da da aynısı vardır."** Yok. `StructureLifecycle`'ın olayı hiç yok —
 `StructureLifecycle.cs`'te reddedilen alternatif olarak duruyor. Abonelik yoksa
@@ -502,7 +557,7 @@ Sızıntı denince akla "bellek dolar" gelir. Burada önce başka bir şey patla
 ║                  ──yakaladığı──► Battle ║
 ╚═════════════════════════════════════════╝
               ▲
-   ██ Ok yönü: DİNLENEN → DİNLEYEN ██
+   >> Ok yönü: DİNLENEN → DİNLEYEN <<
    Yani Combatant, Battle'ı hayatta tutuyor. Sezginin tersi.
 ```
 
@@ -513,15 +568,79 @@ birim sözlükten çıktı, tahtadan çıktı, ekrandan silindi
    │
    ├─► ① O birim bir daha durum değiştirirse Battle HÂLÂ yayın yapar
    │      → BoardAdapter silinmiş birimin görselini arar → LogError
-   │      ██ önce bu patlar ██
+   │      >> önce bu patlar <<
    │
    └─► ② Combatant'a başka bir yerden referans varsa (havuz, test fixture)
           Battle o referans yaşadıkça toplanamaz
 ```
 
+### ***BU İKİ DAL BUGÜN ERİŞİLEBİLİR Mİ*** — ölçüldü
+
+Buraya kadar okuyan haklı olarak şunu sorar: *"birim sözlükten çıktı, tahtadan
+çıktı, ekrandan silindi — nasıl bir daha durum değiştirebilir ki?"*
+
+Cevap: ***bugün değiştiremez.*** Birinci dal iki koşulu birden ister.
+
+```
+KOSUL 1   -= unutulmus olmali            <- bu bolumun varsayimi ("sokulmezse")
+KOSUL 2   bir sey Combatant'a hala ULASIP durumunu degistirebilmeli
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          BU URETIMDE YOK
+```
+
+Ölçü — üretimde bir `Combatant`'a giden **bütün** yollar:
+
+```
+yaratilis   BoardAdapter.cs:756  NewCombatant()   tek yer, alan olarak TUTMUYOR
+saklanis    Battle.combatants sozlugu             tek yer
+erisim      Battle.Tick                 :383      foreach combatants
+            Battle.RemoveReadyForCleanup:438      foreach combatants
+            Battle.TryGetCombatant      :495      combatants.TryGetValue
+            BattleActions.*             RequireCombatant -> TryGetCombatant
+            ucu de AYNI sozlukten geciyor
+```
+
+`RemoveUnit` `combatants.Remove(unit)` çağırdığı an o `Combatant`'a giden üretim
+yolu **kalmaz**. Tick edilmez, hasar alamaz, durum değiştiremez. Yani ①'in
+ikinci koşulu bugün sağlanamıyor.
+
+**Bugün nerede sağlanıyor:** testlerde. `Assets/Tests/` altında `new Combatant(`
+on yerde geçiyor ve o testler nesneyi doğrudan ellerinde tutuyor.
+
+***Hangi gün üretimde de sağlanır*** — `Combatant`'ı sözlük dışında tutan ilk şey
+eklendiği gün. En yakın aday bir **nesne havuzu**: havuz, ölen savaşçıyı yeniden
+kullanmak üzere saklar, yani sözlükten çıkmış bir `Combatant`'a referansı olan
+ikinci bir sahip doğar. Diğer adaylar: kaydet/yükle, geri alma tamponu, ikinci
+bir `Battle`.
+
+```
+BUGUN                       HAVUZ EKLENDIGI GUN
+Combatant --- combatants    Combatant --- combatants
+                                      \-- havuz            <- ikinci sahip
+RemoveUnit -> hicbir sahip  RemoveUnit -> havuz hala tutuyor
+             = ulasilamaz                = ULASILABILIR
+```
+
+***Yani ① bir hata değil, tarihli bir senettir.*** Bugün ödenmiyor; havuzun
+geldiği gün ödeniyor. Ve o gün `-=`'i unutmak, bugünkünden çok daha pahalıya
+patlar — çünkü havuz aynı nesneyi geri verdiğinde eski abonelik hâlâ listede
+durur ve **aynı olay iki kez** işlenir.
+
+İkinci dal (②) bugün de canlıdır ve testlerde her gün gerçekleşiyor; oradaki
+konu erişilebilirlik değil, ***ok yönü***: `Combatant` `Battle`'ı hayatta tutar.
+
 Ve en sinsi tarafı: `-=` yanlış nesneyle çağrılırsa **hata vermez**. Derleyici
-susar, testler yeşil kalır, liste olduğu gibi durur. `stateForwarders`'ın var olma
-sebebi tam olarak bu sessizliği önlemek.
+susar, testler yeşil kalır, liste olduğu gibi durur.
+
+***Sözlük bu sessizliği ORTADAN KALDIRMAZ.*** `-=` hâlâ sessizdir ve öyle
+kalacak; sessizlik dilin kuralıdır, bir seçim değil. Sözlüğün yaptığı tek şey
+`-=`'e ***doğru nesneyi*** vermeni sağlamaktır — yani sessiz yola hiç girmemeni.
+
+***Sözlük bir güvenlik mekanizması değildir. Bir cebtir.*** İçinde birden çok
+sökme işlemi yönetilmez, birim başına **tek bir fonksiyon nesnesi** durur.
+Gerekçenin tamamı bu dosyanın üçüncü durağında, üç satırlık tur olarak yazılı ve
+burada tekrarlanmıyor: kapanışı üret, hem abone et hem sözlüğe yaz, sökerken
+`TryGetValue` ile **aynı nesneyi** geri al.
 
 > **◀ DÖNÜŞ:** [../dil/07-bellek-canlilik-ve-yikim.md](../dil/07-bellek-canlilik-ve-yikim.md#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) — «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»dan
 > geldiysen artık şunu biliyorsun: aynı eksik `-=` **iki ayrı fatura** kesiyor —
@@ -538,9 +657,9 @@ onun tetiği sökme değil: bir abonenin **istisna fırlatması**. `Invoke` bir
 çalışmaz.** Bu projede o satırın ne olduğu tuzağı soyut olmaktan çıkarıyor:
 
 ```csharp
-// UnitLifecycle.cs:142-143 — OnHealthDepleted'in son iki satırı
+// UnitLifecycle.cs:151-152 — OnHealthDepleted'in son iki satırı
 SetState(UnitState.Downed);              // ← içinde StateChanged?.Invoke var
-remainingSeconds = downedWindowSeconds;  // ██ BİR ABONE FIRLARSA ÇALIŞMAZ ██
+remainingSeconds = downedWindowSeconds;  // >> BİR ABONE FIRLARSA ÇALIŞMAZ <<
 ```
 
 ```
@@ -551,10 +670,10 @@ remainingSeconds = downedWindowSeconds;  // ██ BİR ABONE FIRLARSA ÇALIŞMA
    ilk Tick(0.016f):  Alive değil · 0 − 0,016 ≤ 0 · Downed  →  SetState(Dead)
         │
         ▼
-   ██ 10 SANİYELİK KURTARMA PENCERESİ TEK KAREDE YOK OLDU ██
+   >> 10 SANİYELİK KURTARMA PENCERESİ TEK KAREDE YOK OLDU <<
 ```
 
-██ **AYRIŞMA NOKTASI** ██ — sezgi "bir abonenin hatası aboneyi ilgilendirir"
+***AYRIŞMA NOKTASI*** — sezgi "bir abonenin hatası aboneyi ilgilendirir"
 der; kod "bir abonenin hatası **yayıncının kendi değişmezini** kurmasını
 engeller" der. Ayrışan iki şey: *hatanın kaynağı* ile *hatanın faturasını
 ödeyen*.
@@ -605,7 +724,7 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`../dil/04-delege-olay-ve-kapanis.md`](../dil/04-delege-olay-ve-kapanis.md) — okuma yolunun **11.** adımı,
 > hemen ardından [`../dil/06-delege-arka-taraf.md`](../dil/06-delege-arka-taraf.md) (bu sıra **zorunlu**, `06` kendi başında yazıyor)

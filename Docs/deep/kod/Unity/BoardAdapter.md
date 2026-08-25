@@ -275,13 +275,13 @@ Seçenekleri ayıran şey "kim okur" değil, **dosyayı kim üretir**:
   const int MaxHealth = 30;
   değiştirmek = bir derleme turu     ◄── denemeyi PAHALI yapar
 
-.unity (sahne) ──► dosyayı EDİTÖR üretir, kod okur   ██ BUGÜN ██
+.unity (sahne) ──► dosyayı EDİTÖR üretir, kod okur   >> BUGÜN <<
   BoardAdapter bileşeninin serileştirilmiş alanı
   tek sahne, tek kopya; Play'e basmadan değişir
 
 .asset ──────────► dosyayı EDİTÖR üretir, kod okur
   ScriptableObject; paylaşılır, sürümlenir, birim listesi taşır
-  ██ KOD BU DOSYAYI ÜRETEMEZ ██  ◄── REDDEDILEN'in kırılma noktası
+  >> KOD BU DOSYAYI ÜRETEMEZ <<  ◄── REDDEDILEN'in kırılma noktası
 ```
 
 Alt iki satır aynı yeteneği taşır (Inspector'da düzenlenebilir) ama kurulum
@@ -402,7 +402,7 @@ REDDEDILEN — üçüncü tablo
 unitViews                         combatants    moveRanges
                                                 yazan : SpawnUnit
                                                 silen : ???
-██ KIRILMA NOKTASI ██  silme yolu üçüncü tabloyu BİLMİYOR;
+>> KIRILMA NOKTASI <<  silme yolu üçüncü tabloyu BİLMİYOR;
 ölmüş bir birim moveRanges'te sonsuza dek canlı kalır ve onu
 temizleyecek satırı hiçbir tip talep etmiyor
 ```
@@ -478,7 +478,7 @@ hiçbir kural onu görmez; yalnızca bir `SpriteRenderer`'dır ve tek işi
 ÖNİZLEME ŞERİDİ — kip açıkken HER kare
   fare hareketi ──► placementGhost.transform.position = ...
                 ──► placementGhost.enabled = true/false
-  ██ TAHTAYA HİÇ YAZMAZ ██  ◄── geri alınacak bir şey DOĞMUYOR
+  >> TAHTAYA HİÇ YAZMAZ <<  ◄── geri alınacak bir şey DOĞMUYOR
 
 YAZMA ŞERİDİ — yalnız bırakma anında, BİR kez
   CommitPlacement ──► BattleActions.PlaceStructure(battle, ...)
@@ -488,7 +488,7 @@ YAZMA ŞERİDİ — yalnız bırakma anında, BİR kez
 REDDEDILEN — iki şerit BİRLEŞTİRİLSEYDİ
   fare hareketi ──► AddStructure ─► RemoveStructure ─► AddStructure
                     (kare başına bir yazma/silme ÇİFTİ)
-  ██ İPTAL YOLU ARTIK ZORUNLU ██ ve unutulabilir  ◄── kırılma
+  >> İPTAL YOLU ARTIK ZORUNLU << ve unutulabilir  ◄── kırılma
   unutulduğu an: hücreyi kapatan, hedeflenebilen, GÖRÜNMEZ bir bina
 ```
 
@@ -703,7 +703,7 @@ Awake ────────────────────────�
   ├──► OnEnable ─ Update ... ─ OnDisable ─┐            │
   │        ▲                              │            │
   │        └────── enabled = true ────────┘            │
-  │         ██ BU HALKA SINIRSIZ TEKRAR EDER ██        │
+  │         >> BU HALKA SINIRSIZ TEKRAR EDER <<        │
   └───────────────────────────────────────────────────┘
 
 ① SEÇİLEN    OnEnable +=  /  OnDisable -=      halkaya BAĞLI
@@ -712,7 +712,7 @@ Awake ────────────────────────�
              dinleyici sayısı: her etkinleşmede bir artar
 ③ REDDEDILEN Awake +=  /  OnDestroy -=      halkanın DIŞINDA
              dinleyici sayısı: HER ZAMAN bir — kapalıyken bile
-             ██ "kapalı" sözü tam burada düşer ██
+             >> "kapalı" sözü tam burada düşer <<
 ```
 
 **ÇİFTİN SİMETRİSİ, yani ②'nin adı:** `OnEnable` her etkinleşmede **çalışır**,
@@ -1169,7 +1169,7 @@ doğuran tek bir kapı olduğu sürece ayrışamazlar.
 ```
 SEÇİLEN — tek kapı
   SpawnUnit ──► battle.AddUnit ──┬──► UnitGrid'e yerleşir
-                ██ TEK KAPI ██   └──► combatants'a kaydolur
+                >> TEK KAPI <<   └──► combatants'a kaydolur
                                      (ikisi AYNI çağrıda)
 
 REDDEDILEN — yan kapı
@@ -1315,7 +1315,7 @@ Aynı `(x, y)` çifti üç ayrı niyet taşıyabilir; ayrımı yapan şey hücre
 dolu hücreye tıklandı
 ├── seçim YOK           ──► SEÇ
 ├── tıklanan == seçili  ──► SEÇİMİ BIRAK        ◄── BU SATIR
-│      ██ AKIŞ BURADA BİTER ██ aşağıya hiç inilmez
+│      >> AKIŞ BURADA BİTER << aşağıya hiç inilmez
 └── tıklanan != seçili  ──► SALDIR
 
 REDDEDILEN'de orta dal YOKTUR
@@ -1421,7 +1421,7 @@ SEÇİLEN — tek yol
   Combatant.State değişti
     ──► Battle.UnitStateChanged
     ──► OnUnitStateChanged ──► ApplyStateVisual
-  ██ TEK KAYNAK ██ saldırıdan gelen de, Tick'ten gelen de
+  >> TEK KAYNAK << saldırıdan gelen de, Tick'ten gelen de
   AYNI borudan geçer
 
 REDDEDILEN — iki yol
@@ -1552,7 +1552,7 @@ adı, üç değerli bir bilgiyi tek değerli gösteriyordu.
 SEÇİLEN — DURUM zinciri
   Combatant.State ──(olayın `to` parametresi)──►
     ApplyStateVisual(unit, state) ──► view.SetState(state)
-  ██ TEK DOĞRULUK KAYNAĞI ██  üç değer, üç görsel
+  >> TEK DOĞRULUK KAYNAĞI <<  üç değer, üç görsel
 
 REDDEDILEN — SONUÇ zinciri
   AttackOutcome ──► view.SetDowned(outcome == HitAndDowned)

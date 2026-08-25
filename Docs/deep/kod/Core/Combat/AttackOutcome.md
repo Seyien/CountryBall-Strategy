@@ -137,7 +137,7 @@ index 0'a DÜŞEN üç yol (üçü de derleyiciden sessiz geçer):
   new AttackOutcome[n] hücreleri
   atanmayı unutulan bir alan
 
-██ SEÇİM YALNIZCA 0 HÜCRESİNDE YAPILIR ██ Bu üç yolu kapatmanın yolu yok;
+>> SEÇİM YALNIZCA 0 HÜCRESİNDE YAPILIR << Bu üç yolu kapatmanın yolu yok;
 seçilebilen tek şey orada NE durduğu.
 ```
 
@@ -353,7 +353,7 @@ saldıran düşmüş         hiçbir şey — bekler     ┐
 hareket eden düşmüş     hiçbir şey — bekler     ├ TEK DAL
 sıra kendisinde değil   hiçbir şey — bekler     ┘ ◄── ÜÇÜ BİRLEŞTİ
 
-██ EŞİK ██ arayüz oyuncuya "sıran değil" ile "birim düşmüş" farkını
+>> EŞİK << arayüz oyuncuya "sıran değil" ile "birim düşmüş" farkını
 SÖYLEMEK zorunda kaldığı gün alt üç satır ayrılır. Bugünkü tek tüketici
 BoardAdapter ve o yalnızca log basıyor.
 ```

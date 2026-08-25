@@ -20,15 +20,15 @@
 > neden `false` geldiğini anlamadığında; ya da bir `switch`'e yeni bir `case`
 > eklerken.
 
-**BURAYA KODDAN GELDİYSEN** — ██ gelemezsin: bu belgeye giden **hiçbir** kod
-işaretçisi yok. ██ Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
+**BURAYA KODDAN GELDİYSEN** — **gelemezsin: bu belgeye giden *hiçbir* kod
+işaretçisi yok.** Ölçüldü — `dil/` ağacının kod işaretçisi `DİL:` etiketiyle
 yazılır (`konular/` ağacınınki `DERİN ANLATIM:`), ve `Assets/` altında bu
 belgeyi anan **sıfır** `DİL:` satırı var. Yani ok bugün **tek yönlü**: buradan
 koda gidilir, koddan buraya gelinmez.
 
-██ Buraya belgeden gelen yol canlı: [`dil/07`](07-bellek-canlilik-ve-yikim.md)
-bu dosyayı **açık ön koşul** sayıyor (`dil/05` semantiği anlatır, `dil/07`
-depolamayı). ██
+**Buraya belgeden gelen yol canlı: [`dil/07`](07-bellek-canlilik-ve-yikim.md)
+bu dosyayı *açık ön koşul* sayıyor (`dil/05` semantiği anlatır, `dil/07`
+depolamayı).**
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** dil
 özelliklerini anlatıyor. Bunların hiçbirini biz tasarlamadık; ama ne vaat
@@ -67,7 +67,7 @@ seçilip ötekinin seçilmediği — hikâye bu.
 ╔═ REFERANS TİPİ (class: Unit, UnitGrid, AttackProfile) ════════╗
 ║  Ne yapar : değişken nesneyi DEĞİL, nesnenin ADRESİNİ tutar    ║
 ║  Vaadi    : aynı nesneyi iki yerden görebilirsin               ║
-║  BİLMEZ   : kaç kişinin elinde olduğunu ██ KRİTİK ██           ║
+║  BİLMEZ   : kaç kişinin elinde olduğunu >> KRİTİK <<           ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ ==  (operatör) ══════════════════════════════════════════════╗
@@ -86,8 +86,8 @@ seçilip ötekinin seçilmediği — hikâye bu.
 
 ### Dört kutunun GERÇEK SATIRLAR tarafındaki karşılığı
 
-██ Dördü de ÖDÜNÇ, yani aşağıda gösterilen yer **tanım yeri değil KULLANIM
-YERİDİR** ██ — değer/referans ayrımını da `==`'i de biz tasarlamadık; onları
+**Dördü de ÖDÜNÇ, yani aşağıda gösterilen yer *tanım yeri değil KULLANIM
+YERİDİR*** — değer/referans ayrımını da `==`'i de biz tasarlamadık; onları
 çalıştıran satırları biz yazdık.
 
 **DEĞER TİPİ bu projede** — `Assets/Game/Unity/UnitView.cs` → `SetState(UnitState)`
@@ -96,7 +96,7 @@ YERİDİR** ██ — değer/referans ayrımını da `==`'i de biz tasarlamadı
 bodyRenderer.color = authoredColor * TintFor(state);
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — kutunun saydığı beş tipten üçü tek satırda: `state` bir
+***EN ÖĞRETİCİ SEÇİMİ*** — kutunun saydığı beş tipten üçü tek satırda: `state` bir
 `enum`, `authoredColor` ile `TintFor`'un döndürdüğü bir `Color`. Seçilme sebebi
 kutunun «BİLMEZ: nereden kopyalandığını. Kaynağa geri yol YOK.» satırının burada
 **görünür bir garantiye** dönüşmesi. Kutudaki «atandığı ve geçirildiği her yerde
@@ -112,15 +112,15 @@ Bu iki güvence sözdiziminden değil, tipin değer tipi olmasından geliyor.
 Unit moving = cells[fromX, fromY];
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — kutunun adlandırdığı üç tipten (`Unit`, `UnitGrid`,
+***EN ÖĞRETİCİ SEÇİMİ*** — kutunun adlandırdığı üç tipten (`Unit`, `UnitGrid`,
 `AttackProfile`) ikisi bu tek metotta buluşuyor. Kutudaki «değişken nesneyi DEĞİL,
 nesnenin ADRESİNİ tutar» satırının karşılığı tam bu satır: `moving`'e kopyalanan
 şey askerin kendisi değil, ona giden ok. Aynı metodun son iki satırı
 (`cells[fromX, fromY] = null;` ve `cells[toX, toY] = moving;`) bunu görünür
 kılıyor — hareket eden şey nesne değil **oklar**; `Unit` örneği bellekte hiç
-kımıldamıyor. Kutunun «BİLMEZ: kaç kişinin elinde olduğunu ██ KRİTİK ██» satırı da
+kımıldamıyor. Kutunun «BİLMEZ: kaç kişinin elinde olduğunu ***KRİTİK***» satırı da
 burada: bu iki satırın arasındaki anda aynı `Unit`'e iki ok bakıyor ve dizinin
-bundan haberi yok. ██ Aynı körlüğün bir üst kattaki faturası ██:
+bundan haberi yok. ***Aynı körlüğün bir üst kattaki faturası***:
 [`../konular/03-tahta-sahipligi.md`](../konular/03-tahta-sahipligi.md).
 
 **`==` bu projede** — `Assets/Game/Unity/UnitView.cs` → `Awake()`
@@ -129,7 +129,7 @@ bundan haberi yok. ██ Aynı körlüğün bir üst kattaki faturası ██:
 if (selectionOverlay == null)
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — aynı satır `SetSelected` içinde de duruyor; `Awake`'teki
+***EN ÖĞRETİCİ SEÇİMİ*** — aynı satır `SetSelected` içinde de duruyor; `Awake`'teki
 seçildi, çünkü orada operatörün cevabı bir `LogError`'a bağlanıyor, yani `==`'in ne
 söylediği ekranda görünür hâle geliyor. Kutudaki «tipin SÖYLEDİĞİ şeyi sorar»
 satırının karşılığı tam bu satır: `SpriteRenderer`, `UnityEngine.Object`'ten türüyor
@@ -147,7 +147,7 @@ yatıyor.
 if (ReferenceEquals(clicked, selectedUnit))
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde iki çağrı var, ötekisi aynı dosyanın
+***EN ÖĞRETİCİ SEÇİMİ*** — üretimde iki çağrı var, ötekisi aynı dosyanın
 `DespawnView`'ında; seçilen bu, çünkü bu dosyanın «Sahne» bölümü zaten bu satırı
 gösteriyor ve kutunun vaadi burada bir **karara** dönüşüyor. Kutudaki «cevabı
 hiçbir tip değiştiremez — static, virtual değil, ezilemez» satırının karşılığı tam
@@ -173,7 +173,7 @@ board.MoveUnit(fromX, fromY, toX, toY)
       │             yapsın, çağıranın fromX'i değişmez.
       │
       └── UnitGrid: ADRES gider. cells[fromX,fromY] = null satırı
-          ██ ÇAĞIRANIN tahtasını değiştirir ██
+          >> ÇAĞIRANIN tahtasını değiştirir <<
 ```
 
 `MoveAction`'ın rol başlığındaki cümle tam olarak bunu ölçüyor:
@@ -184,7 +184,7 @@ MoveAction  ► static, TEK BİR ALANI YOK, hiçbir şey hatırlamıyor
   aynı çağrıyı arka arkaya iki kez yap:
     Execute(board, unit, 0,0, 1,0, moveRange: 1)
        1. çağrı ►  MoveOutcome.Moved
-       2. çağrı ►  ArgumentException      ██ FARKLI CEVAP ██
+       2. çağrı ►  ArgumentException      >> FARKLI CEVAP <<
 
   Hafızasız bir tipin cevabı nasıl değişti?
        └── değişen şey tipin içi değil, ELİNE VERİLEN nesne:
@@ -225,7 +225,7 @@ bozabilir ve diriliş soluk bir birim üretirdi.
 
 ## İkinci durak: `ReferenceEquals` neden `==` değil
 
-### ██ Bu projede yakalanan canlı hata ██
+### ***Bu projede yakalanan canlı hata***
 
 `AttackProfile` kendini şöyle tanımlıyor: *"aynı değerlere sahip iki
 AttackProfile birbirinin YERİNE GEÇEBİLİR."* Cümle doğru. Tuzak, okuyucunun onu
@@ -235,7 +235,7 @@ sınamak için uzanacağı ilk araçta: `==` **tam tersini** söyler.
 var a = new AttackProfile(10, 1);
 var b = new AttackProfile(10, 1);
 
-a == b                  ►  false   ██ "AYNI ŞEY" denilen yerde ██
+a == b                  ►  false   >> "AYNI ŞEY" denilen yerde <<
 a.Equals(b)             ►  false
 ReferenceEquals(a, b)   ►  false
 ```
@@ -250,14 +250,14 @@ Sebep `AttackProfile.cs`'te bir kodun **varlığı değil yokluğu**: dosyada
            ║ Range  =  1 ║              ║ Range  =  1 ║
            ╚═════════════╝              ╚═════════════╝
               İKİ AYRI KUTU, aynı içerik
-              ██ == içeriğe HİÇ BAKMAZ ██
+              >> == içeriğe HİÇ BAKMAZ <<
 ```
 
 ### Doğru ölçü "eşitlik" değil, YERİNE GEÇEBİLİRLİK
 
 ```
 YANLIŞ ÖLÇÜ    a == b  ►  false
-               → "demek ki aynı şey değiller"     ██ SAPMA BURADA ██
+               → "demek ki aynı şey değiller"     >> SAPMA BURADA <<
 
 DOĞRU ÖLÇÜ     b'yi, a'nın geçtiği HER YERE koy:
                ► AttackResolver aynı cevabı verir
@@ -305,11 +305,11 @@ tutuyorsa birim kendi kendine engel olmuyor demektir ve hareket devam eder.
                         ==                    ReferenceEquals
                         ──                    ───────────────
 Unit (düz sınıf)        referans              referans
-                        ██ BUGÜN AYNI CEVAP ██
+                        >> BUGÜN AYNI CEVAP <<
 
 SpriteRenderer          Unity'nin AŞIRI       referans
 GameObject              YÜKLEDİĞİ operatör
-(UnityEngine.Object)    ██ AYRIŞIRLAR ██
+(UnityEngine.Object)    >> AYRIŞIRLAR <<
 ```
 
 `UnityEngine.Object` `operator ==`'i bilerek aşırı yükler: **yok edilmiş** bir
@@ -320,7 +320,7 @@ Destroy(view.gameObject) çağrıldıktan SONRA:
 
    body == null                 ►  true    ◄── Unity öyle diyor
    ReferenceEquals(body, null)  ►  false   ◄── C# öyle diyor
-                                             ██ İKİSİ DE DOĞRU ██
+                                             >> İKİSİ DE DOĞRU <<
 
    yönetilen C# sarmalayıcısı hâlâ ayakta duruyor;
    ARKASINDAKİ yerel motor nesnesi yok edildi
@@ -345,7 +345,7 @@ Arka planda bir `int`, üstünde adlar:
 ```
 public enum Team          derleyicinin gördüğü
 {                         ────────────────────
-    None,     ─────────►  0   ◄── ██ default(Team) BURAYA DÜŞER ██
+    None,     ─────────►  0   ◄── >> default(Team) BURAYA DÜŞER <<
     Player,   ─────────►  1
     Enemy     ─────────►  2
 }
@@ -368,7 +368,7 @@ unutulmuş her birim sessizce oyuncunun tarafında doğardı.
 ### Adlandırılmamış değerler de geçerlidir
 
 ```csharp
-UnitState s = (UnitState)99;   // ██ DERLENİR, ÇALIŞIR, PATLAMAZ ██
+UnitState s = (UnitState)99;   // >> DERLENİR, ÇALIŞIR, PATLAMAZ <<
 ```
 
 Bir `enum` değişkeni, arkasındaki `int`'in alabildiği **her** değeri alabilir.
@@ -394,7 +394,7 @@ public bool TryGetUnit(int x, int y, out Unit unit)
 ───────                                ─────
 Unit u;                                unit = null;        (dal 1)
 board.TryGetUnit(9, 9, out u);         unit = cells[x,y];  (dal 2)
-      ██ u ATANMIŞ döner ██            ██ HER dalda ██
+      >> u ATANMIŞ döner <<            >> HER dalda <<
 ```
 
 **Ölçü — derleyici zorlar:** `UnitGrid.TryGetUnit`'in ilk dalındaki
@@ -502,7 +502,7 @@ nesnenin kimliği vardır:
 Action<UnitState, UnitState> forwarder =
     (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
 combatant.StateChanged += forwarder;
-stateForwarders.Add(unit, forwarder);   // ██ SAKLANMAK ZORUNDA ██
+stateForwarders.Add(unit, forwarder);   // >> SAKLANMAK ZORUNDA <<
 ```
 
 **Ölçü:** aboneliği sökmek için aynı metni ikinci kez yaz:
@@ -522,7 +522,7 @@ combatant.StateChanged -= (p, n) => UnitStateChanged?.Invoke(unit, p, n);
       2. yazım ──► ╔═ kapanış #2 ═╗ ◄── -= bunu arıyor, listede YOK
                    ║ unit = Asker ║
                    ╚══════════════╝
-                     ██ AYNI METİN, AYRI NESNE ██
+                     >> AYNI METİN, AYRI NESNE <<
 ```
 
 `Battle.stateForwarders` sözlüğü bu yüzden var — bir konfor değil, zorunluluk.
@@ -545,14 +545,14 @@ referansını sakla.**
    switch (outcome)                  switch DEYİMİ (statement)
    {                                 ─────────────────────────
        case A: ... break;            enum'a yeni değer eklendi:
-       case B: ... break;              derleyici : ██ SUSAR ██
+       case B: ... break;              derleyici : >> SUSAR <<
        // yeni değer C yok             çalışma anı: hiçbir dal tutmaz,
-   }                                               ██ SESSİZCE GEÇİLİR ██
+   }                                               >> SESSİZCE GEÇİLİR <<
 
    var x = outcome switch            switch İFADESİ (expression)
    {                                 ─────────────────────────
        A => ...,                     enum'a yeni değer eklendi:
-       B => ...,                       derleyici : ██ CS8509 UYARISI ██
+       B => ...,                       derleyici : >> CS8509 UYARISI <<
    };                                  çalışma anı: SwitchExpressionException
 ```
 
@@ -597,7 +597,7 @@ Kural evrensel değil; ayıran ölçüt enum'un **ne tür bir şey adlandırdı�
 
 ```
    SONUÇ enum'u (AttackOutcome, MoveOutcome, UnitState)
-        işlenmeyen değer = ██ HATA ██        ► default: LogError ŞART
+        işlenmeyen değer = >> HATA <<        ► default: LogError ŞART
 
    FAZ enum'u (PointerPhase)
         beş fazın üçü "henüz bir şey olmadı" demek
@@ -642,12 +642,12 @@ Sınırsız büyüyebilen bir sayıyı `[0, Length)` aralığına indiriyor. 7 v
 olduğu için düzenli şerit deseni oluşmuyor, ve aynı hücre her `Play`'de aynı
 sprite'ı alıyor.
 
-### ██ Tuzak: `%` matematiksel mod DEĞİL ██
+### ***Tuzak: `%` matematiksel mod DEĞİL***
 
 ```
 C#'ta kalanın işareti BÖLÜNENİN işaretini alır:
 
-   -1 % 3   ►  -1      ██ 2 DEĞİL ██
+   -1 % 3   ►  -1      >> 2 DEĞİL <<
     7 % 3   ►   1
    -7 % 3   ►  -1
 ```
@@ -660,8 +660,8 @@ C#'ta kalanın işareti BÖLÜNENİN işaretini alır:
 TurnState.EndTurn        index 0'da başlar, (index+1) hiç negatif olamaz  ✓
 PickTerrainSprite        x ve y BuildCellVisuals'ın 0'dan başlayan
                          döngülerinden geliyor                            ✓
-                         ██ ama imza int alıyor: negatif x veren
-                            İKİNCİ bir çağıran doğduğu gün patlar ██
+                         >> ama imza int alıyor: negatif x veren
+                            İKİNCİ bir çağıran doğduğu gün patlar <<
 ```
 
 Negatif girdi ihtimali olan bir yerde doğru şekil `((a % n) + n) % n`.
@@ -673,7 +673,7 @@ Negatif girdi ihtimali olan bir yerde doğru şekil `((a % n) + n) % n`.
 ```
 ① Karşılaştırdığın şey bir DEĞER tipi mi (int, enum, float, Color)?
       evet → == kullan; kopya karşılaştırması, sürprizi yok
-             ██ ReferenceEquals KULLANMA — kutulanır, HER ZAMAN false ██
+             >> ReferenceEquals KULLANMA — kutulanır, HER ZAMAN false <<
       hayır → ②
 
 ② Tip UnityEngine.Object'ten mi türüyor?
@@ -688,7 +688,7 @@ Negatif girdi ihtimali olan bir yerde doğru şekil `((a % n) + n) % n`.
 
 ④ Tip Equals/GetHashCode geçersiz kılıyor mu?
       evet  → ==/Equals doğru cevabı verir
-      hayır → ██ == SANA REFERANS CEVABI VERİR ██   (AttackProfile böyle)
+      hayır → >> == SANA REFERANS CEVABI VERİR <<   (AttackProfile böyle)
               soruyu değiştir: "eşit mi" değil "YERİNE GEÇEBİLİR Mİ"
 ```
 
@@ -755,14 +755,14 @@ kod kazanır — orası çalışan metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
-> **▶ SIRADA:** [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **▶ SIRADA:** [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) · [`03-hata-bildirme-ve-dogrulama.md`](03-hata-bildirme-ve-dogrulama.md) — okuma yolunun **13.** adımının kalanı, ***sıra serbest***
 > **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
 > açılmak. Bu dosya "aynı" sözcüğünün dört ölçüsünü verdi — `dil/02` aynı soruyu
 > **koleksiyon** üzerinde soruyor (`IReadOnlyList` ≠ değişmez), `dil/03` ise
 > "yanlış" olduğunda hangi kelimeyle bağıracağını.
 > **BORÇ KAPANDI:** [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) bu dosyayı açık ön koşul sayıyordu;
-> orada depolama bölümünde sıkıştıysan ██ artık geri dönebilirsin ██.
+> orada depolama bölümünde sıkıştıysan ***artık geri dönebilirsin***.
 > **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

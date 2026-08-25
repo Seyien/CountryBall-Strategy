@@ -134,7 +134,7 @@ GridStrategy.Unity      ► Core, Combat, Battle
                         noEngine: FALSE  ◄── MOTOR BURADA
   BoardAdapter, UnitView — MonoBehaviour, SerializeField
 
-██ DUVAR ██ Combat ile Unity arasında; ok yalnızca yukarıdan aşağı
+>> DUVAR << Combat ile Unity arasında; ok yalnızca yukarıdan aşağı
 (Unity ► Combat) akar, tersi DERLENMEZ.
 ```
 

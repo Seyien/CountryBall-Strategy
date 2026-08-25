@@ -54,7 +54,7 @@ verilmiyor.
   ADIM 4  HEDEF / HÜCRE kuralı  oyun sonucu    ► RejectedInvalidTarget
   ADIM 5  MENZİL                oyun sonucu    ► RejectedOutOfRange
   ────────────────────────────────────────────────────────────────
-  ADIM 6  ██ TEK YAZMA ██   ◄── AYRIŞMA NOKTASI: buradan sonrası
+  ADIM 6  >> TEK YAZMA <<   ◄── AYRIŞMA NOKTASI: buradan sonrası
   ADIM 7  sıra devri            geri alınamaz
 ```
 
@@ -131,7 +131,7 @@ aynı.
   soru: "target bir YAPI mı?"
 
   ╔══════════════ Battle ══════════════╗
-  ║ combatants : Unit ──► Combatant    ║ ██ TEK KAYNAK ██
+  ║ combatants : Unit ──► Combatant    ║ >> TEK KAYNAK <<
   ║ structures : Unit ──► Structure    ║
   ╚═════════════════▲══════════════════╝
                     │ TryGetStructure(target, out ...)
@@ -195,13 +195,13 @@ koşar; yalnızca **hedef** yapı olduğunda ikinci çağrı devre dışı kalı
       baraka hedefi ternary'nin SAVAŞÇI dalına düşer
    ─► RequireCombatant onu combatants sözlüğünde arar, bulamaz
    ─► ArgumentException("The unit is not in this battle.")
-      ██ oysa baraka SAVAŞTA — yanlış deftere bakıldı ██
+      >> oysa baraka SAVAŞTA — yanlış deftere bakıldı <<
 
 ② RequireCombatant yerine TryGetCombatant konsa (hata yerine null dönse)
       savaşta olmayan bir birim null bir Combatant ile ilerler
    ─► AttackAction.Execute içinde attacker.AttackProfile okunur
    ─► NullReferenceException
-      ██ hata, sebebini söylemeyen BAŞKA bir yerde patlar ██
+      >> hata, sebebini söylemeyen BAŞKA bir yerde patlar <<
 ```
 
 İkisi birbirinin yedeği değil: birincisi **hangi deftere** bakılacağını, ikincisi
@@ -343,7 +343,7 @@ sırası gelmemiş oyuncu, Battle'ın TANIMADIĞI bir hedefe saldırır
   -> cevap "RejectedActorCannotAct" ................ "sıran değil"
   -> gerçek sebep ......... çağıranın kaydı Battle'ınkiyle ayrışmış
   -> çağıran sırasını bekler, aynı hamleyi tekrar dener, ANCAK O ZAMAN patlar
-     ██ programcı hatası, bir tur boyunca oyun sonucu kılığında dolaşır ██
+     >> programcı hatası, bir tur boyunca oyun sonucu kılığında dolaşır <<
 derleyici: hiçbir şey der
 test: Attack tarafında YEŞİL KALIR — Attack_UnknownTarget_Throws saldıranı
       sırası GELMİŞ hâlde çağırıyor (EndTurn yok), yani CanAct'i hiç zorlamıyor
@@ -369,8 +369,8 @@ değil. 16 dizi okuması bir teşhisin doğruluğuna karşı takas EDİLMEZ.
   ──────────────────────────     ──────────────────────────
   1  sıra kuralı  ◄── BURADA     1  mesafe
   2  mesafe                      2  AttackAction.Execute
-  3  AttackAction.Execute           ██ CAN AZALDI ██
-     ██ CAN AZALDI ██            3  sıra kuralı  ◄── BURADA
+  3  AttackAction.Execute           >> CAN AZALDI <<
+     >> CAN AZALDI <<            3  sıra kuralı  ◄── BURADA
   ──────────────────────────     ──────────────────────────
   ret ⇒ tahta HİÇ değişmedi      ret ⇒ tahta ZATEN değişti
 ```
@@ -459,7 +459,7 @@ dolayısıyla buradaki soru bir koruma değil yalnızca bir **TEKRAR**.
          │                              │
   AttackAction                    AttackAction
     └─ (takımı SORMAZ)              └─ CanBeAttacked ◄── metin
-         │                              │   ██ TEK YER ██
+         │                              │   >> TEK YER <<
   TargetingRules  ◄── kuralın sahibi, iki dünyada da aynı
 ```
 
@@ -552,7 +552,7 @@ olarak "eylem sayılır" ve sırayı SESSİZCE yakar.
   RejectedActorCannotAct    · yakmaz       · yakmaz
   ───────────────────────   ───────────    ────────────
   RejectedNoAmmo  (YARIN)   · yakmaz       ✓ YAKAR
-                            ◄── güvenli    ◄── ██ SESSİZ HATA ██
+                            ◄── güvenli    ◄── >> SESSİZ HATA <<
 ```
 
 Bugünkü altı satırda iki sütun BİREBİR aynı; ayrışma yalnızca son satırda — yani
@@ -642,7 +642,7 @@ de aynı satırı savunuyor:
 ```
   ┌─ ADIM 0-1  çağıran hataları ──┐
   │  null denetimi                │
-  │  new MoveProfile(moveRange) ◄─┼── ██ BURADA ██ negatif
+  │  new MoveProfile(moveRange) ◄─┼── >> BURADA << negatif
   │  RequireCombatant/RequireCell │   sayı burada patlar
   └───────────────────────────────┘
   ┌─ ADIM 2-3  oyun kuralları ────┐
@@ -696,7 +696,7 @@ SORAMAZ, çünkü sormak için gereken tipi göremiyor. Gerekçenin tamamı
   GridStrategy.Battle  ◄── bu dosya
        ├──► GridStrategy.Core    (MoveAction, UnitGrid)
        └──► GridStrategy.Combat  (MovementRules, UnitState)
-            ██ İKİSİNİ BİRDEN GÖREN TEK KATMAN ██
+            >> İKİSİNİ BİRDEN GÖREN TEK KATMAN <<
 
   GridStrategy.Core ──✗──► GridStrategy.Combat
        ◄── ok YOK: MoveAction, UnitState'i yazamaz bile
@@ -744,12 +744,12 @@ yalnızca sonuç kalırdı, kararın kendisi değil.
   AttackRules      "kim vurur"    ──► state == Alive
   ReviveRules      "kim kaldırır" ──► state == Alive
                                       ▲
-                       ██ ÜÇÜ AYNI — AMA TEK METİN DEĞİL ██
+                       >> ÜÇÜ AYNI — AMA TEK METİN DEĞİL <<
 
   REDDEDILEN — türetme:
   ReviveRules ────► AttackRules ────► state == Alive
                     ▲
-                    ██ AYRILMA GÜNÜ BURADA SESSİZCE KIRILIR ██
+                    >> AYRILMA GÜNÜ BURADA SESSİZCE KIRILIR <<
 ```
 
 "Yaralı sıhhiyeci vuramaz ama kaldırabilir" yazıldığı gün `AttackRules` değişir ve
@@ -852,13 +852,13 @@ sayıdan iyidir.
 
 ```
   SEÇİLEN
-  ╔═══ AttackProfile.Range ═══╗  ██ TEK SAHİP ██
+  ╔═══ AttackProfile.Range ═══╗  >> TEK SAHİP <<
   ╚═════════════╤═════════════╝
          ┌──────┴───────┐
          ▼              ▼
   AttackAction     bu satır (AttackResolver.IsWithinRange)
-  hasar erişimi    destek erişimi ◄── ██ ÖDÜNÇ: kabul edilmiş
-  (doğru sahip)                       taviz, gizlenmiyor ██
+  hasar erişimi    destek erişimi ◄── >> ÖDÜNÇ: kabul edilmiş
+  (doğru sahip)                       taviz, gizlenmiyor <<
 
   REDDEDILEN — const int ReviveRange = 1;
   ╔═══ AttackProfile.Range ═══╗   ╔═══ akış dosyası ═══╗
@@ -876,7 +876,7 @@ Projede denge sayıları var ve her biri bir sahibin içinde:
   AttackProfile.Range          menzil         ► TANIM
   TurnRules.MaxActionsPerTurn  tur bütçesi    ► KURAL
   MoveProfile(range)           hareket eşiği  ► TANIM
-  BattleActions                ─── HİÇBİRİ ─── ◄── ██ AKIŞ ██
+  BattleActions                ─── HİÇBİRİ ─── ◄── >> AKIŞ <<
 ```
 
 **KARŞI ÖRNEK** aynı dosyada, [`Move`'un başındaki](#move-moveprofile)
@@ -946,7 +946,7 @@ diğerine devrediyor. Dönüşü sessizce atmak, o imkânsızlığı bir **VARSA
          │  Combatant.State ──devreder──► UnitLifecycle.State
          ▼
   bu satır        target.TryRevive()  ──► false ANCAK iki uç
-                  ayrıştıysa döner  ◄── ██ bugün imkânsız ██
+                  ayrıştıysa döner  ◄── >> bugün imkânsız <<
 ```
 
 ### Revive: EndTurn
@@ -1017,8 +1017,8 @@ kontrolündeki REDDEDILEN bloğunda zaten uygulanmış durumda.
   ║ ele ALINAMAZ        ║       ║ ele ALINIR                    ║
   ║ doğru bir catch yok ║       ║ çağıran switch yazar          ║
   ╚═════════════════════╝       ╚═══════════════════════════════╝
-    ██ AYRIM ÖLÇÜTÜ: bu cevabı alan çağıran YAPACAK BİR ŞEY
-       bulabilir mi? Bulamıyorsa istisna. ██
+    >> AYRIM ÖLÇÜTÜ: bu cevabı alan çağıran YAPACAK BİR ŞEY
+       bulabilir mi? Bulamıyorsa istisna. <<
 
   REDDEDILEN — tek kanal (BattleOutcome):
   çağıran ──► BattleOutcome ──► AttackOutcome
@@ -1078,7 +1078,7 @@ RequireCell'in yerine dönüşü yok sayılan bir battle.TryGetPosition konsa
 battle.TryGetStructure çağrısı, false'ta atan bir RequireStructure sarmalayıcısına
 dönse
    ─► her yapı hedefi "bu savaşta değil" diye patlar
-      ██ oysa baraka SAVAŞTA — normal bir cevap istisnaya çevrildi ██
+      >> oysa baraka SAVAŞTA — normal bir cevap istisnaya çevrildi <<
 ```
 
 ### REDDEDILEN

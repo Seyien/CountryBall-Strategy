@@ -51,7 +51,7 @@ Dört tur, dört kural, hepsi skill katmanında (`unity-expert-code-quality` →
 | **Borrowed Types Owe a Line** | BCL/dil özelliği hiç açıklanmamış | `nameof` 80 kez kullanılmış, tek satır yok |
 | **Show the Shape You Are Discussing** | bahsedilen kod gösterilmiyor | "bir sonraki satır" — belgede o satır yok |
 
-## ██ EN ACİL: bugünün tamamı commit edilmemiş ██
+## ***EN ACİL: bugünün tamamı commit edilmemiş***
 
 ```
 39 değişen/yeni dosya · son commit 05:22 (ayna geçişinden ÖNCE)

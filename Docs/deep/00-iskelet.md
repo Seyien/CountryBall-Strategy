@@ -70,7 +70,7 @@ Aynı sol tık, tahtanın hâline göre dört ayrı şey demek:
                      ├────────────────────┼─────────────────────────┤
  tıklanan hücre BOŞ  │  yalnız bildir     │  HAREKET ET             │
                      └────────────────────┴─────────────────────────┘
-        ██ BU BİR NİYET TABLOSUDUR ██  "izin var mı" sorusu burada YOK;
+        >> BU BİR NİYET TABLOSUDUR <<  "izin var mı" sorusu burada YOK;
         onu bir alt katman cevaplıyor (→ §3)
 ```
 
@@ -90,7 +90,7 @@ Bu oyunun en ayırt edici kuralı, ve tek figürde:
      │                        │     · hedeflenmeye ve hasar almaya DEVAM eder
      └──── diriltildi ────────┘     · hareket EDEMEZ
 
-   ██ Downed'dan Alive'a GERİ DÖNEN ok, bu üçlünün var olma sebebi ██
+   >> Downed'dan Alive'a GERİ DÖNEN ok, bu üçlünün var olma sebebi <<
    Ölçüsü: UnitLifecycle.DefaultDownedWindowSeconds = 10f · corpse = 5f
 ```
 
@@ -354,27 +354,27 @@ yani `Core`'un KARDEŞİ.
 │  referansları: Core · Combat · Battle   (autoReferenced: true — tek)   │
 │   BoardAdapter.Update                                                  │
 │     ① AdvanceBattleTime()   ── her kare, tıklama olsun olmasın         │
-│     ② ██ isPlacingStructure ? ██  GİRDİ AKIŞI BURADA İKİYE AYRILIYOR   │
+│     ② >> isPlacingStructure ? <<  GİRDİ AKIŞI BURADA İKİYE AYRILIYOR   │
 │          AÇIK   → UpdatePlacement → FeedGesture → PointerGesture       │
 │          KAPALI → GetMouseButtonDown → HandleClick                     │
 │     ③ TryReadPointerCell:  ekran pikseli → dünya noktası → HÜCRE       │
-│     ④ ██ NİYET ██  dolu = SALDIR · boş = HAREKET · kendisi = BIRAK     │
+│     ④ >> NİYET <<  dolu = SALDIR · boş = HAREKET · kendisi = BIRAK     │
 │   UnitView.SetState / SetSelected   ◄── dönüş yolu (aşağıdan)          │
 └───────────────────────┬───────────────────────────────▲───────────────┘
        int x, int y     │                               │ Unit + UnitState
        Unit             │                               │
 ════════════════════════╪═══════════════════════════════╪══════════════════
-  ██ DUVAR ██  bu çizginin ALTINDA `UnityEngine` adı ÇÖZÜLMEZ
+  >> DUVAR <<  bu çizginin ALTINDA `UnityEngine` adı ÇÖZÜLMEZ
                duvarı geçen tek şey: sayılar, kimlikler ve enum değerleri
 ════════════════════════╪═══════════════════════════════╪══════════════════
                         ▼                               │
 ┌─ AKIŞ ────────────────────────────────────────────────┼───────────────┐
 │  GridStrategy.Battle   noEngineReferences: TRUE       │               │
 │  referansları: Core · Combat                          │               │
-│  ██ CORE İLE COMBAT'I AYNI ANDA GÖREN İLK VE TEK KATMAN ██            │
+│  >> CORE İLE COMBAT'I AYNI ANDA GÖREN İLK VE TEK KATMAN <<            │
 │   BattleActions.Attack / Move / Revive / PlaceStructure               │
 │     ADIM 0-1  çağıran hataları  ──► istisna           │               │
-│     ────── ██ ÇİZGİ ██ ──────                         │               │
+│     ────── >> ÇİZGİ << ──────                         │               │
 │     ADIM 2-5  kural soruları    ──► sonuç enum'u      │               │
 │     ADIM 6-7  TEK YAZMA + sıra devri                  │               │
 │   Battle  (kim nerede · kim hangi savaşçı) ──── UnitStateChanged ─────┘
@@ -391,7 +391,7 @@ yani `Core`'un KARDEŞİ.
 │ MoveOutcome · PointerGesture    │  │ TargetingRules · AttackAction ...  │
 └─────────────────────────────────┘  └────────────────────────────────────┘
               ▲                                      ▲
-              └──── ██ BU İKİSİ BİRBİRİNİ GÖRMEZ ██ ─┘
+              └──── >> BU İKİSİ BİRBİRİNİ GÖRMEZ << ─┘
                     kanıt: iki BOŞ `references` listesi
 ```
 
@@ -411,7 +411,7 @@ KALITIM ( `:` ile yazılan )        — bütün projede TOPLAM İKİ satır
         ├── BoardAdapter               Awake / OnEnable / Update / OnDisable
         └── UnitView                   ve Inspector'da serileştirilme
 
-   ██ BAŞKA HİÇBİR TİP HİÇBİR ŞEYDEN TÜREMİYOR ██  34 tipin 32'si düz sınıf,
+   >> BAŞKA HİÇBİR TİP HİÇBİR ŞEYDEN TÜREMİYOR <<  34 tipin 32'si düz sınıf,
    static sınıf ya da enum. `Structure : Combatant` bilerek YAZILMADI (→ B2).
 ```
 
@@ -422,7 +422,7 @@ KALITIM ( `:` ile yazılan )        — bütün projede TOPLAM İKİ satır
       ├── Health                      ├── Health
       ├── UnitLifecycle               ├── StructureLifecycle
       ├── AttackProfile               ├── Team
-      └── Team                        └── AttackProfile  ██ null OLABİLİR ██
+      └── Team                        └── AttackProfile  >> null OLABİLİR <<
                                            yapıların ÇOĞU saldırmaz
    Battle                          BoardAdapter
       ├── UnitGrid  (internal)        ├── Battle
@@ -431,7 +431,7 @@ KALITIM ( `:` ile yazılan )        — bütün projede TOPLAM İKİ satır
       ├── Dict<Unit, Action<...>>     └── UnityEngine.Grid
       └── TurnState                        (GetComponent ile bulunur)
 
-   ██ ORTAK OLAN TEK TİP: Health ██
+   >> ORTAK OLAN TEK TİP: Health <<
    Combatant ile Structure'ın paylaştığı tek şey bu — ve bu bir tesadüf değil,
    Structure'ın varlığıyla SINANAN iddia: can kuralı tipten bağımsızsa, bir
    barakanın canı bir askerin canıyla aynı sınıfla tutulabilmelidir.
@@ -464,7 +464,7 @@ kutuda — sıra ikilisi tek kutuyu paylaşıyor); kalan yirmi bir tip, yani
 ║ ölçüsü : Tick(float) saniyeyi DIŞARIDAN alır; Time.deltaTime yok   ║
 ╠═ Combatant ══════════════════ Combat ═════════════════════════════╣
 ║ bilir  : can · taraf · saldırı tanımı · yaşam döngüsü              ║
-║ BİLMEZ : ██ KENDİ KİMLİĞİNİ ██ ve nerede durduğunu                 ║
+║ BİLMEZ : >> KENDİ KİMLİĞİNİ << ve nerede durduğunu                 ║
 ║ sonucu : B6'daki bütün olay zinciri bu tek eksiklikten doğuyor     ║
 ╠═ Structure ══════════════════ Combat ═════════════════════════════╣
 ║ bilir  : can · taraf · ayakta/yıkık · (varsa) saldırı tanımı       ║
@@ -477,14 +477,14 @@ kutuda — sıra ikilisi tek kutuyu paylaşıyor); kalan yirmi bir tip, yani
 ╠═ TurnState + TurnRules ══════ Battle ═════════════════════════════╣
 ║ TurnState : sıra hangi tarafta · kaçıncı turdayız — ama bunun NE   ║
 ║             ANLAMA geldiğini BİLMEZ                                ║
-║ TurnRules : "bu taraf şu an eyleyebilir mi" — ██ TAHTAYI ██, hangi ║
+║ TurnRules : "bu taraf şu an eyleyebilir mi" — >> TAHTAYI <<, hangi ║
 ║             birim olduğunu (yalnız TARAFINI görür), hedefi BİLMEZ  ║
 ╠═ Battle ═════════════════════ Battle ═════════════════════════════╣
 ║ bilir  : kim nerede · kim hangi savaşçı · sıra kimde               ║
 ║ BİLMEZ : ekranı · sprite · rengi · animasyonu · KURALLARI          ║
 ╠═ BattleActions ══════════════ Battle ═════════════════════════════╣
 ║ bilir  : hangi kuralı hangi SIRAYLA soracağını                     ║
-║ BİLMEZ : ██ HİÇBİR KURALIN METNİNİ ██ — mesafe Chebyshev mi, hasar ║
+║ BİLMEZ : >> HİÇBİR KURALIN METNİNİ << — mesafe Chebyshev mi, hasar ║
 ║          nasıl hesaplanır, hedef neden uygun                       ║
 ║ ölçüsü : buradaki her `if` bir kuralı SORAR; hiçbiri kural YAZMAZ  ║
 ╠═ BoardAdapter ═══════════════ Unity ══════════════════════════════╣
@@ -500,7 +500,7 @@ kutuda — sıra ikilisi tek kutuyu paylaşıyor); kalan yirmi bir tip, yani
 
 ### Kutunun en pahalı satırının GERÇEK SATIRLAR tarafındaki karşılığı
 
-██ Bu kutuda on bir gözlem var; kaynağa tek bir satır bağlanacaksa hangisi? ██
+***Bu kutuda on bir gözlem var; kaynağa tek bir satır bağlanacaksa hangisi?***
 Seçimi kutunun kendisi söylüyor — `Combatant` satırındaki
 «sonucu : B6'daki bütün olay zinciri bu tek eksiklikten doğuyor».
 
@@ -511,8 +511,8 @@ Action<UnitState, UnitState> forwarder =
     (previous, next) => UnitStateChanged?.Invoke(unit, previous, next);
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — bu satır **`Combatant.cs`'te değil**, ve seçilme sebebi
-tam olarak bu: kutudaki «`Combatant` BİLMEZ : ██ KENDİ KİMLİĞİNİ ██» satırının
+***EN ÖĞRETİCİ SEÇİMİ*** — bu satır **`Combatant.cs`'te değil**, ve seçilme sebebi
+tam olarak bu: kutudaki «`Combatant` BİLMEZ : ***KENDİ KİMLİĞİNİ***» satırının
 karşılığı, `Combatant`'ta **olmayan** bir alan. Bir yokluğun kaynakta satırı
 olmaz; onun yerine, o yokluğu telafi eden satır gösterilir. Burada olan şu:
 `Combatant.StateChanged` yalnız «bir durum değişti» diyebiliyor, «HANGİ birim»
@@ -522,8 +522,8 @@ diyemiyor; eksik kimliği bu kapanış dışarıdan ekliyor — `unit`i yakalay�
 Aynı satır kutunun iki gözlemini daha aynı anda kapatıyor: `UnitGrid` satırındaki
 «BİLMEZ : tuttuğu şeyin ne olduğunu» (tahta kimliği tutar, savaşçıyı bilmez) ve
 `Battle` satırındaki «bilir : kim nerede · kim hangi savaşçı» — ikisini
-buluşturan tek yer burası. ██ Kutuda üç ayrı satır olarak duran şey, kaynakta tek
-bir ifade. ██
+buluşturan tek yer burası. ***Kutuda üç ayrı satır olarak duran şey, kaynakta tek
+bir ifade.***
 
 Mekanizmanın tamamı (`Target`/`Method`, kapanışın neden saklandığı, sökülmezse ne
 olduğu): [dil/06-delege-arka-taraf.md](dil/06-delege-arka-taraf.md) ve
@@ -636,11 +636,11 @@ doğrulandı — doğrulanmamış bir sayı üslup hatası değil, kusurdur.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 Bu dosya okuma yolunun **1. adımıydı**. Sıradaki adım
 [`konular/02-assembly-duvari.md`](konular/02-assembly-duvari.md) —
-██ `konular/01` DEĞİL. ██
+***`konular/01` DEĞİL.***
 
 > **NEDEN 02:** `01`'in taşıyıcı gerekçesi (*"`Combatant` bir `Unit` alsaydı
 > `GridStrategy.Combat` ad alanı `GridStrategy.Core`'a bağlanırdı"*) `02`'de

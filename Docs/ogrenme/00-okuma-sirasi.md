@@ -2,17 +2,17 @@
 
 > **Ne zaman oku:** `Docs/deep/` ağacına ilk kez oturmadan **önce**, ve her
 > oturumun başında bir kez daha.
-> **Ne yapar:** 12.226 satırlık üç ağacı 14 adıma ve 5 oturuma bölüyor; her
+> **Ne yapar:** 28.806 satırlık üç ağacı 15 adıma ve 5 oturuma bölüyor; her
 > adımın **niye orada** olduğunu ve yanında **hangi `.cs` dosyasının** açık
 > duracağını yazıyor.
 > **Ne YAPMAZ:** hiçbir mekanizmayı anlatmaz. Bu bir yol tarifi, bir ders değil.
 
 ---
 
-## ██ ÖNCE ŞUNU OKU: NUMARALAR BİR SIRA DEĞİL ██
+## ***ÖNCE ŞUNU OKU: NUMARALAR BİR SIRA DEĞİL***
 
 `konular/01`, `dil/05`, `ogrenme/03` gibi adlardaki sayılar
-██ **bir DOSYA KİMLİĞİDİR, bir okuma sırası değil.** ██
+*****bir DOSYA KİMLİĞİDİR, bir okuma sırası değil.*****
 
 Bu tek cümle olmadan aşağıdaki her şey boşa gider: okuyucu yine numaralara uyar,
 `01`'den başlar, ve ilk sayfada tanımlanmamış üç kavramın üstüne oturur.
@@ -32,7 +32,7 @@ duruyor. Doğru sıra `02 · 03 · 05 · 06 · 04 · 07 · 08 · 01`; numara sı
      30+ çapa             00-iskelet.md'de 12 atıf, ogrenme/03'te 20'den fazla
                           satır, artı .cs yorumlarındaki "DERİN ANLATIM:" yolları
 
-   ██ Numara ucuz görünür, ama 30+ yerde çapa olarak kullanılıyor. ██
+   >> Numara ucuz görünür, ama 30+ yerde çapa olarak kullanılıyor. <<
    Sıra ise tek bir yerde yaşayabilir: bu dosyada.
 ```
 
@@ -41,10 +41,10 @@ kalmaları da bilinçli bir karar.
 
 ---
 
-## ██ TOPLAM SÜRE VE OTURUM BÖLÜMÜ ██
+## ***TOPLAM SÜRE VE OTURUM BÖLÜMÜ***
 
 ```
-   belge          12.226 satır   yoğun teknik Türkçe anlatı
+   belge          28.806 satır   yoğun teknik Türkçe anlatı
    yanında kod     ~5.300 satır   (aynı satırları birkaç kez açacaksın)
    ────────────────────────────────────────────────────────────────
    GERÇEKÇİ TAHMİN
@@ -52,34 +52,34 @@ kalmaları da bilinçli bir karar.
      kod yan yana açıp izleme         + 2 – 3 saat
      durma noktalarında koşturma      + 1,5 saat
    ────────────────────────────────────────────────────────────────
-   TOPLAM                              9 – 11 saat  ·  ██ BEŞ OTURUM ██
+   TOPLAM                              9 – 11 saat  ·  >> BEŞ OTURUM <<
 ```
 
 **Tek oturumda bitirme.** Ölçü: `05`, `06`, `07` ve `08` dosyalarının her biri
 700-950 satır ve her biri **kendi karar ağacını** taşıyor. Arka arkaya iki
 tanesi okunduğunda ikincinin karar ağacı birincininkiyle karışıyor.
 
-██ **Oturum sınırları tesadüf değil: her oturum bir KOŞTURMA ile bitiyor.** ██
+*****Oturum sınırları tesadüf değil: her oturum bir KOŞTURMA ile bitiyor.*****
 Koşturmadan ilerlemek, kapatılmamış bir haritanın üstüne yenisini koymaktır. Bir
 durma noktasını atlamak, o oturumu hiç okumamaktan **daha kötüdür**: okuduğunu
 sanırsın.
 
 ---
 
-## ██ BAĞIMLILIK GRAFİĞİ — sıranın türetildiği yer ██
+## ***BAĞIMLILIK GRAFİĞİ — sıranın türetildiği yer***
 
 Kenar ölçütü: **X → Y** demek, *"X'in taşıyıcı bir gerekçesi Y'nin konusuna
 dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar değildir.
 
 ```
                     ╔══════════════════════════╗
-                    ║   deep/00-iskelet.md     ║  ◄── ██ TEK ACYCLIC KÖK ██
+                    ║   deep/00-iskelet.md     ║  ◄── >> TEK ACYCLIC KÖK <<
                     ║   gelen kenar : 0        ║      hiçbir şeye bağımlı değil
                     ╚════════════╤═════════════╝      her şeyi SIĞ tanıtır
                                  │
                                  ▼
                     ╔══════════════════════════╗
-                    ║   konular/02  DUVAR      ║  ◄── ██ OMURGA ██
+                    ║   konular/02  DUVAR      ║  ◄── >> OMURGA <<
                     ║   gelen kenar : 6        ║      01·03·04·05·06·07
                     ╚════════════╤═════════════╝      altısı da buna dayanıyor
                                  │
@@ -97,12 +97,12 @@ dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar de�
             karar sırası                       │
                                                ▼
                                        konular/08  motorun tarafı
-                                       ██ YAPRAK ██ kimse buna bağımlı değil
+                                       >> YAPRAK << kimse buna bağımlı değil
                                                │
                                                ▼
                                     ╔═════════════════════╗
                                     ║   konular/01        ║
-                                    ║  ██ BULUŞMA NOKTASI ██
+                                    ║  >> BULUŞMA NOKTASI <<
                                     ╚══════════╤══════════╝
                                                │
                                                ▼
@@ -115,7 +115,7 @@ dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar de�
                             ogrenme/01 ──► ogrenme/03 ──► ogrenme/02
 ```
 
-### ██ `konular/01`'in gerçek rolü — en pahalı yanlış anlama ██
+### ***`konular/01`'in gerçek rolü — en pahalı yanlış anlama***
 
 ```
    ┌───────────────────────────────────────────────────────────┐
@@ -129,7 +129,7 @@ dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar de�
    │     onu ÖN KOŞUL saymıyor.                                │
    └───────────────────────────────────────────────────────────┘
 
-   ██ 01 bir GİRİŞ değil, bir DÜĞÜM. ██ Üç iplik orada düğümleniyor.
+   >> 01 bir GİRİŞ değil, bir DÜĞÜM. << Üç iplik orada düğümleniyor.
    Erken okunursa üçü de tanımsız; geç okunursa düğüm kendiliğinden çözülüyor.
    Zincirin en kısa dosyası (336 satır) tesadüfen değil, BULUŞMA NOKTASI
    olduğu için kısa: üç ipliği anlatmıyor, bağlıyor.
@@ -142,7 +142,7 @@ dayanıyor ve X onu kendi içinde tanımlamıyor"*. Üslup benzerliği kenar de�
 
 ---
 
-# ██ OTURUM 1 · BÜTÜNÜ KUR ██  (~2 saat · 1.262 satır)
+# ***OTURUM 1 · BÜTÜNÜ KUR***  (~2 saat · 1.262 satır)
 
 Amaç tek bir mekanizmayı öğrenmek değil: **yüzeyin tamamını görmek** ve duvarın
 nerede durduğunu bilmek.
@@ -157,24 +157,24 @@ senin kendi cümlenle yazılmış (`00-iskelet.md:18-21`):
 > *"sen sadece şuraya bak şuraya dediğinde diğer kısımlarını görmediğim için
 > kafamda oturtturamıyorum"*
 
-██ Bugünkü sorun ile bu dosyanın yazılma sebebi **aynı** sorun. ██
+***Bugünkü sorun ile bu dosyanın yazılma sebebi **aynı** sorun.***
 
-**AÇIK OLACAK KOD:** ██ yok. ██ İlk geçişte kod açma. Bu dosya kasten tip adı
+**AÇIK OLACAK KOD:** ***yok.*** İlk geçişte kod açma. Bu dosya kasten tip adı
 kullanmadan başlıyor.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"Bu oyun ne? Tahtada ne var, bir tıklama kaç anlama gelebilir, bir birim
 > nasıl ölür, ve dört derleme birimi hangi sırayla birbirini görüyor?"*
 
-**██ ATLA: ██** `§6 Aynı basınç, üç başka oyun` (`:531-581`). O bölüm
+*****ATLA:***** `§6 Aynı basınç, üç başka oyun` (`:531-581`). O bölüm
 karşılaştırma; ilk geçişte gerekmez. Beşinci oturumda geri gel.
 
 ---
 
-### ADIM 2 · [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md) — tamamı (658)
+### ADIM 2 · [`konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md) — tamamı (876)
 
-**NEDEN BU SIRADA:** ██ Bu dosya zincirin omurgasıdır: altı dosya ona bağımlı,
-o hiçbir dosyaya bağımlı değil. ██ Şu altısı — `01`, `03`, `04`, `05`, `06`,
+**NEDEN BU SIRADA:** ***Bu dosya zincirin omurgasıdır: altı dosya ona bağımlı,
+o hiçbir dosyaya bağımlı değil.*** Şu altısı — `01`, `03`, `04`, `05`, `06`,
 `07` — bir noktada "assembly duvarı" diyor ve **hiçbiri onu tanımlamıyor**. Bu
 adım altı ön koşulu birden kapatıyor. Zincirdeki en yüksek getirili tek adım bu.
 
@@ -198,7 +198,7 @@ Assets/Game/Core/Combat/AttackResolver.cs IsWithinRange(int distance, AttackProf
 
 ---
 
-### ██ DURMA NOKTASI 1 ██ — duvarın faturasını satın al
+### ***DURMA NOKTASI 1*** — duvarın faturasını satın al
 
 **KOMUT:**
 ```powershell
@@ -213,14 +213,14 @@ Assets/Game/Core/Combat/AttackResolver.cs IsWithinRange(int distance, AttackProf
 > *"`GridStrategy.Combat.EditModeTests`'in `references` dizisinde **tek bir oyun
 > assembly'si var**"*
 
-██ Doğrulamadan ilerleme. ██ Duvarın "faturası"nın satın aldığı şey tam olarak
+***Doğrulamadan ilerleme.*** Duvarın "faturası"nın satın aldığı şey tam olarak
 o tek satırdır. Zincirin geri kalanı da bu takasa dayanıyor.
 
 ---
 
-# ██ OTURUM 2 · SAHİPLİK VE DURUM ██  (~2 saat · 1.825 satır)
+# ***OTURUM 2 · SAHİPLİK VE DURUM***  (~2 saat · 1.825 satır)
 
-### ADIM 3 · [`konular/03-tahta-sahipligi.md`](../deep/konular/03-tahta-sahipligi.md) — tamamı (503)
+### ADIM 3 · [`konular/03-tahta-sahipligi.md`](../deep/konular/03-tahta-sahipligi.md) — tamamı (637)
 
 **NEDEN BU SIRADA:** `02`'nin hemen ardından, çünkü `03`'ün "üç katman"
 figürünün **orta katmanı** (`internal Board`) doğrudan duvara dayanıyor ve
@@ -234,9 +234,9 @@ Assets/Game/Battle/Battle.cs      board alanı · internal Board üyesi · kuruc
 Assets/Game/Core/UnitGrid.cs      PlaceUnit · RemoveUnit · TryGetUnit · ThrowIfOutsideGrid
 Assets/Game/Battle/BattleActions.cs:207
     MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
-                                  ██ Board'un TEK çağırısı — tüm projede ██
+                                  >> Board'un TEK çağırısı — tüm projede <<
 ```
-██ O tek satırı **kendin say**: ██ `grep -n 'battle.Board' Assets/Game/Battle/BattleActions.cs`
+***O tek satırı **kendin say**:*** `grep -n 'battle.Board' Assets/Game/Battle/BattleActions.cs`
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"`readonly` tam olarak neyi **korumuyor**? Tahtaya kim yazabiliyor, ve
@@ -244,7 +244,7 @@ Assets/Game/Battle/BattleActions.cs:207
 
 ---
 
-### ADIM 4 · [`dil/01-degismezlik-anahtar-kelimeleri.md`](../deep/dil/01-degismezlik-anahtar-kelimeleri.md) — tamamı (598)
+### ADIM 4 · [`dil/01-degismezlik-anahtar-kelimeleri.md`](../deep/dil/01-degismezlik-anahtar-kelimeleri.md) — tamamı (780)
 
 **NEDEN BU SIRADA:** `03`'ün ikinci durağı `readonly`'nin **korumadığı** şeyi
 gösteriyor ama **neden** korumadığını dil düzeyinde vermiyor. Onu `dil/01`
@@ -253,8 +253,8 @@ veriyor. Üstelik `dil/01:176` zaten `03`'e geri işaret ediyor:
 > *"Tekrarlamıyorum, gerekçesi ve üç katmanlı haritası burada:
 > `konular/03-tahta-sahipligi.md`"*
 
-██ İki dosya bilerek bölüşmüş. `03`'ü okumadan `dil/01`'i okumak tersten
-okumaktır. ██
+***İki dosya bilerek bölüşmüş. `03`'ü okumadan `dil/01`'i okumak tersten
+okumaktır.***
 
 **AÇIK OLACAK KOD:**
 ```
@@ -272,7 +272,7 @@ Assets/Game/Core/Combat/UnitLifecycle.cs       downedWindowSeconds (readonly)
 
 ---
 
-### ADIM 5 · [`konular/05-yasam-dongusu.md`](../deep/konular/05-yasam-dongusu.md) — tamamı (724)
+### ADIM 5 · [`konular/05-yasam-dongusu.md`](../deep/konular/05-yasam-dongusu.md) — tamamı (892)
 
 **NEDEN BU SIRADA:** Grafikte `05` iki dosyanın (`06` ve `01`) ön koşulu. `06`
 sıfırıncı enum değerini `05`'ten ödünç alıyor, `01` üç durumun **adını**
@@ -295,7 +295,7 @@ Assets/Game/Battle/Battle.cs                    RemoveReadyForCleanup
 
 ---
 
-### ██ DURMA NOKTASI 2 ██ — bir testin ADI bir kararı nasıl taşır
+### ***DURMA NOKTASI 2*** — bir testin ADI bir kararı nasıl taşır
 
 **KOMUT:**
 ```powershell
@@ -315,26 +315,26 @@ Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs
 > `TargetingRulesTests.Downed_IsTheOnlyStateBothAbilitiesAccept`.
 > **Adı doğrudan kesişimi söylüyor.**"*
 
-██ Aç ve oku. Bir test **adının** bir tasarım kararını nasıl taşıdığını görmek,
-bu projedeki en aktarılabilir beceri. ██
+***Aç ve oku. Bir test **adının** bir tasarım kararını nasıl taşıdığını görmek,
+bu projedeki en aktarılabilir beceri.***
 
 ---
 
-# ██ OTURUM 3 · KARAR VE RET ██  (~2 saat · 1.342 satır)
+# ***OTURUM 3 · KARAR VE RET***  (~2 saat · 1.342 satır)
 
-### ADIM 6 · [`konular/06-sonuc-enumlari.md`](../deep/konular/06-sonuc-enumlari.md) — tamamı (714)
+### ADIM 6 · [`konular/06-sonuc-enumlari.md`](../deep/konular/06-sonuc-enumlari.md) — tamamı (880)
 
-**NEDEN BU SIRADA — ██ ve neden `04`'ten ÖNCE ██:** Numara sırası `04 → 06`
+**NEDEN BU SIRADA — ***ve neden `04`'ten ÖNCE***:** Numara sırası `04 → 06`
 diyor; bağımlılık **tersini** diyor. İkisi de aynı ölçütü kuruyor:
 
 ```
-   06:494    "Ayıraç sebep sayısı değil, ██ DAVRANIŞ sayısı ██"
-   04:606    "ayırıcı şey SEBEP sayısı değil, ██ DAVRANIŞ sayısı ██"
+   06:494    "Ayıraç sebep sayısı değil, >> DAVRANIŞ sayısı <<"
+   04:606    "ayırıcı şey SEBEP sayısı değil, >> DAVRANIŞ sayısı <<"
 ```
 
-██ Aynı kural iki dosyada iki kez kuruluyor, ve hiçbiri ötekini anmıyor. ██
+***Aynı kural iki dosyada iki kez kuruluyor, ve hiçbiri ötekini anmıyor.***
 `06` onu **kurar** (dört enum, on bir ret değeri, tam tablo); `04` onu bir
-**sıra kararına uygular**. ██ Kuran önce okunur. ██
+**sıra kararına uygular**. ***Kuran önce okunur.***
 
 **AÇIK OLACAK KOD:**
 ```
@@ -352,7 +352,7 @@ Assets/Game/Unity/BoardAdapter.cs           ReactToMove · ReactToAttack
 
 ---
 
-### ADIM 7 · [`konular/04-karar-sirasi.md`](../deep/konular/04-karar-sirasi.md) — tamamı (628)
+### ADIM 7 · [`konular/04-karar-sirasi.md`](../deep/konular/04-karar-sirasi.md) — tamamı (837)
 
 **NEDEN BU SIRADA:** `06` ölçütü kurdu; `04` onu **uyguluyor**. Ve `04`'ün iki
 körlüğü (`AttackRules` sırayı soramaz, `MoveAction` durumu soramaz) doğrudan
@@ -367,11 +367,11 @@ Assets/Game/Core/Combat/AttackRules.cs · TargetingRules.cs
 Assets/Game/Battle/TurnRules.cs
 ```
 
-**██ BU DOSYANIN VERMEDİĞİ TEK ŞEY: ██** `04` bu üç tipin rolünü 628 satır
+*****BU DOSYANIN VERMEDİĞİ TEK ŞEY:***** `04` bu üç tipin rolünü 628 satır
 boyunca anlatıyor ve o role **hiç ad vermiyor**. O adı
 [`ogrenme/01` §2](01-koda-gomulu-desenler.md#2-akis-sahibi-transaction-script-command-degil)
-veriyor: ██ rolün adı **akış sahibi** (transaction script), ve bu bir Command
-DEĞİL. ██ Ölçüsü şu: üçü de `static class` ve tek alanı yok. "Bu projede hangi
+veriyor: ***rolün adı **akış sahibi** (transaction script), ve bu bir Command
+DEĞİL.*** Ölçüsü şu: üçü de `static class` ve tek alanı yok. "Bu projede hangi
 desenleri kullandın" sorusunun cevabı orada; ADIM 14'te kapatacaksın.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
@@ -381,7 +381,7 @@ desenleri kullandın" sorusunun cevabı orada; ADIM 14'te kapatacaksın.
 
 ---
 
-### ██ DURMA NOKTASI 3 ██ — "Prefers" testleri: koşturulabilir karar ağacı
+### ***DURMA NOKTASI 3*** — "Prefers" testleri: koşturulabilir karar ağacı
 
 **KOMUT:**
 ```powershell
@@ -396,7 +396,7 @@ Attack_OutOfTurnAgainstAnInvalidTargetOutOfRange_PrefersActorCannotAct
 Execute_DownedAttackerWithDeadTargetOutOfRange_PrefersActorCannotAct
 ```
 
-██ Her `Prefers` testi bir SIRA KARARINI tutuyor. ██ Ama `04:412` şunu da
+***Her `Prefers` testi bir SIRA KARARINI tutuyor.*** Ama `04:412` şunu da
 söylüyor:
 > *"Bunu ölçen bir test yok, **ve olmaması doğru**."*
 
@@ -405,12 +405,12 @@ olması gerekir) ve ne zaman edilemeyeceğini bu dört test gösteriyor.
 
 ---
 
-# ██ OTURUM 4 · MOTOR SINIRI ██  (~2,5 saat · 1.866 satır)
+# ***OTURUM 4 · MOTOR SINIRI***  (~2,5 saat · 1.866+ satır)
 
-██ Bu en uzun oturum, ve **içinde tek çalışmayan senaryo var.** ██ Aşağıdaki
+***Bu en uzun oturum, ve **içinde tek çalışmayan senaryo var.***** Aşağıdaki
 uyarıyı oturuma başlamadan oku.
 
-### ADIM 8 · [`konular/07-tiklamadan-eyleme.md`](../deep/konular/07-tiklamadan-eyleme.md) — tamamı (916)
+### ADIM 8 · [`konular/07-tiklamadan-eyleme.md`](../deep/konular/07-tiklamadan-eyleme.md) — tamamı (1126)
 
 **NEDEN BU SIRADA:** `deep/00-iskelet.md:526` bunu doğru adlandırıyor:
 *"uçtan uca tek akış"*. Duvar (`02`), sahiplik (`03`), durum (`05`) ve ret
@@ -432,9 +432,52 @@ Assets/Game/Unity/UnitView.cs       SetSelected
 
 ---
 
-### ██ DURMA NOKTASI 4 ██ — ██ EDITOR · VE BURADA BİR ŞEY KIRILACAK ██
+### ADIM 8b · [`ogrenme/11-unity-penceresi-adim-adim.md`](11-unity-penceresi-adim-adim.md) — tamamı
+
+**NEDEN TAM BURADA:** aşağıdaki durma noktası bu turda Unity penceresini
+**ilk kez** açtırıyor ve doğrudan `Play`'e bastırıyor. Ölçü: bu belgedeki altı
+durma noktasının beşi bir komut ya da bir test dosyası açtırıyor, yalnız bu
+biri Editör'ü açtırıyor. Ama sahne bugün eksik: `placementGhost` alanı atanmamış
+ve sahnede referans verilebilecek bir `SpriteRenderer` **hiç yok** (ölçüldü:
+`SampleScene.unity` içinde sıfır tane). Bu yüzden aşağıdaki ② senaryosu kendi
+ilk cümlesinde düşer — hayalet belirmez, kip hiç açılmaz.
+
+`11` o boşluğu kapatır: on altı serileştirilmiş alanın her birini Inspector
+başlığıyla tanıtır, hangisine ne sürükleneceğini yazar, ve sahneyi beş adımda
+onartır.
+
+***Ayrıca bu adım bir ÖLÇÜM taşıyor ve ölçüm bu ağaçtaki açık bir soruyu
+kapatıyor:*** sahne dosyasında **yazılı olmayan** bir `[SerializeField]` alanı
+hangi değeri alır — C# alan başlatıcısını mı, yoksa tipin sıfır değerini mi?
+`11` cevabı `Library/` altındaki içe aktarılmış prefab verisinden bayt düzeyinde
+okuyor. Aynı soru [`08-unity-altyapisi.md`](08-unity-altyapisi.md)'nin
+ADIM 3 ve ADIM 5 adımlarında **DOĞRULANMADI** diye işaretliydi.
+
+**AÇIK OLACAK KOD:**
+```
+Assets/Game/Unity/BoardAdapter.cs   13 [SerializeField] alani
+Assets/Game/Unity/UnitView.cs        3 [SerializeField] alani
+Assets/Scenes/SampleScene.unity      bugun 4 alan yazili
+Assets/Game/Prefabs/Unit.prefab      bugun 1 alan yazili (uctan)
+```
+
+***ONARIM KUSURU DÜZELTMEZ, KUSURU ULAŞILABİLİR YAPAR.*** Aşağıdaki ②'nin
+anlattığı `ArgumentException` ancak `11` uygulandıktan sonra görülebilir;
+uygulanmadan görünen şey başka bir satırdır ve o satır turun dersi değildir.
+***REDDEDİLEN 4 yerinde duruyor:*** kod hâlâ bu turda düzeltilmiyor.
+
+**BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
+> *"Inspector'da duran bir alanın değeri nereden geliyor — sahne dosyasından mı,
+> C# alan başlatıcısından mı? Ve boş bir referans alanı kodu tam olarak hangi
+> satırda durduruyor?"*
+
+---
+
+### ***DURMA NOKTASI 4*** — ***EDITOR · VE BURADA BİR ŞEY KIRILACAK***
 
 Unity'yi aç, `Assets/Scenes/SampleScene.unity`, **Play**.
+
+***ÖN KOŞUL: ADIM 8b.*** Sahne onarılmadan aşağıdaki ② hiç başlamaz.
 
 #### ① Çalışacak olan — dört dal
 
@@ -442,7 +485,7 @@ Bir askere tıkla (seçilir, çerçeve açılır) → boş hücreye tıkla (yür
 düşmana tıkla (vurur) → aynı askere ikinci kez tıkla (seçim bırakılır).
 `07:560-572`'deki niyet tablosunun dört dalı.
 
-#### ② ██ ÇALIŞMAYACAK OLAN — VE BU SENİN HATAN DEĞİL ██
+#### ② ***ÇALIŞMAYACAK OLAN — VE BU SENİN HATAN DEĞİL***
 
 Bir birim seç, **`B`**'ye bas (yerleştirme kipi açılır, hayalet belirir),
 sürükle, **tahta içindeki boş bir hücreye** bırak. Console'da şunu göreceksin:
@@ -452,8 +495,8 @@ ArgumentException: The unit is already in this battle.
 Parameter name: unit
 ```
 
-██ Bu bir KOD KUSURU ve `konular/07` dışında zincirin hiçbir yeri onu
-söylemiyor. ██
+***Bu bir KOD KUSURU ve `konular/07` dışında zincirin hiçbir yeri onu
+söylemiyor.***
 
 **Sebebi — koda karşı doğrulandı, üç sıçrama:**
 
@@ -461,7 +504,7 @@ söylemiyor. ██
 BoardAdapter.cs:502   Unit placer = selectedUnit;
 BoardAdapter.cs:504   BattleActions.PlaceStructure(battle, placer, NewStructure(placer), x, y);
                                                           ▲
-                      ██ YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR ██
+                      >> YAPIYA, ZATEN KAYITLI BİR BİRİMİN KİMLİĞİ VERİLİYOR <<
         │
         ▼
 BattleActions.cs:365  battle.AddStructure(unit, structure, x, y);
@@ -480,15 +523,15 @@ BoardAdapter.cs:359   private void TryEnterPlacementMode()
 BoardAdapter.cs:363       Debug.Log("[Board] Select a unit before entering structure placement mode.", this);
 ```
 
-**██ HANGİ HÜCREDE NE OLUYOR — üç dal, ölçüldü: ██**
+*****HANGİ HÜCREDE NE OLUYOR — üç dal, ölçüldü:*****
 ```
   tahta DIŞI hücre  ──► BattleActions.cs:347  RejectedInvalidCell    ✓ ret, istisna YOK
   DOLU hücre        ──► BattleActions.cs:357  RejectedCellOccupied   ✓ ret, istisna YOK
-  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure  ██ HER SEFERİNDE İSTİSNA ██
+  tahta içi + BOŞ   ──► BattleActions.cs:365  AddStructure  >> HER SEFERİNDE İSTİSNA <<
 ```
 
-██ Yani **başarılı olması gereken tek dal** patlıyor. `PlacementOutcome.Placed`
-arayüzden ULAŞILAMAZ; `CreateStructureVisual` üretimde HİÇ çağrılmaz. ██
+***Yani **başarılı olması gereken tek dal** patlıyor. `PlacementOutcome.Placed`
+arayüzden ULAŞILAMAZ; `CreateStructureVisual` üretimde HİÇ çağrılmaz.***
 
 ```
 BoardAdapter.cs:566   private void CreateStructureVisual(int x, int y)
@@ -499,20 +542,20 @@ veriyor (`new Unit("Barracks")`), yani adaptörün çağrı **şekli** hiçbir t
 yok. `BoardAdapterTests.cs` diye bir dosya da yok.
 `deep/00-iskelet.md:330-332` bunu zaten yazıyor.
 
-**██ NE YAP: ██** İstisnayı **gör**, yukarıdaki üç sıçramayı kodda aç, zinciri
-kendin izle. ██ Bu, bütün turun en öğretici on dakikası olacak. ██ Belgenin
+*****NE YAP:***** İstisnayı **gör**, yukarıdaki üç sıçramayı kodda aç, zinciri
+kendin izle. ***Bu, bütün turun en öğretici on dakikası olacak.*** Belgenin
 doğru olduğu yerle kodun doğru olduğu yerin nerede ayrıştığını kendi gözünle
 göreceksin. Ve [`deep/README.md`](../deep/README.md)'nin ilk kuralını ilk kez
 gerçekten uygulayacaksın:
 
 > *"İkisi çelişirse **kod kazanır**."*
 
-██ **Düzeltmeyi bu turda yapma.** ██ Not al, ayrı bir tura bırak. Bugünkü soru
+*****Düzeltmeyi bu turda yapma.***** Not al, ayrı bir tura bırak. Bugünkü soru
 "okuduğumda anlayabilecek miyim", "kodu tamir edebilecek miyim" değil.
 
 ---
 
-### ADIM 9 · [`konular/08-motor-cagri-dongusu.md`](../deep/konular/08-motor-cagri-dongusu.md) — tamamı (950)
+### ADIM 9 · [`konular/08-motor-cagri-dongusu.md`](../deep/konular/08-motor-cagri-dongusu.md) — tamamı (1135)
 
 **NEDEN BU SIRADA:** `07` `Update`'in **içini** anlatıyor; `08` `Update`'i
 **kimin çağırdığını**. `08:391-394` bu bölüşmeyi kendisi yazıyor. Ayrıca `08`
@@ -540,31 +583,31 @@ ProjectSettings/EditorSettings.asset    m_EnterPlayModeOptionsEnabled: 0
 
 ---
 
-### ██ DURMA NOKTASI 5 ██ — motorun sırasını KENDİN ölç
+### ***DURMA NOKTASI 5*** — motorun sırasını KENDİN ölç
 
 `08:344-370` bir deney tarif ediyor ve önden şunu diyor (`08:346`):
-> *"██ Buradaki hiçbir iddiayı bana güvenerek kabul etme. ██"*
+> *"***Buradaki hiçbir iddiayı bana güvenerek kabul etme.***"*
 
 **DENEY:** Geçici bir `MonoBehaviour`, yedi geri çağrının her birine bir
 `Debug.Log($"{Time.frameCount} {name} Awake")`, **iki ayrı GameObject** (A ve
 B), Play, Console'u zaman sırasına al.
 
 **SINADIĞIN İDDİA:** *"bütün `Awake`'ler bütün `Start`'lardan önce"* —
-██ "A önce" DEĞİL ██ (`08:363-365`). Gözlem bir kez tuttu diye kural sanma.
+***"A önce" DEĞİL*** (`08:363-365`). Gözlem bir kez tuttu diye kural sanma.
 
 Sonra Play'deyken B'nin bileşen kutusunu **kapat-aç**: `OnDisable` · `OnEnable`
 görürsün, `Awake` ve `Start` **tekrar etmez**.
 
-██ Deneyi bitirince geçici script'i SİL. Repoya ekleme. ██
+***Deneyi bitirince geçici script'i SİL. Repoya ekleme.***
 
 ---
 
-# ██ OTURUM 5 · DÜĞÜM VE DEFTER ██  (~2 saat · 2.243+ satır)
+# ***OTURUM 5 · DÜĞÜM VE DEFTER***  (~2 saat · 2.243+ satır)
 
-### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1479)
+### ADIM 9b · [`ogrenme/08-unity-altyapisi.md`](08-unity-altyapisi.md) — tamamı (1491)
 
 **NEDEN BU SIRADA:** ADIM 9 *"ne oluyor"*u kapattı: çağrı sırası, sahipleri, ve
-`Awake`'in bir `event` olmadığı. Bu dosya ██ *"neden ve teknik olarak nasıl"* ██
+`Awake`'in bir `event` olmadığı. Bu dosya ***"neden ve teknik olarak nasıl"***
 sorusunu açıyor. Açtıkları şunlar: yönetilen C# ile yerel motorun sınırı,
 `Vector3` neden `struct`, PlayerLoop'un faz ağacı, serileştirmenin C#'ın
 `[Serializable]`'ı **olmadığı**, `.meta`/GUID kimliği, ve ad tabanlı geri
@@ -573,7 +616,7 @@ zaman çağrılmaz.
 
 **ÖN KOŞUL:** ADIM 2 (duvar) ve ADIM 9. **YANINDA AÇIK:** `Assets/Game/Unity/BoardAdapter.cs`
 
-██ Bu dosyanın sonunda 8 adımlık bir **Editor geçiş listesi** var. ██ Kod
+***Bu dosyanın sonunda 8 adımlık bir **Editor geçiş listesi** var.*** Kod
 tarafını bitirdikten sonra Unity tarafına oradan geçilir. O listede her adımda
 nereye tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazılı.
 
@@ -582,9 +625,9 @@ nereye tıklanacağı, ne görüneceği ve ne zaman durup rapor edileceği yazı
 
 ---
 
-### ADIM 10 · [`konular/01-olay-zinciri.md`](../deep/konular/01-olay-zinciri.md) — tamamı (336)
+### ADIM 10 · [`konular/01-olay-zinciri.md`](../deep/konular/01-olay-zinciri.md) — tamamı (671)
 
-**NEDEN EN SONDA — ██ ve numarası `01` olmasına rağmen ██:** Üç ipliğin
+**NEDEN EN SONDA — ***ve numarası `01` olmasına rağmen***:** Üç ipliğin
 düğümlendiği yer burası ve üçünü de artık kapattın:
 
 ```
@@ -593,7 +636,7 @@ düğümlendiği yer burası ve üçünü de artık kapattın:
    dil/04       ── event · Action · lambda   (01:176)   ── ADIM 11'de gelecek
 ```
 
-██ `dil/04` henüz kapanmadı ve bu bilinçli: ██ `01` delegenin **ne yaptığını**
+***`dil/04` henüz kapanmadı ve bu bilinçli:*** `01` delegenin **ne yaptığını**
 gösteriyor, `dil/04` **ne vaat ettiğini**. Zinciri önce gör, sözleşmeyi sonra
 oku. Tersi, malzemeyi hiç kullanmadan öğrenmek olurdu.
 
@@ -619,7 +662,7 @@ Assets/Game/Unity/UnitView.cs:173              public void SetState(UnitState st
 
 ---
 
-### ADIM 11 · `dil/04` (460) ██→██ `dil/06` (738) — bu sırayla, ZORUNLU
+### ADIM 11 · `dil/04` (607) ***→*** `dil/06` (1029) — bu sırayla, ZORUNLU
 
 Sıra bir tercih değil; [`dil/06`](../deep/dil/06-delege-arka-taraf.md) okuyucusuna
 açıkça yazıyor (`dil/06:11-15`):
@@ -627,7 +670,7 @@ açıkça yazıyor (`dil/06:11-15`):
 > *"[`04`] bu malzemenin **sözleşmesini** anlatıyor […] **Orayı okumadan buraya
 > girme**; burada hiçbiri tekrar edilmiyor."*
 
-██ Zincirdeki TEK açık ön koşul beyanı bu. ██ Bölüşme:
+***Zincirdeki TEK açık ön koşul beyanı bu.*** Bölüşme:
 
 ```
    dil/04 sorar:  "+= ne VAAT EDİYOR"          ── sözleşme
@@ -637,11 +680,11 @@ açıkça yazıyor (`dil/06:11-15`):
 - [`dil/04-delege-olay-ve-kapanis.md`](../deep/dil/04-delege-olay-ve-kapanis.md)
 - [`dil/06-delege-arka-taraf.md`](../deep/dil/06-delege-arka-taraf.md)
 
-██ `dil/06:395-533` doğrudan senin sorduğun bir pasajı cevaplıyor. ██ O pasaj,
+***`dil/06:395-533` doğrudan senin sorduğun bir pasajı cevaplıyor.*** O pasaj,
 `Combatant` kurucusunun son iki satırının neden **en sonda** durduğunu anlatıyor.
 
 **KOŞTURULABİLİR:** `dil/06:116-143` geçici bir `DescribeSubscribers()` üyesi
-tarif ediyor. ██ Yaz, ölç, sil. ██ `seen.Add` abone ettiğinde `Target`'ın bir
+tarif ediyor. ***Yaz, ölç, sil.*** `seen.Add` abone ettiğinde `Target`'ın bir
 **liste** olduğunu görmek, delegenin ne olduğunu tek seferde kapatıyor.
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
@@ -650,21 +693,21 @@ tarif ediyor. ██ Yaz, ölç, sil. ██ `seen.Add` abone ettiğinde `Target
 
 ---
 
-### ADIM 12 · [`dil/07-bellek-canlilik-ve-yikim.md`](../deep/dil/07-bellek-canlilik-ve-yikim.md) (709)
+### ADIM 12 · [`dil/07-bellek-canlilik-ve-yikim.md`](../deep/dil/07-bellek-canlilik-ve-yikim.md) (931)
 
 **NEDEN BURAYA AİT:** `dil/07:277-341` ADIM 10'da okuduğun sözlüğün **bellek**
 faturasını ölçüyor. Ölçüm şu: yedi hop, ve tek bir `Combatant` referansı bütün
-savaşı erişilebilir tutuyor. ██ `01` davranış faturasını, `dil/07` bellek faturasını
-veriyor: aynı eksik `-=`, iki ayrı fatura. ██
+savaşı erişilebilir tutuyor. ***`01` davranış faturasını, `dil/07` bellek faturasını
+veriyor: aynı eksik `-=`, iki ayrı fatura.***
 
 **ÖN KOŞUL — dosya kendi yazıyor** (`dil/07:15-18`): `dil/05` semantiği anlatır,
 bu dosya **depolamayı**. `dil/05`'i henüz okumadın; `:93-128`'in dört soruluk
 figürü yine de ayakta, ama `:157-255` (depolama) için `dil/05` gerekiyor.
-██ Sıkışırsan ADIM 13'e geç, sonra dön. ██
+***Sıkışırsan ADIM 13'e geç, sonra dön.***
 
 ---
 
-### ADIM 13 · `dil/05` (660) · `dil/02` (296) · `dil/03` (632) — sıra serbest
+### ADIM 13 · `dil/05` (768) · `dil/02` (390) · `dil/03` (809) — sıra serbest
 
 Üçü de **referans**: baştan sona okunabilir, ama asıl işlevleri bir soru
 doğduğunda açılmak.
@@ -675,15 +718,15 @@ doğduğunda açılmak.
 | [`dil/02`](../deep/dil/02-koleksiyonlar-ve-salt-okunur.md) | `IReadOnlyList` ≠ değişmez · indeksleyici · `object Current` · `Dictionary` |
 | [`dil/03`](../deep/dil/03-hata-bildirme-ve-dogrulama.md) | `nameof` · dört istisna tipi · `Math.Max` kelepçesi |
 
-**██ `dil/02` KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL: ██** bunu ölçtüm.
+*****`dil/02` KISA (296 satır) VE BU BİR EKSİKLİK DEĞİL:***** bunu ölçtüm.
 `dil/README.md:34`'ün saydığı beş konunun **beşi de** var, ve `dil/` ağacının
 yedi adımlık kalıbı tam. Küçük olan dosya değil, konusu. Ayrıca `konular/08:570`
 ve `dil/07:89` ona **dayanıyor** ve tekrar etmiyor. Yani kısalığın sebebi kapsam
-değil, ██ iş bölümü ██.
+değil, ***iş bölümü***.
 
 ---
 
-### ADIM 14 · `Docs/ogrenme/` — ██ `01` → `03` → `02` ██
+### ADIM 14 · `Docs/ogrenme/` — ***`01` → `03` → `02`***
 
 [`ogrenme/README.md`](README.md) bu sırayı kendisi öneriyor:
 
@@ -697,25 +740,25 @@ değil, ██ iş bölümü ██.
 - [`03-kavram-borc-defteri.md`](03-kavram-borc-defteri.md)
 - [`02-sonraki-asamalar.md`](02-sonraki-asamalar.md)
 
-Sonra ██ dört tamamlayıcı dosya ██ geliyor. Sıraları serbest, ama `07` ile `06`
+Sonra ***dört tamamlayıcı dosya*** geliyor. Sıraları serbest, ama `07` ile `06`
 bu sırada en iyi okunur (önce dörtlünün **adı**, sonra ilkelerin adı):
 
 - [`07-oop-dortlusu.md`](07-oop-dortlusu.md) (1034) — kapsülleme · kalıtım ·
   soyutlama · **çok biçimlilik**; polimorfizmin üç türü sayımla ayrılıyor
 - [`06-ilkeler-ve-kokenleri.md`](06-ilkeler-ve-kokenleri.md) (1463) — dokuz ilke,
-  kökeni, projedeki karşılığı, ve ██ ilkeler çatıştığında hangisinin kazandığı ██
+  kökeni, projedeki karşılığı, ve ***ilkeler çatıştığında hangisinin kazandığı***
 - [`04-yok-olan-mekanizmalar-unity.md`](04-yok-olan-mekanizmalar-unity.md) (1106)
   — `Instance` · `DontDestroyOnLoad` · `Find*` · `ScriptableObject` · nesne havuzu
 - [`05-yok-olan-mekanizmalar-csharp.md`](05-yok-olan-mekanizmalar-csharp.md) (852)
   — `yield` ve `await`'in derleyici çıktısı, IL'den ölçülmüş
 
-██ Bu ağaç zincirin **güvenilirlik bakımından en sağlam** parçası. ██ Ölçüldü:
+***Bu ağaç zincirin **güvenilirlik bakımından en sağlam** parçası.*** Ölçüldü:
 11 rastgele `.cs:satır` atfı elle doğrulandı, **11'i de** tam olarak adlandırdığı
 yapıya düştü. Ayrıca `ogrenme/03` bir makine kapısıyla bağlı.
 
 `ogrenme/01` sana `deep/` ağacının **hiç vermediği** şeyi veriyor: dokuz desenin
 **adı**, her biri için hangi baskının onu doğurduğu, hangi SOLID harfini
-taşıdığı, ve ██ neyin yanlış hatırlandığı ██. Son kalemin örnekleri şunlar:
+taşıdığı, ve ***neyin yanlış hatırlandığı***. Son kalemin örnekleri şunlar:
 *"MoveAction bir Command DEĞİL"*, *"kural sınıfları Strategy DEĞİL"*,
 *"BoardAdapter bir GoF Adapter DEĞİL"*.
 
@@ -723,11 +766,11 @@ taşıdığı, ve ██ neyin yanlış hatırlandığı ██. Son kalemin ör
 > *"Bu projede hangi desenleri kullandım, hangi baskı her birini doğurdu, ve
 > hangilerini **bilerek kullanmadım**?"*
 
-██ Bu, bir sonraki mülakat sorusunun birebir kendisi. ██
+***Bu, bir sonraki mülakat sorusunun birebir kendisi.***
 
 ---
 
-### ██ DURMA NOKTASI 6 — SON ██ — defteri kendi kapısıyla sına
+### ***DURMA NOKTASI 6 — SON*** — defteri kendi kapısıyla sına
 
 ```powershell
 python Tools/check-curriculum-coverage.py
@@ -738,35 +781,36 @@ python Tools/check-cited-names.py
 Üçü de temiz koşmalı. `check-curriculum-coverage.py` bugünkü çıktısı:
 `kavram satırı 87 · KAPALI 62 · KISMİ 13 · HENÜZ YOK 12 · ihlal 0`.
 
-██ Turu bitirdiğinde o 13 "KISMİ" satırın kaçının senin için artık "KAPALI"
-olduğunu **kendin işaretle**. Defterin işi bu. ██
+***Turu bitirdiğinde o 13 "KISMİ" satırın kaçının senin için artık "KAPALI"
+olduğunu **kendin işaretle**. Defterin işi bu.***
 
 ---
 
-# ██ TAM SIRA — TEK BAKIŞTA ██
+# ***TAM SIRA — TEK BAKIŞTA***
 
 ```
  OTURUM 1  ─ BÜTÜNÜ KUR ─────────────────────────────────── 1.262 satır ─ ~2 sa
    1  deep/00-iskelet.md              604   kod: yok
    2  konular/02-assembly-duvari      658   kod: 4 × .asmdef + BoardAdapter.cs:48
-   ██ DUR ██  run-editmode-tests.ps1  ·  test asmdef'inin references dizisi
+   >> DUR <<  run-editmode-tests.ps1  ·  test asmdef'inin references dizisi
 
  OTURUM 2  ─ SAHİPLİK VE DURUM ─────────────────────────── 1.825 satır ─ ~2 sa
    3  konular/03-tahta-sahipligi      503   kod: Battle.cs · UnitGrid.cs · BattleActions.cs:207
    4  dil/01-degismezlik              598   kod: TurnState.cs:43-53 · UnitGrid.cs
    5  konular/05-yasam-dongusu        724   kod: UnitLifecycle · StructureLifecycle · TargetingRules
-   ██ DUR ██  Downed_IsTheOnlyStateBothAbilitiesAccept testini aç ve OKU
+   >> DUR <<  Downed_IsTheOnlyStateBothAbilitiesAccept testini aç ve OKU
 
  OTURUM 3  ─ KARAR VE RET ──────────────────────────────── 1.342 satır ─ ~2 sa
    6  konular/06-sonuc-enumlari       714   kod: dört enum + ReactToMove/ReactToAttack
    7  konular/04-karar-sirasi         628   kod: BattleActions · AttackAction · MoveAction
-   ██ DUR ██  dört "Prefers" testi; hangisinin neden YAZILAMADIĞINI gör
+   >> DUR <<  dört "Prefers" testi; hangisinin neden YAZILAMADIĞINI gör
 
- OTURUM 4  ─ MOTOR SINIRI ──────────────────────────────── 1.866 satır ─ ~2,5 sa
+ OTURUM 4  ─ MOTOR SINIRI ─────────────────────────────── 1.866+ satır ─ ~2,5 sa
    8  konular/07-tiklamadan-eyleme    916   kod: BoardAdapter Update/HandleClick · PointerGesture
-   ██ DUR ██  ██ EDITOR · Play · ve YERLEŞTİRME KIRILACAK — DURMA NOKTASI 4 ██
+  8b  ogrenme/11-unity-penceresi            16 Inspector alani · sahne onarimi (5 adim)
+   >> DUR <<  >> EDITOR · Play · ve YERLEŞTİRME KIRILACAK — DURMA NOKTASI 4 <<
    9  konular/08-motor-cagri-dongusu  950   kod: Awake/OnEnable/Update · EditorSettings.asset
-   ██ DUR ██  iki bileşenli günlük deneyi — 08:344-370, sonra script'i SİL
+   >> DUR <<  iki bileşenli günlük deneyi — 08:344-370, sonra script'i SİL
 
  OTURUM 5  ─ DÜĞÜM VE DEFTER ───────────────────────────── 2.243+ satır ─ ~2 sa
   10  konular/01-olay-zinciri         336   kod: UnitLifecycle:80 · Combatant:86,107 · Battle:74,172
@@ -774,17 +818,17 @@ olduğunu **kendin işaretle**. Defterin işi bu. ██
   12  dil/07-bellek-canlilik          709   kod: DespawnView · RemoveUnit
   13  dil/05 · dil/02 · dil/03      1.588   referans — sıra serbest
   14  ogrenme/01 ██→██ 03 ██→██ 02  1.685   desen adları · kapsama tablosu · aşamalar
-   ██ DUR ██  üç kapıyı koştur; KISMİ satırları kendin güncelle
+   >> DUR <<  üç kapıyı koştur; KISMİ satırları kendin güncelle
 ```
 
 ---
 
-### ADIM 15 · [`ogrenme/09-ecs-dots-yol-haritasi.md`](09-ecs-dots-yol-haritasi.md) (1402)
+### ADIM 15 · [`ogrenme/09-ecs-dots-yol-haritasi.md`](09-ecs-dots-yol-haritasi.md) (1415)
 
-██ Bu dosya ADIM 14'ten SONRA okunur. ██ `01`/`02`/`03` okunmadan açılmaz,
+***Bu dosya ADIM 14'ten SONRA okunur.*** `01`/`02`/`03` okunmadan açılmaz,
 çünkü bu dosya üçüne de geri bağlanıyor.
 
-**NEDEN EN SONDA:** ECS, Job System ve Burst ██ üç ayrı şey ██ ve üçü de bu
+**NEDEN EN SONDA:** ECS, Job System ve Burst ***üç ayrı şey*** ve üçü de bu
 projede **yok**. Bu dosya onları mekanizma olarak anlatır, eşiği sayıyla ölçer
 (3×5 tahta, 2 birim — ECS'in kazandığı eşik binlerce varlık), ve projeyi
 genişletmek için **yedi basamaklı bir merdiven** verir. Beş basamak mevcut koda
@@ -792,23 +836,24 @@ hiç dokunmadan yapılabilir.
 
 **YANINDA AÇIK:** `Assets/Game/Battle/Battle.cs` · `Assets/Game/Core/Unit.cs`
 
-██ Ölçülmüş sınır şu: Entities 1.0 Unity 2022.3+ istiyor, bu depo ise
+***Ölçülmüş sınır şu: Entities 1.0 Unity 2022.3+ istiyor, bu depo ise
 2021.3.45f2. Yani ECS örnek kodu bu projede **derlenmez**. Dosya bu yüzden
-örnek kod yazmıyor ve hiçbir hızlanma oranı vermiyor. ██
+örnek kod yazmıyor ve hiçbir hızlanma oranı vermiyor.***
 
 **BU ADIMDAN SONRA CEVAPLAYABİLECEĞİN SORU:**
 > *"ECS ne zaman kazanır, ve bu oyun neden o eşiğe hiç ulaşmıyor?"*
 
 ---
 
-# ██ SEÇİLEN / REDDEDİLEN ██
+# ***SEÇİLEN / REDDEDİLEN***
 
 ## SEÇİLEN
 `00 → 02 → 03 → dil/01 → 05 → 06 → 04 → 07 → 08 → 01 → dil/04 → dil/06 → dil/07
 → dil/05,02,03 → ogrenme/01,03,02 → ogrenme/07,06,04,05 → ogrenme/09`
-(ve `08` ADIM 9b olarak `konular/08`in hemen ardında)
+(ve `08` ADIM 9b olarak `konular/08`in hemen ardında; `11` ise ADIM 8b olarak
+`konular/07`nin hemen ardında, DURMA NOKTASI 4'ün ***önünde***)
 
-██ İki **bağımsız** yöntem aynı başlangıcı verdi: ██
+***İki **bağımsız** yöntem aynı başlangıcı verdi:***
 ① **Kenar sayımı** — `02`'nin 6 gelen kenarı var, `00-iskelet`'in 0.
 ② **Anlatının kendi beyanı** — `deep/00-iskelet.md:523-527`:
 *"bu dosya baştan sona → `02` → `03` → `07`"*.
@@ -818,29 +863,34 @@ bağımlılık yönüne göre dolduruyor.
 ## REDDEDİLEN 1 · Numara sırası (`01 → 02 → … → 08`)
 Sekiz `konular/` dosyasından yalnız **ikisi** numara sırasında doğru yerde. `01`
 ilk okunursa üç tanımsız kavram taşıyor ve dosya kendi ifadesiyle *"bütün hikâye
-bu tek karardan doğuyor"* (`01:59`) diyerek okuyucuyu ██ tanımsız bir gerekçenin
-üstüne ██ oturtuyor.
+bu tek karardan doğuyor"* (`01:59`) diyerek okuyucuyu ***tanımsız bir gerekçenin
+üstüne*** oturtuyor.
 
 ## REDDEDİLEN 2 · Dosyaları yeniden numaralandırmak
 Numaralar 30+ yerde ve dört makine kapısında **çapa**. Yeniden numaralandırma
 `check-doc-links.py` ile `check-curriculum-coverage.py`'yi anında kırar.
-██ Numara DOSYA KİMLİĞİ; sıra AYRI BİR BELGEDE. ██
+***Numara DOSYA KİMLİĞİ; sıra AYRI BİR BELGEDE.***
 
 ## REDDEDİLEN 3 · `dil/` ağacını `konular/`'dan önce okumak
 Beş `dil/` dosyası `konular/`'a geri bağlanıyor ve hepsi *"bunun proje tarafı
-şurada"* diyor. Ok yönü net: ██ `dil/` `konular/`'ı açıklıyor, tersi değil. ██
+şurada"* diyor. Ok yönü net: ***`dil/` `konular/`'ı açıklıyor, tersi değil.***
 Tek istisna `dil/01`. Onun `03`'ün hemen ardına konmasının sebebi tam olarak bu
 (`dil/01:176` `03`'e işaret ediyor).
 
 ## REDDEDİLEN 4 · Yerleştirme hatasını okumadan ÖNCE düzeltmek
 Bugünkü soru *"okuduğumda anlayabilecek miyim"*, kod tamir etmek değil. Ayrıca
-██ hatayı Play'de görmek, *"İkisi çelişirse kod kazanır"* kuralının
-koşturulabilir tek örneğidir. ██ Aynı on dakika turun en öğretici on dakikası.
+***hatayı Play'de görmek, *"İkisi çelişirse kod kazanır"* kuralının
+koşturulabilir tek örneğidir.*** Aynı on dakika turun en öğretici on dakikası.
 Düzeltme ayrı bir tura ait: not al, geç.
+
+***ADIM 8b bu reddi ÇİĞNEMİYOR ve karışması pahalı olurdu.*** Orada onarılan şey
+**sahne**dir (atanmamış bir Inspector alanı), **kod** değil. Onarım
+`ArgumentException`'ı ortadan kaldırmaz; onu ulaşılabilir kılar. Onarımsız
+görülen kırmızı satır başka bir satırdır ve turun dersi o değildir.
 
 ## REDDEDİLEN 5 · `deep/kod/` ağacını (14.788 satır) sıraya dahil etmek
 33 ayna belge, tip başına. Sıraya girseydi 9-11 saatlik bütçeyi **üçe**
-katlardı. ██ Doğru kullanımı referans: ██ bir tipe **dokunmadan önce** onun
+katlardı. ***Doğru kullanımı referans:*** bir tipe **dokunmadan önce** onun
 aynasını aç. Ayna belgelerin dizini
 [`deep/kod/README.md`](../deep/kod/README.md).
 

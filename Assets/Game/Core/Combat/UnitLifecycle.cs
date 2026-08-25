@@ -102,7 +102,11 @@ namespace GridStrategy.Combat
             // ÖDÜNÇ ALINAN — `?.Invoke`: gizli alanı BİR KEZ okuyup yerele
             // kopyalar; elle yazılan `if (StateChanged != null)` onu İKİ KEZ okur
             // ve arada bir boşluk bırakır — farkın tamamı bu.
+            // Invoke bir GÖNDERME değil bir ÇAĞRIDIR: abonenin metodu burada,
+            // aynı yığında çalışır ve bitmeden bu satır geri dönmez.
             // DİL: Docs/deep/dil/06-delege-arka-taraf.md
+            // DERİN ANLATIM: Docs/deep/konular/01-olay-zinciri.md — zincirin
+            // dört durağı dört ADIM değil, üst üste binen dört ÇERÇEVEdir.
             StateChanged?.Invoke(next);
         }
 
@@ -139,6 +143,11 @@ namespace GridStrategy.Combat
                 return;
             }
 
+            // SIRA BURADA BİR DEĞİŞMEZ KURUYOR. SetState içindeki Invoke bütün
+            // zinciri buradan çağırır ve yığın geri dönmeden alttaki satıra sıra
+            // gelmez. Bir abone fırlarsa State yazılmış, remainingSeconds 0 kalmış
+            // olur: 10 saniyelik kurtarma penceresi ilk Tick'te yok olur.
+            // DİL: Docs/deep/dil/06-delege-arka-taraf.md — İSTİSNA TUZAĞI
             SetState(UnitState.Downed);
             remainingSeconds = downedWindowSeconds;
         }

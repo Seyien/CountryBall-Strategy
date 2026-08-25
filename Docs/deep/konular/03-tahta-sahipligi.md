@@ -10,8 +10,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -60,22 +60,22 @@ Dört tip var. Hikâyeyi ilginç kılan, üçüncüsünün **bilmediği** şey.
 ╔═ BoardAdapter ════════════════════════════════════════════════╗
 ║  İşi     : çevirmenlik. Piksel ile hücre arasında             ║
 ║  Bilir   : GameObject, Sprite, Grid, fare, prefab             ║
-║  BİLMEZ  : ██ TAHTAYI ██ — ve bir zamanlar biliyordu          ║
+║  BİLMEZ  : >> TAHTAYI << — ve bir zamanlar biliyordu          ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ BattleActions ═══════════════════════════════════════════════╗
 ║  İşi     : akış. Kuralları sırayla sorup sonucu döndürmek     ║
 ║  Bilir   : savaşı, kuralları — ve tahtayı GÖREBİLİYOR         ║
-║  BİLMEZ  : —  ◄── ██ garantinin bittiği yer burası ██         ║
+║  BİLMEZ  : —  ◄── >> garantinin bittiği yer burası <<         ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+### ***KUTULARIN GERÇEK SATIR KARŞILIĞI***
 
 Dört kutunun dördü de bu projede yaşayan tip. Aşağıda her biri için tanımın
 yeri, iddiayı karşılayan **gerçek satır**, ve kutunun hangi ifadesinin o satırda
-okunduğu duruyor. ██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı
-kaymaz. ██
+okunduğu duruyor. ***Satır numarası bilerek yazılmıyor: satır kayar, üye adı
+kaymaz.***
 
 **`UnitGrid` bu projede** — `Assets/Game/Core/UnitGrid.cs` → `cells`
 
@@ -114,7 +114,7 @@ vurgu değil, bu `new`'in yerinin adı.
         private Battle battle;
 ```
 
-Kutudaki «BİLMEZ : ██ TAHTAYI ██ — ve bir zamanlar biliyordu» satırının **iki
+Kutudaki «BİLMEZ : ***TAHTAYI*** — ve bir zamanlar biliyordu» satırının **iki
 yarısı da** bu blokta yazılı: bugünkü tek alan `Battle`, ve silinen `UnitGrid`
 alanının bir zamanlar burada durduğu kodun kendi yorumunda kayıtlı. Kutunun "bir
 zamanlar" dediği şey bu belgenin hatırlaması değil, kaynağın kendi kaydı.
@@ -126,8 +126,8 @@ zamanlar" dediği şey bu belgenin hatırlaması değil, kaynağın kendi kaydı
                 MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
 ```
 
-Kutudaki «tahtayı GÖREBİLİYOR» ve «BİLMEZ : — ◄── ██ garantinin bittiği yer
-burası ██» satırlarının ikisi de tek bir ifadede toplanıyor: `battle.Board`.
+Kutudaki «tahtayı GÖREBİLİYOR» ve «BİLMEZ : — ◄── ***garantinin bittiği yer
+burası***» satırlarının ikisi de tek bir ifadede toplanıyor: `battle.Board`.
 `Board` üyesi `internal`, yani kapı yalnız aynı assembly'ye açık — ama açık. Bu
 ifade projedeki **tek** `battle.Board` çağrısı; ikincisini yazan bir satır
 bugün yok ve onu engelleyen bir şey de yok. Kutunun BİLMEZ hanesinin boş olması
@@ -164,7 +164,7 @@ verenin oku silinmez.
   └──────────────┘    ▼       ▼      └──────────────┘
                   ╔══════════════════╗
                   ║ UnitGrid nesnesi ║ ◄── TEK nesne, İKİ ok
-                  ╚══════════════════╝     ██ İKİSİ DE YAZABİLİR ██
+                  ╚══════════════════╝     >> İKİSİ DE YAZABİLİR <<
 
   SEÇİLEN — Battle(int width, int height)
   ┌─BoardAdapter─┐                   ┌────Battle────┐
@@ -172,8 +172,8 @@ verenin oku silinmez.
   └──────────────┘                   └──────────────┘  ▼
                                  ╔═══════════════════════╗
                                  ║ nesne KURUCUDA doğdu  ║
-                                 ║ ██ dışarıda ok HİÇ    ║
-                                 ║ VAR OLMADI ██         ║
+                                 ║ >> dışarıda ok HİÇ    ║
+                                 ║ VAR OLMADI <<         ║
                                  ╚═══════════════════════╝
 ```
 
@@ -209,7 +209,7 @@ Ekranda duran, tıklanabilen, hedeflenebilen bir asker — ve savaşta olmadığ
 söyleyen bir istisna. Derleyici bu ayrışmayı **gösteremez**. Testler yeşil kalır,
 çünkü testler `Battle`'ı doğrudan kurar ve yan kapıdan hiç geçmez.
 
-> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+> ***BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI***
 >
 > **NEDEN SENET YAZILMADI:** Bu bölümün başındaki cümle bir mekanizmanın
 > yokluğunu hükmetmiyor. O cümle, reddedilen imza seçilseydi ÇALIŞMA ANINDA
@@ -255,7 +255,7 @@ private readonly UnitGrid board;
                  board.MoveUnit(0, 0, 4, 4);      ✓ tamamen serbest
                  return board;                    ✓ tamamen serbest
                                                   ▲
-                              ██ AYRIŞMA NOKTASI ██
+                              >> AYRIŞMA NOKTASI <<
                      Bu satır, tam olarak `internal Board`'un
                      yaptığı şey. readonly ona hiç bakmıyor.
 ```
@@ -295,19 +295,19 @@ sezginin tersi.
 ```
   katman                  ne yapıyor                  arkasında kim var
   ────────────────────────────────────────────────────────────────────────
-  ① kurucuda `new`        ikinci ok DOĞMAZ            ██ hiç kimse ██
+  ① kurucuda `new`        ikinci ok DOĞMAZ            >> hiç kimse <<
                                                        bir olgu, kural değil
 
-  ② `internal Board`      ok assembly duvarını        ██ DERLEYİCİ ██
+  ② `internal Board`      ok assembly duvarını        >> DERLEYİCİ <<
                           aşamaz                       GridStrategy.Unity
                                                        bu üyeyi GÖREMEZ
 
   ③ `private readonly`    alan yeniden atanamaz       derleyici — ama
-                                                       ██ YANLIŞ KAPIDA ██
+                                                       >> YANLIŞ KAPIDA <<
                                                        nöbet tutuyor
                                                        (yukarıya bak)
                           ▲
-     ██ EN GÜÇLÜ KATMANIN ARKASINDA DERLEYİCİ YOK ██
+     >> EN GÜÇLÜ KATMANIN ARKASINDA DERLEYİCİ YOK <<
      ①'in tuttuğu söz, kimsenin `BoardAdapter`'a yeniden bir
      `UnitGrid` alanı EKLEMEMESİNE bağlı değil — böyle bir alanı
      doldurabileceği bir kaynak kalmadığı için.
@@ -342,13 +342,13 @@ battle.Board.PlaceUnit(x, y, unit);   // tek satır, alan yok, borç geri
    │  `Board`'u GÖREMEZ   │       ║      │  internal Board      │
    └──────────────────────┘       ║      └──────────▲───────────┘
                                   ║                 │ GÖRÜYOR
-              ██ DUVAR ██         ║      ┌──────────┴───────────┐
+              >> DUVAR <<         ║      ┌──────────┴───────────┐
         derleyici burada durur    ║      │   BattleActions      │
                                   ║      │   (aynı assembly)    │
                                   ║      └──────────────────────┘
                                   ║              ▲
-                                  ║   ██ SÖZ BURADA KODA DEĞİL
-                                  ║      DİSİPLİNE DAYANIYOR ██
+                                  ║   >> SÖZ BURADA KODA DEĞİL
+                                  ║      DİSİPLİNE DAYANIYOR <<
 ```
 
 `BattleActions` aynı assembly'de yaşıyor, dolayısıyla `Board`'a erişebiliyor.
@@ -371,7 +371,7 @@ tahtayı uzatamazsa hareket hiç çözülemez. `Board` o uzatmanın tek sebebi.
 ```
 BattleActions.cs:207
     MoveAction.Execute(battle.Board, unit, fromX, fromY, toX, toY, profile);
-    ██ Board'un tek çağırısı — tüm projede ██
+    >> Board'un tek çağırısı — tüm projede <<
 ```
 
 Test assembly'si bile göremiyor: `GridStrategy.Battle.EditModeTests`
@@ -403,14 +403,14 @@ sorulara iki farklı üslupla cevap veriyor ve ayıran şey teknik değil.
 ```
                       tahta DIŞI koordinat      hücre BOŞ / DOLU
   ──────────────────────────────────────────────────────────────────────
-  PlaceUnit           ██ FIRLATIR ██            sessizce üstüne yazar
-  RemoveUnit          ██ FIRLATIR ██            sessizce hiçbir şey
-  MoveUnit            ██ FIRLATIR ██            sessizce üstüne yazar
+  PlaceUnit           >> FIRLATIR <<            sessizce üstüne yazar
+  RemoveUnit          >> FIRLATIR <<            sessizce hiçbir şey
+  MoveUnit            >> FIRLATIR <<            sessizce üstüne yazar
   ──────────────────────────────────────────────────────────────────────
   TryGetUnit             false döner            false / true
   IsInsideGrid           false döner                 —
                               ▲
-        ██ AYRIŞMA: aynı koordinat, iki ayrı muamele ██
+        >> AYRIŞMA: aynı koordinat, iki ayrı muamele <<
         Ayıran şey koordinat değil YÖN:
            YAZMAK bir niyet bildirir → yanlış koordinat ÇAĞIRAN hatasıdır
            SORMAK  niyet bildirmez   → yanlış koordinat normal bir cevaptır
@@ -436,7 +436,7 @@ Aynı devretme alışkanlığı ölçüde de var — ve zinciri görmeye değer:
 
 ```
   Battle.Width  ────►  UnitGrid.Width  ────►  cells.GetLength(0)
-   (devretme)            (türetme)            ██ TEK GERÇEK ██
+   (devretme)            (türetme)            >> TEK GERÇEK <<
        │                     │
        └─ kopya YOK          └─ kopya YOK
 ```
@@ -461,11 +461,11 @@ yeniden boyutlandırıldığında alan sessizce eskirdi — tahta "genişliğim 
   battle.IsInsideGrid(x,y) ──►  board.IsInsideGrid    ──►  dizi sınırları
   battle.TryGetUnit(x,y,…) ──►  board.TryGetUnit      ──►  cells[x,y]
   ────────────────────────────────────────────────────────────────────────
-                    ██ HEPSİ OKUMA ██
+                    >> HEPSİ OKUMA <<
   ────────────────────────────────────────────────────────────────────────
-  battle.PlaceUnit(…)      ◄── ██ BÖYLE BİR ÜYE YOK ██
-  battle.MoveUnit(…)       ◄── ██ BÖYLE BİR ÜYE YOK ██
-  battle.RemoveUnit(x, y)  ◄── ██ BÖYLE BİR ÜYE YOK ██
+  battle.PlaceUnit(…)      ◄── >> BÖYLE BİR ÜYE YOK <<
+  battle.MoveUnit(…)       ◄── >> BÖYLE BİR ÜYE YOK <<
+  battle.RemoveUnit(x, y)  ◄── >> BÖYLE BİR ÜYE YOK <<
 ```
 
 İşaretli boşluk bu dosyanın en önemli figürü.
@@ -496,7 +496,7 @@ güncellenecek bir şey yok.
   │   battle.AddUnit(unit, combatant, x, y)      ► YAZMA        │
   │   BattleActions.Move(battle, unit, x, y, r)  ► YAZMA        │
   │                                                             │
-  │   ██ bir UnitGrid alanı YOK — silindi ██                    │
+  │   >> bir UnitGrid alanı YOK — silindi <<                    │
   └─────────────────────────────┬───────────────────────────────┘
                                 │
   ══════════════ ASSEMBLY DUVARI ═════════════════════════════════
@@ -505,14 +505,14 @@ güncellenecek bir şey yok.
   │                                                            │
   │   private readonly UnitGrid board;  ◄── kurucuda `new`     │
   │        ▲                                                   │
-  │        │ ██ tek ok ██                                      │
+  │        │ >> tek ok <<                                      │
   │   internal UnitGrid Board => board;                        │
   │        ▲                                                   │
   └────────┼───────────────────────────────────────────────────┘
            │ görüyor — aynı assembly
   ┌────────┴── BattleActions ──────────────────────────────────┐
   │   MoveAction.Execute(battle.Board, ...)                    │
-  │   ██ tek çağıran; söz buradan sonra DİSİPLİN ██            │
+  │   >> tek çağıran; söz buradan sonra DİSİPLİN <<            │
   └────────────────────────────────────────────────────────────┘
 ```
 
@@ -536,9 +536,9 @@ Bu tasarımdan çıkan ölçüt tek bir soru dizisi. Kendi tipini yazarken sıra
 
 ③ Veren taraf okunu BIRAKACAK mı — ve bunu kim garanti ediyor?
       derleyici → böyle bir dil özelliği YOK. Bu dal boş.
-      yorum     → ██ RİSK ██ yorum derlenmez; sözleşmenin yarısı
+      yorum     → >> RİSK << yorum derlenmez; sözleşmenin yarısı
                   imzanın dışında kalır
-      hiç doğmasın → ██ KURUCUDA `new` ██ — ölçüyü al, nesneyi alma
+      hiç doğmasın → >> KURUCUDA `new` << — ölçüyü al, nesneyi alma
 
 ④ Nesneyi yine de dışarı vermek zorunda mısın?
       hayır → private tut, iş biter.
@@ -592,9 +592,9 @@ Fatura kaybolmaz — **sahibi değişir.** Üç ödeme şekli var, ikisi pahalı
       └─ maliyet: yerleştirme başına değil, savaş başına bir dizi tahsisi
 
   (b) sözleşme "verdikten sonra okunu bırak" der
-      └─ ██ ve yorum derlenmez ██ — reddedilme sebebinin ta kendisi
+      └─ >> ve yorum derlenmez << — reddedilme sebebinin ta kendisi
 
-  (c) kurucuya NESNE değil VERİ ver          ◄── ██ ucuz olan bu ██
+  (c) kurucuya NESNE değil VERİ ver          ◄── >> ucuz olan bu <<
       Battle.Load(BattleSnapshot snapshot)
         ├─ snapshot düz veri: ölçü + (kimlik, parça, x, y) listesi
         ├─ `new UnitGrid`'i yine BU TİP yapar → ① katmanı ayakta kalır
@@ -627,11 +627,11 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`../dil/01-degismezlik-anahtar-kelimeleri.md`](../dil/01-degismezlik-anahtar-kelimeleri.md) — okuma yolunun **4.** adımı
 > **NEDEN ORASI:** bu dosyanın ikinci durağı `readonly`'nin **korumadığı** şeyi
 > gösterdi ama **neden** korumadığını dil düzeyinde vermedi. `dil/01` veriyor —
-> ve o dosya zaten buraya geri işaret ediyor. ██ İki dosya bilerek bölüşmüş:
-> `03` kararı, `dil/01` kelimenin sözleşmesini. ██
+> ve o dosya zaten buraya geri işaret ediyor. ***İki dosya bilerek bölüşmüş:
+> `03` kararı, `dil/01` kelimenin sözleşmesini.***
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

@@ -11,8 +11,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -62,7 +62,7 @@ Altı tip var ve hikâyeyi kuran şey yine bildikleri değil, **bilmedikleri**.
 ╔═ BattleActions ═══════════════════════════════════════════════╗
 ║  İşi     : AKIŞI yürütmek. Hangi soru, hangi sırayla          ║
 ║  Bilir   : tahtayı, savaşçıları, sırayı, dört eylemin şeklini ║
-║  BİLMEZ  : ██ HİÇBİR KURALIN METNİNİ ██ — her `if` bir kuralı ║
+║  BİLMEZ  : >> HİÇBİR KURALIN METNİNİ << — her `if` bir kuralı ║
 ║            SORAR, hiçbiri bir kural YAZMAZ                    ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -76,7 +76,7 @@ Altı tip var ve hikâyeyi kuran şey yine bildikleri değil, **bilmedikleri**.
 ╔═ AttackRules ═════════════════════════════════════════════════╗
 ║  İşi     : "ben vurabilir miyim" — EYLEYEN kuralı             ║
 ║  Bilir   : tek bir UnitState                                  ║
-║  BİLMEZ  : hedefi, menzili, ve ██ SIRANIN KİMDE OLDUĞUNU ██   ║
+║  BİLMEZ  : hedefi, menzili, ve >> SIRANIN KİMDE OLDUĞUNU <<   ║
 ║            TurnState başka bir assembly'de; adı yazılamaz     ║
 ╚═══════════════════════════════════════════════════════════════╝
 
@@ -96,18 +96,18 @@ Altı tip var ve hikâyeyi kuran şey yine bildikleri değil, **bilmedikleri**.
 ╔═ MoveAction ══════════════════════════════════════════════════╗
 ║  İşi     : hareket akışı — üç seviyelik kendi tablosu var     ║
 ║  Bilir   : tahtayı, uzaklık ölçümünü, üç ret sebebini         ║
-║  BİLMEZ  : ██ BİRİMİN DURUMUNU ██ — `UnitState` diye bir tipin║
+║  BİLMEZ  : >> BİRİMİN DURUMUNU << — `UnitState` diye bir tipin║
 ║            adını bile yazamaz; asmdef Combat'ı görmüyor       ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-### ██ KUTULARIN GERÇEK SATIR KARŞILIĞI ██
+### ***KUTULARIN GERÇEK SATIR KARŞILIĞI***
 
 Altı kutunun altısı da bu projede yaşayan tip. Aşağıda her biri için tanımın
 yeri, iddiayı karşılayan **gerçek satır**, ve kutunun hangi ifadesinin o satırda
 okunduğu duruyor. Sıra kararının kanıtı bu altı alıntıda: bir kuralın nerede
 yaşayabildiğini, **parametre listesinin ne taşıyabildiği** söylüyor.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 **`BattleActions` bu projede** — `Assets/Game/Battle/BattleActions.cs` → `Attack`
 
@@ -118,7 +118,7 @@ yaşayabildiğini, **parametre listesinin ne taşıyabildiği** söylüyor.
             }
 ```
 
-Kutudaki «BİLMEZ : ██ HİÇBİR KURALIN METNİNİ ██ — her `if` bir kuralı SORAR,
+Kutudaki «BİLMEZ : ***HİÇBİR KURALIN METNİNİ*** — her `if` bir kuralı SORAR,
 hiçbiri bir kural YAZMAZ» satırının karşılığı bu dört satır: `if`'in koşulunda
 tek bir karşılaştırma bile yok, bir **çağrı** var; gövdesinde ise karar değil,
 bir sonuç değeri. Kuralın metni `TurnRules.CanAct`'in içinde; burada yalnız
@@ -145,8 +145,8 @@ bu imzada ölçülebiliyor: iki parametrenin ikisi de `Team`. `Unit` de yok,
 ```
 
 Kutudaki «Bilir : tek bir UnitState» satırı burada harfi harfine doğrulanıyor —
-tipin gördüğü şey bir tek değer ve gövde de tek satır. «BİLMEZ : … ██ SIRANIN
-KİMDE OLDUĞUNU ██» satırının karşılığı ise **yazılamayan** şey: bu gövdeye bir
+tipin gördüğü şey bir tek değer ve gövde de tek satır. «BİLMEZ : … ***SIRANIN
+KİMDE OLDUĞUNU***» satırının karşılığı ise **yazılamayan** şey: bu gövdeye bir
 `TurnState` sorusu eklemek istesen o adı yazamazsın, çünkü tip
 `GridStrategy.Battle`'da ve bu dosya onu görmüyor.
 
@@ -183,11 +183,11 @@ geçmeden bu satıra gelinmiyor, ve hemen ardından merdiven bitiyor.
 «BİLMEZ : iki birimin nerede durduğunu (mesafe hazır gelir)» — koşula giren
 `distance` bu metotta hiç hesaplanmıyor, parametre olarak alınmış hâlde
 kullanılıyor; kutunun parantez içindeki notu bir açıklama değil, o değişkenin
-doğum yerinin adı. ██ Alıntının son satırı bu dosyanın çizgisinin bu tipteki
-karşılığı: ██ üstünde sorular var, altında olgular başlıyor — ve `stateBeforeHit`
+doğum yerinin adı. ***Alıntının son satırı bu dosyanın çizgisinin bu tipteki
+karşılığı:*** üstünde sorular var, altında olgular başlıyor — ve `stateBeforeHit`
 tam o sınırda okunuyor, çünkü bir satır sonrası artık geri alınamaz.
 
-██ Bu alıntı `Execute`'un **`Combatant` hedefli** aşırı yüklemesinden. ██ İkinci
+**Bu alıntı `Execute`'un *`Combatant` hedefli* aşırı yüklemesinden.** İkinci
 aşırı yükleme (`Structure` hedefli) aynı iki basamağı **harfi harfine aynı
 metinle** taşıyor; ayrıldıkları yer tam olarak yukarıdaki yorum bloğu — orada
 "önceki durumu oku" deseni bilerek yok, çünkü `Structure.TakeDamage` cevabı
@@ -207,7 +207,7 @@ merdiven iki kez yazılmış, ayrım aşağısında.
             int moveRange)
 ```
 
-Kutudaki «BİLMEZ : ██ BİRİMİN DURUMUNU ██ — `UnitState` diye bir tipin adını
+Kutudaki «BİLMEZ : ***BİRİMİN DURUMUNU*** — `UnitState` diye bir tipin adını
 bile yazamaz» satırının karşılığı bu sekiz satırlık liste ve orada **olmayan**
 şey: tahta var, kimlik var, dört koordinat ve bir menzil var; `UnitState` yok,
 `Combatant` yok, `Team` yok. Aynı tipin `MoveProfile` alan ikinci aşırı
@@ -231,8 +231,8 @@ katmana iner; inemediği yerde bir üst katmanda kalır. Ret sırası da tam ola
 > **İki ileri işaretçi de burada dursun:** hangi **istisna tipinin** ne zaman
 > seçileceği bu dosyanın işi değil —
 > [`dil/03`](../dil/03-hata-bildirme-ve-dogrulama.md); sonuç `enum`'larının
-> kendisi de değil — [`konular/06`](06-sonuc-enumlari.md). ██ `06` ölçütü
-> **kurar**, bu dosya onu bir sıra kararına **uygular**; kuran önce okunur. ██
+> kendisi de değil — [`konular/06`](06-sonuc-enumlari.md). **`06` ölçütü
+> *kurar*, bu dosya onu bir sıra kararına *uygular*; kuran önce okunur.**
 
 ---
 
@@ -248,7 +248,7 @@ katmana iner; inemediği yerde bir üst katmanda kalır. Ret sırası da tam ola
    ADIM 4  HEDEF / HÜCRE kuralı  oyun sonucu    ► RejectedInvalidTarget
    ADIM 5  MENZİL                oyun sonucu    ► RejectedOutOfRange
    ────────────────────────────────────────────────────────────────
-   ADIM 6  ██ TEK YAZMA ██   ◄── AYRIŞMA NOKTASI: buradan sonrası
+   ADIM 6  >> TEK YAZMA <<   ◄── AYRIŞMA NOKTASI: buradan sonrası
    ADIM 7  sıra devri            geri alınamaz
 ```
 
@@ -265,8 +265,8 @@ döner.
    ──────────────────────────     ──────────────────────────
    1  sıra kuralı  ◄── BURADA     1  mesafe
    2  mesafe                      2  AttackAction.Execute
-   3  AttackAction.Execute           ██ CAN AZALDI ██
-      ██ CAN AZALDI ██            3  sıra kuralı  ◄── BURADA
+   3  AttackAction.Execute           >> CAN AZALDI <<
+      >> CAN AZALDI <<            3  sıra kuralı  ◄── BURADA
    ──────────────────────────     ──────────────────────────
    ret ⇒ tahta HİÇ değişmedi      ret ⇒ tahta ZATEN değişti
 ```
@@ -306,8 +306,8 @@ ADIM 0-1 ile ADIM 2-5 aynı zincirde ama aynı kanaldan konuşmuyorlar.
   ║ ele ALINAMAZ        ║       ║ ele ALINIR                    ║
   ║ doğru bir catch yok ║       ║ çağıran switch yazar          ║
   ╚═════════════════════╝       ╚═══════════════════════════════╝
-    ██ AYRIM ÖLÇÜTÜ: bu cevabı alan çağıran YAPACAK BİR ŞEY
-       bulabilir mi? Bulamıyorsa istisna. ██
+    >> AYRIM ÖLÇÜTÜ: bu cevabı alan çağıran YAPACAK BİR ŞEY
+       bulabilir mi? Bulamıyorsa istisna. <<
 ```
 
 Ölçüt cevabın *sertliği* değil, karşısında bir eylem durup durmadığı. Sonuç
@@ -330,8 +330,8 @@ Move(battle, unit, toX: 1, toY: 3, moveRange: -1)   ve sıra karşı tarafta
    │
    ├─► istisna kanalı  : moveRange < 0        ► ArgumentOutOfRangeException
    └─► sonuç kanalı    : TurnRules.CanAct ✗   ► RejectedActorCannotAct
-                                    ██ İKİSİ DE DOĞRU ██
-   dönen: ██ İSTİSNA ██
+                                    >> İKİSİ DE DOĞRU <<
+   dönen: >> İSTİSNA <<
    çünkü profil kurulumu ADIM 0-1 bölgesinde, sıra kuralı ADIM 2'de
 ```
 
@@ -355,7 +355,7 @@ aynı anda doğru:
 
 ```
    SEVİYE 1  board.IsInsideGrid(9,9)          ✗
-             ██ AKIŞ BİTTİ ██ ──► RejectedInvalidDestination
+             >> AKIŞ BİTTİ << ──► RejectedInvalidDestination
    SEVİYE 2  GridDistance.Between > moveRange ✗  ── BURAYA GELİNMEZ
    SEVİYE 3  hedefte BAŞKASI var mı           ✗  ── BURAYA GELİNMEZ
 ```
@@ -375,7 +375,7 @@ Ama ölçüt her çifti ayıramaz:
 ```
    sınır  ile menzil   -> sınır, menzil düzeltilse bile kalır ► sınır önce
    sınır  ile doluluk  -> aynı şekilde                        ► sınır önce
-   menzil ile doluluk  -> ikisi de ayakta kalır  ◄── ██ ÖLÇÜT SUSAR ██
+   menzil ile doluluk  -> ikisi de ayakta kalır  ◄── >> ÖLÇÜT SUSAR <<
 ```
 
 Menzili düzeltirsen doluluk sürer, doluluğu düzeltirsen menzil sürer. Burada
@@ -387,15 +387,15 @@ ve yerel olan önce sorulur.
 > **NEDEN:** iki ölçütün üstünde duran **üçüncü** bir ölçüt var ve bu dosya onu
 > kurmuyor, yalnız **uyguluyor**: *"ayıraç sebep sayısı değil, DAVRANIŞ sayısı."*
 > Sıra kararının anlamlı olması için ret değerlerinin **zaten doğru sayıda**
-> olması gerekir — ayrılmamış iki sebebin sırası diye bir şey yok. ██ `06` o
-> ölçütü on bir ret değeri üzerinde kuruyor; ikisi birbirini anmıyor. ██
+> olması gerekir — ayrılmamış iki sebebin sırası diye bir şey yok. ***`06` o
+> ölçütü on bir ret değeri üzerinde kuruyor; ikisi birbirini anmıyor.***
 > **DÖNÜŞ:** bu dosyanın [«Dördüncü durak: sıra iner, ama aynı sırayla iner»](#dorduncu-durak-sira-iner-ama-ayni-sirayla-iner) bölümü
 
 > **⌨ KODU AÇ:** `Assets/Game/Core/MoveAction.cs` → `Execute`
 > **BAK:** SEVİYE 1-3 tablosu gövdenin kendisinde. Üç `if` yukarıdan aşağı, ve
 > sırayı savunan testlerin adı `Prefers` kelimesini taşıyor:
-> `Assets/Tests/EditMode/` altında ara. ██ Her `Prefers` testi bir SIRA
-> KARARINI tutuyor. ██
+> `Assets/Tests/EditMode/` altında ara. ***Her `Prefers` testi bir SIRA
+> KARARINI tutuyor.***
 > **DÖNÜŞ:** bu dosyanın «Üçüncü durak: iki ölçüt — ve biri sustuğunda konuşan öteki» bölümü
 
 Ve kazandırdığı şey performans değil:
@@ -407,8 +407,8 @@ Ve kazandırdığı şey performans değil:
             "orada biri var" cevabını alır
                  │
                  ├─► yol bulucu o hücreyi kalıcı engelli işaretler
-                 └─► ██ sis geldiği gün, GÖRÜLEMEYEN bir hücrenin
-                     içeriği ret sebebinden sızar ██
+                 └─► >> sis geldiği gün, GÖRÜLEMEYEN bir hücrenin
+                     içeriği ret sebebinden sızar <<
 ```
 
 Sabitleyen test: `Execute_OccupiedCellOutOfRange_PrefersOutOfRange`.
@@ -426,16 +426,16 @@ Akış katmanındaki ADIM 3-4-5, saldırıda hiç sorulmuyor. Üçü de bir kat 
    BattleActions.Attack              AttackAction.Execute
    ────────────────────────          ─────────────────────────────────
    ADIM 0  null                      0  null ► throw
-   ADIM 1  RequireCombatant             ██ BURADAN SONRASI CEVAPTIR ██
+   ADIM 1  RequireCombatant             >> BURADAN SONRASI CEVAPTIR <<
    ADIM 2  TurnRules.CanAct ◄──┐     1  AttackRules.CanAttack
    ADIM 3  ·                   │        ► RejectedActorCannotAct
    ADIM 4  ·                   │     2  TargetingRules.CanBeAttacked
    ADIM 5  ·                   │        ► RejectedInvalidTarget
    ADIM 6  Execute ────────────┼──►  3  AttackResolver.IsWithinRange
                                │        ► RejectedOutOfRange
-                               │     4  TakeDamage  ██ TEK YAZMA ██
+                               │     4  TakeDamage  >> TEK YAZMA <<
                                │
-   ██ BU KURAL İNEMEZ ██ ──────┘
+   >> BU KURAL İNEMEZ << ──────┘
    "aktif takım" kavramı GridStrategy.Combat'ta YOKTUR
 ```
 
@@ -466,7 +466,7 @@ Merdivenin 1. ve 2. basamağı aynı `UnitState`'i okuyor ve **zıt** cevap veri
         │
         ├─► AttackRules.CanAttack        ► false  "artık bir SALDIRAN değil"
         └─► TargetingRules.CanBeAttacked ► true   "hâlâ geçerli bir HEDEF"
-                                  ██ ASİMETRİ BİLEREK ██
+                                  >> ASİMETRİ BİLEREK <<
 ```
 
 Düşmüş birime vurmak "işini bitirme" yoludur ve tasarımın parçası. Kayda geçiren
@@ -493,7 +493,7 @@ tesadüfü kayda geçiriyor.
    Attack          0 1 2 · · ·  6 7    4-5 AttackAction'ın İÇİNDE
    Move            0 1 2 3 · ·  6 7    4-5 MoveAction'ın İÇİNDE
    Revive          0 1 2 3 4 5  6 7    tam zincir, hepsi akışta
-   PlaceStructure  0 · · · 4 ·  6 ·    ◄── ██ KARŞI ÖRNEK: 2 de 7 de YOK ██
+   PlaceStructure  0 · · · 4 ·  6 ·    ◄── >> KARŞI ÖRNEK: 2 de 7 de YOK <<
 ```
 
 `Attack` satırındaki üçüncü `·`ye dikkat: ADIM 3 de aşağıya indi —
@@ -517,7 +517,7 @@ karışıyor.
    ADIM 5  menzil       ──► SEVİYE 2  menzil          (menzil)
    ADIM 4  hücre kuralı ──► SEVİYE 3  doluluk         (hücre)
                                       ▲
-              ██ MENZİL, HÜCRE KURALININ İKİ YARISI ARASINA GİRDİ ██
+              >> MENZİL, HÜCRE KURALININ İKİ YARISI ARASINA GİRDİ <<
 ```
 
 Bu bir tutarsızlık değil: iskelet **kaba** bir haritadır, alt katmandaki ince
@@ -537,13 +537,13 @@ ikiye böldü.
    ┌── EYLEYEN ──┐                 ┌── EYLEYEN ──┐
    │ Unit        │                 │    YOK      │
    └──────┬──────┘                 └──────┬──────┘
-          │ Combatant.Team                │ ██ ödünç alınacak
-          ▼                               ▼    tek alan: ██
+          │ Combatant.Team                │ >> ödünç alınacak
+          ▼                               ▼    tek alan: <<
    TurnRules.CanAct(team, ...)      structure.Team
                                           │
    Structure.Team bir SAHİPLİK değil bir AİDİYET:
    nötr duvar ──► Team.None ──► CanAct HER ZAMAN false
-              ──► ██ nötr hiçbir yapı tahtaya bir daha konamaz ██
+              ──► >> nötr hiçbir yapı tahtaya bir daha konamaz <<
 ```
 
 `TurnRules.CanAct` tarafsızlığı ilk satırda kesiyor — `Team.None` hiçbir sırada
@@ -567,7 +567,7 @@ sormayan eylem sırayı harcamaz da.
         └─► tahta dışı bir hücrede kimse DURAMAZ
                  │
                  └─► TryGetUnit(x, y) zaten false döner
-                     ██ İKİ RET AYNI ANDA DOĞRU OLAMAZ ██
+                     >> İKİ RET AYNI ANDA DOĞRU OLAMAZ <<
                         ⇒ sıra GÖZLENEMEZ, test yazılamaz
 ```
 
@@ -588,8 +588,8 @@ Aynı dürüstlük `Move`'un içinde de var, ve orada daha çarpıcı:
         │                                                    ▲
         └─► MovementRules.CanMove(...) ✗ ► MoveOutcome.RejectedActorCannotAct
                                                              │
-                              ██ AYNI DEĞER ⇒ HANGİSİNİN ÖNCE SORULDUĞU
-                                 HİÇBİR TESTTEN GÖRÜLEMEZ ██
+                              >> AYNI DEĞER ⇒ HANGİSİNİN ÖNCE SORULDUĞU
+                                 HİÇBİR TESTTEN GÖRÜLEMEZ <<
 ```
 
 İki kural art arda duruyor, ikisi de aynı değeri döndürüyor. Sıra kuralının
@@ -622,7 +622,7 @@ söylüyor?**
 ```
    ADIM 6 bölgesi — AttackAction.Execute içinde
    ┌──────────────────────────────────────────────────┐
-   │  UnitState stateBeforeHit = target.State;   ◄── ██ BU SATIR ██
+   │  UnitState stateBeforeHit = target.State;   ◄── >> BU SATIR <<
    │  target.TakeDamage(...);                        aşağı taşınırsa
    │  return stateBeforeHit == Alive                 derleyici SUSAR,
    │      && target.State == Downed                  iki okuma AYNI
@@ -669,7 +669,7 @@ vurmak `TargetingRules`'ta bilerek serbest bırakıldı. Kayda geçiren test:
                     │      ▲ sıra: DAYANIKLILIK, sonra       │
                     │        UCUZ+YEREL                      │
                     └────────────────────────────────────────┘
-   ═════════════════ ██ GERİ DÖNÜLEMEZ ÇİZGİ ██ ═══════════════════
+   ═════════════════ >> GERİ DÖNÜLEMEZ ÇİZGİ << ═══════════════════
                     ┌─ OLGULAR ──────────────────────────────┐
                     │  ADIM 6  TEK YAZMA                     │
                     │      ▲ sıra burada da var: okuma       │
@@ -710,11 +710,11 @@ Sırayla sor. Her dal bir öncekinin cevabını varsayıyor.
    └─ EVET → ⑤
 
 ⑤ Sebeplerden biri, öteki DÜZELTİLSE bile ayakta kalıyor mu?
-   ├─ EVET → ██ o önce ██        (DAYANIKLILIK)
+   ├─ EVET → >> o önce <<        (DAYANIKLILIK)
    └─ HAYIR → ⑥
 
 ⑥ Biri ucuz ve YEREL, öteki paylaşılan durumu mu okuyor?
-   ├─ EVET → ██ ucuz+yerel önce ██   (UCUZ + YEREL)
+   ├─ EVET → >> ucuz+yerel önce <<   (UCUZ + YEREL)
    │         kazanç hız değil: görülemeyen şeyin içeriği sızmaz
    └─ HAYIR → sıra serbest. Bir "Prefers" testi değil, bir
               yorum satırı yaz.
@@ -770,7 +770,7 @@ yazılamazdı çünkü ayırt edilecek iki cevap olmazdı. Ret sırası gerçekt
    RejectedInvalidDestination   ASLA değişmez   bir daha hiç deneme
    RejectedCellOccupied         DEĞİŞEBİLİR     bekle, hücre boşalır
    RejectedOutOfRange           DEĞİŞEBİLİR     önce YAKLAŞ, sonra dene
-                                      ██ ÜÇ SATIR, İKİ AYRI DAVRANIŞ ██
+                                      >> ÜÇ SATIR, İKİ AYRI DAVRANIŞ <<
 ```
 
 Tek değer bu çizgiyi siler ve çağıran üç satıra tek davranış yazmak zorunda
@@ -790,7 +790,7 @@ hareket eden düşmüş, saldıran düşmüş, sırası değil. Aynı enum, ters
 Çelişki değil, tek ölçütün iki yönü:
 
 ```
-   ayırıcı şey SEBEP sayısı değil, ██ DAVRANIŞ sayısı ██
+   ayırıcı şey SEBEP sayısı değil, >> DAVRANIŞ sayısı <<
 
    üç sebep, üç davranış  ► üç değer   (Destination / Occupied / OutOfRange)
    üç sebep, tek davranış ► tek değer  (RejectedActorCannotAct)
@@ -811,7 +811,7 @@ altıncı satırdaki çizgi bir sınır, üstündeki her `if` bir soru, altında
 satır bir olgu. `MoveAction`'daki SEVİYE tablosu ile `AttackAction`'daki erken
 çıkış merdiveni aynı iki ölçütün iki uygulaması.
 
-██ **Bu üç tipin desen adı bu dosyada geçmiyor** ██ — `BattleActions`,
+***Bu üç tipin desen adı bu dosyada geçmiyor*** — `BattleActions`,
 `MoveAction` ve `AttackAction` birer **akış sahibi**dir (transaction script) ve
 bir **Command değildir**; ölçüsü üçünün de `static class` olması ve tek bir
 alan taşımaması. Adı, doğuran baskısı ve neden Command olmadığı:
@@ -823,15 +823,15 @@ metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`07-tiklamadan-eyleme.md`](07-tiklamadan-eyleme.md) — okuma yolunun **8.** adımı
 > **NEDEN ORASI:** duvar (`02`), sahiplik (`03`), durum (`05`) ve ret (`06`, bu
-> dosya) kapandı; `07` hepsini ██ tek bir tıklamada ██ birleştiriyor. Daha erken
-> okunsaydı birleştirecek bir şey yoktu. ██ Bu adımdan önce ██
+> dosya) kapandı; `07` hepsini ***tek bir tıklamada*** birleştiriyor. Daha erken
+> okunsaydı birleştirecek bir şey yoktu. ***Bu adımdan önce***
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
 > **DURMA NOKTASI 3**'ü geç: dört `Prefers` testini aç ve `04`'ün *"bunu ölçen
 > bir test yok, ve olmaması doğru"* cümlesinin hangi çifte ait olduğunu bul.
-> ██ Ve `07`'ye girmeden **DURMA NOKTASI 4**'ün uyarısını oku: o oturumda
-> Play'de bir şey KIRILACAK ve bu senin hatan değil. ██
+> **Ve `07`'ye girmeden *DURMA NOKTASI 4*'ün uyarısını oku: o oturumda
+> Play'de bir şey KIRILACAK ve bu senin hatan değil.**
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

@@ -1,0 +1,223 @@
+{
+  "packet_version": "3.0",
+  "created": "2026-08-24",
+  "supersedes": "Docs/handoff/STATE.json (2026-08-22)",
+  "where_to_paste": "Claude Code veya Codex, cwd = C:/Users/green/Desktop/project/Unity-Projects/CountryBall-Strategy",
+  "primary_owner_skill": "unity-expert-code-quality",
+  "companion_skills_to_load": [
+    "work-principles",
+    "strategic-decisions",
+    "unity-game-dev-mentor",
+    "testing-unity"
+  ],
+  "current_objective": "Gerekce kalitesi zincirini surdur. Operatorun anlamadigi her yorum/belge pasaji METNE karsi bir hata raporudur, okuyucudaki bosluk degil. Kusuru adlandir, kurali skill katmanina yaz, isli ornek uret, makine kapisi kur, geriye donuk tara.",
+  "reading_order": [
+    "Docs/handoff/2026-08-24-DEVIR.md      - tek bakista harita, ASCII (ONCE BUNU OKU)",
+    "Docs/handoff/2026-08-24-ACIK-ISLER.md - oncelik sirasiyla acik isler, her biri tam sonraki adimla",
+    "Docs/handoff/2026-08-24-STATE.json    - bu dosya, makine-okunur gercek kaynak",
+    "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive - SEKIZ kural",
+    "Docs/ogrenme/00-okuma-sirasi.md       - operatorun izleyecegi 15 adimlik yol"
+  ],
+  "comprehensive_sidecar_manifest": [
+    {
+      "path": "Docs/handoff/2026-08-24-DEVIR.md",
+      "purpose": "ASCII harita, zincirin yontemi, bugun kapanan bes kusur ailesi, on bozuk-kontrol ornegi",
+      "authority": "insan-okunur ozet; celiskide bu JSON kazanir",
+      "freshness": "2026-08-24, LANE-BLOK-C kosarken yazildi"
+    },
+    {
+      "path": "Docs/handoff/2026-08-24-ACIK-ISLER.md",
+      "purpose": "P0-P5 acik isler, her biri EXACT sonraki adimla; fail-closed HARD/SOFT ayrimi; acik kod sorulari",
+      "authority": "acik isler icin OTORITE",
+      "freshness": "2026-08-24"
+    },
+    {
+      "path": "Docs/handoff/HANDOFF.md",
+      "purpose": "onceki gunun devri",
+      "authority": "BAYAT olabilir - bir lane hala duzenliyor olabilir; celiskide bugunku paket kazanir",
+      "freshness": "2026-08-22"
+    }
+  ],
+  "closed_truths": [
+    "Kod %69,6 yorumdan %56,9'a indi (7.578 -> 5.344 satir, HEAD b0897e3 tabani); gerekceler Docs/deep/ ayna agacina tasindi, bilgi kaybi yok. Bugun 5.408 satir / %57,4 (yorum-only isaretci eklemeleri).",
+    "Docs/deep/ uc dik eksen: kod/ (tip basina ayna) . konular/ (mekanizma) . dil/ (odunc BCL ve C# ozellikleri).",
+    "Docs/ogrenme/ DORDUNCU ve AYRI agac: 'ben nerede duruyorum'. Otoritesi farkli - deep/ agacinda kod kazanir, ogrenme/ bir DEFTER.",
+    "SEKIZ mutlak kural quality-flow.archive icinde. Bugun eklenen dordu: Every Detour Owes a Return . One Spine Many Detours . An Absence Owes a Feature Not a Lesson . One Sentence One Job.",
+    "unity-game-dev-mentor SKILL.md 406 -> 475 satir. K46 K47 K48 K49 K50 eklendi. K50 EKLEME yoluyla eklenebilecek SON kural; K51'den once skill-optimizer kural 17 ayristirmasi gerekli.",
+    "DOKUZ makine kapisi Tools/ altinda, dokuzu da sifir ihlal (LANE-BLOK-C oncesi olcum).",
+    "442/442 EditMode testi geciyor. Assets/Game altinda KOD DAVRANISI degismedi - butun .cs degisiklikleri yorum-only, grep ile dogrulandi.",
+    "Okuma sirasi turetildi: konular/01 ONUNCU sirada, birinci degil. Iki bagimsiz yontem ayni sonucu verdi (bagimlilik kenari sayimi + 00-iskelet'in kendi beyani).",
+    "79 karakter kutusunun 75'ine gercek satir karsiligi eklendi, 103 alinti birebir dogrulandi.",
+    "'karsiligi YOK' hukumlerinin 10'u karara baglandi: 1 dolu senet . 5 DUSULDU . 1 DEVREDILDI . 3 YOK-MUAF.",
+    "Duz yazidaki 784 `██ X ██` cifti `***X***` bicimine cevrildi; anlam koruma CommonMark render ile dogrulandi, 0 fark.",
+    "PROJE 15 commit (b0897e3 .. f0db392). SKILL 4 commit (a8e4ff03 .. 8309aaa1, dal governance/context-budget-reduction).",
+    "2026-08-24: dil/06 donus degeri tuzagi acildi (uzerine yazilan CEVAP'tir, ABONE degil; sayac==2 karsi ornegi; = ile += ayrimi). dil/06 <-> ogrenme/02 cifti ARA DURAK / DONUS ile isaretlendi ve SABOTAJLA dogrulandi: isaretsiz halde donusu silmek navigation kapisini YESIL birakiyordu (19 denetlendi, 0 karsiliksiz), isaretli halde KIZARIYOR (20 denetlendi, 1 karsiliksiz).",
+    "ON KURAL: quality-flow.archive 871 -> 991 satir. Eklenen ikisi: 'A Loss Claim Names Its Survivor' ve 'Every Structure Closes a Named Failure'.",
+    "LANE-BLOK-C bitti ve BAGIMSIZ dogrulandi: 54 dosya, 873 cift cevrildi (822 cit ici + 51 duz yazi). Hiza birebir korundu (870 satir degisti, 870'i ayni uzunlukta, 0 kutu sutunu kaydi). Dokuz kapi exit=0, Assets/*.cs ve Tools/ 0 degisiklik, Docs/*.md CR bayti 0, Battle.md kalan ██ = 0, Docs/ kalan ██ = 362.",
+    "CURUTULDU: cit ici ██ isaretlerinin figur payi %15 DEGIL ~%5. 1.691 kosunun yalniz 22'si kesin cizim. Onceki '186 figur' sayisi genis olcutle ve yalniz Docs/deep/ uzerinden alinmis.",
+    "Acik kalem kapandi: `**` iceren 51 duz yazi cifti icin bicim `**A *B* C**` (dis isaret **, ic ** -> *). REDDEDILEN: `***A **B** C***` (dort ardisik ** doguruyor), `>>A **B** C<<` ve `__...__` (kapinin VURGU_ALANI'ni kisaltiyor).",
+    "ONBIRINCI KURAL: 'Name the Execution Model Before the Chain'. Kusur: konular/01'in dort duraklik zincir figuru dogruydu ama adimlarin ayni YIGINDA mi yoksa ayri mi oldugunu hic soylemiyordu; okuyucu bosluğu 'event = kuyruga mesaj' modeliyle doldurdu ve Invoke'tan sonraki satirin neden calismadigini cozemedi. Olcu: 'cagri yigini' butun agacta 0 dosyada geciyordu. konular/01'e yigin figuru, dil/06'ya cozulme figuru eklendi; UnitLifecycle.cs'e iki yorum blogu (yorum-only, CRLF korundu).",
+    "check-doc-code-refs.py'nin Katman 3'u calisirken yakalandi: 9 yorum satiri 3 atifi kaydirdi, kapi ucunu de ALINTI eslemesiyle buldu ve dogru satiri soyledi. 9 atif (3 dosya) kaynaga karsi dogrulanip tazelendi (:176->:185, :188->:197).",
+    "K51 'A second project is a FORK with a deletion commit': SKILL.md'ye baslik + yonlendirici, govde references/portfolio-and-interview.archive'da (skill-optimizer ince-yonlendirici bicimi). Proje tarafi kaydi Docs/ogrenme/10-mufredat-ve-catal-karari.md. OLCU: alti kural sinifi 456 satir 0 grid atifi . Tick(float) 5 tipte VAR . TurnState 35 atif . surekli hareket 0. Grid tavan DEGIL, karar katmani tavan.",
+    "17 satir sayisi atifi + adim sayisi (14->15) + uc agac toplami (12.226->28.806) kaynaga karsi olculup tazelendi. Tarayicinin KENDISINDE iki hata cikti ve oz-sinama yakaladi: split('\n') +1 kaymasi (duzeltme splitlines(), wc -l ile birebir) ve abs(fark)<=1 toleransi (kaldirildi; toleransi hem 1 satirlik kaymayi hem birinci hatayi gizliyordu).",
+    "K52 'A serialized field is a CONTRACT and its second party sits in the EDITOR': SKILL.md 491->511 (ADD 20 / DEL 0), govde references/editor-contract-and-scene-drift.archive (384 satir). Bes alanli EDITOR SENEDI: ne suruklenir . bos kalirsa ne olur (olculerek, SESLI/SESSIZ-OLU/SESSIZ-YANLIS etiketiyle) . nerede tanimli . hangi numarali adimda . nasil dogrularim. Kapinin GOREMEDIKLERI bes madde halinde yazili (dogru nesne mi, prefab ici, deger makul mu, calisma zamaninda atanan, GUID cozunurlugu).",
+    "OLCULDU ve DOGRULANDI: Core/Combat/Battle .asmdef'lerinde noEngineReferences=true, Unity .asmdef'inde false. Yani 'motor tarafi cekirdege girmez' bir OGUT degil DERLEYICI HATASI. Dogrulamasi: cekirdege kasitli bir UnityEngine.Debug.Log yaz, kirmiziyi gor.",
+    "2026-08-25 TESHIS UC KEZ DEGISTI, son hali OLCULMUS: (1) terrainSprites BOS DEGIL, 4 eleman (ana ajan hatasi: awk anahtar satirinda durdu). (2) Ana ajanin 'default(T) kalir, B tusu olu' DUZELTMESI de YANLISTI ve LANE-ED-A curuttu. (3) DOGRU: YAML'da olmayan alan C# BASLATICISININ degerini alir. Kanit: Unit.prefab'in Library/Artifacts/70/70d165bf82478cddaff9b762fc0e77a4 ikilisinde ofset 10812 = 1,1,1,0.45 (downedTint) ve 10828 = 0.35,0.35,0.38,1 (deadTint), UnitView.cs:59 ve :66 ile bayt bayt ayni; uydurma degerler ayni dosyada YOK. SINIR: olculen yol prefab ICE AKTARIMI; sahneler Artifacts'e yazilmiyor. Tek Play ayirt eder: Hukum B dogru olsaydi maxHealth 0 olur, Health.cs:37 istisna atardi. CANLI ARIZA TEK: placementGhost (referans, baslaticisi yok, null); sahnede atanabilecek SpriteRenderer SIFIR, yani onarim nesne yaratma isi.",
+    "ONBIRINCI BOZUK KONTROL, ve ana ajanindi: `echo \"$(basename $g) exit=$?\"` HER ZAMAN exit=0 basar. Komut ikamesi once kosar ve $? sifirlanir. Bu bicim oturumun ilk yarisinda kullanildi ve LANE-ED-A'da gercek bir ihlali ortti. Dogrusu: `python \"$g\" >/dev/null 2>&1; rc=$?; echo \"$(basename \"$g\") exit=$rc\"`. Kanitlandi: sys.exit(1) yapan surecte bozuk bicim 0, dogru bicim 1 basiyor. Devir dosyasindaki komut duzeltildi."
+  ],
+  "open_boundaries": [
+    "P0: 61 Docs dosyasi hala commit edilmemis - uc dalga + bu oturum tek kirli agacta. Dokuz kapi yesil, kapsam korumali commit hazir.",
+    "P1: Operatorun yazi tipinde `█` cozulmuyor. Kutu cizgileri (╔ ║ ╚) ve oklar (→ ▶ ◀ ▼ ⌨) da bozuk mu - CEVAP BEKLENIYOR. Cevap gelmeden kutu/ok donusumu BASLATILMAZ.",
+    "P2: ogrenme/02'nin 6 asamasindan 5'i KAPATTIGI OLCULMUS ARIZA blogu tasimiyor (Asama 3 isli ornek). Kapi henuz yok - check-curriculum-coverage.py'ye eklenecek.",
+    "P3: .md -> .cs atiflari kapiyla korunuyor. .md -> .md satir atiflari 2026-08-24'te elle tazelendi ve su an TEMIZ, ama KAPI YOK - Tools/check-satir-atiflari.py yazilacak. Tarayici mantigi sinanmis halde /tmp/olc3.py'de, kalici degil.",
+    "P4: Kural UC blok bicimi tanimliyor (YOKLUK SENEDI / DUSULDU / DEVREDILDI), check-absence-debt.py yalniz birini biliyor.",
+    "P5: One Sentence One Job kuralinin uc ONCE blogu artik canli dosyada yok - ayni oturumda duzeltildiler.",
+    "P6: Isaret donusumunun uc artigi - (1) check-absence-debt.py'nin VURGU_ALANI deseni >> / << lehcesine kor (bugun zararsiz, cit disinda kullanilirsa sessizce korlesir), (2) 21 kosu rolu belirsiz birakildi ve elle karar bekliyor, (3) 4 duz yazi cifti gercekten ic ice, elle acilacak.",
+    "P7: Iki gercek belge boslugu - UnityEvent kodda 0 BELGEDE DE 0; Strategy deseni ADIYLA hic gecmiyor (61 'eslesme' GridStrategy ad alaniydi). Evleri: ogrenme/04 ve ogrenme/01.",
+    "P8: TEST SAYISI CELISKISI. Statik sayim 451 nitelik (327 [Test] + 124 [TestCase]). Kayitli kosu 442. 9 fark ACIKLANMADI - [Ignore]/[Explicit]/[TestCaseSource]/PlayMode dordu de sifir. Cozen eylem: Tools/run-editmode-tests.ps1 yeniden kosturulur. O gune kadar '451 nitelik (statik)' yazilir."
+  ],
+  "exact_artifact_paths": {
+    "handoff": [
+      "Docs/handoff/2026-08-24-DEVIR.md",
+      "Docs/handoff/2026-08-24-ACIK-ISLER.md",
+      "Docs/handoff/2026-08-24-STATE.json"
+    ],
+    "okuma_yolu": "Docs/ogrenme/00-okuma-sirasi.md",
+    "kural_katmani": "C:/Users/green/.claude/commands/unity-expert-code-quality/references/unity-csharp-quality-flow.archive",
+    "desen_dosyalari": [
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/comment-diagram-debt-patterns.archive",
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/navigation-debt-patterns.archive",
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/absence-debt-patterns.archive",
+      "C:/Users/green/.claude/commands/unity-expert-code-quality/references/sentence-load-patterns.archive"
+    ],
+    "kapilar": "Tools/check-*.py (dokuz adet)",
+    "koruma_betigi": "<scratchpad>/lane-main/stage-check2.sh"
+  },
+  "verification_commands": [
+    "for g in Tools/check-*.py; do python \"$g\" >/dev/null 2>&1; rc=$?; echo \"$(basename \"$g\") exit=$rc\"; done   # rc YAKALAMASI ZORUNLU: exit=$? her zaman 0 basar",
+    "Tools/run-editmode-tests.ps1",
+    "git diff -U0 -- 'Assets/*.cs' | grep -E '^[+-]' | grep -vE '^(\\+\\+\\+|---)' | grep -vE '^[+-][[:space:]]*(//|///)' | grep -vE '^[+-][[:space:]]*$'"
+  ],
+  "expected_verification_state": "dokuz kapi sifir ihlal; 442/442 test; ucuncu komutun ciktisi BOS (yorum-only kaniti)",
+  "exact_next_honest_action": "LANE-BLOK-C donusunu bekle, hizalama dogrulamasini denetle, dokuz kapiyi kostur, kapsam korumasiyla commit et (P0). Ayni turda operatore P1 gorunum satirini gonder: `█ ╔ ║ ╚ ═ → ▶ ◀ ▼ ⌨ ─ │ ✓ ✗ ██`",
+  "next_action_contract": {
+    "branches": [
+      {
+        "precondition": "OLCUM sifir dondu - cit ici donusum diske INMEDI",
+        "action": "Donusumu SEN baslat: ayrik dosya kumeleriyle coklu worker, her biri kendi <scratchpad>/lane-<id>/ dizininde. HIZALAMA KISITI: ██ iki karakter, >> iki karakter - satir uzunlugu degismemeli. Sonra dokuz kapi + kapsam korumali commit.",
+        "is_default": true
+      },
+      {
+        "precondition": "OLCUM sifirdan buyuk dondu (donusum indi) ve dokuz kapi exit 0",
+        "action": "Kapsam korumasiyla commit et. Sonra P2'yi uygula (dil/06 mekanizma cumlesi). Sonra P3 icin capa tazeleme lane'i baslat - ICERIK ARAMASI ile, aritmetikle DEGIL."
+      },
+      {
+        "precondition": "Donusum indi ama bir kapi kizardi",
+        "action": "Once KAPININ kendi dogrulugunu sina: bilerek ihlal enjekte et, yakaliyor mu. Kapi hataliysa kapiyi onar ve regresyon testi yaz; degilse ihlali duzelt. Bu oturumda bir kapi DORT KEZ yanlislikla temiz dedi."
+      },
+      {
+        "precondition": "Operator gorunum satirini cevapladi ve kutu/ok karakterleri de bozuk",
+        "action": "Kutu ve ok donusumu icin lane baslat. HIZALAMA KISITI: ╔ bir karakter, karsiligi da BIR karakter olmali (saf ASCII: + - |). 79 kutu, ayrik dosya kumeleri, her lane kendi scratchpad alt dizini."
+      },
+      {
+        "precondition": "Operator yeni bir yorum/belge pasaji hakkinda soru sordu",
+        "action": "Once kaynagi oku ve iddiayi koda karsi dogrula. Iddia dogru ama anlatim kusurluysa: pasaji duzelt, kusuru adlandir, kural olarak skill katmanina yaz, makine kapisi kur, sonra ayni kusuru tarayacak worker dalgasi baslat. Iddia yanlissa dogrusunu bul ve duzelt."
+      }
+    ]
+  },
+  "worker_orchestration_contract": {
+    "main_agent_ownership": "Lane spawn, donuslerin denetimi, entegrasyon, commit onerisi. Main agent .cs YAZMAZ, denetler.",
+    "spawn_pattern": "concurrent - tek mesajda coklu Agent cagrisi, AYRIK dosya kumeleri",
+    "worker_scratchpad_isolation": "HER lane kendi <scratchpad>/lane-<id>/ dizinini kullanir. Olculdu: alti worker ayni apply.py'ye yazdi ve uzerine yazildi.",
+    "fail_closed_worker_rules": [
+      "HARD: TOPLU SILME / REGEX BETIGI YASAK. 209 satirlik kayip tam bundan dogdu. Hedefli degistirme; eslesme sayisi 1 degilse DUR.",
+      "HARD: Yorum olmayan tek .cs satirina dokunma; git diff'te degisen her satir // veya /// ile baslamali.",
+      "HARD: .cs CRLF, .md LF. Kontrol `tr -cd '\\r' < dosya | wc -c` ile. `grep -c $'\\r'` KULLANMA - desen bosa dusuyor, her satiri esliyor.",
+      "HARD: `grep -E`de alternasyon icin DUZ `|`, `\\|` DEGIL. `\\|` duz boru karakteridir, desen hicbir sey eslemez.",
+      "HARD: Kendi lane'in disina yazma.",
+      "HARD: Var olan bir gerekcenin ANLAMINI degistirme. Olcu YANLIS ise duzelt (tek istisna) ve raporla.",
+      "HARD: Yedek + md5 ONCE. Yedeksiz tek karakter degistirme."
+    ],
+    "quality_brake": "Worker 'dokunmadigim sayiyi' raporlar. Bu sayi SIFIRSA muhtemelen asiri uygulanmis ya da uydurulmustur.",
+    "measure_rule": "Her olcu YAZILMADAN ONCE koda karsi dogrulanir. Kaydedilmis metne guvenme.",
+    "self_test_rule": "Her olcum/dogrulama betigi KULLANILMADAN ONCE oz-sinanir: bilinen-iyi girdi (0 fark) VE bilinen-kotu girdi (yakalanmali). Bu oturumda on kez bir kontrol yanlis cevap verdi ve her seferinde yakalayan sey buydu.",
+    "return_contract_forbids": "Donus SORU ile bitemez. Karari worker verir, verdigini yazar."
+  },
+  "fail_closed_prohibitions_HARD": [
+    "git commit / push operator onayi olmadan YAPILMAZ.",
+    "Toplu silme veya regex tabanli duzenleme betigi YAZILMAZ.",
+    "Kod davranisi degistirilmez - kod sorusu bulunursa RAPORLANIR.",
+    "`git checkout -- <dosya>` KULLANILMAZ - birden fazla lane ayni dosyaya dokundu, checkout hepsini birden siler. Yedekten geri alinir.",
+    "Docs/deep/kod/Core/Combat/Health.cs ve Health.md sablon: uzerinde calisilmaz, ornek olarak okunur.",
+    "Operator gorunum sorusunu cevaplamadan kutu/ok karakter donusumu BASLATILMAZ."
+  ],
+  "integration_sync_points": [
+    "LANE-BLOK-C bittiginde: dokuz kapi + commit.",
+    "Operator gorunum cevabi geldiginde: kutu/ok donusum karari.",
+    "P3 capa tazeleme, TUM lane'ler bittikten sonra - her lane satir sayilarini degistiriyor."
+  ],
+  "open_code_questions": [
+    {
+      "severity": "CANLI",
+      "file": "Assets/Game/Unity/BoardAdapter.cs",
+      "member": "CommitPlacement",
+      "issue": "Yapiya selectedUnit kimligini veriyor; o kimlik zaten combatants sozlugunde. Tahta ici + BOS her hucrede ArgumentException. PlacementOutcome.Placed uretimde ERISILEMEZ."
+    },
+    {
+      "severity": "CANLI",
+      "file": "Assets/Game/Unity/BoardAdapter.cs",
+      "member": "CreateStructureVisual",
+      "issue": "GameObject doguruyor, hicbir tabloya yazmiyor. DespawnView onu ariyor, bulamiyor, LogError basiyor. Enkaz ekranda kaliyor."
+    },
+    {
+      "severity": "K47",
+      "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+      "member": "OnHealthDepleted",
+      "issue": "SetState(Downed) yayini remainingSeconds atamasindan ONCE. Firlatan abone 10 saniyelik kurtarma penceresini yok eder."
+    },
+    {
+      "severity": "K47",
+      "file": "Assets/Game/Core/Combat/UnitLifecycle.cs",
+      "member": "Tick",
+      "issue": "Ayni sekil, ceset penceresi icin."
+    },
+    {
+      "severity": "K47",
+      "file": "Assets/Game/Core/Combat/Combatant.cs",
+      "member": "TryRevive",
+      "issue": "lifecycle.TryRevive() olayi health.Heal()'den ONCE atesliyor. Abone 'cani 0 olan Alive savasci' goruyor. Yayin ve tamamlayici yazma FARKLI DOSYADA."
+    },
+    {
+      "file": "Assets/Tests/EditMode/Unity/",
+      "issue": "BoardAdapterTests YOK. Iki canli hatanin da yakalanmamasinin tek sebebi."
+    },
+    {
+      "file": "Assets/Game/Battle/BattleActions.cs",
+      "member": "Revive",
+      "issue": "Uretimde cagiransiz. ReviveOutcome ekrana hic ulasmiyor - BoardAdapter'da ReactToRevive yok."
+    },
+    {
+      "file": "Assets/Game/Unity/BoardAdapter.cs",
+      "member": "TryReadPointerCell",
+      "issue": "Camera.main cagri basina IKI kez okunuyor; UpdatePlacement her karede cagiriyor. Camera.main bir tag aramasidir."
+    },
+    {
+      "file": "Assets/Game/Core/MoveProfile.cs",
+      "issue": "'butun suvari sinifi tek bir ornegi paylasabilir' diyor; BattleActions.Move her cagrida yeni kuruyor. Ayni iddia AttackProfile.cs'te de var. Uretimde paylasim SIFIR."
+    },
+    {
+      "file": "coklu",
+      "issue": "CQS ihlali dort yer: Structure.TakeDamage bool / Combatant.TakeDamage void asimetrisi, Combatant.TryRevive, UnitLifecycle.TryRevive, TurnState.EndTurn."
+    },
+    {
+      "file": "Assets/Game/Core/PointerGesture.cs",
+      "member": "Reset",
+      "issue": "Gercek bir Unity mesaj adi tasiyor. Bugun zararsiz (MonoBehaviour degil), ama motor tarafina tasinirsa ad sessizce anlam kazanir."
+    },
+    {
+      "file": "Assets/Scenes/SampleScene.unity",
+      "issue": "Betiklerden 7 gun eski. BoardAdapter'in 13 [SerializeField] alanindan yalniz 3'u yazili. placementGhost eksik - yerlestirme kipine HIC girilemiyor."
+    }
+  ],
+  "exact_return_contract": "Turkce, tam diakritikli. Her olcu kaynagiyla. 'Dokunmadigim sayi' zorunlu. Donus SORU ile bitmez."
+}

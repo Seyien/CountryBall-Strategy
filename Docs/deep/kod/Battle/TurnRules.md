@@ -49,8 +49,8 @@ birim aynı turda yirmi kez vurur ve sıra sistemi yalnızca sırayı geciktirmi
   ╚═════════▲═════════╝     ╚════════════╤════════════╝
             └── DÖRDÜNCÜ parametre ──────┘
     çağıran ──► CanAct(team, current, used, max)  4 argüman
-    ◄── ██ dördüncüyü yanlış dolduran çağıran birime fazladan
-        eylem hakkı verir; imza bunu göremez ██
+    ◄── >> dördüncüyü yanlış dolduran çağıran birime fazladan
+        eylem hakkı verir; imza bunu göremez <<
 ```
 
 Kayan şey sayının yeri değil, **SORUMLULUK**: sınırı beyan etmek kuraldan çıkıp
@@ -136,7 +136,7 @@ yazmak, tek kuralı iki kural gibi gösterirdi.
   arayüz düşman birimlerini soluklaştırır
        │  elinde ne birim ne sayaç var
        └──► CanAct(team, current, actionsUsedThisTurn: 0)
-            ◄── ██ cevap "eyleyebilir" ██ — oysa sorulan şey
+            ◄── >> cevap "eyleyebilir" << — oysa sorulan şey
                 eylem değil SIRAydı; sıfır bir varsayılan değil,
                 sorulmamış bir sorunun uydurma cevabı
 ```
@@ -218,13 +218,13 @@ tetiği klasik "önce yürü, sonra vur" turu — ve ayrı sayaçlar her çağı
   ║ Current, TurnNumber  ║──okunur──► Team , int
   ╚══════════════════════╝                │
   ╔═ TurnRules (KURAL) ══╗◄──değer alır───┘
-  ║ hiçbir tipi TUTMAZ   ║  ██ KURAL VARLIĞI TANIMAZ ██
+  ║ hiçbir tipi TUTMAZ   ║  >> KURAL VARLIĞI TANIMAZ <<
   ╚══════════════════════╝
 
   REDDEDILEN
   ╔═ TurnRules (KURAL) ══╗──tanır──► ╔═ TurnState (VARLIK) ═╗
   ╚══════════════════════╝           ╚══════════════════════╝
-       ◄── ██ OK TERSİNE DÖNDÜ ██
+       ◄── >> OK TERSİNE DÖNDÜ <<
   -> kuralı sınamak için geçerli dizilimli bir savaş kurmak gerekir
   -> [TestCase] argümanı SABİT olmak zorunda
   -> TurnState örneği özniteliğin içine konamaz

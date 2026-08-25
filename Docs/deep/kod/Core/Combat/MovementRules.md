@@ -76,7 +76,7 @@ onu göstermek için dördüncü bir satır taşıyor:
   Downed           ✗ HAYIR              ✗ HAYIR
   Dead             ✗ HAYIR              ✗ HAYIR
   ──────────────────────────────────────────────────────────────
-  Stunned (yarın)  ✗ HAYIR              ✓ EVET   ◄── ██ AYRIŞMA ██
+  Stunned (yarın)  ✗ HAYIR              ✓ EVET   ◄── >> AYRIŞMA <<
                    varsayılan REDDEDER  varsayılan KABUL EDER
   (UnitState)9     ✗ HAYIR              ✓ EVET   ◄── cast ile gelen
 ```
@@ -145,8 +145,8 @@ yanılmak istemediğimiz taraf yetki tarafıdır.
   REDDEDILEN — türetme
     UnitState ─► TargetingRules.CanBeAttacked ─┐
     UnitState ─► TargetingRules.CanBeRevived ──┼─► CanMove
-                                                ◄── ██ HAREKET,
-                                                SALDIRININ TÜREVİ ██
+                                                ◄── >> HAREKET,
+                                                SALDIRININ TÜREVİ <<
     "düşmüş birime vurulur" değişir -> ok boyunca buraya taşınır
 
   SEÇİLEN — üçü de AYNI kaynaktan, birbirinden DEĞİL
@@ -154,7 +154,7 @@ yanılmak istemediğimiz taraf yetki tarafıdır.
     UnitState ─► CanAttack                (AttackRules)
     UnitState ─► CanRevive                (ReviveRules)
     UnitState ─► CanBeAttacked/CanBeRevived (TargetingRules)
-                 ◄── ██ ARALARINDA HİÇ OK YOK ██
+                 ◄── >> ARALARINDA HİÇ OK YOK <<
 ```
 
 Üç kural bugün aynı satırı taşıyor (`state == Alive`) ama bu bir kesişimdir, bir
@@ -242,7 +242,7 @@ de dördüncü bir sahiptir:
 ```
   SORULAN ŞEY            SAHİP             KATMAN
   ─────────────────────────────────────────────────────────────
-  "durumu uygun mu"      MovementRules     Combat  ◄── ██ BURASI ██
+  "durumu uygun mu"      MovementRules     Combat  ◄── >> BURASI <<
   "sırası mı"            TurnRules         Battle
   "gideceği yol var mı"  MoveAction        Core
   üçünü SORAN            BattleActions     Battle  ◄── birleştiren

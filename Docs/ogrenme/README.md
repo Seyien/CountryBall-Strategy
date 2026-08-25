@@ -42,7 +42,7 @@ Docs/ogrenme/
 
 | Dosya | Ne yapar | Ne YAPMAZ |
 |---|---|---|
-| [00-okuma-sirasi.md](00-okuma-sirasi.md) | `Docs/deep/` ağacını **hangi sırayla** okuyacağını 14 adım ve 5 oturuma böler; her adımın ön koşulunu, yanında açık duracak `.cs` dosyasını ve bitiş koşturmasını yazar | Hiçbir mekanizmayı **anlatmaz** — bir yol tarifi, bir ders değil. Dosya numaralarını da değiştirmez: ██ numara kimliktir, sıra buradadır ██ |
+| [00-okuma-sirasi.md](00-okuma-sirasi.md) | `Docs/deep/` ağacını **hangi sırayla** okuyacağını 15 adım ve 5 oturuma böler; her adımın ön koşulunu, yanında açık duracak `.cs` dosyasını ve bitiş koşturmasını yazar | Hiçbir mekanizmayı **anlatmaz** — bir yol tarifi, bir ders değil. Dosya numaralarını da değiştirmez: ██ numara kimliktir, sıra buradadır ██ |
 | [01-koda-gomulu-desenler.md](01-koda-gomulu-desenler.md) | Kodda **doğrulanmış** desenleri adlandırır; her biri için baskıyı, dosya:satır yerini, SOLID karşılığını ve reddedilen rakibi yazar | Kodda olmayan bir deseni "var" diye yazmaz; ders kitabı tanımı vermez |
 | [02-sonraki-asamalar.md](02-sonraki-asamalar.md) | Bugün olmayan altı konuyu, her biri için **tetikleyici koşulla** birlikte yazar | Hiçbir şey **önermez**. "Şunu şimdi ekleyelim" cümlesi bu ağaçta yasaktır |
 | [03-kavram-borc-defteri.md](03-kavram-borc-defteri.md) | Yetkinlik evrenindeki her kavrama bir **sahip dosya** ya da bir **aşama** yazar | Boş hücre bırakmaz; sahipsiz kavram bırakmaz |
@@ -52,6 +52,8 @@ Docs/ogrenme/
 | [07-oop-dortlusu.md](07-oop-dortlusu.md) | OOP dörtlüsünü bir **aile** olarak kurar; polimorfizmin üç türünü sayımla ayırır; beş mülakat sorusunu projeden cevaplar | Mekanizmaları tekrar etmez — erişim/sözleşme `dil/08`'in, bileşim `01`'in |
 | [08-unity-altyapisi.md](08-unity-altyapisi.md) | Motorun neyi, **neden** ve **teknik olarak nasıl** çözdüğünü yerel kurulumdan ölçerek anlatır: yönetilen/yerel sınır, `Vector3`, PlayerLoop, serileştirme, `.meta`/GUID, ad tabanlı geri çağrı — ve sonunda 8 adımlık Editor geçiş listesi | Çağrı **sırasını** anlatmaz (`konular/08`), ömür/`Destroy` anlatmaz (`dil/07`); ölçülmemiş hiçbir maliyet iddiası kurmaz |
 | [09-ecs-dots-yol-haritasi.md](09-ecs-dots-yol-haritasi.md) | ECS'i, Job System'i ve Burst'ü **ayrı ayrı** mekanizma olarak anlatır; eşiği sayıyla ölçer; projeyi genişletmek için yedi basamaklı bir merdiven ve on araştırma sorusu yazar | Hiçbir şey **önermez** ve hiçbir hızlanma oranı yazmaz — kaynaksız sayı bu dosyada yasaktır |
+| [10-mufredat-ve-catal-karari.md](10-mufredat-ve-catal-karari.md) | Bu ağaçta **öneri yazan tek dosya**: hangi desenin bu projede baskısı var, hangisi ayrı bir projeye ait, çatal ne zaman açılır, başvuru hangi gün başlar | Bir desenin **nasıl uygulanacağını** yazmaz (`01` ve `02`'nin işi); projenin koduna dair karar vermez — kararı okuyanın **yoluna** dairdir |
+| [11-unity-penceresi-adim-adim.md](11-unity-penceresi-adim-adim.md) | Bu ağaçta **prosedür yazan tek dosya**: `BoardAdapter` ve `UnitView` üstündeki 16 serileştirilmiş alanın her biri için Inspector başlığını, oraya ne sürükleneceğini, boş bırakılırsa kodun ne yapacağını ve tanım satırını verir; sonra bugünkü sahnenin ölçülmüş eksiğini pencere pencere onartır | Hiçbir **mekanizma** anlatmaz (`08`'in ve `konular/07`'nin işi) ve koddaki yerleştirme kusurunu **düzeltmez** — onu yalnızca ulaşılabilir kılar |
 
 ## Üç kural — bu ağaç yazılırken uyulan
 
@@ -100,9 +102,9 @@ kötüdür**: birincisi güven üretir.
 
 ## Nasıl okunur
 
-██ **`Docs/deep/` ağacına ilk kez oturuyorsan buradan başlama** ██ — o üç ağacın
+*****`Docs/deep/` ağacına ilk kez oturuyorsan buradan başlama***** — o üç ağacın
 okuma sırası ayrı bir belgede ve **dosya numaralarına uymuyor**:
-[00-okuma-sirasi.md](00-okuma-sirasi.md) (14 adım, 5 oturum, 9-11 saat). Bu
+[00-okuma-sirasi.md](00-okuma-sirasi.md) (15 adım, 5 oturum, 9-11 saat). Bu
 ağacın kendisi orada **ADIM 14**'tür, yani en sonda.
 
 Bu ağacın kendi içinde zorunlu bir sıra yok, ama bir öğrenme sırası öneriliyor:
@@ -128,7 +130,7 @@ yorumundaki ya da markdown metnindeki düz yollar VS Code'da tıklanabilir deği
 | Bir aşamanın tetikleyici koşulu gerçekleşti | `02-sonraki-asamalar.md` | O satır bir yol haritası satırına dönüşür. **Kod değil, önce bu satır değişir** |
 | Yeni bir sahip belge yazıldı | `03-kavram-borc-defteri.md` | İlgili satırın DURUM ve SAHİP DOSYA hücreleri birlikte güncellenir |
 
-██ Dördüncü bir olay yok. ██ Özellikle şu ikisi bu ağacı güncellemez: bir
+***Dördüncü bir olay yok.*** Özellikle şu ikisi bu ağacı güncellemez: bir
 dosyanın satır sayısının değişmesi (kapı yalnız "dosya var mı" ve "bu satır
 numarası mümkün mü" sorularını sorar) ve yeni bir test eklenmesi (test kanıt
 seviyeleri satırı zaten kapalı).

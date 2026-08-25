@@ -1,7 +1,7 @@
 # Kodda zaten duran desenler — adlarıyla
 
-██ Bu dosya kod **uydurmuyor**. Aşağıdaki dokuz desenin her biri
-`Assets/Game/` altında açılıp sayılmış satırlara dayanıyor. ██
+***Bu dosya kod **uydurmuyor**. Aşağıdaki dokuz desenin her biri
+`Assets/Game/` altında açılıp sayılmış satırlara dayanıyor.***
 
 Bir desenin adını bilmek onu kullanmak değildir; ama kullandığın bir şeyin adını
 bilmemek, onu ikinci kez bilinçli olarak seçememek demektir. Bu dosyanın tek
@@ -15,7 +15,7 @@ işi o boşluğu kapatmak: projede **gerçekten** duran kararlara adlarını ver
 | **KODDA NEREDE** | `dosya:satır` — doğrulanmış |
 | **SOLID KARŞILIĞI** | Hangi harf, ve ihlal edilseydi hangi DOSYA değişmek zorunda kalırdı |
 | **REDDEDİLEN** | Gerçek bir rakip seçenek varsa. Her `sealed`'a, her get-only property'ye uygulanmaz — onlar genel kural, karar değil |
-| **ÜÇ OYUN** | Slay the Spire · Vampire Survivors · Stardew Valley. Eşleşmeyen satır `██ EŞLEŞMEZ ██` ile işaretli |
+| **ÜÇ OYUN** | Slay the Spire · Vampire Survivors · Stardew Valley. Eşleşmeyen satır işaretli: düz yazıda ***EŞLEŞMEZ***, figür ve tablolarda `██ EŞLEŞMEZ ██` |
 
 **SOLID nedir** (beş tasarım ilkesinin baş harfleri, Robert C. Martin):
 **S**ingle responsibility (tek sorumluluk — bir tipin değişmesi için tek bir
@@ -174,7 +174,7 @@ düşürür ve `AttackOutcome.HitAndDowned` ile `HitAndDestroyed` ayrımı
 soyutlama iki metot siler; beş tipte beş metot siler ve o gün hesap tersine
 döner.
 
-**██ BU BİR COMMAND DEĞİL ██** — Command deseni bir eylemi **nesneye** bağlar;
+*****BU BİR COMMAND DEĞİL***** — Command deseni bir eylemi **nesneye** bağlar;
 nesnenin var olma sebebi eylemi saklamak, kuyruğa almak, geri almak ya da
 yeniden oynatmaktır. Buradaki üç tip de `static class`
 (`MoveAction.cs:42`, `AttackAction.cs:36`, `BattleActions.cs:50`) ve hiçbirinin
@@ -186,7 +186,7 @@ doğmadı — `HENÜZ YOK → bir hamle geçmişi özelliği`.
 
 **ÜÇ OYUN** — Slay the Spire: bir kart oynandığında enerji düşer, hedef seçilir,
 etki uygulanır ve tur bilgisi güncellenir — dördü tek bir sırayla olur ·
-Vampire Survivors: ██ EŞLEŞMEZ ██ orada oyuncu tek tek eylem yürütmez, silahlar
+Vampire Survivors: ***EŞLEŞMEZ*** orada oyuncu tek tek eylem yürütmez, silahlar
 kendi zamanlayıcılarıyla ateşler; sıralı bir "eylem akışı" görünmez ·
 Stardew Valley: bir aleti kullanmak enerji harcar, toprağı değiştirir ve saati
 ilerletir; üçü tek bir tıklamanın ardından belirli bir sırayla olur.
@@ -262,7 +262,7 @@ bedeli her switch'te asla çalışmayan bir `Downed` dalıydı."
 yaklaşsaydı — örneğin binalar da kurtarma penceresi kazansaydı ve `TryRevive`
 ikisinde de anlamlı olsaydı. O gün iki enum bir kopya olurdu, bir ayrım değil.
 
-**██ BU BİR GoF STATE DEĞİL ██** — GoF State deseninde her hâl **kendi
+*****BU BİR GoF STATE DEĞİL***** — GoF State deseninde her hâl **kendi
 sınıfıdır** ve geçiş, nesnenin içindeki hâl referansının değişmesidir. Burada
 hâl bir `enum` değeri, geçiş bir `switch`/`if`. Ayrım ölçülebilir: üretim
 kodunda `interface`, `abstract`, `virtual` ve `override` kelimelerinin **hiçbiri
@@ -310,7 +310,7 @@ Input               okunur   BoardAdapter.cs:335 ve Update/UpdatePlacement gövd
 Grid (motor bileşeni) BoardAdapter.cs:184, hücre→dünya çevirisi :701
 ```
 
-Duvarın altında ne olduğu da ölçülü: `UnitLifecycle.cs:176`'daki `Tick` saniyeyi
+Duvarın altında ne olduğu da ölçülü: `UnitLifecycle.cs:185`'daki `Tick` saniyeyi
 **dışarıdan** alır ve içeride `Time.deltaTime` yoktur. Sebebi ölçülmüş ve
 `UnitLifecycle.cs:163-166`'de yazılı: EditMode'da `Time.deltaTime` sıfır **değil**,
 0,017675 döner — zamanı içeriden okuyan tasarım testte patlamaz, sessizce
@@ -351,7 +351,7 @@ harfine aynı, sonuç zıt. Harita `BoardAdapter.cs:13-47`'te çizili.
 çakışmasaydı — yani sınıfın adı `BattleState` olsaydı. O gün takma ada hiç gerek
 kalmaz, dosya başındaki sıradan bir `using` yeterdi.
 
-**██ BU BİR GoF ADAPTER DEĞİL ██** — GoF Adapter bir tipin arayüzünü **başka
+*****BU BİR GoF ADAPTER DEĞİL***** — GoF Adapter bir tipin arayüzünü **başka
 bir arayüze** çevirir; ölçüsü, çevrilen hedef arayüzün var olmasıdır. Burada
 `BoardAdapter` hiçbir arayüz uygulamıyor (`BoardAdapter.cs:110` — yalnız `MonoBehaviour`'dan
 türüyor) ve çevirdiği şey bir arayüz değil, iki **dünya**. Doğru ad "katman
@@ -395,7 +395,7 @@ Assets/Game/Core/Combat/Structure.cs:37
 `Combatant.cs:152`'deki `public UnitState State => lifecycle.State;` satırı
 bileşimin görünen yüzü: dışarıya tek bir tip görünüyor, cevabı parça veriyor.
 
-██ ÖLÇÜLDÜ ██ — `Assets/Game/` altındaki 33 üretim dosyasının hiçbirinde
+***ÖLÇÜLDÜ*** — `Assets/Game/` altındaki 33 üretim dosyasının hiçbirinde
 `abstract`, `virtual` ve `override` kelimeleri **geçmiyor**; `interface` de
 geçmiyor. Yani bu
 projede kalıtım bir seçenek olarak değil, **hiç** kullanılmıyor. Motor tarafında
@@ -500,7 +500,7 @@ doğmanın anlamsız olduğu bir aralık taşısaydı — örneğin sıfırın g
 bir menzil. O gün `default` tuzağı kendiliğinden kapanır ve `struct`'ın kopya
 maliyeti bir `int` kadar olurdu.
 
-**██ TAM BİR FLYWEIGHT DEĞİL ██** — Flyweight deseninin iki yarısı var: (a)
+*****TAM BİR FLYWEIGHT DEĞİL***** — Flyweight deseninin iki yarısı var: (a)
 paylaşılan değişmez **iç durum**, (b) o paylaşımı yöneten bir **havuz/fabrika**.
 Bu projede (a) var, (b) yok — profilleri üreten yer düz bir `new`, ve iki demo
 birimin ikisi de **kendi** profilini alıyor: `NewCombatant` her çağrıda yeni bir
@@ -582,7 +582,7 @@ her ret sebebi aynı log satırına ve aynı geri bildirime düşseydi. O gün b
 değer, dört tanesi hiç okunmayan bir çeşitlilik olurdu.
 
 **ÜÇ OYUN** — Slay the Spire: bir kart oynanamadığında oyun sebebi ayırt eder —
-enerji, hedef, ya da kartın kendi kısıtı · Vampire Survivors: ██ EŞLEŞMEZ ██
+enerji, hedef, ya da kartın kendi kısıtı · Vampire Survivors: ***EŞLEŞMEZ***
 orada oyuncuya dönen bir "ret sebebi" kanalı yok; hasar ya olur ya olmaz ·
 Stardew Valley: bir eşya konulamadığında sandık dolu mu, eşya konulamaz mı, yer
 uygun değil mi — üçü ayrı geri bildirim verir.
@@ -735,7 +735,7 @@ ve tahta `3×5` (`BoardAdapter.cs:113-114`), yani en fazla 15 hücre. Ölçü
 büyüdüğünde ve tarama profilde göründüğünde tablo doğru seçim olur — ama o gün
 **tek yazma kapısı** zorunlu hâle gelir.
 
-**██ BU ECS DEĞİL ██** — Şekil ECS'e (Entity Component System — varlık, bileşen,
+*****BU ECS DEĞİL***** — Şekil ECS'e (Entity Component System — varlık, bileşen,
 sistem üçlüsü) **yakın**: `Unit` bir varlık kimliği gibi, sözlükler bileşen
 depoları gibi, durumsuz kural tipleri sistemler gibi duruyor. Ama üç şey
 eksik ve bunlar ECS'in **tanımı**: bileşenlerin bitişik dizilerde tutulması,

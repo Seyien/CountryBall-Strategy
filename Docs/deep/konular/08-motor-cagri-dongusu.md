@@ -2,7 +2,7 @@
 
 > **NEREDE GEÇİYOR** — *bu mekanizmanın kat ettiği kaynak dosyalar, akış sırasıyla:*
 > `Assets/Game/Unity/BoardAdapter.cs` → `Assets/Game/Unity/UnitView.cs`
-> → ██ duvar ██ → `Assets/Game/Battle/Battle.cs`
+> → ***duvar*** → `Assets/Game/Battle/Battle.cs`
 > ayrıca motor ayarı: `ProjectSettings/EditorSettings.asset` (`m_EnterPlayModeOptionsEnabled`)
 >
 > **NE ZAMAN OKU** — *hangi soruyu sorduğunda ya da hangi değişikliğe giriştiğinde:*
@@ -12,8 +12,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DERİN ANLATIM:` işaretçisi var. Yol: `Ctrl+P` → dosya adının ayırt edici
-parçasını yaz → `Ctrl+F` ile **üye adını** ara. ██ Satır numarası bilerek
-yazılmıyor: satır kayar, üye adı kaymaz. ██
+parçasını yaz → `Ctrl+F` ile **üye adını** ara. ***Satır numarası bilerek
+yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -45,7 +45,7 @@ hiç dokunmuyorlar:
    sahibi : UnitLifecycle             sahibi : UnityEngine
    yeri   : Assets/Game/Core/         yeri   : Assets/Game/Unity/
    zamanı : saniye (Tick'e verilen)   zamanı : kare (motorun saydığı)
-   Unity  : ██ HİÇ GEÇMEZ ██          Unity  : ██ KONUNUN TAMAMI ██
+   Unity  : >> HİÇ GEÇMEZ <<          Unity  : >> KONUNUN TAMAMI <<
 ```
 
 Ölçüsü tek satır: `GridStrategy.Combat.asmdef` içinde `noEngineReferences: true`
@@ -78,7 +78,7 @@ Doğrulama şekli  : repodaki dosyalara + yerel Editor kurulumuna karşı
                    C:/Program Files/Unity/Hub/Editor/2021.3.45f2/Editor/Data/
 ```
 
-██ **Sürüme bağlanmamış bir motor iddiası kusurdur.** ██ Buradaki her "Unity
+***Sürüme bağlanmamış bir motor iddiası kusurdur.*** Buradaki her "Unity
 şunu yapar" cümlesi 2021.3.45f2 içindir; Unity 6 ile ayrıldığı yerler adıyla
 işaretli.
 
@@ -116,7 +116,7 @@ Bu dosya o boşluğu anlatıyor: çağıran kim, adı nasıl buluyor, hangi sır
 ║  İşi   : kareyi saymak, adı bilinen metotları çağırmak        ║
 ║  Bilir : hangi bileşen canlı, hangi GameObject etkin, hangi   ║
 ║          tip hangi mesaj adını TANIMLAMIŞ                     ║
-║  BİLMEZ: ██ SENİN OYUNUNU ██ · Battle'ı · UnitState'i ·       ║
+║  BİLMEZ: >> SENİN OYUNUNU << · Battle'ı · UnitState'i ·       ║
 ║          metodun ne yaptığını                                 ║
 ╚═══════════════════════════════════════════════════════════════╝
 ╔═ BoardAdapter : MonoBehaviour ════════════════════════════════╗
@@ -127,20 +127,20 @@ Bu dosya o boşluğu anlatıyor: çağıran kim, adı nasıl buluyor, hangi sır
 ╚═══════════════════════════════════════════════════════════════╝
 ╔═ UnitView : MonoBehaviour ════════════════════════════════════╗
 ║  İşi   : bir birimin ekrandaki karşılığı                      ║
-║  BİLMEZ: ██ KARE DİYE BİR ŞEYİ ██ — `Update`'i YOK, `Time` bu ║
+║  BİLMEZ: >> KARE DİYE BİR ŞEYİ << — `Update`'i YOK, `Time` bu ║
 ║          dosyada hiç geçmez; yalnız SÖYLENDİĞİNDE iş yapar    ║
 ║  ÖLÇÜ  : 1 geri çağrı tanımlı (Awake), o kadar                ║
 ╚═══════════════════════════════════════════════════════════════╝
 ╔═ Battle (düz C# sınıfı) ══════════════════════════════════════╗
 ║  İşi   : savaşın kurallarını yürütmek                         ║
-║  BİLMEZ: ██ KAREYİ ██ · ██ TIKLAMAYI ██ · Awake diye bir      ║
+║  BİLMEZ: >> KAREYİ << · >> TIKLAMAYI << · Awake diye bir      ║
 ║          kavramı · MonoBehaviour'ın var olduğunu              ║
 ║  ÖLÇÜ  : asmdef'inde `noEngineReferences: true` — o dosyada   ║
 ║          `MonoBehaviour` kelimesi DERLENMEZ                   ║
 ╚═══════════════════════════════════════════════════════════════╝
 ╔═ PointerGesture (düz C# sınıfı, Core) ════════════════════════╗
 ║  İşi   : tıklama ile sürüklemeyi ayırmak                      ║
-║  BİLMEZ: ██ ADININ MOTOR İÇİN BİR ANLAMI OLDUĞUNU ██ — bir    ║
+║  BİLMEZ: >> ADININ MOTOR İÇİN BİR ANLAMI OLDUĞUNU << — bir    ║
 ║          `Reset()` metodu var, `Reset` gerçekten bir Unity    ║
 ║          mesaj adı, ve bu tipte HİÇBİR anlamı yok             ║
 ╚═══════════════════════════════════════════════════════════════╝
@@ -153,10 +153,10 @@ Sonuncusu bu dosyanın en öğretici karakteri; onu birinci durakta açıyoruz.
 Kutular **rolü** anlatıyor; bu bölüm o rolün **hangi satırda** durduğunu
 gösteriyor. Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.
 
-██ Birinci kutu ötekilerden farklı: motorun bu depoda bir **tanım satırı yok**.
-Onun için verilen yer bir tanım değil, **etkinin gözlendiği** yerdir. ██
+**Birinci kutu ötekilerden farklı: motorun bu depoda bir *tanım satırı yok*.
+Onun için verilen yer bir tanım değil, *etkinin gözlendiği* yerdir.**
 
-**`UnityEngine (motor)` bu projede** — ██ TANIM DEĞİL, ETKİ ██ · gözlem yeri:
+**`UnityEngine (motor)` bu projede** — ***TANIM DEĞİL, ETKİ*** · gözlem yeri:
 `Assets/Game/Unity/BoardAdapter.cs` → `AdvanceBattleTime`
 
 ```csharp
@@ -210,8 +210,8 @@ private void Awake()
 ```
 
 Kutudaki «1 geri çağrı tanımlı (Awake), o kadar» ölçüsünün karşılığı bu imzadır;
-dosyada motorun adına bakarak bulabileceği ikinci bir metot yok. «██ KARE DİYE
-BİR ŞEYİ ██ — `Update`'i YOK, `Time` bu dosyada hiç geçmez» satırının karşılığı
+dosyada motorun adına bakarak bulabileceği ikinci bir metot yok. «***KARE DİYE
+BİR ŞEYİ*** — `Update`'i YOK, `Time` bu dosyada hiç geçmez» satırının karşılığı
 ise bu bloğun **bittiği yerdir**: `Awake` bir kez koşuyor ve tipin geri kalanı
 (`SetSelected`, `SetState`) `public` — yani söylendiğinde çalışıyor, kare
 başına değil. `Time` sözcüğü dosyada bir kez geçiyor ve o da bu olguyu yazan
@@ -232,7 +232,7 @@ public void Tick(float deltaSeconds)
     }
 ```
 
-Kutudaki «██ KAREYİ ██ · ██ TIKLAMAYI ██ · Awake diye bir kavramı» satırının
+Kutudaki «***KAREYİ*** · ***TIKLAMAYI*** · Awake diye bir kavramı» satırının
 karşılığı **parametrenin tipidir**: kare, bu imzayı geçerken sıradan bir `float`a
 dönüşüyor ve adı bile "kare" demiyor. Kutunun ölçü satırındaki dosya
 `Assets/Game/Battle/GridStrategy.Battle.asmdef`; içinde `"noEngineReferences": true`
@@ -252,7 +252,7 @@ public void Reset()
 }
 ```
 
-Kutudaki «██ ADININ MOTOR İÇİN BİR ANLAMI OLDUĞUNU ██» satırının karşılığı bu
+Kutudaki «***ADININ MOTOR İÇİN BİR ANLAMI OLDUĞUNU***» satırının karşılığı bu
 metot **ile** onu saran tip bildiriminin birlikte okunmasıdır:
 `public sealed class PointerGesture` — devamında `: MonoBehaviour` yok. Motor
 `Reset` adını yalnızca `MonoBehaviour`'dan türeyen tiplerde arıyor; bu tipte ad
@@ -263,7 +263,7 @@ doğuran şey adın kendisi değil, **taban tipin varlığı**.
 
 ---
 
-## Birinci durak: ██ `Awake` bir `event` DEĞİLDİR ██
+## Birinci durak: ***`Awake` bir `event` DEĞİLDİR***
 
 Konunun en pahalı yanlış modeli şöyle kurulur: "`Awake` bir olay, Unity onu
 tetikliyor, ben de dinliyorum." Cümle kulağa doğru geliyor ve **tek kelimesi
@@ -286,7 +286,7 @@ edilmiyor**; sahibi
 Derleyici tarafındaki hâli — `+=`'nin neye dönüştüğü, `Target` + `Method`
 ikilisi — için
 [../dil/06-delege-arka-taraf.md](../dil/06-delege-arka-taraf.md).
-██ O dosya aynı sınırı **öteki yönden** çiziyor ██: oradaki
+**O dosya aynı sınırı *öteki yönden* çiziyor**: oradaki
 [altıncı durak](../dil/06-delege-arka-taraf.md#altinci-durak-event-ile-unity-mesaj-geri-cagrilari-ayni-sey-degil)
 delegeden bakıp "bu bir Unity mesajı değil" diyor; buradaki tablo motordan bakıp
 "bu bir `event` değil" diyor. Sıra ve sahiplik bu dosyanın işi, delegenin içi
@@ -316,8 +316,8 @@ Olayın kendi zinciri: [01-olay-zinciri.md](01-olay-zinciri.md).
 > **⌨ KODU AÇ:** `Assets/Game/Unity/BoardAdapter.cs` → `OnEnable`
 > **BAK:** metodun **kendisi** bir Unity mesajı (motor onu adıyla bulur),
 > **gövdesindeki** satır ise bir C# `event` aboneliği (`+=` sen yazarsın). İki
-> mekanizma iki satır arayla yan yana duruyor — ██ tablonun iki sütunu tek
-> ekranda ██.
+> mekanizma iki satır arayla yan yana duruyor — ***tablonun iki sütunu tek
+> ekranda***.
 > **DÖNÜŞ:** bu dosyanın «Birinci durak: `Awake` bir `event` DEĞİLDİR» bölümü
 
 ### `private void Awake()` — motor bunu nasıl buluyor
@@ -339,7 +339,7 @@ Cevap **her karede yansımayla arama yapmak değil**; ada göre bir kez çözüp
         │  tip ilk kez kullanıldığında taranır, sonuç ÖNBELLEĞE alınır
         v
 ③ EŞLEŞME → motor o metodu, o örneğin üstünde çağırır
-   ██ ARAMA BİTTİ ██ isim çözüldü, artık her karede aranmaz
+   >> ARAMA BİTTİ << isim çözüldü, artık her karede aranmaz
 ```
 
 Üç koşul var ve **hepsi birden** gerekiyor:
@@ -350,7 +350,7 @@ BİLDİRİM    : belgelenmiş adı/imzayı yazmalısın    ← "Awake2" işe yar
 CANLI ALICI : gerçek bir bileşen ÖRNEĞİ olmalı     ← tipin varlığı yetmez
 ```
 
-██ **`private` motoru durdurmaz.** ██ Erişim belirteci C# tarafının kuralıdır;
+***`private` motoru durdurmaz.*** Erişim belirteci C# tarafının kuralıdır;
 motorun çağrı yolu C# çağrı yolu değildir. Bu projedeki **beş geri çağrının
 beşi de `private`** ve beşi de koşar. `public void Awake()` yazsan hiçbir şey
 kazanmaz, yalnızca dışarıya boş bir kapı açarsın.
@@ -402,7 +402,7 @@ tipi boz (: MonoBehaviour → derleyici GetComponent'te PATLAR,
           satırını sil)     Play'e hiç basılamaz
 ```
 
-██ İlk hata sessiz, ikincisi gürültülü — tehlikeli olan sessiz olandır. ██
+***İlk hata sessiz, ikincisi gürültülü — tehlikeli olan sessiz olandır.***
 
 ---
 
@@ -443,20 +443,20 @@ basınç doğmadığı için** eklenmedi.
 
 > **◀ DÖNÜŞ:** [../dil/06-delege-arka-taraf.md](../dil/06-delege-arka-taraf.md#altinci-durak-event-ile-unity-mesaj-geri-cagrilari-ayni-sey-degil) — «Altıncı durak: `event` ile Unity mesaj geri çağrıları aynı şey değil»den
 > geldiysen artık şunu biliyorsun: `OnEnable`/`OnDisable` çiftinin **sırası** bu
-> tablodan geliyor, senin yazdığın bir sözleşmeden değil — ██ `OnEnable` tekrar
-> eder, `Start` etmez ██, ve abonelik simetrisi tam olarak bu tekrarın üstüne
+> tablodan geliyor, senin yazdığın bir sözleşmeden değil — ***`OnEnable` tekrar
+> eder, `Start` etmez***, ve abonelik simetrisi tam olarak bu tekrarın üstüne
 > kurulu · oraya dön ve delegenin arka tarafından devam et
 
 "Neden iki tane kurulum geri çağrısı var" sorusunun cevabı tek cümle:
 
 ```
-██ BÜTÜN Awake'ler BÜTÜN Start'lardan önce koşar. ██
+>> BÜTÜN Awake'ler BÜTÜN Start'lardan önce koşar. <<
    (ilk sahne yüklemesinde var olan nesneler için — Instantiate bunu bozar)
 
    nesne A                          nesne B
    Awake  ── kendi alanlarını       Awake  ── kendi alanlarını
       └────────── ikisi de bitti ──────────┘
-                      ██ SINIR ██
+                      >> SINIR <<
       ┌────────── şimdi güvenilebilir ─────┐
    Start  ── B'nin kurulduğuna     Start  ── A'nın kurulduğuna
              GÜVENİR                        GÜVENİR
@@ -480,7 +480,7 @@ olay dinlemek ise **etkinliğe** aittir. Tam gerekçe
 [../kod/Unity/BoardAdapter.md](../kod/Unity/BoardAdapter.md#onenable-ve-ondisable)
 içinde; burada tekrar edilmiyor.
 
-██ Tuzak: `OnEnable` tekrar ettiği için oraya **tek seferlik** iş koyamazsın. ██
+**Tuzak: `OnEnable` tekrar ettiği için oraya *tek seferlik* iş koyamazsın.**
 Bir liste doldurmak, bir nesne yaratmak, bir sayacı sıfırlamak — hepsi ikinci
 açılışta ikinci kez koşar.
 
@@ -508,7 +508,7 @@ koşmadığını görmeli.
 
 ### Bunu kendin ölç: iki bileşen, bir günlük
 
-██ Buradaki hiçbir iddiayı bana güvenerek kabul etme. ██
+***Buradaki hiçbir iddiayı bana güvenerek kabul etme.***
 
 ```
 1. Geçici bir MonoBehaviour yaz (repoya EKLEME, deney bitince sil):
@@ -525,7 +525,7 @@ BEKLENEN:
       A Update     B Update  (her kare)
       A LateUpdate B LateUpdate
 
-      ██ A'nın mı B'nin mi önce geldiği GARANTİ DEĞİL ██
+      >> A'nın mı B'nin mi önce geldiği GARANTİ DEĞİL <<
       Gözlem bir kez tuttu diye kural sanma. Sınadığın iddia
       "bütün Awake'ler bütün Start'lardan önce" — "A önce" DEĞİL.
 
@@ -538,7 +538,7 @@ Bu deney, aşağıdaki Domain Reload durağı yeşil olmadan **güvenilmez**.
 
 ---
 
-## Üçüncü durak: ██ BU PROJEDE GERÇEKTE NE VAR ██
+## Üçüncü durak: ***BU PROJEDE GERÇEKTE NE VAR***
 
 Sayarak. Uydurma örnek yok.
 
@@ -578,11 +578,11 @@ Ayrıca `Assets/` altında **uygulanmış** hiçbir `[ExecuteAlways]`,
 içinde**, "bu script `[ExecuteAlways]` değil" cümlesini kurmak için. Yani
 uygulanmış attribute sayısı **0**, metinde geçiş sayısı **1**.
 
-██ Bu projede çağrı sırasını elle zorlayan hiçbir şey yok ██ — sıranın tamamı
+***Bu projede çağrı sırasını elle zorlayan hiçbir şey yok*** — sıranın tamamı
 motorun varsayılan sözleşmesi. Aşağıdaki "Kaçış yolu" bunun neden bir eksiklik
 değil bir tercih olduğunu anlatıyor.
 
-### ██ Projedeki tek gerçek sıra bağımlılığı ██
+### ***Projedeki tek gerçek sıra bağımlılığı***
 
 ```
 BoardAdapter.Awake                    BoardAdapter.OnEnable
@@ -590,7 +590,7 @@ BoardAdapter.Awake                    BoardAdapter.OnEnable
         ▲                                     ▲
    alanı KURAN                           alanı KULLANAN
         └──────── Awake, OnEnable'dan ÖNCE ───┘
-                  ██ BU GARANTİ OLMASA KOD ÇÖKERDİ ██
+                  >> BU GARANTİ OLMASA KOD ÇÖKERDİ <<
 ```
 
 **Ölçüsü:** ters olsaydı `OnEnable`'daki `battle` `null` olur ve daha ilk karede
@@ -608,15 +608,15 @@ doğurur ve doğan nesnenin `Awake`'i (`UnitView.cs:86`) beklemeye alınmaz —
 BoardAdapter.Awake  başlar
    ├─ GetComponent<Grid>() · new Battle(...) · new PointerGesture(...)
    ├─ BuildCellVisuals()
-   ├─ SpawnUnit("Vanguard", ...) └─ Instantiate → ██ UnitView.Awake KOŞAR ██
-   └─ SpawnUnit("Raider",   ...) └─ Instantiate → ██ UnitView.Awake KOŞAR ██
+   ├─ SpawnUnit("Vanguard", ...) └─ Instantiate → >> UnitView.Awake KOŞAR <<
+   └─ SpawnUnit("Raider",   ...) └─ Instantiate → >> UnitView.Awake KOŞAR <<
 BoardAdapter.Awake  biter
         v
 BoardAdapter.OnEnable
 ```
 
-██ "Bütün `Awake`'ler bütün `Start`'lardan önce" sözü **ilk sahne yüklemesinde
-var olan** nesneler içindir. ██ Oyun ortasında doğan bir nesnenin `Awake`'i,
+**"Bütün `Awake`'ler bütün `Start`'lardan önce" sözü *ilk sahne yüklemesinde
+var olan* nesneler içindir.** Oyun ortasında doğan bir nesnenin `Awake`'i,
 koşan karenin ortasında, başkalarının `Start`'ından **sonra** gerçekleşir.
 
 **Ölçüsü:** yukarıdaki günlük deneyini bu iki tipe uygula; Console'da
@@ -638,12 +638,12 @@ testlerinde `body` sonsuza dek `null` kalır, `SetState` sessizce hiçbir şey
 yapmaz ve o dosyadaki testlerin tamamı **sebebi görünmeden** kırmızıya dönerdi.
 Tam gerekçe [../kod/Unity/UnitView.md](../kod/Unity/UnitView.md#body) içinde.
 
-██ "Hangi geri çağrıya koyacağım" yalnız bir zamanlama sorusu değil; **neyin
-sınanabilir kalacağı** sorusu. ██
+**"Hangi geri çağrıya koyacağım" yalnız bir zamanlama sorusu değil; *neyin
+sınanabilir kalacağı* sorusu.**
 
 ---
 
-## Dördüncü durak: ██ SINIR — motor tarafı / motorsuz çekirdek ██
+## Dördüncü durak: ***SINIR — motor tarafı / motorsuz çekirdek***
 
 ```
    ┌─────────────── MOTOR TARAFI ────────────────┐
@@ -668,8 +668,8 @@ sınanabilir kalacağı** sorusu. ██
    │  Battle.Tick(float deltaSeconds)            │
    │     v                                       │
    │  Combatant.Tick → UnitLifecycle.Tick        │
-   │  ██ MonoBehaviour YOK · Awake YOK ·         │
-   │     KARE YOK · Time YOK · Input YOK ██      │
+   │  >> MonoBehaviour YOK · Awake YOK ·         │
+   │     KARE YOK · Time YOK · Input YOK <<      │
    └─────────────────────────────────────────────┘
 ```
 
@@ -731,9 +731,9 @@ veriyor ve sınanabilirlik projenin en pahalı kazanımı.
 ```
 BİRİNCİ HAYAT ── foreach'in arkasındaki gezgin
                  `object Current`, `bool MoveNext()`; neden generic değil
-                 ██ SAHİBİ BAŞKA DOSYA ██ burada TEKRAR EDİLMİYOR
+                 >> SAHİBİ BAŞKA DOSYA << burada TEKRAR EDİLMİYOR
 İKİNCİ HAYAT  ── bir coroutine'in GÖVDESİ
-                 aynı arayüz, bambaşka bir iş   ██ BU DURAK ██
+                 aynı arayüz, bambaşka bir iş   >> BU DURAK <<
 ```
 
 Birinci hayat:
@@ -742,7 +742,7 @@ Aşağısı yalnızca ikincisi.
 
 ### `yield return` gördüğünde derleyici ne yapar
 
-██ Metot "duraklamaz". ██ Duraklayan bir metot diye bir şey yoktur:
+***Metot "duraklamaz".*** Duraklayan bir metot diye bir şey yoktur:
 
 ```
 SEN YAZARSIN                        DERLEYİCİ ÜRETİR
@@ -756,7 +756,7 @@ IEnumerator Yurut()                 sealed class <Yurut>d__0 : IEnumerator
                                     }
 ```
 
-██ Yerel değişkenler o gizli nesnenin **ALANLARINA** dönüşür. ██ Kare arasında
+**Yerel değişkenler o gizli nesnenin *ALANLARINA* dönüşür.** Kare arasında
 yaşamalarının sebebi budur — yığında (stack) değil, öbekte (heap) duran bir
 nesnenin içinde yaşarlar.
 
@@ -772,7 +772,7 @@ Metot bir kez koşup bitmez; **her karede bir kez, kaldığı yerden** koşar.
 
 ```
 StartCoroutine(Yurut())
-   ├─ Yurut() çağrısı ██ GÖVDEYİ KOŞTURMAZ ██ — yalnızca durum makinesi
+   ├─ Yurut() çağrısı >> GÖVDEYİ KOŞTURMAZ << — yalnızca durum makinesi
    │  nesnesini üretip döner; tek satır bile çalışmaz
    └─ motor o nesneyi kendi listesine koyar
           └─ her karede MoveNext() çağırır ve dönen `Current`e BAKAR:
@@ -782,11 +782,11 @@ StartCoroutine(Yurut())
                 başka bir IEnumerator→ onu bitirene kadar bekler
 ```
 
-██ `WaitForSeconds` hiçbir şey beklemez. ██ İçinde döngü, uyku ya da zamanlayıcı
+***`WaitForSeconds` hiçbir şey beklemez.*** İçinde döngü, uyku ya da zamanlayıcı
 yoktur — bir **işaret nesnesidir**. Bekleyen taraf motordur; nesne yalnızca "ne
 kadar" bilgisini taşır.
 
-### ██ SAHİP AYRIMI ██
+### ***SAHİP AYRIMI***
 
 ```
 `C# dili`          : `yield return` / `yield break` anahtar kelimeleri ve
@@ -803,21 +803,21 @@ kadar" bilgisini taşır.
 **7 kez**, `WaitForSeconds` **2 kez** geçiyor — ikisi de motorun kendi
 dosyasında yaşıyor, .NET'in değil.
 
-██ **Coroutine bir iş parçacığı (thread) DEĞİLDİR.** ██ Aynı iş parçacığında,
+***Coroutine bir iş parçacığı (thread) DEĞİLDİR.*** Aynı iş parçacığında,
 kare döngüsünün içinde koşar. `MoveNext()` gövdesi bir saniye sürerse **kare bir
 saniye uzar**; hiçbir şey paralel gitmez. "Arka planda çalışıyor" cümlesi bu
 mekanizma için yanlıştır.
 
-### ██ SAHİP TUZAĞI: coroutine `MonoBehaviour`'a bağlıdır ██
+### ***SAHİP TUZAĞI: coroutine `MonoBehaviour`'a bağlıdır***
 
 ```
 StartCoroutine → MonoBehaviour'ın bir metodu
-                 ██ `Battle` gibi motorsuz bir tip coroutine BAŞLATAMAZ ██
+                 >> `Battle` gibi motorsuz bir tip coroutine BAŞLATAMAZ <<
                  çünkü noEngineReferences: true — o kelime derlenmez bile
 
-GameObject SetActive(false) → coroutine ██ DURUR ██ ve geri dönmez
-GameObject Destroy(...)     → coroutine ██ ÖLÜR ██
-bileşen enabled = false     → coroutine ██ DURMAZ ██  ◄── EN SIK YANILGI
+GameObject SetActive(false) → coroutine >> DURUR << ve geri dönmez
+GameObject Destroy(...)     → coroutine >> ÖLÜR <<
+bileşen enabled = false     → coroutine >> DURMAZ <<  ◄── EN SIK YANILGI
 ```
 
 Son satır bu projede doğrudan bir tuzak kurar: `BoardAdapter` bir `OnDisable`
@@ -831,14 +831,14 @@ null; }` koy, Play'e bas, Inspector'dan bileşenin kutusunu kapat. Console akmay
 **devam eder**. Sonra GameObject'i deaktif et — o an durur.
 Ek sınır: deaktif bir GameObject üzerinde `StartCoroutine` çağrılamaz.
 
-### ██ BU PROJEDE COROUTINE VAR MI ██
+### ***BU PROJEDE COROUTINE VAR MI***
 
 Sayıldı:
 
 ```
 Assets/Game/ altında
     StartCoroutine · StopCoroutine · IEnumerator · yield return ·
-    WaitForSeconds                    ██ HEPSİ SIFIR. Bir tane bile yok. ██
+    WaitForSeconds                    >> HEPSİ SIFIR. Bir tane bile yok. <<
 
 Assets/ altında (testler dâhil)  :  4 SATIR — ve dördü de YORUM
     Assets/Tests/EditMode/Combat/UnitLifecycleTests.cs:71-72
@@ -855,7 +855,7 @@ UnitLifecycleTests.cs — REDDEDİLEN:
               milisaniyeden dakikaya çıkar
 ```
 
-██ Coroutine bu projede bir **eksiklik değil, bir yokluk**. ██ Eksiklik
+**Coroutine bu projede bir *eksiklik değil, bir yokluk*.** Eksiklik
 yapılması gerekip yapılmayan şeydir; yokluk henüz basıncı doğmamış şeydir.
 Hangi gün geleceği belirsiz değil — üç somut kapı var:
 
@@ -875,7 +875,7 @@ Hangi gün geleceği belirsiz değil — üç somut kapı var:
 
 ### Coroutine'e en yakın alternatifler — yalnız adlarıyla
 
-██ Hiçbiri bu projede yok, hiçbiri burada öğretilmiyor. ██
+***Hiçbiri bu projede yok, hiçbiri burada öğretilmiyor.***
 
 | Ad | Tek cümlelik tanım | Durum |
 |---|---|---|
@@ -899,15 +899,15 @@ Bu projedeki **gerçek** değer:
 
 ```
 ProjectSettings/EditorSettings.asset
-    m_EnterPlayModeOptionsEnabled: 0     ◄── ██ BELİRLEYİCİ SATIR ██
+    m_EnterPlayModeOptionsEnabled: 0     ◄── >> BELİRLEYİCİ SATIR <<
     m_EnterPlayModeOptions: 3
 ```
 
 `Enabled: 0` → seçenekler **kapalı** → Unity varsayılan davranışı uygular →
 Play'e girerken Domain Reload **yapılır**, statikler sıfırlanır, abonelikler
-temizlenir. ██ Bu projede yaşam döngüsü kanıtı bugün TEMİZ. ██
+temizlenir. ***Bu projede yaşam döngüsü kanıtı bugün TEMİZ.***
 
-██ İkinci satır bir tuzaktır. ██ `m_EnterPlayModeOptions: 3` orada duruyor ve
+***İkinci satır bir tuzaktır.*** `m_EnterPlayModeOptions: 3` orada duruyor ve
 "iki seçenek de kapatılmış" gibi okunuyor. **Etkisizdir** — birinci satır `0`
 olduğu sürece bu değer hiç uygulanmaz. Yalnız ikinci satıra bakan biri tam ters
 sonuca varır.
@@ -931,7 +931,7 @@ Statik olay sayısı: **0**. Öteki 57 `static` geçişinin hepsi `static class`
 `static` metot — yani **hafızası olmayan** kural tipleri (`BattleActions`,
 `TurnRules`, `AttackAction`, `DamageRules`, ...).
 
-██ Yani bu proje Domain Reload kapatılsa bile bugün kirlenmez. ██ Bu şans değil
+***Yani bu proje Domain Reload kapatılsa bile bugün kirlenmez.*** Bu şans değil
 tasarım sonucu: kural tipleri hafızasız tutulduğu için saklanacak bir şey yok.
 Ama bu **bugünün** cümlesi — ilk `static` sayaç yazıldığı gün bu durak yeniden
 okunmalı.
@@ -940,9 +940,9 @@ okunmalı.
 
 ## Yedinci durak: kare başına ne koşuyor, kim başlatıyor
 
-██ Doğrulama sınırı: tablonun **yalnız son iki satırı** bu repoya karşı
+**Doğrulama sınırı: tablonun *yalnız son iki satırı* bu repoya karşı
 doğrulandı. Üç oyun satırı genel oyun bilgisidir; bu turda kaynak koda ya da
-resmî belgeye karşı **doğrulanmadı** ve öyle okunmalıdır. ██
+resmî belgeye karşı *doğrulanmadı* ve öyle okunmalıdır.**
 
 | Oyun | Kare başına gerçekten ne koşuyor | Kim başlatıyor |
 |---|---|---|
@@ -952,11 +952,57 @@ resmî belgeye karşı **doğrulanmadı** ve öyle okunmalıdır. ██
 | **CountryBall (bu proje)** | `battle.Tick(Time.deltaTime)` bütün savaşçıların ve yapıların sayaçlarını ilerletir; ardından temizliğe hazır olanlar toplu süpürülür; sonra en fazla üç girdi sorgusu okunur. Tıklama olmasa da **saat işler** — sıra bir karardır: erken çıkışın altına konsaydı düşmüş bir birim el sürülmedikçe ölmezdi. | `UnityEngine`, `BoardAdapter.Update`'i ada göre bulur ve her karede çağırır |
 | **KARŞILIĞI OLMAYAN SATIR** | Kare arasına yayılmış bir hareket: bir birimin hücreden hücreye **kayarak** gitmesi. Bugün `view.transform.position = CellCentre(x, y)` ile **anında** ışınlanıyor. | ██ HENÜZ YOK ██ → hareketin kayarak gösterildiği aşama yaratır; o gün ya bir `Update` gövdesi ya bir coroutine doğar ve bu dosyanın beşinci durağı yeniden okunur |
 
-██ En öğretici satır birincisidir. ██ "Kare başına ne koşuyor" sorusunun cevabı
+***En öğretici satır birincisidir.*** "Kare başına ne koşuyor" sorusunun cevabı
 bazı oyunlarda **"neredeyse hiçbir şey"**dir, ve bu bir eksiklik değil bir tür
 farkıdır. Sıra tabanlı bir oyunda iş **olaya** bağlıdır; kare yalnızca çizim
 için döner. Bu proje ikisinin **arasında**: kararı olay veriyor (tıklama), ama
 zamanı kare taşıyor (`Tick`).
+
+### İKİ AYRI ***"paralel"*** — karıştırılan yer burası
+
+Soru şöyle geliyor: *"bir savaşçıyı saldırttım, hemen ardından ikincisini
+saldırttım — ikisi kendi içlerinde paralel savaşmaya devam eder mi, yoksa
+sıra sıra mı olur?"* Cevap ikiye ayrılmadan verilemez.
+
+```
+TASARIM PARALELLIGI          "ikisi de ayni anda ilerliyor mu"
+   EVET. Her kare battle.Tick(Time.deltaTime) BUTUN savascilari dolasir.
+   Hicbiri otekini beklemez, hicbiri sira almaz.
+
+YURUTME PARALELLIGI          "ayni anda IKI islemci cekirdeginde mi kosuyor"
+   HAYIR. Tek is parcaciginda, arka arkaya. Bir kare icinde once #1 biter,
+   sonra #2 baslar.
+```
+
+Ve bu bir eksiklik değil. Ölçü: `Assets/Game/` altında `System.Threading` **0**,
+`Thread` **0**, `Task` **0**, `IJob`/`JobHandle` **0**, `Burst` **0**,
+`async`/`await` **0**, `lock` **0**, `Interlocked` **0**. Bütün oyun tek bir
+zincirden akıyor:
+
+```
+UnityEngine  ── her kare ──►  BoardAdapter.Update()
+                                 │
+                                 └─► AdvanceBattleTime()
+                                        │
+                                        └─► battle.Tick(Time.deltaTime)
+                                               ├─► foreach combatants  →  Combatant.Tick
+                                               └─► foreach structures  →  Structure.Tick
+```
+
+`foreach` sırayla döner. Ama bir kare 16 milisaniyedir ve bu projede sayılar
+onlarla ifade ediliyor — sıra kullanıcıya **hiç** görünmez. Kingdom Rush,
+Bloons ve Clash of Clans da yüzlerce varlığı aynı biçimde, tek iş parçacığında
+yürütür. İş parçacığı ya da `IJob` ihtiyacı **binlerce** varlıkta doğar, ve o
+gün geldiğinde kararı Profiler verir — tek bir `Update` kare bütçesini aşıyorsa.
+
+***Ama asıl cevap bu bile değil.*** Bugün bu projede ***"savaşmaya devam etmek"***
+diye bir şey **yok**. `AttackAction.Execute` bir `AttackOutcome` döndürür ve
+biter: tıklama anında hasar yazılır, iş kapanır. Süreye yayılan tek şey
+düşme/ceset geri sayımıdır (`remainingSeconds -= deltaSeconds`).
+
+Yani soru bugün **öznesizdir**. Sürekli savaş, bir saldırı bekleme sayacı
+(`Tick` içinde inen bir sayaç, dolunca ateş) eklendiği gün doğar — ve o mekanizma
+da tek iş parçacığında koşar, yine paralel *hissettirir*.
 
 ---
 
@@ -964,26 +1010,26 @@ zamanı kare taşıyor (`Tick`).
 
 ```
  UnityEngine ── kare sayar ──┐  ADA GÖRE bulur — ABONE OLMAZ
-                             │  ██ BURASI BİR C# event DEĞİL ██
+                             │  >> BURASI BİR C# event DEĞİL <<
                              v
  ilk kez ───► Awake          BoardAdapter:225 · UnitView:79
               │              new Battle(w,h) · Instantiate → iç Awake'ler
-              │              ██ BU SIRA OLMASA KOD ÇÖKER ██
+              │              >> BU SIRA OLMASA KOD ÇÖKER <<
               v
  her açılışta ► OnEnable     BoardAdapter:277 · UnitStateChanged += ...
               v
-              Start          ██ YOK ██  başkasına güvenen iş yok
+              Start          >> YOK <<  başkasına güvenen iş yok
               v
  her karede ─► Update        BoardAdapter:306
-              ├── battle.Tick(Time.deltaTime) ──► ██ DUVAR ██ ──► Battle
+              ├── battle.Tick(Time.deltaTime) ──► >> DUVAR << ──► Battle
               │                                    (kare YOK · Awake YOK)
-              └── Input / Camera sorguları ─────► ██ DUVARI GEÇMEZ ██  ✗
+              └── Input / Camera sorguları ─────► >> DUVARI GEÇMEZ <<  ✗
               v
  her kapanışta► OnDisable    BoardAdapter:282 · -= ve CancelPlacement()
               v
-              OnDestroy      ██ YOK ██  bırakılacak şey kalmıyor
+              OnDestroy      >> YOK <<  bırakılacak şey kalmıyor
 
- coroutine ██ SIFIR ██ — StartCoroutine/IEnumerator/yield: hiçbiri yok
+ coroutine >> SIFIR << — StartCoroutine/IEnumerator/yield: hiçbiri yok
 ```
 
 ---
@@ -994,27 +1040,27 @@ Sırayla sor, ilk "evet"te dur:
 
 ```
 ① İş motorsuz yapılabilir mi? (kare, girdi, kamera, sahne gerekmiyor mu?)
-   EVET → ██ HİÇBİR GERİ ÇAĞRIYA AİT DEĞİL ██ Core/ ya da Battle/ altında düz
+   EVET → >> HİÇBİR GERİ ÇAĞRIYA AİT DEĞİL << Core/ ya da Battle/ altında düz
           bir C# tipine koy; zaman gerekiyorsa PARAMETRE al (Tick(float)).
           Ölçüsü: EditMode'da sahnesiz sınanabiliyor mu?
 
 ② İş yalnızca kendi bileşenini/alanlarını mı kuruyor?
    EVET → Awake   (GetComponent, new, Inspector değeriyle kurulan nesne)
-          ██ TUZAK: EditMode testleri Awake'i HİÇ görmez ██ Sınanabilir
+          >> TUZAK: EditMode testleri Awake'i HİÇ görmez << Sınanabilir
           kalması gereken kurulumu tembel bir property'ye koy (UnitView.Body).
 
 ③ İş BAŞKA bir nesnenin kurulmuş olmasına mı güveniyor?
-   EVET → Start   ██ ÖNCE SOR: gerçekten güvenmeli mi? ██ Açık bir Inspector
+   EVET → Start   >> ÖNCE SOR: gerçekten güvenmeli mi? << Açık bir Inspector
           referansı ya da açık bir kurucu çoğu zaman daha iyidir. Bu projede
           böyle bir iş YOK ve bu iyi bir işaret.
 
 ④ İş GERİ ALINABİLİR mi — açılıp kapanması gerekiyor mu?
-   EVET → OnEnable + OnDisable  ██ İKİSİNİ AYNI ANDA YAZ ██  Simetriyi
+   EVET → OnEnable + OnDisable  >> İKİSİNİ AYNI ANDA YAZ <<  Simetriyi
           derleyici TUTMAZ: eksik bir `-=` tek uyarı bile üretmez.
           ██ TUZAK: burası TEKRAR EDER. Tek seferlik iş koyma.
 
 ⑤ İş her kare mi koşmalı?
-   EVET → Update  ██ ÖNCE SOR: gerçekten her kare mi? ██ Olayla tetiklenebilen
+   EVET → Update  >> ÖNCE SOR: gerçekten her kare mi? << Olayla tetiklenebilen
           bir iş Update'e konursa kare başına boş çalışma üretir. Burada ilk
           satır Tick (zaman her kare ilerlemeli), ikincisi erken çıkış.
 
@@ -1022,11 +1068,11 @@ Sırayla sor, ilk "evet"te dur:
 
 ⑦ İş kare arasına YAYILAN bir süre mi tutuyor?
    EVET → coroutine (`IEnumerator` + `StartCoroutine`)
-          ██ SAHİP: bu tip MonoBehaviour mu? Değilse başlatamaz. ██
-          ██ İPTAL: bileşen kapanınca DURMAZ. Kim durduracak? ██
+          >> SAHİP: bu tip MonoBehaviour mu? Değilse başlatamaz. <<
+          >> İPTAL: bileşen kapanınca DURMAZ. Kim durduracak? <<
 
 ⑧ İş nesne yok olurken mi yapılmalı?
-   EVET → OnDestroy  ██ ÖNCE SOR: OnDisable yetmiyor mu? ██ OnDisable ondan
+   EVET → OnDestroy  >> ÖNCE SOR: OnDisable yetmiyor mu? << OnDisable ondan
           önce koşar; abonelik oraya aitse OnDestroy gereksizdir. Bu projede
           tam olarak bu yüzden OnDestroy YOK.
 ```
@@ -1036,7 +1082,7 @@ Sırayla sor, ilk "evet"te dur:
 ## Yanlış hatırlanan üç şey
 
 **1. "`Awake` bir `event`'tir; Unity onu tetikler, ben abone olurum."**
-██ Değil, ve bu yanılgı üç ayrı yanlış davranış üretir. ██ `+=` ile abone
+***Değil, ve bu yanılgı üç ayrı yanlış davranış üretir.*** `+=` ile abone
 olunacak bir şey yok, `-=` ile bırakılacak bir şey yok, birden çok dinleyici
 olamaz. Motor **ada göre bulur**. Bu yüzden `Awake` adını değiştirmek bir
 derleme hatası değil, **sessiz bir çöküş** üretir. Pratik zararı: "abonelik"
@@ -1076,7 +1122,7 @@ bir referans ya da açık bir kurucu her zaman daha okunurdur. `BoardAdapter`
 **③ Kendi kare akışını yazmak.** Tek bir `MonoBehaviour` `Update`'i olur, o da
 bütün sistemleri elle sırayla çağırır. Gerçek bir teknik, büyük projelerde
 gerçekten kullanılır. Bedeli: motorun ücretsiz verdiği her davranışı
-(etkinleşme, deaktifleşme, yok olma) kendin yazarsın. ██ HENÜZ YOK ██ → sistem
+(etkinleşme, deaktifleşme, yok olma) kendin yazarsın. ***HENÜZ YOK*** → sistem
 sayısı ikiyi geçtiği ve aralarındaki sıranın **gerçekten** önem kazandığı
 aşamada tartışılır. İki `MonoBehaviour` için tartışılmaz bile.
 
@@ -1121,14 +1167,14 @@ duvarın öte yanında, motor diye bir şeyin varlığından habersiz yaşıyor.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`01-olay-zinciri.md`](01-olay-zinciri.md) — okuma yolunun **10.** adımı
-> **NEDEN ORASI:** ██ numarası `01` ama okuma yolunun sonlarında ██ — çünkü bir
+> **NEDEN ORASI:** ***numarası `01` ama okuma yolunun sonlarında*** — çünkü bir
 > GİRİŞ değil, bir **DÜĞÜM**: üç ipliğin bağlandığı yer. İkisini artık kapattın
 > (`konular/02` 2. adımda, `konular/05` 5. adımda); üçüncüsü (`dil/04`) bilerek
 > **sonraya** bırakıldı — `01` delegenin ne **yaptığını** gösteriyor, `dil/04` ne
-> **vaat ettiğini**. Zinciri önce gör, sözleşmeyi sonra oku. ██ Bu adımdan önce ██
+> **vaat ettiğini**. Zinciri önce gör, sözleşmeyi sonra oku. ***Bu adımdan önce***
 > [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)'ndaki
 > **DURMA NOKTASI 5**'i geç: iki bileşenli günlük deneyini kendin koştur, sonra
 > geçici script'i **sil**.

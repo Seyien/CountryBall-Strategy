@@ -20,8 +20,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
-██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***`DİL:`***). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -30,17 +30,17 @@
 | `Assets/Game/Battle/Battle.cs` | `stateForwarders` | ✓ |
 | `Assets/Game/Unity/BoardAdapter.cs` | `OnEnable` | ✓ |
 
-██ Bu dosya `dil/` ağacının **en iyi bağlanmış** belgesi: dört üretim
+**Bu dosya `dil/` ağacının *en iyi bağlanmış* belgesi: dört üretim
 dosyasından dördüne de kod işaretçisi var. Ama dikkat — o dört işaretçi
-`04`'ü **atlıyor** ve doğrudan buraya geliyor; oysa `04` okunmadan buraya
-girilmemesi gerekiyor (aşağıdaki paragraf bunu yazıyor). ██
+`04`'ü *atlıyor* ve doğrudan buraya geliyor; oysa `04` okunmadan buraya
+girilmemesi gerekiyor (aşağıdaki paragraf bunu yazıyor).**
 
 > **▶ ARA DURAK:** [04-delege-olay-ve-kapanis.md](04-delege-olay-ve-kapanis.md#birinci-durak-delege-metoda-isaret-eden-nesne)
-> **NEDEN:** ██ zincirdeki **tek açık ön koşul beyanı** budur. ██ `04` bu
+> **NEDEN:** **zincirdeki *tek açık ön koşul beyanı* budur.** `04` bu
 > malzemenin **sözleşmesini** anlatıyor: `Action<…>` nasıl okunur, `Func` neden
 > hiç yok, `event` ile düz alanın farkı, abonesi olmayan olayın neden `null`
-> olduğu, iki kapanışın neden eşit olmadığı. ██ Orayı okumadan buraya girme;
-> burada hiçbiri tekrar edilmiyor. ██
+> olduğu, iki kapanışın neden eşit olmadığı. ***Orayı okumadan buraya girme;
+> burada hiçbiri tekrar edilmiyor.***
 > **DÖNÜŞ:** bu dosyanın [«Birinci durak: delegenin İÇİ — `Target` + `Method`»](#birinci-durak-delegenin-ici-target-method) bölümü
 
 Bu dosya bir alt kat:
@@ -87,7 +87,7 @@ girer. Geri kalan her şey bunun sonucu.
 ║  Vaadi    : ikisi de public okunur; çağrıldığında Method'u     ║
 ║             Target ÜSTÜNDE çalıştırır                          ║
 ║  BİLMEZ   : Target'ın kurulmayı bitirip bitirmediğini          ║
-║             ██ BU DOSYANIN TAMAMI BU SATIRDAN ÇIKIYOR ██       ║
+║             >> BU DOSYANIN TAMAMI BU SATIRDAN ÇIKIYOR <<       ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ MulticastDelegate + GetInvocationList()  ·  .NET kütüphanesi ╗
@@ -96,12 +96,12 @@ girer. Geri kalan her şey bunun sonucu.
 ║  Vaadi    : `delegate` ile üretilen HER tip buradan türer      ║
 ║             (Action<…> dahil); sıra = abonelik sırası          ║
 ║  BİLMEZ   : abonelerin birbirini — biri patlarsa ötekini       ║
-║             KURTARMAZ ██ Invoke try/catch TAŞIMAZ ██           ║
+║             KURTARMAZ >> Invoke try/catch TAŞIMAZ <<           ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ Delegate.Combine / Delegate.Remove  ·  .NET kütüphanesi ═════╗
 ║  Ne yapar : iki delegeyi birleştirir / birinden ötekini çıkarır║
-║  Vaadi    : her çağrıda ██ YENİ NESNE ██; verilenler kımıldamaz║
+║  Vaadi    : her çağrıda >> YENİ NESNE <<; verilenler kımıldamaz║
 ║  BİLMEZ   : aynı hedef+metodun listeye ikinci kez girdiğini —  ║
 ║             ELEMEZ. Remove yalnız SONUNCU eşleşmeyi çıkarır.   ║
 ╚═══════════════════════════════════════════════════════════════╝
@@ -110,7 +110,7 @@ girer. Geri kalan her şey bunun sonucu.
 ║  Ne yapar : TEK alan gibi yazılır, ÜÇ üye üretir               ║
 ║             (gizli alan + add_X + remove_X)                    ║
 ║  Vaadi    : dışarıya yalnız add ve remove yüzünü gösterir      ║
-║  BİLMEZ   : ██ İÇERİDE hiçbir şey ██ — bildiren tipin gövdesi  ║
+║  BİLMEZ   : >> İÇERİDE hiçbir şey << — bildiren tipin gövdesi  ║
 ║             gizli alanı sıradan bir alan gibi görür            ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
@@ -118,8 +118,8 @@ girer. Geri kalan her şey bunun sonucu.
 ### Dört kutunun GERÇEK SATIRLAR tarafındaki karşılığı
 
 Yukarıdaki dört kutu ödünç alınmış makineyi anlatıyor. Aşağıdaki dört blok o
-makinenin bu depoda hangi satırda çalıştığını gösteriyor. ██ Dördü de ÖDÜNÇ TİP,
-yani gösterilen yer **tanım yeri değil KULLANIM YERİDİR** ██ — `System.Delegate`'i
+makinenin bu depoda hangi satırda çalıştığını gösteriyor. **Dördü de ÖDÜNÇ TİP,
+yani gösterilen yer *tanım yeri değil KULLANIM YERİDİR*** — `System.Delegate`'i
 biz yazmadık, onu çalıştıran satırı biz yazdık.
 
 **`System.Delegate` bu projede** — `Assets/Game/Core/Combat/Combatant.cs` → `Combatant(...)` kurucusu
@@ -134,8 +134,8 @@ bu satır: burada bir delege nesnesi DOĞUYOR. `Target` = kurulmakta olan
 «BİLMEZ: Target'ın kurulmayı bitirip bitirmediğini» satırı da buradan okunuyor —
 `Target` bu satırda kurulmayı HENÜZ BİTİRMEMİŞTİR; kurucunun gövdesi bir satır
 sonra kapanıyor, ama araya bir doğrulama girseydi `lifecycle`'ın çağrı listesinde
-yarım bir nesne kalırdı. ██ Kutunun «BU DOSYANIN TAMAMI BU SATIRDAN ÇIKIYOR»
-işareti işte bu `.cs` satırını gösteriyor ██ — beşinci durak baştan sona bunun
+yarım bir nesne kalırdı. ***Kutunun «BU DOSYANIN TAMAMI BU SATIRDAN ÇIKIYOR»
+işareti işte bu `.cs` satırını gösteriyor*** — beşinci durak baştan sona bunun
 üstüne kurulu.
 
 **`MulticastDelegate` bu projede** — `Assets/Game/Core/Combat/UnitLifecycle.cs` → `OnHealthDepleted`
@@ -145,18 +145,18 @@ SetState(UnitState.Downed);
 remainingSeconds = downedWindowSeconds;
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — bu kutunun iki yarısı ayrı yerlerde okunuyor ve yalnız
+***EN ÖĞRETİCİ SEÇİMİ*** — bu kutunun iki yarısı ayrı yerlerde okunuyor ve yalnız
 biri kaynakta var. `GetInvocationList()` yarısının **bu projede karşılığı YOK**:
 `Assets/` altında sıfır eşleşme, bu yüzden birinci duraktaki `DescribeSubscribers`
 ölçüsü üyeyi GEÇİCİ olarak ekletiyor. Doğacağı koşul: bir aboneyi adıyla teşhis
 etmek gerektiği gün. `Invoke` yarısının karşılığı ise burada ve üretimde duran en
 pahalı iki satır bunlar. Kutunun «BİLMEZ: abonelerin birbirini — biri patlarsa
-ötekini KURTARMAZ ██ Invoke try/catch TAŞIMAZ ██» satırı tam olarak bu iki satırın
+ötekini KURTARMAZ ***Invoke try/catch TAŞIMAZ***» satırı tam olarak bu iki satırın
 **arasından** geçiyor: birinci satır içeride `StateChanged?.Invoke(next)`
 çalıştırıyor; bir abone fırlatırsa istisna oradan yukarı çıkar ve kurtarma
 penceresinin süresini kuran ikinci satır hiç çalışmaz.
 
-> ██ YOKLUK SENEDİ ██ — `GetInvocationList()`
+> ***YOKLUK SENEDİ*** — `GetInvocationList()`
 >
 > **① HANGİ ÖZELLİK:** Oyuncu bugün bir birim öldüğünde ekranda yalnızca
 > tahtanın boyandığını görüyor. Kaç düşmanın kaldığını, kazanmaya ne kaldığını
@@ -180,7 +180,7 @@ penceresinin süresini kuran ikinci satır hiç çalışmaz.
 > paneli istenir miydi? EVET. Zafer koşulunu göstermeyen bir strateji oyunu
 > eksiktir; bu özellik oyunun yol haritasında duruyor, dilin yol haritasında
 > değil. Mekanizmayı elverişliden zorunluya çeviren değişmez şudur:
-> ██ tahta, hangi birimin canlı olduğu konusunda asla yalan söylemeyecek ██.
+> ***tahta, hangi birimin canlı olduğu konusunda asla yalan söylemeyecek***.
 > Bu cümle olmadan iki abone de sorunsuz çalışır. Bu cümleyle biri ötekini
 > susturamaz, ve abone başına yalıtımın tek yolu çağrı listesini elle gezmektir.
 >
@@ -203,11 +203,11 @@ private void OnEnable()
 }
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde üç `+=` var (`Combatant` kurucusu,
+***EN ÖĞRETİCİ SEÇİMİ*** — üretimde üç `+=` var (`Combatant` kurucusu,
 `Battle.AddUnit`, `BoardAdapter.OnEnable`); seçilen bu, çünkü kutunun İKİ adı da
 yalnız burada yan yana duruyor: aynı dosyanın birkaç satır aşağısındaki `OnDisable`
 `battle.UnitStateChanged -= OnUnitStateChanged;` satırıyla `Delegate.Remove`
-tarafını yazıyor. Kutudaki «her çağrıda ██ YENİ NESNE ██; verilenler kımıldamaz»
+tarafını yazıyor. Kutudaki «her çağrıda ***YENİ NESNE***; verilenler kımıldamaz»
 satırının karşılığı bu `+=`; kutunun «BİLMEZ: aynı hedef+metodun listeye ikinci
 kez girdiğini — ELEMEZ. Remove yalnız SONUNCU eşleşmeyi çıkarır.» satırının
 faturası da burada kesiliyor: `OnEnable` bir `OnDisable` görmeden ikinci kez
@@ -220,12 +220,12 @@ faturası da burada kesiliyor: `OnEnable` bir `OnDisable` görmeden ikinci kez
 public event Action<UnitState> StateChanged;
 ```
 
-██ EN ÖĞRETİCİ SEÇİMİ ██ — üretimde üç `event` bildirimi var
+***EN ÖĞRETİCİ SEÇİMİ*** — üretimde üç `event` bildirimi var
 (`UnitLifecycle.StateChanged`, `Combatant.StateChanged`, `Battle.UnitStateChanged`);
 seçilen bu, çünkü ikinci duraktaki CS0070 ölçüsü de bunun üstünde koşuyor.
 Kutudaki «TEK alan gibi yazılır, ÜÇ üye üretir (gizli alan + add_X + remove_X)»
 satırının karşılığı tam bu satır: yazılan bir tane, derleyicinin ürettiği üç tane.
-Kutunun «BİLMEZ: ██ İÇERİDE hiçbir şey ██ — bildiren tipin gövdesi gizli alanı
+Kutunun «BİLMEZ: ***İÇERİDE hiçbir şey*** — bildiren tipin gövdesi gizli alanı
 sıradan bir alan gibi görür» satırı ise aynı dosyanın `SetState` metodundaki
 `StateChanged?.Invoke(next);` satırından okunuyor: o satır bildiren tipin
 **içinde** olduğu için derleniyor, `Combatant.cs`'e taşınsaydı CS0070 verirdi.
@@ -243,8 +243,8 @@ Bir delege bir "fonksiyon işaretçisi" **değildir**. İki alanlı bir nesnedir
                                     new Action<UnitState>(this.OnLifecycle…)
 
          ╔═════════════════════════════════════════╗
-         ║  Target  ──►  o Combatant örneği (this) ║   ██ `this` ARTIK BU
-         ║  Method  ──►  OnLifecycleStateChanged   ║      NESNENİN İÇİNDE ██
+         ║  Target  ──►  o Combatant örneği (this) ║   >> `this` ARTIK BU
+         ║  Method  ──►  OnLifecycleStateChanged   ║      NESNENİN İÇİNDE <<
          ╚═════════════════════════════════════════╝
 ```
 
@@ -286,7 +286,7 @@ public string DescribeSubscribers()
 ② test yolu — UnitLifecycleTests.StateChanged_FiresOnceWhenHealthIsDepleted
    lifecycle.StateChanged += seen.Add;          // seen: List<UnitState>
    lifecycle.DescribeSubscribers()   ►  "List`1 . Add"
-      ██ Target o LİSTE ██ — testin kendisi değil, `this` değil, LİSTE
+      >> Target o LİSTE << — testin kendisi değil, `this` değil, LİSTE
 ```
 
 ②'nin tek başına kapattığı bir ders var: `seen.Add` yazdığında abone ettiğin şey
@@ -311,7 +311,7 @@ yazılı. Buradaki katkı **neden** o iki alan olduğu: delegenin başka alanı 
    ║   └─ Delegate         ║           ║ lifecycle        ║
    ║        Target ────────╫──────────►║ lastObservedState║
    ╚═══════════════════════╝           ╚══════════════════╝
-   ██ YAYINCI ABONEYİ TUTAR ██ — Combatant'a başka hiçbir referans
+   >> YAYINCI ABONEYİ TUTAR << — Combatant'a başka hiçbir referans
    kalmasa bile lifecycle yaşadığı sürece toplanamaz. Sezginin TERSİ.
 ```
 
@@ -321,11 +321,11 @@ ne olur" bölümünde; buradaki katkı oku çizen alanın **adı**: `Target`.
 
 **Kapsam — bu projede yön neden zararsız:** `Combatant` `lifecycle`'ın sahibi;
 ikisi birlikte doğar, birlikte ölür, ok bir sahiplik sınırını geçmiyor.
-██ Sınırı geçen tek abonelik `Battle.AddUnit`'teki ██ ve orada bırakma zorunlu.
+***Sınırı geçen tek abonelik `Battle.AddUnit`'teki*** ve orada bırakma zorunlu.
 
 > **◀ DÖNÜŞ:** [07-bellek-canlilik-ve-yikim.md](07-bellek-canlilik-ve-yikim.md#kod-bunu-gercekte-ne-yapiyor-sokme-yeri-var) — «Kod bunu GERÇEKTE ne yapıyor: sökme yeri var»dan
 > geldiysen artık şunu biliyorsun: oku çizen alanın **adı** `Target`, ve o alan
-> delegenin **içinde** duruyor — ██ yayıncı aboneyi tutar, sezginin tersi ██ ·
+> delegenin **içinde** duruyor — ***yayıncı aboneyi tutar, sezginin tersi*** ·
 > oraya dön ve sökme yerinden devam et
 
 ---
@@ -373,9 +373,9 @@ lifecycle.StateChanged += seen.Add;   object first  = lifecycle.Held();
 lifecycle.StateChanged += seen.Add;   object second = lifecycle.Held();
 //                       ▲ AYNI hedef, AYNI metot
 
-ReferenceEquals(first, second)   ►  false    ██ Combine YENİ nesne verdi ██
+ReferenceEquals(first, second)   ►  false    >> Combine YENİ nesne verdi <<
 lifecycle.OnHealthDepleted();
-seen                             ►  [Downed, Downed]   ██ İKİ KEZ ██
+seen                             ►  [Downed, Downed]   >> İKİ KEZ <<
 ```
 
 Son satır az bilinen yarısı: `Delegate.Combine` **elemez**. Aynı hedef+metot
@@ -386,7 +386,7 @@ bir `+=`'i dengeler, iki `+=`'i değil. Simetriyi tutan şey derleyici değil,
 
 **Bu projede bugün ölçüsü:** üretimdeki üç `+=` üç ayrı dosyada ve her biri bir
 kez çalışıyor (`Combatant.cs:90`, `Battle.cs:228`, `BoardAdapter.cs:290`).
-██ Önem kazanacağı gün: ██ `BoardAdapter.OnEnable` bir `OnDisable` görmeden
+***Önem kazanacağı gün:*** `BoardAdapter.OnEnable` bir `OnDisable` görmeden
 ikinci kez çağrıldığı gün — Unity'de bu, bileşen kapatılıp açıldığında
 olağandır; simetriyi bugün tutan tek şey `OnDisable`'daki eşleşen `-=` satırı.
 
@@ -417,7 +417,7 @@ kısıt yine de geçerli. Birinci duraktaki ölçü üyesinin neden `UnitLifecyc
 Sahip etiketleri: `event` = **C# dili**. `Delegate.Combine` / `Delegate.Remove`
 ve `Interlocked.CompareExchange` = **.NET kütüphanesi** — sonuncusunun vaadi dar
 ve sınırı burada: **abone EKLEMEYİ** iki iş parçacığına karşı korur, **yayını**
-██ KORUMAZ ██.
+***KORUMAZ***.
 
 ---
 
@@ -430,53 +430,109 @@ kopyalayıp verir; `Invoke` onu **abonelik sırasıyla** yürütür.
 StateChanged  =  [ h1 , h2 , h3 ]
                    │    │    │
       Invoke(x) ───┴────┴────┴──►  h1(x)  sonra  h2(x)  sonra  h3(x)
-                                   ██ SIRA = abone olunma sırası ██
+                                   >> SIRA = abone olunma sırası <<
 ```
 
-### ██ DÖNÜŞ DEĞERİ TUZAĞI ██
+### ***DÖNÜŞ DEĞERİ TUZAĞI***
 
 [04](04-delege-olay-ve-kapanis.md#funct-r-neden-hic-yok) "`Func` neden hiç yok"
 diyor. Arka taraftan sebebi şu: `Invoke` listeyi dolaşırken elinde **tek** bir
-dönüş değeri yeri var ve her adım öncekini üzerine yazıyor.
+dönüş değeri yeri var. Her abone kendi cevabını o yere yazar. Bir sonraki abone
+aynı yere yazınca öncekinin cevabı gider.
+
+***Üzerine yazılan şey CEVAP'tır, ABONE değil.*** Üç abonenin üçü de çalışır.
+Hiçbiri listeden silinmez. Kaybolan tek şey ilk ikisinin cevabıdır.
+
+```
+                                 ┌──────────────┐
+ h1() çalıştı ─► cevabı 1 ──────►│   r  =  1    │  yazıldı
+ h2() çalıştı ─► cevabı 2 ──────►│   r  =  2    │  üstüne yazıldı
+ h3() çalıştı ─► cevabı 3 ──────►│   r  =  3    │  üstüne yazıldı
+                                 └──────────────┘
+                                  TEK BİR YER      hayatta kalan: SONUNCU
+```
 
 ```csharp
+int sayac = 0;
 Func<int> f = null;
-f += () => 1;
-f += () => 2;
-int r = f();        //  r  ►  2   — 1'i görmenin HİÇBİR yolu yok: birinci
-                    //   lambda çalıştı, döndürdü, değer ikinci adımda
-                    //   üzerine yazıldı. İstisna yok, uyarı yok.
+f += () => { sayac++; return 1; };
+f += () => { sayac++; return 2; };
+
+int r = f();
+//  r      ►  2    yalnız CEVAP kayboldu
+//  sayac  ►  2    İKİSİ DE ÇALIŞTI — yan etki kaybolmadı
 ```
+
+`sayac`ın 2 olması birinci lambdanın gerçekten koştuğunun kanıtıdır. İstisna
+yok, uyarı yok, atlanan abone yok. Yalnız cevap yok.
+
+**`=` ile karıştırma** — ***"üzerine yazma"*** sözcüğü `=` için apayrı bir şey
+anlatır ve orada aboneler gerçekten silinir:
+
+```
+f  =  h3     ►  liste: [ h3 ]           h1 ile h2 SİLİNDİ
+f += h3      ►  liste: [ h1, h2, h3 ]   hiçbiri silinmedi
+```
+
+İkinci durakta okuduğun CS0070 duvarının kapattığı şey tam olarak birinci
+satırdır. Bir olaya dışarıdan `=` yazabilseydin, başkasının aboneliklerini tek
+satırda silebilirdin. `event` dışarıya `+=` ile `-=` bırakır — ***"ekle"*** ve
+***"kendi çıkardığını çıkar"***. Başkasınınkine dokunamazsın.
 
 N aboneden N−1'inin cevabı sessizce kayboluyor; bir olayın imzası bu yüzden
 `Func` olamaz. Projede `Func` sıfır kez geçiyor — ölçü: `Assets/` altında
 `Func<` ara, hiç eşleşme yok.
 
-### ██ İSTİSNA TUZAĞI ██
+### ***İSTİSNA TUZAĞI***
 
 `MulticastDelegate.Invoke` bir `try`/`catch` **taşımaz**:
 
 ```
 StateChanged.Invoke(Downed)
      ├─► h1(Downed)  ── fırlattı
-     ├─✗ h2(Downed)  ██ HİÇ ÇAĞRILMADI ██
-     └─✗ h3(Downed)  ██ HİÇ ÇAĞRILMADI ██ ─► istisna yayıncının Invoke
+     ├─✗ h2(Downed)  >> HİÇ ÇAĞRILMADI <<
+     └─✗ h3(Downed)  >> HİÇ ÇAĞRILMADI << ─► istisna yayıncının Invoke
                                              satırından yukarı çıkar
 ```
 
 Ve yayıncı için ikinci bir bedel var: **`Invoke` satırından SONRAKİ kendi
-satırları da çalışmaz.** Bu projede o satırın ne olduğu tuzağı soyut olmaktan
-çıkarıyor:
+satırları da çalışmaz.**
+
+***Sebebi tek cümledir: `Invoke` bir gönderme değil, bir çağrıdır.*** Abonenin
+metodunu o anda, aynı iş parçacığında, aynı çağrı yığınında çalıştırır ve o metot
+bitmeden geri dönmez. Ortada bir kuyruk yoktur. Bu yüzden `Invoke`tan sonraki
+satır ***"biraz sonra"*** çalışacak bir satır değil; yığının tamamı geri dönene
+kadar sırası ***hiç gelmeyen*** bir satırdır.
+
+Zincirin yığın hâli
+[../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#ayni-zincir-ikinci-bir-cizimle-dort-adim-degil-dort-cerceve)
+bölümünde çizili. İstisna oraya düştüğünde yukarı nasıl tırmandığı şudur:
+
+```
+        ApplyStateVisual  FIRLATTI                    en derin cerceve
+   ^    |
+   |    BoardAdapter.OnUnitStateChanged     yarim kaldi
+   |    Battle forwarder                    yarim kaldi
+   |    Combatant.OnLifecycleStateChanged   yarim kaldi   lastObservedState YAZILDI
+   |    UnitLifecycle.SetState              yarim kaldi   State           YAZILDI
+   |    UnitLifecycle.OnHealthDepleted      yarim kaldi   remainingSeconds YAZILMADI
+   |
+ istisna yukari tirmaniyor
+```
+
+`State` yazılı kaldı çünkü ataması `Invoke`tan **önceydi**. `remainingSeconds`
+hiç yazılmadı çünkü **sonraydı**. Ayıran tek şey satır sırasıdır — ve bu projede
+o sıranın bedeli şudur:
 
 ```csharp
 // UnitLifecycle.OnHealthDepleted — son iki satır
 SetState(UnitState.Downed);              // ← içinde StateChanged?.Invoke var
-remainingSeconds = downedWindowSeconds;  // ██ BİR ABONE FIRLATIRSA ÇALIŞMAZ ██
+remainingSeconds = downedWindowSeconds;  // >> BİR ABONE FIRLATIRSA ÇALIŞMAZ <<
 
 //  State = Downed  ✓ yazıldı (SetState Invoke'tan ÖNCE atıyor)
 //  remainingSeconds ✗ 0'da kaldı → ilk Tick(0.016f): Alive değil,
 //  0 - 0,016 ≤ 0, Downed → SetState(Dead)
-//  ██ 10 saniyelik kurtarma penceresi TEK KAREDE yok oldu ██
+//  >> 10 saniyelik kurtarma penceresi TEK KAREDE yok oldu <<
 ```
 
 **Aynı dosyadan karşı örnek** — `TryRevive`'daki `SetState(Alive);` satırının
@@ -492,7 +548,7 @@ kendisi kuruyor (`BoardAdapter.cs:238`), yani bir savaşa ikinci adaptör
 bağlanamıyor. Testlerde de her `[Test]` kendi `Battle`'ını kurup tek bir `+=`
 yazıyor (`BattleTests.cs:804, 845, 874, 897`).
 
-██ Önem kazanacağı gün ██ — **`Battle.UnitStateChanged`'e ikinci bir abone (ses,
+***Önem kazanacağı gün*** — **`Battle.UnitStateChanged`'e ikinci bir abone (ses,
 skor, başarım) eklendiği gün** iki şey birden doğar. (1) Sıra bir davranış hâline
 gelir: görsel mi önce güncellenir ses mi önce çalar, ve bunu belirleyen şey
 `OnEnable` sıralaması — yani Unity'nin bileşen sırası. (2) Yeni abone fırlattığı
@@ -503,14 +559,48 @@ hasarı üretimde görünür. İkisini de görünür kılan koşul aynı satırd
 > sonra aynı dosyada `TryRevive`
 > **BAK:** iki metodun **şekli aynı** — `SetState(...)` çağrısı, ardından bir
 > alan ataması. Biri bir **değişmez** kuruyor (pencerenin süresi), öteki zaten
-> sağlanmış bir şeyi tekrar yazıyor. ██ Aynı şekil, iki ayrı risk. ██
-> **DÖNÜŞ:** bu dosyanın «██ İSTİSNA TUZAĞI ██» bölümü
+> sağlanmış bir şeyi tekrar yazıyor. ***Aynı şekil, iki ayrı risk.***
+> **DÖNÜŞ:** bu dosyanın «***İSTİSNA TUZAĞI***» bölümü
 
 > **◀ DÖNÜŞ:** [../konular/01-olay-zinciri.md](../konular/01-olay-zinciri.md#3-bir-abone-firlarsa-sokulme-degil-yayin-faturasi) — «③ Bir abone FIRLARSA»dan
 > geldiysen artık şunu biliyorsun: `Invoke`'un `try`/`catch` taşımaması bir
-> gözden kaçış değil, `MulticastDelegate`'in tanımı — ██ hatanın kaynağı ile
-> faturasını ödeyen ayrışıyor ██, ve aynı dosyadaki `TryRevive` bunun zararsız
+> gözden kaçış değil, `MulticastDelegate`'in tanımı — ***hatanın kaynağı ile
+> faturasını ödeyen ayrışıyor***, ve aynı dosyadaki `TryRevive` bunun zararsız
 > ikizini taşıyor · oraya dön ve kaldığın yerden devam et
+---
+
+### Bu iki tuzağı da kapatan yapı
+
+Üstteki iki tuzak ayrı arızalardır ama aynı yapı ikisini birden kapatır: yayıncı
+ile aboneyi ayıran bir **dağıtıcı**. Ayrıntısı ve bu projedeki tetikleyici
+koşulu şurada yazılı:
+[../../ogrenme/02-sonraki-asamalar.md — Aşama 3 · Olay veri yolu](../../ogrenme/02-sonraki-asamalar.md#asama-3-olay-veri-yolu-event-bus).
+
+```
+ARIZA A — İSTİSNA YAYILMASI          bu bölümün konusu
+  bir abone fırlatır → kalan aboneler hiç çağrılmaz
+                     → yayıncının Invoke'tan SONRAKİ satırları da çalışmaz
+  KAPATAN: dağıtıcı GetInvocationList() üstünde tek tek dolaşır ve
+           her aboneyi kendi try/catch'ine alır
+
+ARIZA B — ABONELİK ŞİŞMESİ / SIZINTI  ayrı arıza, aynı yapı kapatıyor
+  += , -= 'den daha sık çalışır → aynı abone listede iki kez
+                                → yayıncı aboneyi hayatta tutar (sızıntı)
+  KAPATAN: dağıtıcı aboneliğe karşılık bir iptal tokeni verir;
+           ömrü derleyici değil o token tutar
+```
+
+**Bu projede B bugün YOK, ve tutan şey derleyici değil disiplindir.** Ölçü:
+`Assets/Game` altında olay aboneliği için `+=` üç yerde, `-=` iki yerde geçiyor.
+`BoardAdapter` simetrik — `OnEnable`de `+=` (`BoardAdapter.cs:290`), `OnDisable`da
+`-=` (`BoardAdapter.cs:295`). `Battle` yönlendiricisini sözlükten alıp söküyor
+(`Battle.cs:349`). Eksik bir `-=` tek bir uyarı bile üretmez; bunu `BoardAdapter.cs:282`
+kendi yorumunda zaten söylüyor.
+
+> **◀ DÖNÜŞ:** [../../ogrenme/02-sonraki-asamalar.md](../../ogrenme/02-sonraki-asamalar.md#asama-3-olay-veri-yolu-event-bus)
+> — «Aşama 3 · Olay veri yolu»na. Oradaki ***KAPATTIĞI ÖLÇÜLMÜŞ ARIZA***
+> tablosunun A ve B satırlarının mekanizması budur.
+
 
 ---
 
@@ -529,11 +619,11 @@ StateChanged?.Invoke(previous, next);      // Combatant.OnLifecycleStateChanged
 ```
 StateChanged?.Invoke(previous, next);      if (X != null) X.Invoke(...);
   ① alanı YEREL bir değişkene kopyala        ① ALANI oku ve sına
-  ② YEREL değişkeni null'a karşı sına        ② ALANI ██ İKİNCİ KEZ ██ oku
+  ② YEREL değişkeni null'a karşı sına        ② ALANI >> İKİNCİ KEZ << oku
   ③ YEREL değişken üstünden Invoke et           ve Invoke et
-     ██ alanı BİR KEZ okur ██                      ▲
-                                     ██ İKİ OKUMA ARASI: başka bir yol -=
-                                        yapıp alanı null'a düşürebilir ██
+     >> alanı BİR KEZ okur <<                      ▲
+                                     >> İKİ OKUMA ARASI: başka bir yol -=
+                                        yapıp alanı null'a düşürebilir <<
 ```
 
 `?.` bu aralığı kapatıyor, çünkü ikinci okuma diye bir şey yok. İkinci duraktaki
@@ -547,17 +637,17 @@ sonucu söylüyor; buradaki katkı, sonucu üreten iki mekanizmayı — tek okum
 `Task<`, `async `, `await `, `IJob`, `Parallel.`, `lock (` ara: **hiç eşleşme
 yok**. Zaman `Tick(float)` ile dışarıdan geliyor ve onu çeviren tek yer Unity'nin
 ana döngüsü. İki okuma arasına girecek ikinci bir yol bugün **yok**; `?.` ile
-elle yazılan kontrol bugün birebir aynı sonucu verir. ██ Önem kazanacağı gün ██:
+elle yazılan kontrol bugün birebir aynı sonucu verir. ***Önem kazanacağı gün***:
 `Tick` bir Unity Job'ından ya da bir `Task`tan çağrıldığı gün, ya da bir abone
 kendi `-=`'ini bir zamanlayıcı geri çağrısından yazdığı gün — o gün
 `if (X != null) X.Invoke()` bir yarış penceresi taşır, `?.Invoke` taşımaz.
 
 Sahip etiketi: `?.` = **C# dili**. Vaadi dar ve tam olarak şu: **sol taraf bir
-kez değerlendirilir.** `Invoke`ın iş parçacığı güvenli olduğunu ██ VAAT ETMEZ ██.
+kez değerlendirilir.** `Invoke`ın iş parçacığı güvenli olduğunu ***VAAT ETMEZ***.
 
 ---
 
-## Beşinci durak: ██ OPERATÖRÜN SORDUĞU PASAJ ██ — abonelik neden EN SONDA
+## Beşinci durak: ***OPERATÖRÜN SORDUĞU PASAJ*** — abonelik neden EN SONDA
 
 Kurucunun gövdesi, sırasıyla:
 
@@ -580,7 +670,7 @@ Mekanizma, ⑥ çalıştığı an:
 
 ```
    ⑥ ─► new Action<UnitState>(this.OnLifecycleStateChanged)
-        │     Target = ██ bu Combatant ██  (kurulumu HENÜZ bitmedi)
+        │     Target = >> bu Combatant <<  (kurulumu HENÜZ bitmedi)
         └─► lifecycle.add_StateChanged(...) → Delegate.Combine → listeye girdi
 
    BU ANDAN İTİBAREN:  lifecycle ──► bu Combatant'a ULAŞABİLİR
@@ -615,7 +705,7 @@ kalanı `lifecycle`'ı kimin tuttuğuna bağlı ve iki dal da gerçek:
 ```
 A) lifecycle'a başka referans YOK
    → yarım Combatant + lifecycle birlikte çöp olur, görünür zarar YOK
-     ██ ama bu bir tasarım güvencesi değil, o günkü çağrı yerinin şansı ██
+     >> ama bu bir tasarım güvencesi değil, o günkü çağrı yerinin şansı <<
 
 B) çağıran lifecycle'ı ELİNDE TUTUYOR (parametre olarak o verdi — normal yol)
    → yarım Combatant toplanamaz: Target onu tutuyor (birinci durak)
@@ -624,7 +714,7 @@ B) çağıran lifecycle'ı ELİNDE TUTUYOR (parametre olarak o verdi — normal 
    → bir sonraki geçişte İKİSİ de çalışır; yarımın alanları atanmamıştır
         (AttackProfile = null, Team = Team.None) ve üçüncü duraktaki sıra
         kuralı gereği ÖNCE o çalışır. Bir NullReferenceException fırlatırsa
-        ██ sağlam Combatant o yayını HİÇ duymaz ██
+        >> sağlam Combatant o yayını HİÇ duymaz <<
 ```
 
 **KAZANIRDI:** Bu sıra yalnız tek bir senaryoda doğru olurdu — **kurucunun
@@ -648,7 +738,7 @@ koruyan bir test **var**:
 BattleTests.UnitStateChanged_IsNotWiredByARejectedAdd
    battle.AddUnit(soldier, combatant, 9, 9)  ► ArgumentOutOfRangeException
    sonra battle.UnitStateChanged += log.Record  ve  combatant.TakeDamage(10)
-   ►  log.Count == 0  ██ reddedilen ekleme TEK BİR abone bırakmadı ██
+   ►  log.Count == 0  >> reddedilen ekleme TEK BİR abone bırakmadı <<
 ```
 
 `Combatant` kurucusunda bu testin karşılığı **yok**: kurucu fırlattığında elinde <!-- YOK-MUAF · KAPSAM DIŞI · gerekçe aşağıda -->
@@ -656,7 +746,7 @@ sınayacak bir nesne kalmıyor, testin şekli de farklı olmak zorunda (birinci
 duraktaki `DescribeSubscribers` gibi bir ölçü üyesi gerekirdi). Kuralı bugün
 tutan şey testler değil, satır sırası.
 
-> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+> ***BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI***
 >
 > **NEDEN SENET YAZILMADI:** Yukarıdaki cümle bir mekanizmanın değil bir TESTİN
 > yokluğunu hükmediyor. Senedin birinci alanı oyunda görünen bir özellik ister.
@@ -681,7 +771,7 @@ tutan şey testler değil, satır sırası.
 ⑤ lastObservedState = this.lifecycle.State;
       kapatır  : "ilk yayında ÖNCEKİ durum ne olacak"
       silinirse: alan default(UnitState) = Alive kalır ve bugün DOĞRU cevabı
-                 verir ██ ama bu bir tesadüf ██ — UnitState listesinde Alive
+                 verir >> ama bu bir tesadüf << — UnitState listesinde Alive
                  başta duruyor. Sıra değişirse yanlış "önceki durum" yayılır.
 
 ⑥ this.lifecycle.StateChanged += OnLifecycleStateChanged;
@@ -692,8 +782,8 @@ tutan şey testler değil, satır sırası.
 
 ⑤'in ⑥'dan **önce** olması da ayrı bir karar: ⑥'dan sonraki ilk yayın
 `lastObservedState`i okumak zorunda. Ters sırada bugün gözle görülür fark yok,
-çünkü kurucu ile ilk yayın arasında hiçbir şey çalışmıyor; ██ önem kazanacağı
-gün ██, `+=` ile kurucunun sonu arasına yayın üretebilen bir satır girdiği gün.
+çünkü kurucu ile ilk yayın arasında hiçbir şey çalışmıyor; ***önem kazanacağı
+gün***, `+=` ile kurucunun sonu arasına yayın üretebilen bir satır girdiği gün.
 
 ### "Aboneliğin çözüldüğü yer yok" — bunun KOŞULU
 
@@ -705,7 +795,7 @@ bir sahiplik sınırı geçmiyor — sökülecek bir şey yok. Ölçü: `Combata
 **değerini** geçiriyor, kendisini değil); erişimi olan tek yol, onu kurucuya
 veren çağırandır.
 
-██ Borç doğuracağı koşul ██ — sahiplik değiştiği gün: `lifecycle` bir havuzdan
+***Borç doğuracağı koşul*** — sahiplik değiştiği gün: `lifecycle` bir havuzdan
 gelmeye başladığı, ya da iki `Combatant` bilerek aynı `lifecycle`'ı paylaştığı
 gün. O gün yayıncı aboneden **uzun yaşar** ve `-=` borcu doğar; borcun şekli de
 belli — `Combatant` bir `Detach()` üyesi kazanır ve onu çağırmayı unutmanın
@@ -755,8 +845,8 @@ C# erişim kurallarından geçmiyor.
 > **NEDEN:** yukarıdaki farkın **sağ sütunu** burada tanımlanmıyor. Unity yaşam
 > döngüsünün kendisi (`Awake` → `OnEnable` → `Start` → `Update` → `OnDisable` →
 > `OnDestroy` sırası, ve `OnEnable`/`OnDisable` çiftinin neden `Awake`/`OnDestroy`
-> çiftine tercih edildiği) o dosyanın işi. ██ Burada yalnız **fark** var, sıra
-> değil. ██
+> çiftine tercih edildiği) o dosyanın işi. **Burada yalnız *fark* var, sıra
+> değil.**
 > **DÖNÜŞ:** bu dosyanın [«Altıncı durak: `event` ile Unity mesaj geri çağrıları aynı şey değil»](#altinci-durak-event-ile-unity-mesaj-geri-cagrilari-ayni-sey-degil) bölümü
 
 ---
@@ -769,7 +859,7 @@ C# erişim kurallarından geçmiyor.
 | **Vampire Survivors** | Binlerce düşmanın her biri. Ölen düşman deneyim taşı bırakır, sayacı ilerletir, bazen bir silahı tetikler — aynı an, ekranda aynı karede yüzlerce kez. |
 | **Stardew Valley** | Gün sonu. Tek bir anda ekinler büyür, hayvanlar ürün verir, makineler işini bitirir, takvim ilerler; birbirini tanımayan çok sayıda farklı iş aynı ana bağlıdır. |
 
-### ██ EŞLEŞMEYEN SATIR: Vampire Survivors ██
+### ***EŞLEŞMEYEN SATIR: Vampire Survivors***
 
 En öğretici satır bu, çünkü bizim mekanizmamız oraya **oturmuyor**:
 
@@ -779,8 +869,8 @@ BİZDE (Battle.AddUnit)                  ORADA (binlerce varlık)
 birim başına 1 kapanış nesnesi          varlık başına 1 kapanış + 1 liste
           + 1 sözlük girdisi            girişi → × binlerce nesne, ve her
           + 1 çağrı listesi girişi      ölümde bir dolaylı delege çağrısı
-ölçü: sahnede 2 birim var (Vanguard,    ██ o ölçekte olay başına TAHSİS ve
-Raider — BoardAdapter.Awake) → 2 kapanış   İŞ YÜKÜ demektir ██
+ölçü: sahnede 2 birim var (Vanguard,    >> o ölçekte olay başına TAHSİS ve
+Raider — BoardAdapter.Awake) → 2 kapanış   İŞ YÜKÜ demektir <<
 ```
 
 Asimetrinin adı: bizde abone sayısı **birim sayısıyla** büyüyor ve birim sayısı
@@ -813,18 +903,18 @@ Vampire Survivors'ın ÖLÇEĞİ         ► bizde YOK, ve bu bir yol haritası 
         │  DERLEYİCİ (C# dili)
         ▼
    new Action<UnitState>(this.OnLifecycleStateChanged)
-        Target = this  ██ YARIM KURULMUŞSA BURADA YAKALANIR ██
+        Target = this  >> YARIM KURULMUŞSA BURADA YAKALANIR <<
         Method = OnLifecycleStateChanged
         │  add_StateChanged(...) ← event'in ürettiği metot
         ▼
-   Delegate.Combine(eski, yeni) ← .NET: ██ YENİ NESNE ██, eski kımıldamadı
+   Delegate.Combine(eski, yeni) ← .NET: >> YENİ NESNE <<, eski kımıldamadı
         │  Interlocked.CompareExchange ile gizli alana yazıldı
         ▼
    gizli alan: [ h1 , h2 , h3 ]  ← sıra = abonelik sırası
         │  yayın anı: StateChanged?.Invoke(next)
         ▼
    ① alan YEREL değişkene KOPYALANIR  ② null mı bakılır  ③ liste SIRAYLA yürür
-        └─► h1 fırlarsa ██ h2 ve h3 HİÇ çağrılmaz ██, ve yayıncının
+        └─► h1 fırlarsa >> h2 ve h3 HİÇ çağrılmaz <<, ve yayıncının
             Invoke'tan SONRAKİ satırları da çalışmaz
 ```
 
@@ -836,27 +926,27 @@ Vampire Survivors'ın ÖLÇEĞİ         ► bizde YOK, ve bu bir yol haritası 
 ① Bu satır bir KURUCUNUN içinde mi?      hayır → ③   ·   evet → ②
 
 ② Kurucunun geri kalanı FIRLATABİLİR mi (null/aralık kontrolü, sözlüğe ekleme)?
-      evet  → ██ += EN SONA ██ — fırlayan kurucu geriye nesne döndürmez,
+      evet  → >> += EN SONA << — fırlayan kurucu geriye nesne döndürmez,
               dolayısıyla -= yazacak bir yer de bırakmaz. Başka koruma YOK.
       hayır → yine en sona yaz; bedeli sıfır ve bir sonraki doğrulama
               eklendiğinde kural kendiliğinden tutar
 
 ③ Kurucunun/metodun KENDİSİ bir yayın üretiyor mu (abone olduğun nesne
    üstünde durum değiştiren bir çağrı)?
-      evet  → ██ += o çağrıdan ÖNCE ██, yoksa ilk geçiş kaçırılır; sıra
+      evet  → >> += o çağrıdan ÖNCE <<, yoksa ilk geçiş kaçırılır; sıra
               "doğrula → abone ol → tetikle" olur
       hayır → ②'nin cevabı geçerli
 
 ④ Yayıncı, aboneden UZUN yaşayacak mı? (ölçü: yayıncıya erişimi olan başka
    kimse var mı)
       hayır → -= borcu YOK; nesne ölünce olay da ölür
-      evet  → ██ -= BORCU DOĞDU ██, derleyici hatırlatmaz; sökme yerini
+      evet  → >> -= BORCU DOĞDU <<, derleyici hatırlatmaz; sökme yerini
               AYNI turda yaz (OnEnable ↔ OnDisable gibi)
 
 ⑤ Olayın ikinci bir abonesi olabilir mi?
       evet → SIRA bir davranış hâline gelir ve bir abonenin fırlatması
              ötekileri sessizce düşürür. Fırlatabilecek abone kendi gövdesini
-             try/catch'e alır — ██ Invoke bunu senin için YAPMAZ ██
+             try/catch'e alır — >> Invoke bunu senin için YAPMAZ <<
 ```
 
 ---
@@ -889,7 +979,7 @@ dinleyici arayüzü listesi (List<IStateListener>)
      → Target/Method ikilisi ortadan kalkar: elinde ZATEN nesne vardır,
        Remove referansla çalışır, sökme sessizce başarısız olamaz. Bedeli
        her dinleyici için bir tip; ve tutma yönü DEĞİŞMEZ —
-       ██ liste de dinleyiciyi hayatta tutar ██.
+       >> liste de dinleyiciyi hayatta tutar <<.
 
 zayıf referanslı olay (WeakReference<T> ile abone tutmak)
      → tutma yönü kırılır, yayıncı aboneyi hayatta tutmaz. Bedeli iki katlı:
@@ -925,15 +1015,15 @@ kusurdur, üslup değil.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
 > **▶ SIRADA:** [`07-bellek-canlilik-ve-yikim.md`](07-bellek-canlilik-ve-yikim.md) — okuma yolunun **12.** adımı
 > **NEDEN ORASI:** bu dosya oku çizen alanın **adını** verdi (`Target`); `dil/07`
 > o okun **bellek faturasını** ölçüyor — yedi hop, ve tek bir `Combatant`
-> referansı bütün savaşı erişilebilir tutuyor. ██ Aynı eksik `-=`, iki ayrı
-> fatura: `konular/01` davranış faturasını, `dil/07` bellek faturasını veriyor. ██
+> referansı bütün savaşı erişilebilir tutuyor. ***Aynı eksik `-=`, iki ayrı
+> fatura: `konular/01` davranış faturasını, `dil/07` bellek faturasını veriyor.***
 > **UYARI:** `dil/07` kendi başında `dil/05`'i ön koşul sayıyor (`05` semantiği,
 > `07` depolamayı anlatır). `dil/05`'i henüz okumadıysan `07`'nin dört soruluk
-> figürü yine de ayakta; ██ depolama bölümünde sıkışırsan `dil/05`'e geç, sonra
-> dön ██.
+> figürü yine de ayakta; ***depolama bölümünde sıkışırsan `dil/05`'e geç, sonra
+> dön***.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

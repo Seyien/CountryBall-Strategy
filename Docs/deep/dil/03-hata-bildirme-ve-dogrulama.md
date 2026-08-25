@@ -23,8 +23,8 @@
 
 **BURAYA KODDAN GELDİYSEN** — aşağıdaki üyelerin **yorumunda** bu belgeye bir
 `DİL:` işaretçisi var (`dil/` ağacının işaretçisi `DERİN ANLATIM:` değil,
-██ `DİL:` ██). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
-██ Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz. ██
+***`DİL:`***). Yol: `Ctrl+P` → dosya adı → `Ctrl+F` ile **üye adını** ara.
+***Satır numarası bilerek yazılmıyor: satır kayar, üye adı kaymaz.***
 
 | dosya | üye | koddan işaretçi |
 |---|---|---|
@@ -33,9 +33,9 @@
 | `Assets/Tests/EditMode/Combat/MovementRulesTests.cs` | `CanMove_TakesStateAloneAndHasNoTeamOverload` | ✓ |
 | `DamageRules` · `HealingRules` · `UnitGrid` · `BattleActions` · `Battle` · `GridDistance` | yukarıdaki üyeler | ██ HENÜZ YOK ██ |
 
-██ **"HENÜZ YOK" ne demek:** o üye burada gerçekten anlatılıyor, ama **kodun
-yorumunda buraya geri getiren bir satır yok** — o üyeden yola çıkıp bu belgeye
-ulaşamazsın, yalnız tersi çalışır. ██
+***"HENÜZ YOK" ne demek:* o üye burada gerçekten anlatılıyor, ama *kodun
+yorumunda buraya geri getiren bir satır yok* — o üyeden yola çıkıp bu belgeye
+ulaşamazsın, yalnız tersi çalışır.**
 
 Bu dosya projenin kendi kararlarını değil, projenin **ödünç aldığı** dil ve BCL
 araçlarını anlatıyor. Onların kodunu biz yazmadık; ama neyi vaat ettiklerini
@@ -75,7 +75,7 @@ Assets/Game içinde sayıldı:
    throw new ArgumentOutOfRangeException    22 kez  ├── 66 throw satırı
    throw new ArgumentException              10 kez  ┘
    ────────────────────────────────────────────────
-   throw new InvalidOperationException       0 kez  ██ HİÇ ██
+   throw new InvalidOperationException       0 kez  >> HİÇ <<
 ```
 
 Son satır bir eksiklik değil, bir karar — dördüncü durakta.
@@ -89,7 +89,7 @@ Son satır bir eksiklik değil, bir karar — dördüncü durakta.
 ║  Ne yapar : bir adı derleme zamanında dize sabitine çevirir   ║
 ║  Vaadi    : ad değişirse DERLEME DURUR                        ║
 ║  BİLMEZ   : değeri. Yalnız ADI görür, `x`'in içindekini asla  ║
-║             ██ ve nitelenmiş adı vermez: son parçayı verir ██ ║
+║             >> ve nitelenmiş adı vermez: son parçayı verir << ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ ArgumentNullException ═══════════════════════════════════════╗
@@ -103,8 +103,8 @@ Son satır bir eksiklik değil, bir karar — dördüncü durakta.
 ║  Ne yapar : "bu argüman geçerli aralığın dışında" der         ║
 ║  Vaadi    : SAYIYI DA TAŞIR — ActualValue alanında            ║
 ║  BİLMEZ   : aralığın ne olduğunu. Sınırı mesaja sen yazarsın  ║
-║              ██ orta argüman boş bırakılırsa tipin tek        ║
-║              üstünlüğü çöpe gider ██                          ║
+║              >> orta argüman boş bırakılırsa tipin tek        ║
+║              üstünlüğü çöpe gider <<                          ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ ArgumentException ═══════════════════════════════════════════╗
@@ -112,14 +112,14 @@ Son satır bir eksiklik değil, bir karar — dördüncü durakta.
 ║  Vaadi    : üçünün ATASIdır — catch (ArgumentException) üçünü ║
 ║             birden yakalar                                    ║
 ║  BİLMEZ   : gösterilecek bir sayı. Taşıyacak alanı yok        ║
-║             ██ argüman sırası ÖTEKİLERİN TERSİ ██             ║
+║             >> argüman sırası ÖTEKİLERİN TERSİ <<             ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ InvalidOperationException ═══════════════════════════════════╗
 ║  Ne yapar : "argüman değil, NESNENİN O ANKİ DURUMU uygun      ║
 ║             değil" der                                        ║
 ║  Vaadi    : hiçbir parametreyi suçlamaz                       ║
-║  BİLMEZ   : bu projede hiç fırlatılmadığını ██ 0 çağrı ██     ║
+║  BİLMEZ   : bu projede hiç fırlatılmadığını >> 0 çağrı <<     ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 ╔═ Math.Max / Math.Min ═════════════════════════════════════════╗
@@ -133,7 +133,7 @@ Son satır bir eksiklik değil, bir karar — dördüncü durakta.
 ### Altı kutunun gerçek satır karşılığı
 
 Altısı da ödünç — `nameof` dilin operatörü, kalan beşi .NET'in tipleri. Aşağıda
-tanım yerleri değil, ██ bu projede karşılaşıldıkları yerler ██ yazılı.
+tanım yerleri değil, ***bu projede karşılaşıldıkları yerler*** yazılı.
 
 **`nameof` bu projede** — `Assets/Game/Core/Combat/DamageRules.cs` → `ResolveRemaining`
 
@@ -146,7 +146,7 @@ Tek satırda `amount` **iki kez** geçiyor ve iki farklı şeye dönüşüyor: b
 kalıyor. Kutudaki «BİLMEZ: değeri. Yalnız ADI görür» satırının karşılığı bu —
 değeri de taşımak istiyorsan ikinci argümanı ayrıca yazmak zorundasın.
 
-«██ ve nitelenmiş adı vermez: son parçayı verir ██» satırının karşılığı ise
+«***ve nitelenmiş adı vermez: son parçayı verir***» satırının karşılığı ise
 `Assets/Game/Core/UnitGrid.cs` → `MoveUnit`'te:
 
 ```csharp
@@ -176,8 +176,8 @@ throw new ArgumentOutOfRangeException(xParamName, x, "x is outside the grid.");
 ```
 
 Üç argüman, üç ayrı iş: ad, **değer**, sınır cümlesi. Kutudaki «Vaadi: SAYIYI DA
-TAŞIR — ActualValue alanında» satırının karşılığı ortadaki çıplak `x`; «██ orta
-argüman boş bırakılırsa tipin tek üstünlüğü çöpe gider ██» uyarısının karşılığı
+TAŞIR — ActualValue alanında» satırının karşılığı ortadaki çıplak `x`; «***orta
+argüman boş bırakılırsa tipin tek üstünlüğü çöpe gider***» uyarısının karşılığı
 da orası — projedeki yirmi iki fırlatmanın hiçbirinde o argüman atlanmamış.
 İlk argümanın `nameof(...)` değil dışarıdan gelen bir `string` olması ayrı bir
 karar ve imzada duruyor:
@@ -195,14 +195,14 @@ private void ThrowIfOutsideGrid(int x, int y, string xParamName, string yParamNa
 throw new ArgumentException("The unit is already in this battle.", nameof(unit));
 ```
 
-Kutudaki «██ argüman sırası ÖTEKİLERİN TERSİ ██» satırının karşılığı doğrudan
+Kutudaki «***argüman sırası ÖTEKİLERİN TERSİ***» satırının karşılığı doğrudan
 burada okunuyor: mesaj **önce**, ad **sonra**. Bir üstteki kutunun
 `Assets/Game/Battle/Battle.cs` → `AddUnit` satırında ad baştaydı — iki ters sıra
 aynı dosyanın içinde, birbirinden yüz satır ötede. «BİLMEZ: gösterilecek bir
 sayı. Taşıyacak alanı yok» satırının karşılığı da aynı satırda: burada
 gösterilecek bir sayı zaten yok, geçersiz olan şey `unit`in **kimliği**.
 
-**`InvalidOperationException` bu projede** — ██ FIRLATILDIĞI YER YOK ██
+**`InvalidOperationException` bu projede** — ***FIRLATILDIĞI YER YOK***
 
 Kutu bunu zaten söylüyor («BİLMEZ: bu projede hiç fırlatılmadığını ██ 0 çağrı
 ██») ve ölçü doğruluyor: `Assets/Game/` altında tek bir
@@ -221,7 +221,7 @@ olarak onu doğurmamak için yazılmış. Tek geçişe indirilirse fırlatan biz
 parametreyi suçlamaz» satırı da anlamını bulur: suçlanacak bir argüman yok,
 suçlanan şey nesnenin o anki durumu.
 
-> ██ YOKLUK SENEDİ — DÜŞÜLDÜ ██ — `InvalidOperationException`
+> ***YOKLUK SENEDİ — DÜŞÜLDÜ*** — `InvalidOperationException`
 >
 > **GEREKÇE:** Bu tipin bu projede doğacağı tek koşul bir GERİLEMEDİR, bir
 > özellik değil. Bir üstteki paragraf o koşulu adıyla yazıyor: iki geçişli
@@ -283,7 +283,7 @@ DENEY  —  DamageRules.ResolveRemaining'in `amount` parametresini
   şimdiki kod:
      throw new ArgumentOutOfRangeException(nameof(amount), amount, "...");
                                                   ▲
-     ██ DERLENMEZ ██  CS0103: "The name 'amount' does not exist in the
+     >> DERLENMEZ <<  CS0103: "The name 'amount' does not exist in the
                       current context". Proje kırmızı. Düzeltmeden
                       devam edemezsin.
 
@@ -314,7 +314,7 @@ Assert.Throws<ArgumentException>(
 ```
      hangi parametrenin suçlandığı  ──►  hiçbir test bakmıyor
      hangi tipin atıldığı           ──►  testler bakıyor
-                       ██ AYRIŞMA ██
+                       >> AYRIŞMA <<
      dolayısıyla paramName'i doğru tutan TEK mekanizma derleyici,
      yani nameof'un kendisi. Düz dizeye geçilse kimse fark etmezdi.
 ```
@@ -354,7 +354,7 @@ MoveUnit(int fromX, int fromY, int toX, int toY)
 ThrowIfOutsideGrid(int x, int y, string xParamName, string yParamName)
    throw new ArgumentOutOfRangeException(xParamName, x, "x is outside the grid.");
                                              ▲
-   ██ BURADA nameof YAZILAMAZ ██
+   >> BURADA nameof YAZILAMAZ <<
       `nameof(x)` yazılsaydı dört çağrının dördü de "x" derdi ve
       MoveUnit'in hatası hangi köşeyi suçladığını söyleyemezdi:
       "toY tahta dışı" ile "fromY tahta dışı" aynı cümleye düşerdi
@@ -386,14 +386,14 @@ dize zorunlu.
 
 ```
 `nameof(AttackRules.CanAttack)`      "CanAttack"  ← rename ile birlikte gider
-                                     CanAttack silinirse ██ DERLENMEZ ██
+                                     CanAttack silinirse >> DERLENMEZ <<
 
 `"CanAttack"` düz dize olsaydı       CanAttack yeniden adlandırıldığında
                                      Where(...) SIFIR sonuç döner
                                      → Assert.That(length, Is.EqualTo(1)) kırmızı
                                      → ama YANLIŞ SEBEPLE kırmızı:
                                        "şekil bozuldu" değil "metot yok"
-                                     ██ testi okuyan yanlış yerde arar ██
+                                     >> testi okuyan yanlış yerde arar <<
 ```
 
 Yani her iki durumda da bir şey kırılıyor; fark **kırılmanın hangi cümleyi
@@ -415,7 +415,7 @@ System.Exception
          │     └── ArgumentOutOfRangeException    aralık dışı (+ sayıyı taşır)
          │
          └── InvalidOperationException
-               ██ AYRIŞMA NOKTASI ██
+               >> AYRIŞMA NOKTASI <<
                Argument ailesinin ALTINDA DEĞİL. Çünkü suçladığı
                şey argüman değil: NESNENİN O ANKİ DURUMU.
                catch (ArgumentException) bunu YAKALAMAZ.
@@ -451,8 +451,8 @@ satırının tamamında tutuyor:
                  bu savaşta değil  → argüman bir Unit; suç İLİŞKİDE
                  hücre dolu        → argüman bir koordinat ve TAMAMEN
                                      GEÇERLİ; suç tahtanın o anki hâlinde
-                 NaN               → ██ sayı ama hiçbir eksende yer
-                                        tutmuyor ██
+                 NaN               → >> sayı ama hiçbir eksende yer
+                                        tutmuyor <<
 ```
 
 Son satır tek istisnayı işaretliyor ve tesadüf değil: **NaN bir eksende yer
@@ -468,7 +468,7 @@ PointerGesture(float dragThreshold)
 
    dragThreshold = NaN   ──► ArgumentException("Drag threshold cannot be NaN.",
                                                nameof(dragThreshold))
-                             ██ eksende DEĞİL ██
+                             >> eksende DEĞİL <<
 
    dragThreshold = -1f   ──► ArgumentOutOfRangeException(nameof(dragThreshold),
                                                 dragThreshold, "...cannot be negative.")
@@ -476,12 +476,12 @@ PointerGesture(float dragThreshold)
 
    dragThreshold = 0f    ──► GEÇERLİ (en ufak kıpırdama sürüklemedir)
 
-   ██ SIRA ZORUNLU ██  NaN kontrolü ÖNCE gelmek zorunda: NaN her
+   >> SIRA ZORUNLU <<  NaN kontrolü ÖNCE gelmek zorunda: NaN her
       karşılaştırmada false verir, yani (dragThreshold < 0f) testinden
       yara almadan geçer.
 ```
 
-### ██ Argüman sırası ters ██ — ve derleyici uyarmaz
+### ***Argüman sırası ters*** — ve derleyici uyarmaz
 
 Projedeki 66 `throw` satırının tamamı bu üç kalıba uyuyor:
 
@@ -490,7 +490,7 @@ Projedeki 66 `throw` satırının tamamı bu üç kalıba uyuyor:
   ArgumentNullException        paramName          —              —
   ArgumentOutOfRangeException  paramName      actualValue     message
   ArgumentException            message        paramName          —
-                                  ██ SIRA TERS ██
+                                  >> SIRA TERS <<
 ```
 
 Ölçü: `ArgumentException`'ın iki argümanını yer değiştir. **Derlenir** — ikisi de
@@ -543,8 +543,8 @@ bir kanala** bağlanmış:
   çağıran ne yapsın?             çağıran ne yapsın?
   ── hiçbir şey; çökme           ── bekle / yaklaş / başka hedef seç
         │                               │
-        └──── ██ AYRIM ÖLÇÜTÜ: karşısında yapılacak
-                 bir şey var mı? ██ ────┘
+        └──── >> AYRIM ÖLÇÜTÜ: karşısında yapılacak
+                 bir şey var mı? << ────┘
 
    sıra sende değil        →  RejectedActorCannotAct
    düşmüş birim yürüyemez  →  RejectedActorCannotAct
@@ -618,7 +618,7 @@ bırakılsaydı aynı `if` her çağırana kopyalanırdı ve ikinci çağıran e
 biri unutulurdu — hiçbir derleme hatası çıkmadan. Kuralın kendisi zaten bu yüzden
 `Health`'in dışında: formülün girdi uzayı sahibininkinden geniş.
 
-### ██ Her `Math.Max` kelepçe DEĞİL ██ — aynı projeden karşı örnek
+### ***Her `Math.Max` kelepçe DEĞİL*** — aynı projeden karşı örnek
 
 ```
 Math.Max(0,   current - amount)     ← 0 bir SINIR. Bir taraf sabit,
@@ -626,7 +626,7 @@ Math.Min(max, current + amount)       öteki taraf hesaplanan değer.
                                       Anlamı: "şu çizgiyi geçme"
 
 Math.Max(dx, dy)   (GridDistance.Between)
-   ██ KELEPÇE DEĞİL ██  İki taraf da EŞİT STATÜDE ölçüm.
+   >> KELEPÇE DEĞİL <<  İki taraf da EŞİT STATÜDE ölçüm.
                         Ne biri sabit, ne biri sınır.
                         Anlamı: "en uzun eksen kaç adımsa uzaklık odur"
                         — yani Chebyshev mesafesi, bir oyun kuralı.
@@ -636,7 +636,7 @@ Ayırt etme ölçüsü: **operandlardan biri sınır mı, yoksa ikisi de ölçü
 `Math.Max(0, x)` ile `Math.Max(dx, dy)` aynı fonksiyondur ve farklı iki şey
 söyler; fonksiyonun adı bunu söylemez, operandların statüsü söyler.
 
-### ██ Hangi `Math` ██ — ve neden `Mathf` hiç yok
+### ***Hangi `Math`*** — ve neden `Mathf` hiç yok
 
 ```
 System.Math          .NET'in matematik sınıfı. netstandard.dll içinde.
@@ -675,7 +675,7 @@ BattleActions.Move(battle, unit, toX, toY, moveRange)
    │                                   in this battle.", paramName)            │  PROGRAMCI
    └─ RequireCell              ──► ArgumentException(aynı mesaj, paramName)    ┘
    │
-   ═══════════════════════════════════════════════════════════ ██ ÇİZGİ ██
+   ═══════════════════════════════════════════════════════════ >> ÇİZGİ <<
    │
    ├─ TurnRules.CanAct  ✗      ──► MoveOutcome.RejectedActorCannotAct          ┐
    ├─ MovementRules.CanMove ✗  ──► MoveOutcome.RejectedActorCannotAct          │  SONUÇ
@@ -696,24 +696,24 @@ altta suçlanacak bir parametre yok — orada suçlanan şey oyuncunun hamlesi.
 ```
 ① Argüman null mı?
       evet ──► ArgumentNullException(nameof(p))
-               ██ tek argüman, ve o argüman AD ██
+               >> tek argüman, ve o argüman AD <<
       hayır ──► ②
 
 ② Argüman TEK BAŞINA bir sınırın dışında mı?
       evet ──► ArgumentOutOfRangeException(nameof(p), p, "sınırı söyleyen cümle")
-               ██ orta argümanı ATLAMA — tipin tek üstünlüğü o ██
+               >> orta argümanı ATLAMA — tipin tek üstünlüğü o <<
       hayır ──► ③
 
 ③ Sayı olmayan, ya da sayı olup da suçu BAŞKA BİR ŞEYLE İLİŞKİDE
   olan bir geçersizlik mi?
       evet ──► ArgumentException("ne olduğunu söyleyen cümle", nameof(p))
-               ██ SIRA TERS: önce mesaj, sonra ad ██
+               >> SIRA TERS: önce mesaj, sonra ad <<
       hayır ──► ④
 
 ④ Suçlanan argüman değil, nesnenin O ANKİ DURUMU mu?
       ── çağıranın yapabileceği bir şey VAR mı?
             var ──► istisna DEĞİL: bir Rejected* sonuç değeri
-                    ██ bu projenin 66 throw'unun tamamı ①②③'te ██
+                    >> bu projenin 66 throw'unun tamamı ①②③'te <<
             yok ──► InvalidOperationException
 ```
 
@@ -796,14 +796,14 @@ kazanır — orası çalışan metin, burası anlatı.
 
 ---
 
-## ██ SIRADAKİ ADIM ██
+## ***SIRADAKİ ADIM***
 
-> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) — okuma yolunun **13.** adımının kalanı, ██ sıra serbest ██
+> **▶ SIRADA:** [`05-deger-referans-ve-kimlik.md`](05-deger-referans-ve-kimlik.md) · [`02-koleksiyonlar-ve-salt-okunur.md`](02-koleksiyonlar-ve-salt-okunur.md) — okuma yolunun **13.** adımının kalanı, ***sıra serbest***
 > **NEDEN ORASI:** üçü de **referans** belge; asıl işlevleri bir soru doğduğunda
 > açılmak. Bu dosya "yanlış" olduğunda hangi kelimeyle bağıracağını verdi;
 > `dil/05` "aynı" sözcüğünün dört ölçüsünü, `dil/02` "salt okunur"un kapsamını.
 > **AYRICA:** [`konular/04`](../konular/04-karar-sirasi.md) bu dosyayı bir **ileri işaretçi** olarak anıyor —
-> ██ hangi istisna tipinin ne zaman seçileceği `04`'ün işi değil, buranın ██.
+> ***hangi istisna tipinin ne zaman seçileceği `04`'ün işi değil, buranın***.
 > `04`'ü okurken o soruyu askıya aldıysan cevabı yukarıda.
 > **SONRA:** `Docs/ogrenme/` ağacı — `01` → `03` → `02`, yolun **14.** ve son adımı.
 > **YOL HARİTASI:** [`../../ogrenme/00-okuma-sirasi.md`](../../ogrenme/00-okuma-sirasi.md)

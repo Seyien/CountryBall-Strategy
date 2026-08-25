@@ -1,7 +1,7 @@
 # İlkeler ve kökenleri — adı konmamış olanı adlandırmak
 
-██ Bu dosyanın tezi tek cümle: **bu proje aşağıdaki ilkelerin çoğunu zaten
-uyguluyor, ama hiçbirinin adını koymuyor.** ██
+***Bu dosyanın tezi tek cümle: **bu proje aşağıdaki ilkelerin çoğunu zaten
+uyguluyor, ama hiçbirinin adını koymuyor.*****
 
 Fark küçük görünür, değil. `Docs/deep/` ağacı 12.600 satır boyunca bir
 mekanizmayı **anlatıyor**; okuyan onu öğreniyor, kodda tanıyor, savunabiliyor.
@@ -31,7 +31,7 @@ YAGNI                   0 dosya     Fail fast                0 dosya
 DRY                     0 dosya     Separation of concerns   0 dosya
 Dependency Injection    0 dosya     Kalıtım yerine bileşim   1 dosya (yalnız ogrenme/01 §5)
 
-Tek doğruluk kaynağı    ██ kavram DÖRT belgede kullanılıyor, hiçbirinde ADLANDIRILMIYOR ██
+Tek doğruluk kaynağı    >> kavram DÖRT belgede kullanılıyor, hiçbirinde ADLANDIRILMIYOR <<
 ```
 
 En keskin satır sonuncusu. `Assets/Game/Battle/Battle.cs:526`'daki yorum
@@ -46,7 +46,7 @@ Assets/Game/Battle/Battle.cs:526             // kararı değil, ikinci bir doğr
 
 ## Bu dosya ne YAPMAZ
 
-██ Mekanizmayı **tekrar anlatmaz**. ██ Aşağıdaki dokuz ilkenin çoğunun
+***Mekanizmayı **tekrar anlatmaz**.*** Aşağıdaki dokuz ilkenin çoğunun
 mekanizması `Docs/deep/` ağacında satır satır anlatılmış durumda ve bu dosya
 oraya **link verir**, oradaki cümleyi kopyalamaz. Bu dosyanın işi üç şey:
 
@@ -86,11 +86,11 @@ Bu dosya uzun ve baştan sona okunmak zorunda değil. Mülakat provası yapıyor
 | 8 | DRY | doğru uygulanmış | kural tek yerde, aynı satır üç yerde ve bu ihlal değil |
 | 9 | Separation of concerns | uygulanmış · derleyiciyle zorlanıyor | dört `.asmdef` |
 
-██ 5. satır bu tablonun en dürüst yeri ██ — dokuz ilkeden sekizi "uygulanmış"
+***5. satır bu tablonun en dürüst yeri*** — dokuz ilkeden sekizi "uygulanmış"
 diyor ve bir belge bunu yazınca inandırıcılığını kaybeder. Bulunan tek ihlal
 işaretli, bedeli ölçülü ve neden kabul edildiği yazılı.
 
-## ██ Kökenler hakkında dürüst not ██
+## ***Kökenler hakkında dürüst not***
 
 Bu dosya **çevrimdışı** yazıldı: hiçbir birincil kaynağa (makale, kitap, arşiv)
 bu oturumda erişilmedi. Aşağıdaki köken satırlarının hiçbiri bir kaynak
@@ -104,7 +104,7 @@ TARTIŞMALI      atıf hakkında birden fazla anlatı dolaşıyor
 KAYNAK DOĞRULANMADI   ilk kullanımı bilinmiyor ya da bu oturumda saptanamadı
 ```
 
-██ Mülakatta bir tarih ya da kişi adını **emin değilsen söyleme**. ██ "Kim
+***Mülakatta bir tarih ya da kişi adını **emin değilsen söyleme**.*** "Kim
 söylemiş hatırlamıyorum ama ilke şunu der" cümlesi, yanlış bir tarih vermekten
 her zaman daha güçlüdür. Aşağıdaki ilkelerin **projedeki karşılıkları**
 doğrulandı; **kökenleri** doğrulanmadı ve bu ayrım kasıtlı olarak görünür.
@@ -116,14 +116,14 @@ doğrulandı; **kökenleri** doğrulanmadı ve bu ayrım kasıtlı olarak görü
 **ADI VE KÖKENİ** — İngilizce *fail fast*; Türkçe "erken patla" ya da "hemen
 başarısız ol". `İYİ BİLİNEN`: yazılım mühendisliği literatüründe adı Jim
 Shore'un 2004 tarihli *Fail Fast* yazısıyla yaygınlaştı. Fikir daha eskidir ve
-donanım/sistem mühendisliğinde başka bir anlamda da kullanılır. ██ Bu oturumda
-birincil kaynağa bakılmadı; tarihi mülakatta telaffuz etme. ██
+donanım/sistem mühendisliğinde başka bir anlamda da kullanılır. ***Bu oturumda
+birincil kaynağa bakılmadı; tarihi mülakatta telaffuz etme.***
 
 **NE DER** — Bozuk bir girdiyi sessizce kabul edip yola devam etmek yerine,
 bozukluğun **doğduğu yerde** dur ve söyle.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, ve projenin en yoğun uygulandığı yer
-`BattleActions`. ██ Sayı: bu tek dosyada **13 `throw` deyimi** var — 11'i
+**BU PROJEDE NEREDE** — ***Uygulanmış, ve projenin en yoğun uygulandığı yer
+`BattleActions`.*** Sayı: bu tek dosyada **13 `throw` deyimi** var — 11'i
 `ArgumentNullException`, 2'si `ArgumentException` — ve bunların 10'u iki özel
 kapıdan geçiyor.
 
@@ -137,7 +137,7 @@ Assets/Game/Battle/BattleActions.cs:389      private static void RequireCell(
 Assets/Game/Battle/BattleActions.cs:392      if (!battle.TryGetPosition(unit, out x, out y))
 ```
 
-██ SAYIYI DÜZELTİYORUM ██ — dolaşımda "13 `Require*` kapısı" diye bir sayı var
+***SAYIYI DÜZELTİYORUM*** — dolaşımda "13 `Require*` kapısı" diye bir sayı var
 ve **yanlış**. Doğrusu: `Require` kelimesi bu dosyada 13 kez geçiyor, ama bunun
 2'si tanım (`BattleActions.cs:375`, `:389`), 1'i bir yorum satırı (`:86` —
 `RequireCombatant` bir gerekçe cümlesinde anılıyor, çağrılmıyor), ve **10'u
@@ -157,7 +157,7 @@ Assets/Game/Core/PointerGesture.cs:127       public PointerGesture(float dragThr
 `Assets/Game/` altındaki 33 üretim dosyasında toplam **66 `throw` deyimi** var
 ve 18 dosyaya dağılmış durumda. Bu bir üslup değil, bir sözleşme.
 
-██ İLKENİN ADI KONMAMIŞ AMA SINIRI ZATEN ÇİZİLMİŞ ██ — Fail fast'in bu projede
+***İLKENİN ADI KONMAMIŞ AMA SINIRI ZATEN ÇİZİLMİŞ*** — Fail fast'in bu projede
 "her hataya patla" biçiminde uygulanmadığı, kodun kendi cümlesiyle yazılı.
 Ayrım ölçütü `BattleActions.cs:370-373`'te duruyor: *bu cevabı alan çağıran
 yapacak bir şey bulabilir mi?* Bulabiliyorsa sonuç değeri, bulamıyorsa istisna.
@@ -170,11 +170,11 @@ Mekanizmanın tamamı burada, **tekrar edilmiyor**:
 `null` geçir. Kurucu **sessizce** geçer. Patlama, ilk `CurrentHealth`
 okumasında — muhtemelen üç katman ötede, `BoardAdapter`'ın bir log satırında —
 `NullReferenceException` olarak doğar. Yığın izi seni `BoardAdapter`'a
-gönderir; hatayı yapan yer ise `new Combatant(...)` yazan satırdır. ██ Fail
+gönderir; hatayı yapan yer ise `new Combatant(...)` yazan satırdır. ***Fail
 fast'in kazandırdığı şey hata sayısı değil, hata ile **sebebi** arasındaki
-mesafedir. ██
+mesafedir.***
 
-**NE ZAMAN UYGULANMAZ** — ██ Üç durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***Üç durumda***:
 
 ```
 ① OYUNCU HATASI İSTİSNA DEĞİLDİR
@@ -185,7 +185,7 @@ mesafedir. ██
 ② ÜRETİM DÖNGÜSÜNDE HER KAREDE ÇALIŞAN DOĞRULAMA
    Bu projede henüz karşılığı yok — Tick yolunda doğrulama yapılmıyor —
    ama ilke sınırsız uygulandığında sıcak yola girer.
-   ██ HENÜZ YOK → ölçülmüş bir kare bütçesi (02-sonraki-asamalar.md · Aşama 6) ██
+   >> HENÜZ YOK → ölçülmüş bir kare bütçesi (02-sonraki-asamalar.md · Aşama 6) <<
 
 ③ AĞ / DOSYA / KULLANICI GİRDİSİ SINIRI
    Dışarıdan gelen veri "bozuk olabilir" varsayılır; orada doğru cevap patlamak
@@ -224,13 +224,13 @@ mesafedir. ██
 **ADI VE KÖKENİ** — İngilizce *Tell, Don't Ask*; Türkçe "sorma, söyle".
 `KAYNAK DOĞRULANMADI`: ilke nesne yönelimli tasarım çevrelerinde 1990'ların
 sonundan beri dolaşıyor ve genellikle Pragmatic Programmer yazarlarına
-(Andy Hunt, Dave Thomas) ve daha eski Smalltalk literatürüne bağlanıyor. ██ İlk
-kullanımı bu oturumda saptanamadı. Mülakatta atıf verme; ilkeyi tarif et. ██
+(Andy Hunt, Dave Thomas) ve daha eski Smalltalk literatürüne bağlanıyor. ***İlk
+kullanımı bu oturumda saptanamadı. Mülakatta atıf verme; ilkeyi tarif et.***
 
 **NE DER** — Bir nesnenin **iç durumunu sorup** kararı dışarıda vermek yerine,
 ona **ne istediğini söyle** ve kararı kendisine ver.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, ve mekanizması dört enum. ██ Çağıran
+**BU PROJEDE NEREDE** — ***Uygulanmış, ve mekanizması dört enum.*** Çağıran
 `BattleActions.Attack`'e "saldır" der; menzili, hedefin uygunluğunu ya da sıranın
 kimde olduğunu **sormaz**. Cevap tek bir adlandırılmış değer olarak geri gelir:
 
@@ -247,7 +247,7 @@ burada ve **tekrar edilmiyor**:
 [`../deep/konular/06-sonuc-enumlari.md`](../deep/konular/06-sonuc-enumlari.md).
 Bu dosyanın tek katkısı ilkeye adını vermek.
 
-██ KARŞI ÖRNEK ARANDI VE BULUNDU ██ — "önce sor, sonra karar ver" biçiminde
+***KARŞI ÖRNEK ARANDI VE BULUNDU*** — "önce sor, sonra karar ver" biçiminde
 yazılmış iki yer var ve **ikisi de savunulabilir**:
 
 ```
@@ -257,11 +257,11 @@ Assets/Game/Unity/BoardAdapter.cs:550        Team team = battle.TryGetCombatant(
 ```
 
 Birincisi (`DescribeCondition`) bir savaşçının canını ve durumunu **sorup** bir
-log satırı kuruyor. Bu, ilkenin klasik ihlal şekli. Ama ██ raporlama ilkenin
-kabul edilmiş istisnasıdır ██: bir nesneye "kendini logla" demek, ona log
+log satırı kuruyor. Bu, ilkenin klasik ihlal şekli. Ama ***raporlama ilkenin
+kabul edilmiş istisnasıdır***: bir nesneye "kendini logla" demek, ona log
 biçimini, hedefini ve dilini de öğretmek demektir — ve o an `GridStrategy.Combat`
 `UnityEngine.Debug`'ı tanımak zorunda kalır, yani assembly duvarı düşer
-(4. ilke). ██ Bu bir ihlal değil, ilkenin sınırıdır. ██
+(4. ilke). ***Bu bir ihlal değil, ilkenin sınırıdır.***
 
 İkincisi (`NewStructure`) yapının tarafını, onu koyan birimden **soruyor**.
 Burada da alternatif daha kötü: taraf Inspector'dan alınsaydı aynı bilginin
@@ -269,18 +269,18 @@ ikinci kaynağı doğardı ve düşmanın yaptığı bina oyuncunun tarafında
 görünebilirdi — gerekçe `BoardAdapter.cs:544-547`'de yazılı. Yani "sor" burada
 **tek doğruluk kaynağını** koruyor (3. ilke).
 
-██ SONUÇ: bu projede Tell-Don't-Ask'ın gerçek bir ihlali BULUNAMADI. ██ İki
+***SONUÇ: bu projede Tell-Don't-Ask'ın gerçek bir ihlali BULUNAMADI.*** İki
 aday da sınırın doğru tarafında.
 
 **ÖLÇÜSÜ** — Deney: `AttackOutcome`'u tek bir `bool`'a indir.
 `BoardAdapter.ReactToAttack`'te bugün beş ayrı `case` var; `bool`'la yazıldığında
 o beş dal tek bir `if`'e çöker ve sebebi öğrenmek isteyen çağıran menzili
-**yeniden ölçmek**, hedefin durumunu **yeniden sormak** zorunda kalır. ██
-Gözlenen şey: `MoveAction`'ın kuralları `BoardAdapter`'ın içinde ikinci kez
-belirir. ██ Ölçüsü de yazılı — bugün `BoardAdapter` içinde `GridDistance`
+**yeniden ölçmek**, hedefin durumunu **yeniden sormak** zorunda kalır. 
+***Gözlenen şey: `MoveAction`'ın kuralları `BoardAdapter`'ın içinde ikinci kez
+belirir.*** Ölçüsü de yazılı — bugün `BoardAdapter` içinde `GridDistance`
 kelimesi hiç geçmiyor; o gün geçmek zorunda kalır.
 
-**NE ZAMAN UYGULANMAZ** — ██ Üç durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***Üç durumda***:
 
 ```
 ① SORGU (query) BİR İHLAL DEĞİLDİR
@@ -331,15 +331,15 @@ kelimesi hiç geçmiyor; o gün geçmek zorunda kalır.
 ## 3. Tek doğruluk kaynağı (single source of truth)
 
 **ADI VE KÖKENİ** — İngilizce *single source of truth* (SSOT); Türkçe "tek
-doğruluk kaynağı". ██ `KAYNAK DOĞRULANMADI` ██ — terim bilgi sistemleri ve
+doğruluk kaynağı". ***`KAYNAK DOĞRULANMADI`*** — terim bilgi sistemleri ve
 veritabanı tasarımı literatüründen geliyor ve tek bir yazara bağlanamıyor. Bir
 kişi ya da tarih söyleme.
 
 **NE DER** — Bir olgunun **tek bir** yazma yeri olsun; ikinci bir kopya
 tutulacaksa o kopya bir **türev** olmalı, ikinci bir yetkili değil.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, ve projenin en sıkı korunan
-değişmezlerinden biri. ██ Tahtanın tek sahibi:
+**BU PROJEDE NEREDE** — ***Uygulanmış, ve projenin en sıkı korunan
+değişmezlerinden biri.*** Tahtanın tek sahibi:
 
 ```
 Assets/Game/Battle/Battle.cs:53              private readonly UnitGrid board;
@@ -355,7 +355,7 @@ indirirdi ve reddedildi. Gerekçe koddan:
 Assets/Game/Battle/Battle.cs:526             // kararı değil, ikinci bir doğruluk kaynağı yaratma kararıdır.
 ```
 
-██ İşte ilkenin adı konmamış hâli tam olarak bu satır. ██ Cümle ilkeyi
+***İşte ilkenin adı konmamış hâli tam olarak bu satır.*** Cümle ilkeyi
 kusursuz tarif ediyor ve adını hiç söylemiyor.
 
 "İkinci yazar"ın nasıl doğmadığı, `readonly`'nin burada neyi **korumadığı**
@@ -376,12 +376,12 @@ hücrede iki şey dururdu, hiçbir derleme hatası çıkmadan.
 
 **ÖLÇÜSÜ** — Deney: `Battle`'a bir `positions` sözlüğü ekle ve `TryGetPosition`
 onu okusun. Sonra bir birimi hareket ettir. `MoveAction.Execute` tahtayı
-**doğrudan** değiştiriyor; sözlük bunu duymaz. ██ Gözlenen şey: birim ekranda
-düşmanın yanında duruyor, saldırı "menzil dışı" diyor. ██ Hiçbir test kırmızıya
+**doğrudan** değiştiriyor; sözlük bunu duymaz. ***Gözlenen şey: birim ekranda
+düşmanın yanında duruyor, saldırı "menzil dışı" diyor.*** Hiçbir test kırmızıya
 dönmez, çünkü testler ikisini aynı anda kurmaz. Bu, ikinci doğruluk kaynağının
 imzasıdır — çelişki **görünür** ama **sessizdir**.
 
-**NE ZAMAN UYGULANMAZ** — ██ İki durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***İki durumda***:
 
 ```
 ① ÖNBELLEK BİR İHLAL DEĞİLDİR — EĞER TÜREV OLDUĞU YAZILIYSA
@@ -394,7 +394,7 @@ imzasıdır — çelişki **görünür** ama **sessizdir**.
    TryGetPosition bugün 15 hücre tarıyor. Tahta büyüdüğünde ve tarama PROFİLDE
    göründüğünde önbellek doğru seçim olur — ama o gün "tek yazma kapısı" bir
    tercih olmaktan çıkıp ZORUNLU hâle gelir.
-   ██ HENÜZ YOK → 02-sonraki-asamalar.md · Aşama 6 (profil çıkarma kanıt sınırı) ██
+   >> HENÜZ YOK → 02-sonraki-asamalar.md · Aşama 6 (profil çıkarma kanıt sınırı) <<
 ```
 
 **MÜLAKAT CEVABI**
@@ -429,13 +429,13 @@ imzasıdır — çelişki **görünür** ama **sessizdir**.
 "bağımlılık enjeksiyonu" ya da "bağımlılığın dışarıdan verilmesi". `İYİ
 BİLİNEN`: terimi 2004'te Martin Fowler'ın *Inversion of Control Containers and
 the Dependency Injection pattern* yazısı adlandırdı; daha genel olan
-*inversion of control* fikri daha eskidir. ██ Birincil kaynağa bu oturumda
-bakılmadı. ██
+*inversion of control* fikri daha eskidir. ***Birincil kaynağa bu oturumda
+bakılmadı.***
 
 **NE DER** — Bir tip ihtiyaç duyduğu parçayı **kendi içinde kurmasın**;
 dışarıdan alsın.
 
-██ EN SIK YANLIŞ MODEL: DI BİR ÇERÇEVE (framework) DEĞİLDİR. ██
+***EN SIK YANLIŞ MODEL: DI BİR ÇERÇEVE (framework) DEĞİLDİR.***
 
 Bu, mülakatta en çok puan kaybettiren yanlış anlamalardan biri. "DI kullandın
 mı?" sorusuna "hayır, Zenject/VContainer kullanmadım" diye cevap vermek, soruyu
@@ -450,14 +450,14 @@ mı?" sorusuna "hayır, Zenject/VContainer kullanmadım" diye cevap vermek, soru
   DI KONTEYNERİ (container)     bir ARAÇ
                                 "hangi parçanın nereye gideceğini bir kayıt
                                  defterinden ben çözerim"
-                                ██ AYRI BİR KARAR — ve genellikle GEREKMEZ ██
+                                >> AYRI BİR KARAR — ve genellikle GEREKMEZ <<
 ```
 
-██ Kurucudan parametre geçirmek **zaten** DI'dır. ██ Konteyner, DI'ı yapan şey
+***Kurucudan parametre geçirmek **zaten** DI'dır.*** Konteyner, DI'ı yapan şey
 değil, DI'ı **otomatikleştiren** şeydir; bir projede DI olmadan konteyner
 olamaz, ama konteyner olmadan DI **olur** ve bu projede tam olarak öyle.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, konteynersiz, üç ayrı yoldan. ██
+**BU PROJEDE NEREDE** — ***Uygulanmış, konteynersiz, üç ayrı yoldan.***
 
 ```
 Assets/Game/Core/Combat/Combatant.cs:59      public Combatant(
@@ -486,11 +486,11 @@ Assets/Game/Battle/Battle.cs:53              private readonly UnitGrid board;
 
 `Battle` tahtayı kurucusunda **kendisi kuruyor** ve bu bilinçli bir DI
 reddidir — çünkü tahtayı dışarıdan almak ikinci bir ok doğurur ve tek
-sahipliği (3. ilke) bitirir. ██ Yani bu projede DI ve DI'ın reddi **aynı
+sahipliği (3. ilke) bitirir. ***Yani bu projede DI ve DI'ın reddi **aynı
 ölçütle** verilmiş iki karardır: parça bir değişmez taşıyorsa içeride kurulur,
 taşımıyorsa dışarıdan alınır. Karar ağacının tamamı
 [`../deep/konular/03-tahta-sahipligi.md`](../deep/konular/03-tahta-sahipligi.md)'de
-*"Kural: bir nesneyi dışarıdan almalı mısın"* başlığı altında. ██
+*"Kural: bir nesneyi dışarıdan almalı mısın"* başlığı altında.***
 
 İlişki: DI, [`01-koda-gomulu-desenler.md`](01-koda-gomulu-desenler.md) §5'teki
 **bileşimin** taşıyıcısıdır. Bileşim "parçalardan kurul" der; DI "parçaları
@@ -501,10 +501,10 @@ içeride `new AttackProfile(10, 1)` diye kur. İki şey aynı anda gözlenir:
 ① `Assets/Tests/EditMode/` altındaki savaşçı testleri artık farklı hasarlı bir
 birim **kuramaz** — her test aynı savaşçıyı almak zorunda kalır; ② 200 birim
 200 ayrı profil nesnesi doğurur ve "yüzlerce asker tek tanımı paylaşır" cümlesi
-sessizce yalan olur. ██ Testin kurulum yarısının çökmesi, DI'ın kaybının en
-hızlı ölçüsüdür. ██
+sessizce yalan olur. ***Testin kurulum yarısının çökmesi, DI'ın kaybının en
+hızlı ölçüsüdür.***
 
-**NE ZAMAN UYGULANMAZ** — ██ Üç durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***Üç durumda***:
 
 ```
 ① PARÇA BİR DEĞİŞMEZ TAŞIYORSA
@@ -512,8 +512,8 @@ hızlı ölçüsüdür. ██
    garantisini bitirir; kazanan taraf DI değil sahipliktir.
 
 ② KONTEYNER, DI'IN KENDİSİ SANILDIĞINDA
-   ██ Bir konteyner bağımlılıkları GÖRÜNÜR kılmaz, ÇÖZER — ve çözerken
-   çağrı yerinde GİZLER. ██ Bu projede bağımlılıkların üçü de imzada okunuyor;
+   >> Bir konteyner bağımlılıkları GÖRÜNÜR kılmaz, ÇÖZER — ve çözerken
+   çağrı yerinde GİZLER. << Bu projede bağımlılıkların üçü de imzada okunuyor;
    bir konteyner o okunabilirliği bir kayıt defterine taşırdı.
    architecture-patterns.archive bunu ayrı bir kuralla yasaklıyor:
    "Never create a Manager or service locator solely to reduce typing."
@@ -559,8 +559,8 @@ knowledge* olarak da anılır. Türkçe "en az bilgi ilkesi". `İYİ BİLİNEN`:
 Northeastern Üniversitesi'ndeki **Demeter** araştırma projesinde formüle edildi;
 adı projeden geliyor, bir kişiden değil — Demeter Yunan mitolojisinde tarım
 tanrıçası ve proje adı oradan. Ian Holland ve Karl Lieberherr'in adları bu
-formülasyonla birlikte anılır. ██ Birincil kaynağa bu oturumda bakılmadı;
-tarihi telaffuz edeceksen "seksenlerin sonu" de. ██
+formülasyonla birlikte anılır. ***Birincil kaynağa bu oturumda bakılmadı;
+tarihi telaffuz edeceksen "seksenlerin sonu" de.***
 
 **NE DER** — Yalnız **komşuna** konuş: bir metot yalnızca kendi alanlarına,
 parametrelerine ve kendi kurduğu nesnelere mesaj göndersin — komşusunun
@@ -569,8 +569,8 @@ komşusuna değil.
 Pratik kısayolu: **nokta zinciri** (`a.B.C.D`). Kısayol ilkenin kendisi değil
 ama ihlalin en görünür imzası.
 
-**BU PROJEDE NEREDE** — ██ Aday zincirler grep'le sayıldı. Üretim kodunda
-üç seviyeli zincir **sekiz kez** geçiyor ve hepsi iki şekilde toplanıyor: ██
+**BU PROJEDE NEREDE** — ***Aday zincirler grep'le sayıldı. Üretim kodunda
+üç seviyeli zincir **sekiz kez** geçiyor ve hepsi iki şekilde toplanıyor:***
 
 ```
 Assets/Game/Battle/BattleActions.cs:107      if (!TurnRules.CanAct(attackerCombatant.Team, battle.Turn.Current))
@@ -583,7 +583,7 @@ Assets/Game/Core/Combat/AttackAction.cs:98   target.TakeDamage(attacker.AttackPr
 Assets/Game/Core/Combat/AttackAction.cs:169  return target.TakeDamage(attacker.AttackProfile.Damage)
 ```
 
-Bir dokuzuncu şekil daha var ve ██ ihlal değil ██:
+Bir dokuzuncu şekil daha var ve ***ihlal değil***:
 
 ```
 Assets/Game/Battle/Battle.cs:385             pair.Value.Tick(deltaSeconds);
@@ -594,25 +594,25 @@ Assets/Game/Battle/Battle.cs:440             if (pair.Value.IsReadyForCleanup)
 `pair.Value` bir "komşunun komşusu" değil, döngü değişkeninin kendisi. Bunu
 ihlal saymak ilkeyi kısayola indirgemek olurdu.
 
-██ İKİ ADAY, DÜRÜST DEĞERLENDİRME ██ — ve ikisi **aynı cevabı almıyor**:
+***İKİ ADAY, DÜRÜST DEĞERLENDİRME*** — ve ikisi **aynı cevabı almıyor**:
 
 ```
-  attacker.AttackProfile.Damage              ██ İHLAL DEĞİL ██
+  attacker.AttackProfile.Damage              >> İHLAL DEĞİL <<
   ────────────────────────────
   AttackProfile bir DEĞİŞMEZ TANIM nesnesi: alanı yok, set'i yok, doğrulama
   kurucuda (AttackProfile.cs:49). Okuma bir DEĞER alıyor, bir davranış
   tetiklemiyor. Ölçüsü şu: bu satır AttackProfile'ın İÇİNİ değiştirebilir mi?
   Hayır — o tip değişmez. Zincir burada bir veri yolu, bir yetki yolu değil.
 
-  battle.Turn.EndTurn()                      ██ GERÇEK ADAY ██
+  battle.Turn.EndTurn()                      >> GERÇEK ADAY <<
   ─────────────────────
   Burada zincirin ucunda bir OKUMA değil bir MUTASYON var: EndTurn sırayı
   devrediyor, yani Battle'ın komşusunun DURUMUNU değiştiriyor. Klasik
   "tren kazası" (train wreck) şekli tam olarak budur.
-  ██ Ve Battle'ın kendisi bu devri hiç GÖRMÜYOR. ██
+  >> Ve Battle'ın kendisi bu devri hiç GÖRMÜYOR. <<
 ```
 
-██ DÜRÜST HÜKÜM ██ — `battle.Turn.EndTurn()` bir Law of Demeter ihlalidir; ama
+***DÜRÜST HÜKÜM*** — `battle.Turn.EndTurn()` bir Law of Demeter ihlalidir; ama
 **savunulabilir** bir ihlaldir ve iki sebebi kodda yazılı. ①`TurnState` bir
 iç parça değil, `Battle`'ın **açıkça yayımladığı** bir alt sözleşme
 (`Battle.cs:154`, `public TurnState Turn { get; }` — get-only, yani
@@ -621,20 +621,20 @@ metodu eklemek, sıra kuralını `Battle`'a **ikinci kez** öğretirdi ve bu
 projenin en sıkı savunduğu şeye çarpardı: aynı kararın iki yerde yaşamaması
 (8. ilke).
 
-Yani burada iki ilke çatışıyor ve ██ DRY kazandı, Demeter kaybetti ██. Bu
+Yani burada iki ilke çatışıyor ve ***DRY kazandı, Demeter kaybetti***. Bu
 çatışmanın uzun hâli aşağıda, 10. bölümde.
 
 **ÖLÇÜSÜ** — Deney: `TurnState.EndTurn`'ün imzasını değiştir (örneğin bir
 `Team` parametresi al). Derleyici sana **üç** yer gösterir: `BattleActions.cs`
-`:143`, `:216`, `:304`. ██ `Battle` sınıfının kendisi hiç görünmez — sırayı
-sahiplenen tip, sıranın devredildiğini bilmez. ██ Bu, ihlalin ölçülebilir
+`:143`, `:216`, `:304`. ***`Battle` sınıfının kendisi hiç görünmez — sırayı
+sahiplenen tip, sıranın devredildiğini bilmez.*** Bu, ihlalin ölçülebilir
 bedelidir: değişiklik sahibin üstünden **atlayarak** yayılıyor.
 
 Karşı deney: `AttackProfile.Damage`'ın tipini değiştir. Yine iki yer görünür
 (`AttackAction.cs:98`, `:169`) ama bu sefer `Combatant` da görünür, çünkü
 `AttackProfile`'ı o taşıyor. Zincir bilgi taşırken sahip kaybolmuyor.
 
-**NE ZAMAN UYGULANMAZ** — ██ Üç durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***Üç durumda***:
 
 ```
 ① AKICI ARAYÜZ (fluent) VE OLUŞTURUCU ZİNCİRLERİ
@@ -648,7 +648,7 @@ Karşı deney: `AttackProfile.Damage`'ın tipini değiştir. Yine iki yer görü
    AttackProfile'ın API'sinin kopyası olurdu.
 
 ③ İLETİCİ METOT YAZMANIN BEDELİ ZİNCİRDEN AĞIRSA
-   ██ İlkeyi sınırsız uygulamanın adı vardır: "orta adam" (middle man) kokusu. ██
+   >> İlkeyi sınırsız uygulamanın adı vardır: "orta adam" (middle man) kokusu. <<
    Her zinciri kırmak için bir iletici yazarsan sahip tip, komşusunun API'sinin
    birebir kopyasına dönüşür ve o kopya ayrı hızda eskir. Bu projede
    Battle.EndTurn() yazmamanın sebebi tam olarak budur.
@@ -687,18 +687,18 @@ Karşı deney: `AttackProfile.Damage`'ın tipini değiştir. Yine iki yer görü
 **ADI VE KÖKENİ** — İngilizce *favor composition over inheritance*; Türkçe
 "kalıtım yerine bileşimi tercih et". `İYİ BİLİNEN`: 1994 tarihli *Design
 Patterns* kitabının (Gamma, Helm, Johnson, Vlissides — "Gang of Four") giriş
-bölümündeki iki temel ilkeden biri olarak anılır. ██ Birincil kaynağa bu
-oturumda bakılmadı. ██
+bölümündeki iki temel ilkeden biri olarak anılır. ***Birincil kaynağa bu
+oturumda bakılmadı.***
 
 **NE DER** — Bir tipin yeteneklerini üst sınıftan **devralmak** yerine,
 parçaları alan olarak **tutarak** kazan.
 
-**BU PROJEDE NEREDE** — ██ Bu bölüm bilerek kısa: mekanizma
+**BU PROJEDE NEREDE** — ***Bu bölüm bilerek kısa: mekanizma
 [`01-koda-gomulu-desenler.md`](01-koda-gomulu-desenler.md) §5'te tam olarak
-anlatılmış durumda ve burada TEKRAR EDİLMİYOR. ██ Bu dosyanın katkısı yalnız
+anlatılmış durumda ve burada TEKRAR EDİLMİYOR.*** Bu dosyanın katkısı yalnız
 ad ve köken.
 
-██ ÖLÇÜ DOĞRULANDI ██ — iddia "projede toplam iki kalıtım satırı var, ikisi de
+***ÖLÇÜ DOĞRULANDI*** — iddia "projede toplam iki kalıtım satırı var, ikisi de
 `: MonoBehaviour`" idi. Bu oturumda `Assets/Game` altındaki 33 üretim dosyası
 tarandı ve **doğrulandı**; kalıtım satırı tam olarak iki tane:
 
@@ -731,10 +731,10 @@ Dışarıya tek bir tip görünüyor, cevabı bir parça veriyor.
 ① `AttackProfile` `Combatant.cs:72`'de `null` reddediliyor, yani saldırmayan bir
 baraka **kurulamaz**; ② kelepçe gevşetilse bile `Downed` hâli barakada
 **yazılabilir** hâle gelir ve `AttackOutcome.HitAndDowned` ile `HitAndDestroyed`
-ayrımı anlamını yitirir. ██ Ölçünün adı Liskov: bir alt tip üst tipin yerine
-geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır. ██
+ayrımı anlamını yitirir. ***Ölçünün adı Liskov: bir alt tip üst tipin yerine
+geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır.***
 
-**NE ZAMAN UYGULANMAZ** — ██ İki durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***İki durumda***:
 
 ```
 ① MOTOR / ÇERÇEVE KALITIMI DAYATIYORSA
@@ -746,8 +746,8 @@ geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır. ██
    satırda veriyor: soyut bir taban "genuine subtype family shares invariant
    state/behavior" baskısında doğru; reddedilme koşulu ise
    "inheritance exists only to reuse a few lines".
-   ██ Yani kalıtımı SATIR TASARRUFU için kullanmak, ilkenin değil DRY'ın
-   yanlış uygulanmasıdır — ve ikisini karıştırmak sık görülür. ██
+   >> Yani kalıtımı SATIR TASARRUFU için kullanmak, ilkenin değil DRY'ın
+   yanlış uygulanmasıdır — ve ikisini karıştırmak sık görülür. <<
 ```
 
 **MÜLAKAT CEVABI**
@@ -782,20 +782,20 @@ geçebiliyorsa devraldığı **her** üye onda anlamlı olmalıdır. ██
 **ADI VE KÖKENİ** — İngilizce *You Aren't Gonna Need It*, kısaltması YAGNI;
 Türkçe "buna ihtiyacın olmayacak". `İYİ BİLİNEN`: Extreme Programming (XP)
 pratiklerinden; 1990'ların sonunda Kent Beck ve Ron Jeffries çevresinde
-adlandırıldı, sloganın kendisi genellikle Jeffries'e atfedilir. ██ Birincil
-kaynağa bu oturumda bakılmadı; atıfta ısrar etme. ██
+adlandırıldı, sloganın kendisi genellikle Jeffries'e atfedilir. ***Birincil
+kaynağa bu oturumda bakılmadı; atıfta ısrar etme.***
 
 **NE DER** — Bugün gerekmeyen bir yeteneği "ileride lazım olur" diye bugün
 yazma.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, ve bir bölümde değil **bir dosyanın
-tamamında**. ██ [`02-sonraki-asamalar.md`](02-sonraki-asamalar.md) baştan sona
+**BU PROJEDE NEREDE** — ***Uygulanmış, ve bir bölümde değil **bir dosyanın
+tamamında**.*** [`02-sonraki-asamalar.md`](02-sonraki-asamalar.md) baştan sona
 bir YAGNI belgesidir: altı mekanizma (ScriptableObject, nesne havuzu, olay veri
 yolu, singleton, ECS/DOTS, profil çıkarma) yazılmış, hiçbiri **önerilmemiş**,
 ve her birinin bir **tetikleyici koşulu** var.
 
 Bu dosyanın katkısı iki şey. Birincisi ilkenin adını koymak. İkincisi, o
-dosyanın YAGNI'ye ██ eksik olan yarısını ██ eklediğini görünür kılmak:
+dosyanın YAGNI'ye ***eksik olan yarısını*** eklediğini görünür kılmak:
 
 ```
   YAGNI'nin YAYGIN HÂLİ          "bugün gerekmiyor"
@@ -806,7 +806,7 @@ dosyanın YAGNI'ye ██ eksik olan yarısını ██ eklediğini görünür k
                                  ── ölçüyle, dosyayla, eşikle
 ```
 
-██ Fark ölçülebilir. ██ `02-sonraki-asamalar.md`'nin kendi kuralı şu:
+***Fark ölçülebilir.*** `02-sonraki-asamalar.md`'nin kendi kuralı şu:
 *"bugün önemli değil" eksik bir cümledir* — ve ölçüsüz bir "gerekirse eklenir"
 o dosyada bir **ihlal** sayılıyor. Yani proje YAGNI'yi uygulamakla kalmıyor,
 ilkenin en sık düştüğü tuzağı da kapatıyor: bir yıl sonra "bugün önemli değil"
@@ -826,18 +826,18 @@ yazılı: sürekli doğup ölen bir nesne sınıfı ortaya çıktığında, ya d
 `Instantiate`/`Destroy` çifti `Update` yolundan çağrılmaya başladığında.
 
 **ÖLÇÜSÜ** — Deney: bugün bir nesne havuzu ekle. Ölçülebilir hiçbir şey
-iyileşmez — çünkü kare başına doğum sayısı sıfır — ama ██ üç şey kırılır ██:
+iyileşmez — çünkü kare başına doğum sayısı sıfır — ama ***üç şey kırılır***:
 ① havuzdan dönen nesnede `Awake` **çalışmaz**, yani `UnitView.cs:86`'daki
 ayakta-ve-seçimsiz başlatma sessizce kaybolur ve önceki birimin gri tonu yeni
 birimde görünür; ② havuzun ilk doldurması büyük bir tahsis yapar ve "kare
 başına sıfır" ölçümünü yapan kişi yanlış yerde arar; ③ `unitViews` sözlüğünün
-bugünkü anlamı ("tabloda varsa ekranda var") üçüncü bir hâl kazanır. ██ YAGNI
-ihlalinin bedeli eklenen kod değil, kaybolan **değişmezdir**. ██
+bugünkü anlamı ("tabloda varsa ekranda var") üçüncü bir hâl kazanır. ***YAGNI
+ihlalinin bedeli eklenen kod değil, kaybolan **değişmezdir**.***
 
-**NE ZAMAN UYGULANMAZ** — ██ Bu alan burada en kritiği ██:
+**NE ZAMAN UYGULANMAZ** — ***Bu alan burada en kritiği***:
 
 ```
-① ██ YAGNI, GEREKLİ BİR SÖZLEŞMEYİ ATLAMANIN BAHANESİ DEĞİLDİR ██
+① >> YAGNI, GEREKLİ BİR SÖZLEŞMEYİ ATLAMANIN BAHANESİ DEĞİLDİR <<
    "İleri seviye görünüyor" diye atlanan şeyler YAGNI kapsamında DEĞİLDİR:
    null doğrulaması, sınır kontrolü, geri dönülemez adımın sırası, olay
    aboneliğinin sökülmesi. Bunlar gelecekteki bir ihtiyaç değil, BUGÜNKÜ
@@ -887,26 +887,26 @@ ihlalinin bedeli eklenen kod değil, kaybolan **değişmezdir**. ██
 
 ## 8. DRY (Don't Repeat Yourself)
 
-██ **BU İLKE EN ÇOK YANLIŞ ANLAŞILANIDIR** ve mülakatta ayırt edici olan da
-budur. ██
+*****BU İLKE EN ÇOK YANLIŞ ANLAŞILANIDIR** ve mülakatta ayırt edici olan da
+budur.***
 
 **ADI VE KÖKENİ** — İngilizce *Don't Repeat Yourself*, kısaltması DRY; Türkçe
 "kendini tekrar etme". `İYİ BİLİNEN`: 1999 tarihli *The Pragmatic Programmer*
 kitabında (Andrew Hunt, David Thomas) adlandırıldı. Kitaptaki tanım kod
 tekrarından değil **bilgi** tekrarından söz eder: bir sistemdeki her bilgi
-parçasının tek, kesin ve yetkili bir temsili olmalıdır. ██ Birincil kaynağa bu
-oturumda bakılmadı. ██
+parçasının tek, kesin ve yetkili bir temsili olmalıdır. ***Birincil kaynağa bu
+oturumda bakılmadı.***
 
-**NE DER** — ██ DRY kod tekrarı hakkında **değildir**, **bilgi** tekrarı
-hakkındadır. ██
+**NE DER** — ***DRY kod tekrarı hakkında **değildir**, **bilgi** tekrarı
+hakkındadır.***
 
 ```
-  İKİ YERDE AYNI SATIRIN OLMASI          ██ İHLAL DEĞİL ██
-  AYNI KARARIN İKİ YERDE YAŞAMASI        ██ İHLAL ██
+  İKİ YERDE AYNI SATIRIN OLMASI          >> İHLAL DEĞİL <<
+  AYNI KARARIN İKİ YERDE YAŞAMASI        >> İHLAL <<
 ```
 
-**BU PROJEDE NEREDE** — ██ Doğru uygulanmış, ve projede hem OLUMLU hem OLUMSUZ
-tarafın ölçüsü var. ██
+**BU PROJEDE NEREDE** — ***Doğru uygulanmış, ve projede hem OLUMLU hem OLUMSUZ
+tarafın ölçüsü var.***
 
 **Doğru uygulama — kural tek yerde, çağrı üç yerde:**
 
@@ -918,7 +918,7 @@ Assets/Game/Battle/BattleActions.cs:254      if (!TurnRules.CanAct(reviverCombat
 ```
 
 Üç eylem aynı soruyu soruyor. Cümlenin **metni** tek yerde; sorulduğu yer üç.
-██ Bu DRY'nin doğru uygulanmasıdır: tekrarlanan şey çağrı, karar değil. ██
+***Bu DRY'nin doğru uygulanmasıdır: tekrarlanan şey çağrı, karar değil.***
 
 Aynı dosyada bir ikinci kat daha var — `TurnRules` kendi içinde de
 tekrarlamıyor:
@@ -931,7 +931,7 @@ Assets/Game/Battle/TurnRules.cs:91           public static bool CanAct(Team unit
 **soruyor**. Gerekçe koddan: kopyalansaydı "tarafsız eyleyemez" kararı iki yerde
 yaşardı ve biri değiştiğinde diğeri sessizce eskirdi.
 
-**██ VE ŞİMDİ İŞİN ZOR YARISI ██** — projede üç ayrı dosyada, üç ayrı tipte,
+*****VE ŞİMDİ İŞİN ZOR YARISI***** — projede üç ayrı dosyada, üç ayrı tipte,
 **birebir aynı gövdeyi** taşıyan üç metot var:
 
 ```
@@ -940,14 +940,14 @@ Assets/Game/Core/Combat/MovementRules.cs:49  return state == UnitState.Alive;
 Assets/Game/Core/Combat/ReviveRules.cs:50    return reviverState == UnitState.Alive;
 ```
 
-Naif DRY okuması burada bir ihlal görür ve üçünü birleştirmek ister. ██ Kod bunu
-açıkça reddediyor ve gerekçeyi tek cümlede yazıyor: ██
+Naif DRY okuması burada bir ihlal görür ve üçünü birleştirmek ister. ***Kod bunu
+açıkça reddediyor ve gerekçeyi tek cümlede yazıyor:***
 
 ```
 Assets/Game/Core/Combat/MovementRules.cs:45  // Üç eyleyen kuralı bugün aynı satırı taşıyor; bu bir kesişme, bağ değil.
 ```
 
-██ "Kesişme, bağ değil" — DRY'nin doğru okumasının Türkçe karşılığı budur. ██
+***"Kesişme, bağ değil" — DRY'nin doğru okumasının Türkçe karşılığı budur.***
 Üç satır bugün aynı; ama üçü **ayrı üç bilgiyi** temsil ediyor: "kim vurur",
 "kim yürür", "kim diriltir". Birleştirilseydi, "yaralı sıhhiyeci vuramaz ama
 kaldırabilir" kararı verildiği gün üç kural birden değişir ve hiçbir test
@@ -965,20 +965,20 @@ DRY'nin **yanlış** uygulandığı bir yer bu oturumda **bulunamadı**.
      Üç kuralı tek bir ActorRules.CanAct(UnitState) altında birleştir.
      Bugün: bütün testler yeşil, hiçbir davranış değişmiyor.
      "Yaralı sıhhiyeci" kararı verildiği gün: bir kuralı değiştirirsin,
-     ██ üçü birden değişir ve hiçbir derleme hatası çıkmaz ██.
+     >> üçü birden değişir ve hiçbir derleme hatası çıkmaz <<.
      Ölçü: değişiklik yarıçapı. Ayrıyken 1 dosya, birleşikken 3 akış.
 
   ② EKSİK BİRLEŞTİRME DENEYİ (karşı yön)
      TurnRules.CanAct'ı BattleActions'ın üç metoduna elle kopyala.
      Bugün: yine bütün testler yeşil.
      Tarafsızlık kuralı değiştiği gün: üç kopyadan ikisi güncellenir,
-     biri unutulur ve ██ yalnız diriltme akışında yanlış cevap doğar ██.
+     biri unutulur ve >> yalnız diriltme akışında yanlış cevap doğar <<.
 ```
 
-██ İki deneyin ayırdığı şey aynı ölçüt: bu satır bir **karar** mı, yoksa bir
-**tesadüf** mü? ██ Karar ise tek yerde durmalı; tesadüf ise ayrılmalı.
+***İki deneyin ayırdığı şey aynı ölçüt: bu satır bir **karar** mı, yoksa bir
+**tesadüf** mü?*** Karar ise tek yerde durmalı; tesadüf ise ayrılmalı.
 
-**NE ZAMAN UYGULANMAZ** — ██ Üç durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***Üç durumda***:
 
 ```
 ① TESADÜFİ BENZERLİK (coincidental duplication)
@@ -993,7 +993,7 @@ DRY'nin **yanlış** uygulandığı bir yer bu oturumda **bulunamadı**.
    SALDIRI anlamsız, hiçbir hücreye gidemeyen bir BİRİM anlamlı.
 
 ③ SATIR TASARRUFU İÇİN KALITIM
-   ██ DRY'yi kalıtımla uygulamak, ilkenin en pahalı yanlış kullanımıdır. ██
+   >> DRY'yi kalıtımla uygulamak, ilkenin en pahalı yanlış kullanımıdır. <<
    unity-csharp-quality-flow.archive'ın reddetme koşulu tam olarak bu:
    "inheritance exists only to reuse a few lines". Bu projede Structure'ın
    `: Combatant` yazmayı reddetmesi aynı kararın uygulanmış hâli (6. ilke).
@@ -1031,13 +1031,13 @@ DRY'nin **yanlış** uygulandığı bir yer bu oturumda **bulunamadı**.
 
 **ADI VE KÖKENİ** — İngilizce *separation of concerns*, kısaca SoC; Türkçe
 "ilgi alanlarının ayrılması". `İYİ BİLİNEN`: terim Edsger W. Dijkstra'nın 1974
-tarihli *On the role of scientific thought* yazısıyla anılır. ██ Birincil
-kaynağa bu oturumda bakılmadı. ██
+tarihli *On the role of scientific thought* yazısıyla anılır. ***Birincil
+kaynağa bu oturumda bakılmadı.***
 
 **NE DER** — Birbirinden bağımsız değişen işleri ayrı yerlerde tut.
 
-**BU PROJEDE NEREDE** — ██ Uygulanmış, ve **derleyici tarafından zorlanıyor**.
-Bu projede ilgi ayrımı bir klasör düzeni değil, dört `.asmdef` dosyası. ██
+**BU PROJEDE NEREDE** — ***Uygulanmış, ve **derleyici tarafından zorlanıyor**.
+Bu projede ilgi ayrımı bir klasör düzeni değil, dört `.asmdef` dosyası.***
 
 ```
 Assets/Game/Core/GridStrategy.Core.asmdef             references: []                        noEngineReferences: true
@@ -1046,7 +1046,7 @@ Assets/Game/Battle/GridStrategy.Battle.asmdef         references: [Core, Combat]
 Assets/Game/Unity/GridStrategy.Unity.asmdef           references: [Core, Combat, Battle]    noEngineReferences: false
 ```
 
-██ Kritik ayrım: `Core` ile `Combat`'ın `references` listesi **boş**. ██ Yani
+***Kritik ayrım: `Core` ile `Combat`'ın `references` listesi **boş**.*** Yani
 konum savaşı tanımıyor, savaş konumu tanımıyor, ve ikisi de motoru tanımıyor.
 `GridStrategy.Unity` üçünü de tanıyor; tersi **derlenmez bile**.
 
@@ -1055,7 +1055,7 @@ enum'un sahibinin üretemediği bir değeri nasıl taşıdığı, ikizlerin nede
 katlarda yaşadığı — ayrı bir belgede ve burada **tekrar edilmiyor**:
 [`../deep/konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md).
 
-██ İSİMLENDİRME UYARISI ██ — bu ilke `01-koda-gomulu-desenler.md` §4'te
+***İSİMLENDİRME UYARISI*** — bu ilke `01-koda-gomulu-desenler.md` §4'te
 **SOLID'in D'si** olarak da anılıyor ve ikisi aynı şey değil:
 
 ```
@@ -1068,13 +1068,13 @@ bakıyor (D). Mülakatta ikisini karıştırmamak ayırt edici bir sinyaldir.
 
 **ÖLÇÜSÜ** — Deney: `GridStrategy.Combat.asmdef`'in `noEngineReferences`
 satırını `false` yap ve `UnitLifecycle`'a `Time.deltaTime` okut. Derleme geçer.
-██ Ve `Assets/Tests/EditMode/Combat/` altındaki testlerin tamamı PlayMode'a
+***Ve `Assets/Tests/EditMode/Combat/` altındaki testlerin tamamı PlayMode'a
 taşınmak zorunda kalır — çünkü zamanı içeriden okuyan bir tasarım EditMode'da
-**patlamaz**, sessizce 0,017675 döner. ██ Bu, ölçülmüş bir olgu ve
+**patlamaz**, sessizce 0,017675 döner.*** Bu, ölçülmüş bir olgu ve
 `UnitLifecycle.cs:163-166`'da yazılı. İlgi ayrımının kaybı bir derleme hatası
 olarak değil, bir **kanıt seviyesi düşüşü** olarak görünür.
 
-**NE ZAMAN UYGULANMAZ** — ██ İki durumda ██:
+**NE ZAMAN UYGULANMAZ** — ***İki durumda***:
 
 ```
 ① KÜÇÜK VE TUTARLI BİR DAVRANIŞ İÇİN KATMAN AÇMAK
@@ -1091,7 +1091,7 @@ olarak değil, bir **kanıt seviyesi düşüşü** olarak görünür.
    uygulaması değil, bir dosya düzenidir.
 ```
 
-██ Bu projedeki `BoardAdapter` bu sınırın kendi itirafını taşıyor ██ — künyesi
+***Bu projedeki `BoardAdapter` bu sınırın kendi itirafını taşıyor*** — künyesi
 rolünü "karma" diye yazıyor, ve altında bir **koku notu** duruyor: eşiğin
 aşıldığı yazılı ve silinmemiş.
 
@@ -1132,9 +1132,9 @@ söyleyen satır, eşiği koyan satır kadar öğreticidir.
 
 ---
 
-## 10. ██ İLKELER ÇATIŞTIĞINDA ██
+## 10. ***İLKELER ÇATIŞTIĞINDA***
 
-██ Bu bölüm bu dosyanın en değerli yeri. ██ Mülakatta ayırt edici soru "bu
+***Bu bölüm bu dosyanın en değerli yeri.*** Mülakatta ayırt edici soru "bu
 ilkeyi bilir misin" değildir — o soruyu herkes geçer. Ayırt edici soru şudur:
 
 > *"Bu iki ilke aynı satırda zıt şeyler söylüyor. Hangisini seçersin ve neden?"*
@@ -1152,7 +1152,7 @@ gerçek çatışma** var; üçünün de kazananı kodda yazılı.
   DRY DER    "Aynı satır üç yerde. Birleştir."
   S DER      "Üç ayrı sorumluluk. Ayrı tut."
 
-  ██ KAZANAN: S ██
+  >> KAZANAN: S <<
 ```
 
 **NEDEN** — Ölçüt "satır aynı mı" değil, **"biri değişirse öteki de değişmek
@@ -1160,7 +1160,7 @@ zorunda mı"** sorusudur. Cevap hayır: "yaralı sıhhiyeci vuramaz ama kaldıra
 kararı verilebilir bir karardır ve o gün iki kural ayrışır. Kod bu hükmü tek
 cümlede veriyor: *bu bir kesişme, bağ değil* (`MovementRules.cs:45`).
 
-██ Ve DRY tamamen kaybetmiyor ██ — aynı dosyada DRY'nin **kazandığı** bir yer
+***Ve DRY tamamen kaybetmiyor*** — aynı dosyada DRY'nin **kazandığı** bir yer
 de var: `TurnRules.cs:91`'deki üç parametreli sürüm, sıra kuralını
 kopyalamıyor, iki parametreli sürüme soruyor. Yani aynı iki kuvvet iki satırda
 iki farklı sonuç veriyor ve ayıran şey ölçüttür, tercih değil.
@@ -1173,15 +1173,15 @@ iki farklı sonuç veriyor ve ayıran şey ölçüttür, tercih değil.
   DEMETER DER  "Komşunun komşusuna dokunma. Battle'a bir EndTurn() ileticisi ekle."
   DRY DER      "İletici eklersen, devrin ne zaman olacağı kararı iki yerde yaşar."
 
-  ██ KAZANAN: DRY ██
+  >> KAZANAN: DRY <<
 ```
 
 **NEDEN** — Devri tetikleyen şey bir **beyaz listedir**: hangi sonuç değerleri
 sırayı devreder. O liste akış sahibinde yaşıyor ve `AttackOutcome` ile
 `MoveOutcome` tiplerini tanıyor. `Battle`'a taşınsaydı `Battle` da o iki tipi
 tanımak zorunda kalırdı — ve `Battle`, `Attack` ile `Move` akışlarını
-tanımıyor, tanımamalı. ██ İhlalin bedeli ölçüldü ve kabul edildi: `EndTurn`'ün
-imzası değişirse derleyici üç yer gösterir, `Battle` görünmez. ██ Bu bilinen ve
+tanımıyor, tanımamalı. ***İhlalin bedeli ölçüldü ve kabul edildi: `EndTurn`'ün
+imzası değişirse derleyici üç yer gösterir, `Battle` görünmez.*** Bu bilinen ve
 yazılı bir borç, bir gözden kaçma değil.
 
 ### Çatışma C — Fail fast ile oyuncuya nazik hata
@@ -1192,7 +1192,7 @@ yazılı bir borç, bir gözden kaçma değil.
   FAIL FAST DER    "Geçersiz girdi. Patla, sebebi orada söyle."
   KULLANICI DENEYİMİ DER  "Bu bir hata değil, bir oyun olgusu. Bir mesaj göster ve devam et."
 
-  ██ KAZANAN: ikisi de — çünkü İKİ AYRI KANAL açıldı ██
+  >> KAZANAN: ikisi de — çünkü İKİ AYRI KANAL açıldı <<
 ```
 
 **NEDEN** — Bu çatışmanın çözümü "birini seç" değil, **soruyu yeniden sormak**
@@ -1201,8 +1201,8 @@ alan çağıran yapacak bir şey bulabilir mi?* Bulabiliyorsa sonuç değeri,
 bulamıyorsa istisna. `null` bir `Battle` için çağıranın yapacağı bir şey yok →
 `throw`. Menzil dışı bir hücre için var → `AttackOutcome.RejectedOutOfRange`.
 
-██ Bu, çatışma çözümünün en güçlü biçimidir: iki ilke zıt görünüyorsa, ikisinin
-farklı **alanlara** ait olma ihtimalini önce sına. ██ Sıra da bir karar ve
+***Bu, çatışma çözümünün en güçlü biçimidir: iki ilke zıt görünüyorsa, ikisinin
+farklı **alanlara** ait olma ihtimalini önce sına.*** Sıra da bir karar ve
 kodda yazılı: önce bütün çağıran hataları (istisna), sonra bütün kurallar
 (sonuç değeri). Bir kural geri dönülemez adımın altına düşerse kural olmaktan
 çıkıp açıklamaya döner.
@@ -1215,7 +1215,7 @@ kodda yazılı: önce bütün çağıran hataları (istisna), sonra bütün kura
   YAGNI DER  "Bugün gereken beş değer var. Altıncıyı yazma."
   O DER      "Yeni davranış eklenirken var olan kod değişmemeli. Bugünden hazırlan."
 
-  ██ KAZANAN: YAGNI — ama O'ya bir ödün verildi ██
+  >> KAZANAN: YAGNI — ama O'ya bir ödün verildi <<
 ```
 
 **NEDEN** — Altıncı değer **yazılmadı** (YAGNI). Ama yazıldığı gün ne olacağı
@@ -1225,7 +1225,7 @@ numaralanırdı. Aynı biçim kurallarda da var: beyaz liste (`== Alive`), kara
 liste (`!= Downed && != Dead`) değil. İki biçim bugün aynı cevabı veriyor;
 fark dördüncü değer eklendiği gün doğar.
 
-██ Ayrım şu: YAGNI **kodu** yazmamaktır, **kararı** ertelemek değil. ██
+***Ayrım şu: YAGNI **kodu** yazmamaktır, **kararı** ertelemek değil.***
 Geri alınması pahalı kararlar (sıfırıncı enum değeri, değer sırası, beyaz
 liste biçimi) bugün verilir; geri alınması ucuz kod (altıncı değerin kendisi)
 bugün yazılmaz.
@@ -1244,7 +1244,7 @@ bugün yazılmaz.
   ③ Kaybeden ilkenin bedelini YAZ ve silme.
      (Çatışma B: Demeter kaybetti ve borç kodda duruyor.)
 
-  ██ ④ "İki ilkeyi de tam uyguladım" cevabı mülakatta bir ZAYIFLIK sinyalidir. ██
+  >> ④ "İki ilkeyi de tam uyguladım" cevabı mülakatta bir ZAYIFLIK sinyalidir. <<
      İlkeler bazı satırlarda çatışır; çatışmayı görmemiş olmak, o satıra hiç
      bakmamış olmak demektir.
 ```
@@ -1253,7 +1253,7 @@ bugün yazılmaz.
 
 ## 11. Üç oyun — hangi ilke o oyunun mimarisini en çok şekillendirirdi
 
-██ **UYARI: bu tablonun tamamı DOĞRULANMAMIŞTIR.** ██ Slay the Spire, Vampire
+*****UYARI: bu tablonun tamamı DOĞRULANMAMIŞTIR.***** Slay the Spire, Vampire
 Survivors ve Stardew Valley'nin kaynak kodu kapalı. Aşağıdaki satırlar oyunların
 **oynanışından çıkarılmış tahminlerdir**, mimari bilgi değil. Mülakatta "şu oyun
 şöyle yapmıştır" demek bir iddiadır ve savunulamaz; "o oynanış şu ilkeye baskı
@@ -1271,7 +1271,7 @@ yapardı" demek bir muhakemedir ve savunulabilir.
 | DRY | aynı kartın iki kopyası aynı metni ve maliyeti taşır, ama biri yükseltilmişse ayrılır | yüzlerce aynı düşman aynı hasar ve hız tanımını paylaşır, canları ayrıdır | her "kırmızı lahana" aynı fiyatı ve büyüme süresini taşır, hangi tarlada olduğu her birine özeldir |
 | Separation of concerns | kart üstündeki sayı ile ekrandaki animasyon ayrı ilerler; sayı değişmeden animasyon oynamaz | yüzlerce düşman görselinin arkasında konum ve can ayrı tutulur, görsel yalnız takip eder | ekinin büyüme günü ile ekrandaki görseli ayrı ilerler; oyun kapalıyken de gün geçer |
 
-██ Tablodaki `EŞLEŞMEZ` satırlarının çoğu aynı sebeple işaretli ██ ve bu
+***Tablodaki `EŞLEŞMEZ` satırlarının çoğu aynı sebeple işaretli*** ve bu
 sebebin kendisi bir ders: **Dependency Injection ve Law of Demeter iç yapı
 ilkeleridir; oynanıştan gözlemlenemezler.** Bir oyunu oynayarak öğrenilebilecek
 şey davranıştır, mimari değil. Bir mülakatta "Vampire Survivors şöyle bir
@@ -1291,7 +1291,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
         EVET  → ②
 
   ② İhlallerden hangisi SESSİZ kalır?
-        biri sessiz → ██ sessiz olan kazanır ██
+        biri sessiz → >> sessiz olan kazanır <<
                       (test yeşil kalan ihlal, en pahalı ihlaldir)
         ikisi de gürültülü → ③
 
@@ -1301,7 +1301,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
         (Çatışma D bu dalda çözüldü)
 
   ④ Kaybeden ilkenin BEDELİNİ yaz.
-        ██ Yazılmayan borç, bir gün gözden kaçma sayılır. ██
+        >> Yazılmayan borç, bir gün gözden kaçma sayılır. <<
         (Çatışma B'nin borcu BattleActions'ta duruyor)
 ```
 
@@ -1309,7 +1309,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
 
 ```
 "DRY = kod tekrarı yok"
-   ██ DEĞİL. ██ DRY bilgi tekrarı hakkındadır. Bu projede üç ayrı dosyada
+   >> DEĞİL. << DRY bilgi tekrarı hakkındadır. Bu projede üç ayrı dosyada
    BİREBİR aynı satır duruyor ve bu bir ihlal değil — üçü ayrı üç kararı
    temsil ediyor.
    Ölçü: AttackRules.cs:40 · MovementRules.cs:49 · ReviveRules.cs:50,
@@ -1318,7 +1318,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
    Doğru soru: "biri değişirse öteki de değişmek zorunda mı?"
 
 "DI = bir çerçeve (Zenject, VContainer)"
-   ██ DEĞİL. ██ DI bir tasarım kararıdır: parçayı içeride kurma, dışarıdan al.
+   >> DEĞİL. << DI bir tasarım kararıdır: parçayı içeride kurma, dışarıdan al.
    Konteyner o kararı otomatikleştiren AYRI bir araçtır ve genellikle gerekmez.
    Ölçü: bu projede konteyner YOK ama DI her yerde — Combatant.cs:59 dört
          parçayı da kurucudan alıyor, Unity tarafında kanal [SerializeField].
@@ -1326,7 +1326,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
    bilmediğini söylemektir.
 
 "İlkeleri ne kadar çok uygularsan o kadar iyi"
-   ██ DEĞİL. ██ Her ilkenin bir aşırı uygulama biçimi var ve adı da var:
+   >> DEĞİL. << Her ilkenin bir aşırı uygulama biçimi var ve adı da var:
    Demeter'ın aşırısı "orta adam" (her zincir için bir iletici metot),
    DRY'nin aşırısı tesadüfi benzerliği birleştirmek,
    SoC'nin aşırısı küçük ve tutarlı bir davranış için katman açmak,
@@ -1338,7 +1338,7 @@ mimari kullanıyor" demek, kaynağı görmediysen bir uydurmadır.
 
 ### Kaçış yolu — bu ilkelerin hiçbiri uygulanmasaydı
 
-Dürüst cevap: ██ proje yine çalışırdı. ██ 33 dosya, 3×5 tahta ve iki birim
+Dürüst cevap: ***proje yine çalışırdı.*** 33 dosya, 3×5 tahta ve iki birim
 için tek bir `MonoBehaviour` yeterdi — kurallar `if` olarak akışın içinde
 yaşardı, tahta da savaş da aynı sınıfta dururdu, ve oyun bugünkü hâliyle aynı
 görünürdü.
@@ -1349,14 +1349,14 @@ Kaybedilecek şey bugün değil **ikinci gün** görünür:
   bugün           tek dosya çalışıyor, testler yeşil, oyun aynı
   ikinci hafta    üçüncü birim türü geliyor ve kural üç yerde
   birinci ay      bir kural değişiyor, iki yer güncelleniyor, biri unutuluyor
-  ██ ve o unutma bir DERLEME HATASI olarak değil, bir OYUN HATASI olarak doğuyor ██
+  >> ve o unutma bir DERLEME HATASI olarak değil, bir OYUN HATASI olarak doğuyor <<
 ```
 
 Bu projede o günün maliyeti **ölçüldü** ve ölçü şu: `Assets/Tests/EditMode/`
 altında 26 test dosyası var ve neredeyse hepsi sahne kurmadan koşuyor. Tek
 `MonoBehaviour` çözümünde o 26 dosyanın tamamı PlayMode'a taşınırdı, çünkü
-kurallar motorsuz kurulamazdı. ██ İlkelerin bu projede satın aldığı şey mimari
-güzellik değil, bir **kanıt seviyesidir**. ██
+kurallar motorsuz kurulamazdı. ***İlkelerin bu projede satın aldığı şey mimari
+güzellik değil, bir **kanıt seviyesidir**.***
 
 ---
 

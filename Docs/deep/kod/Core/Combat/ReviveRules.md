@@ -82,12 +82,12 @@ tek bir hücresini tutuyor.
   vurmak              AttackRules.CanAttack       TargetingRules
                                                   .CanBeAttacked
   kaldırmak           ReviveRules.CanRevive       TargetingRules
-                      ◄── ██ BU METOT ██          .CanBeRevived
+                      ◄── >> BU METOT <<          .CanBeRevived
 
   REDDEDILEN imza iki hücreyi TEK metoda çökertir:
       CanRevive( reviverState , targetState )
                  └─EYLEYEN──┘   └──HEDEF──┘
-                                 ◄── ██ ÇÖKME NOKTASI ██
+                                 ◄── >> ÇÖKME NOKTASI <<
   ikinci satır (`targetState == Downed`) TargetingRules.CanBeRevived
   ile BİREBİR aynı cümledir; kopya olduğu için de sessizce eskir.
 ```

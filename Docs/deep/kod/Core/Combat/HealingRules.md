@@ -38,8 +38,8 @@ değişme sebebi       zırh, direnç,         iyileştirme verimi,
 REDDEDILEN — tek metot, işaretli delta
   ResolveHealth(current, max, delta)
     delta < 0 ► hasar       ┐
-    delta > 0 ► iyileştirme ├─ ██ `amount < 0` DOĞRULAMASI
-    Clamp(0, max)           ┘    YAZILAMAZ ██ çünkü negatif delta
+    delta > 0 ► iyileştirme ├─ >> `amount < 0` DOĞRULAMASI
+    Clamp(0, max)           ┘    YAZILAMAZ << çünkü negatif delta
                                  artık GEÇERLİ bir çağrı
   ◄── AYRIŞMA NOKTASI: iki yön birleşince ikisinin doğrulaması da
       birleşir; TakeDamage(-3) bir çağıran hatası olmaktan çıkıp

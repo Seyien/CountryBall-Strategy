@@ -1,8 +1,8 @@
 # Kavram borç defteri — kapsama tablosu
 
-██ Bu dosya bir **kapsama denetimidir**: mentor yetkinlik evrenindeki her kavramı
+***Bu dosya bir **kapsama denetimidir**: mentor yetkinlik evrenindeki her kavramı
 bu projenin belgeleriyle karşılaştırır ve her satıra ya bir **sahip dosya** ya
-bir **aşama** yazar. ██
+bir **aşama** yazar.***
 
 Boş hücre yoktur. Sahipsiz kavram yoktur. Bir kavramın karşılığı yoksa cevap
 uydurulmaz — `HENÜZ YOK` yazılır ve onu yaratacak aşama adıyla anılır.
@@ -30,7 +30,7 @@ bu deftere hangi bölüm olarak düştüğünü gösteriyor — ve hangilerinin 
 | 9 · Araç, derleme ve teslim | D, G | `.asmdef` kapalı; platform derlemesi, sürümleme, çökme raporu yok |
 | 10 · Takım ve profesyonel pratik | G | Yorum sözleşmesi ve makine kapıları kapalı; Git akışı ve inceleme yok |
 
-██ İki alanın hiç temsil edilmemesi bir **kusur değil, bir kapsam ölçüsüdür**. ██
+***İki alanın hiç temsil edilmemesi bir **kusur değil, bir kapsam ölçüsüdür**.***
 Bu depo bir oyun değil, bir savaş çekirdeği ve onun etrafındaki gerekçe ağacı.
 Alan 5 ve 8 için satır açmak, sahipsiz otuz satır daha üretir ve defteri
 okunmaz kılardı. Bu satır, o kararın kendisidir — ve alan 5 ya da 8'e ait ilk
@@ -51,7 +51,7 @@ KISMİ      bir parçası var, eksik olan parça ADIYLA yazılı
 HENÜZ YOK  hiçbir belge sahiplenmiyor; onu yaratacak aşama yazılı
 ```
 
-██ Bu defterin **tek ölümcül hatası** ██, var olmayan bir dosyaya `KAPALI`
+***Bu defterin **tek ölümcül hatası*****, var olmayan bir dosyaya `KAPALI`
 yazmaktır. Öğreneni tam bir güvenle boşluğa gönderir ve hiçbir yerde kırmızı
 görünmez. Kapı tam olarak bunu arıyor:
 
@@ -222,7 +222,7 @@ her harfin bu projedeki **uygulanmış** karşılığını gösteriyor.
 | G · Süreç | 6 | 4 | 0 | 2 |
 | **Toplam** | **87** | **62** | **13** | **12** |
 
-██ Bu sayılar bir tur içinde **değişti** ve bu, defterin çalıştığının kanıtı. ██
+***Bu sayılar bir tur içinde **değişti** ve bu, defterin çalıştığının kanıtı.***
 İlk yazımda A bölümünde iki `KISMİ` ve beş `HENÜZ YOK` vardı; aynı oturumda
 başka aşamalar `Docs/deep/dil/06-delege-arka-taraf.md`,
 `Docs/deep/dil/07-bellek-canlilik-ve-yikim.md` ve
@@ -274,7 +274,7 @@ satırında `AŞAMA:` görürse kapı "dosya bekleniyordu, aşama yazılmış" d
 karşılandığında. Eksiğin adı yazılı olduğu için bu terfi tartışmaya açık
 değildir: ya o cümle karşılanmıştır ya karşılanmamıştır.
 
-██ Satır numaraları kayar. ██ Sahip belge büyüdüğünde eski numara başka bir
+***Satır numaraları kayar.*** Sahip belge büyüdüğünde eski numara başka bir
 satırı gösterir ve kapı bunu **yakalamaz** — yalnız dosyanın toplam satır
 sayısını aşan numarayı yakalar. Bu, kapının bilinen ve kabul edilmiş sınırı:
 "var olmayan dosya" ile "imkânsız satır" makineyle, "kaymış satır" gözle

@@ -38,7 +38,7 @@ GridStrategy.Core      references: []   noEngine: TRUE
   UnitGrid, GridDistance   ◄── "iki hücre arası uzaklık"
                                kuralı BURADA yaşıyor
       ▲
-      │ ██ DUVAR ██ Combat'ın `references` listesi BOŞ:
+      │ >> DUVAR << Combat'ın `references` listesi BOŞ:
       │ bu ok DERLENMEZ — kurulamaz, dolayısıyla unutulamaz
       │
 GridStrategy.Combat    references: []   noEngine: TRUE

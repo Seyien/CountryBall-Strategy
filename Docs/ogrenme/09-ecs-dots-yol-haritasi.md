@@ -1,6 +1,6 @@
 # ECS ve DOTS — mekanizma, eşik ve genişletme merdiveni
 
-██ **Bu bir "şimdi yapalım" belgesi DEĞİL.** ██ İçinde tek bir "şunu ekle"
+*****Bu bir "şimdi yapalım" belgesi DEĞİL.***** İçinde tek bir "şunu ekle"
 cümlesi yok. Üç iş yapıyor ve üçü de ileriye dönük:
 
 ```
@@ -17,8 +17,8 @@ ağacın hiçbir yerinde anlatılmıyor. `ECS` kelimesi dört belgede, `DOTS` ik
 `Burst` ikide, `Job System` birde geçiyor — hepsi tetikleyici satırı. Bu belge o
 boşluğu kapatıyor, tetikleyici satırını **tekrar etmiyor**.
 
-██ Ve bir uyarı, en başa: ECS'i bugün bu projeye getirmek bir **iyileştirme
-değil**, bir **öğrenme egzersizi** olurdu. ██ İkisi farklı şeylerdir. Bir
+***Ve bir uyarı, en başa: ECS'i bugün bu projeye getirmek bir **iyileştirme
+değil**, bir **öğrenme egzersizi** olurdu.*** İkisi farklı şeylerdir. Bir
 iyileştirmenin ölçülmüş bir darboğazı vardır; bir öğrenme egzersizinin ölçülmüş
 bir **öğrenme hedefi** vardır. Bu belge ikincisini yazıyor ve ikisini
 karıştırmamak için beşinci bölümdeki merdivenin her basamağında "bu neyi
@@ -28,8 +28,8 @@ GÖRÜNÜR kılar" satırı ayrı duruyor.
 
 ## Ölçüm künyesi — bu belgedeki her sayı nereden geldi
 
-██ `performance-research` kuralı: yerel ölçüm, üst kaynak (upstream) rehberliği
-ve çıkarım AYRI AYRI yazılır. ██ Bu belgede üç işaret var ve her sayının yanında
+***`performance-research` kuralı: yerel ölçüm, üst kaynak (upstream) rehberliği
+ve çıkarım AYRI AYRI yazılır.*** Bu belgede üç işaret var ve her sayının yanında
 biri duruyor:
 
 ```
@@ -51,10 +51,10 @@ L2             çekirdek başına 1 MB        önbellek satırı 64 bayt
 L3             2 × 32 MB                   önbellek satırı 64 bayt
 Bellek         31,22 GB
 İşletim sistemi Windows 11 Pro 10.0.26200
-Sınıf          güçlü iş istasyonu — ██ tipik bir hedef cihaz DEĞİL ██
+Sınıf          güçlü iş istasyonu — >> tipik bir hedef cihaz DEĞİL <<
 ```
 
-██ Son satır bu belgenin en önemli künye satırı. ██ Bu makinede ölçülen hiçbir
+***Son satır bu belgenin en önemli künye satırı.*** Bu makinede ölçülen hiçbir
 şey bir telefonda ya da bir konsolda aynı çıkmaz; ECS/Job/Burst tartışmasının
 tamamı **çekirdek sayısına ve önbellek boyutuna** bağlıdır ve ikisi de burada
 üst sınırda. Bir mobil cihazda çekirdek sayısı 8, büyük çekirdek sayısı 1-2,
@@ -77,8 +77,8 @@ NativeArray · Unity.Jobs · Unity.Collections
 · Unity.Mathematics                         ── SIFIR eşleşme
 ```
 
-██ Ölçülmüş çelişki, ve bu belgenin en öğretici tek olgusu: **Burst bu projede
-zaten kurulu ve hiçbir şey yapmıyor.** ██ Nereden geldiği de ölçüldü —
+***Ölçülmüş çelişki, ve bu belgenin en öğretici tek olgusu: **Burst bu projede
+zaten kurulu ve hiçbir şey yapmıyor.***** Nereden geldiği de ölçüldü —
 `com.unity.2d.aseprite` → `com.unity.2d.common` → `com.unity.burst`. Yani
 2D özellik paketinin dolaylı bağımlılığı. Kurulu olması tek bir satır kodu
 hızlandırmıyor, çünkü hızlandıracağı kod yok: `[BurstCompile]` işaretli tek bir
@@ -97,7 +97,7 @@ Unity.Jobs.LowLevel.Unsafe.JobsUtility             ── CoreModule içinde VAR
    JobsUtility.MaxJobThreadCount = 128
 ```
 
-██ AYRIŞMA NOKTASI ██ — burada ayrışan iki şey: **"DOTS" adı** ile **paket
+***AYRIŞMA NOKTASI*** — burada ayrışan iki şey: **"DOTS" adı** ile **paket
 sınırı**. Job System bir paket değil, motorun **çekirdeğinde**. Bugün, hiçbir
 paket kurmadan, `IJobParallelFor` yazılabilir. Burst bir paket ve zaten kurulu.
 Entities ise ne kurulu ne de kurulabilir (aşağıda, dördüncü durak). Üçü "DOTS"
@@ -132,7 +132,7 @@ Unity Manual · The safety system in the C# Job System
   docs.unity3d.com/2020.1/Documentation/Manual/JobSystemSafetySystem.html
 ```
 
-██ Kaynak sınırı, dürüstçe: ██ son satırdaki güvenlik sistemi sayfasının
+***Kaynak sınırı, dürüstçe:*** son satırdaki güvenlik sistemi sayfasının
 **2021.3 sürümündeki** karşılığı bu turda getirilemedi (sunucu 404 döndü);
 alıntılar 2020.1 sürümündeki aynı adlı sayfadan. Blittable kısıtı ise 2021.3
 "Job system overview" sayfasında ayrıca doğrulandı, yani iddianın kendisi
@@ -163,7 +163,7 @@ başka varlık" durumunu **yakalayabilir**. Nesne modelinde bu sorun hiç doğma
 (referans ya canlıdır ya değil); indeks modelinde doğar ve sürüm alanı onun
 çözümüdür.
 
-██ Bu projede bu işi yapan tip zaten var. ██
+***Bu projede bu işi yapan tip zaten var.***
 [`01-koda-gomulu-desenler.md`](01-koda-gomulu-desenler.md) §9 ona bir ad da
 vermiş: **kimlik + yan tablo**.
 
@@ -181,7 +181,7 @@ yani yönetilen yığında bir nesne ve elde tutulan şey ona giden bir **refera
 
 ### C — Component: saf veri… ama bu cümle TAM DOĞRU DEĞİL
 
-██ En sık tekrarlanan yarı-doğru: "bileşenlerin davranışı yoktur." ██
+***En sık tekrarlanan yarı-doğru: "bileşenlerin davranışı yoktur."***
 [BİRİNCİL] Entities 1.0.16 "Components concepts", 2026-08-23'te doğrulandı, tam
 tersini söylüyor: "They can contain methods, but it's best practice for them to
 just be pure data."
@@ -222,8 +222,8 @@ Assets/Game/Core/Combat/AttackProfile.cs:78   public int Range { get; }
 değişmez. ECS'te bu tip `struct AttackProfile : IComponentData` olurdu ve tek
 değişiklik `class` → `struct` olurdu.
 
-██ [YEREL ÖLÇÜM] 2026-08-23: `Assets/Game/` altında kullanıcı tanımlı **hiçbir
-`struct` yok**; 26 adet `sealed class` / `static class` var. ██ Yani ECS'e
+***[YEREL ÖLÇÜM] 2026-08-23: `Assets/Game/` altında kullanıcı tanımlı **hiçbir
+`struct` yok**; 26 adet `sealed class` / `static class` var.*** Yani ECS'e
 geçmek "birkaç tipi işaretlemek" değil, **tip kategorisini** değiştirmek demek —
 ve bir `class`ı `struct` yapmak kopyalama semantiğini değiştirir. Değer/referans
 ayrımının tamamı burada:
@@ -266,8 +266,8 @@ Assets/Game/Battle/Battle.cs:383   foreach (KeyValuePair<Unit, Combatant> pair i
 Assets/Game/Battle/Battle.cs:394   foreach (KeyValuePair<Unit, Structure> pair in structures)
 ```
 
-██ Fark burada ve tek cümlelik: `Battle.Tick` **neyi dolaşacağını sabit
-biliyor**; bir ECS sistemi **sorar**. ██ ECS'te "hem `Health` hem `AttackProfile`
+***Fark burada ve tek cümlelik: `Battle.Tick` **neyi dolaşacağını sabit
+biliyor**; bir ECS sistemi **sorar**.*** ECS'te "hem `Health` hem `AttackProfile`
 taşıyan bütün varlıklar" bir sorgudur ve o sorgunun cevabı çalışma zamanında,
 bileşen bileşimine göre oluşur. Burada ise iki döngü elle yazılmış ve
 `combatants` ile `structures` adları koda gömülü.
@@ -277,15 +277,15 @@ sırası bir gruba ve `[UpdateInGroup]` niteliklerine bağlıdır. Burada sıray
 metot gövdesi belirliyor — birinci `foreach`, sonra ikincisi. Ve o sıranın
 gerekçesi kodda yazılı: ikisi ayrı metotlara bölünseydi çağıran birini unutabilirdi.
 
-### ██ EN ÖNEMLİ AYRIM: ECS'in asıl kazancı MİMARİ değil YERLEŞİM ██
+### ***EN ÖNEMLİ AYRIM: ECS'in asıl kazancı MİMARİ değil YERLEŞİM***
 
 Buraya kadar anlatılan üç şeyin hiçbiri hızla ilgili değildi. "Veriyi
 davranıştan ayır" bir **mimari** fikirdir ve bu projede zaten uygulanmış
 durumda — kural tiplerinin alanı yok, varlıkların kuralı yok. Eğer ECS bundan
 ibaret olsaydı, bu projeye getirilecek bir şey kalmazdı.
 
-██ ECS'in getirdiği asıl şey ikinci bir karar: aynı tipteki bileşenlerin
-bellekte **BİTİŞİK** durması. ██
+***ECS'in getirdiği asıl şey ikinci bir karar: aynı tipteki bileşenlerin
+bellekte **BİTİŞİK** durması.***
 
 [BİRİNCİL] Entities 1.0.16 "Archetypes concepts", 2026-08-23'te doğrulandı:
 
@@ -319,7 +319,7 @@ bir chunk            256 önbellek satırı
 16 baytlık bir bileşen:                         4 varlık
 ```
 
-██ Bu çıkarımın sınırı, açıkça: ██ "satır başına 16 varlık" ancak döngü o diziyi
+***Bu çıkarımın sınırı, açıkça:*** "satır başına 16 varlık" ancak döngü o diziyi
 **baştan sona** okursa ve **yalnız o bileşene** dokunursa geçerlidir. İki bileşen
 birden okunuyorsa iki ayrı dizi taranır. Ayrıca chunk'ın 16 KiB'ının tamamı
 veri değil: bir başlık ve hizalama payı var, chunk kapasitesi bileşen sayısına
@@ -348,7 +348,7 @@ Unit referansı  ──► sözlüğün kova dizisinde karma araması
                 ──► int current
 ```
 
-██ AYRIŞMA NOKTASI ██ — burada ayrışan iki şey: **tahsis bilinci** ile **bellek
+***AYRIŞMA NOKTASI*** — burada ayrışan iki şey: **tahsis bilinci** ile **bellek
 yerleşimi bilinci**. Bu projede birincisi var ve yazılı — `Battle.cs:379-382`
 sözlük üzerinde doğrudan `foreach` kullanmanın gerekçesini kutulama üzerinden
 anlatıyor. İkincisi **hiç düşünülmedi** ve düşünülmemesi doğru bir karardı: iki
@@ -360,7 +360,7 @@ Yığın nesnelerinin gerçekte nerede durduğu, canlılık ve yıkım tarafın�
 O belge "bir `int` üç ayrı yerde" figürünü zaten çiziyor; bu bölüm onun üstüne
 **dördüncü yeri** koyuyor: bir chunk içindeki bitişik dizi.
 
-██ Ve o belgenin dürüst sınırı burada da geçerli: ██ bu projede hangi nesnenin
+***Ve o belgenin dürüst sınırı burada da geçerli:*** bu projede hangi nesnenin
 yığında nereye düştüğü **ölçülmedi** ve ölçülemez de — Memory Profiler bu
 projede hiç kullanılmadı ([`03-kavram-borc-defteri.md`](03-kavram-borc-defteri.md),
 "Profil çıkarma araçları" satırı `HENÜZ YOK`). Dolayısıyla "sözlük düğümleri
@@ -371,7 +371,7 @@ dağınık" cümlesi bir **mekanizma tarifidir**, bu depoda yapılmış bir öl�
 
 ## İkinci durak: DOTS = ECS + Job System + Burst — ve üçü AYRI şeyler
 
-██ En pahalı yanlış model bu: "DOTS" tek bir şey sanılıyor. ██ Değil. Üç bağımsız
+***En pahalı yanlış model bu: "DOTS" tek bir şey sanılıyor.*** Değil. Üç bağımsız
 teknoloji, üç ayrı sorunu çözüyor, üçü ayrı ayrı kullanılabiliyor.
 
 | | Ne çözer | Ötekiler olmadan işe yarar mı | Bu projede karşılığı |
@@ -398,8 +398,8 @@ another process outside of its control." Çözüm: iş parçacığına ana iş
 parçacığındaki veriye **referans** verilmiyor, verinin bir **kopyası**
 gönderiliyor.
 
-██ Burası [`05-yok-olan-mekanizmalar-csharp.md`](05-yok-olan-mekanizmalar-csharp.md)
-ile DOĞRUDAN bağlanıyor ve o belge işin yarısını zaten yapmış. ██ Orada
+***Burası [`05-yok-olan-mekanizmalar-csharp.md`](05-yok-olan-mekanizmalar-csharp.md)
+ile DOĞRUDAN bağlanıyor ve o belge işin yarısını zaten yapmış.*** Orada
 "Dördüncü durak" `Task` · `Awaitable` · coroutine · iş parçacığının **dört ayrı
 şey** olduğunu ayırıyor ve `await`in bir iş parçacığı **yaratmadığını** ölçüyor.
 Job onların hiçbiri değil; **beşinci** bir şey. Farkı iki maddede:
@@ -441,7 +441,7 @@ for use with Unity's job system" ama yalnız job'la sınırlı değil — `stati
 metotları da derleyebiliyor, "as long as the code inside them belongs to the
 supported subset of C#."
 
-██ O son cümledeki "supported subset" bu bölümün tamamı. ██ Burst rastgele C#
+***O son cümledeki "supported subset" bu bölümün tamamı.*** Burst rastgele C#
 derlemez; **HPC#** denen bir alt küme derler.
 
 [BİRİNCİL] Burst 1.8 "HPC# overview" ve tip desteği sayfası, 2026-08-23'te
@@ -461,7 +461,7 @@ doğrulandı — yasaklar:
 uyarı üretiyor — çünkü Player derlemesinde bir istisna "always cause the
 application to abort."
 
-██ Yanlış modelin kaynağı tam olarak burası. ██ "Burst'ü açtım, hızlanmadı"
+***Yanlış modelin kaynağı tam olarak burası.*** "Burst'ü açtım, hızlanmadı"
 diyen kişi çoğu zaman haklıdır ve sebebi ölçülebilir: derlemeye **girmemiştir**.
 Burst'ün derleyemediği bir metot sessizce yönetilen yoldan koşar. Yani Burst bir
 düğme değil, bir **sözleşme**: kodu o alt kümeye taşımadan hiçbir şey olmaz.
@@ -475,7 +475,7 @@ Bu projede ölçülmüş hâli:
 [YEREL ÖLÇÜM] Assets/Game/ altında class sayısı     ── 26
 ```
 
-██ Yani bugünkü kodun **hiçbiri** HPC# alt kümesine girmiyor. ██ 26 sınıf,
+***Yani bugünkü kodun **hiçbiri** HPC# alt kümesine girmiyor.*** 26 sınıf,
 `string` alanlı bir kimlik tipi, `event`/`Action` delegeleri, `Dictionary`,
 `ArgumentOutOfRangeException` fırlatan doğrulamalar — listenin tamamı Burst'ün
 yasak listesinde. Bu bir kusur değil: bu proje bir tahta oyunu çekirdeği,
@@ -488,7 +488,7 @@ sahip: bu ağaç dışında bir sahip`.
 
 ### ECS — birinci durakta anlatıldı. Buradaki tek ek: kurulabilirlik.
 
-██ [BİRİNCİL] ve bu belgedeki en sert tek olgu: ██
+***[BİRİNCİL] ve bu belgedeki en sert tek olgu:***
 
 ```
 Entities 1.0.16 · overview sayfası, 2026-08-23'te doğrulandı:
@@ -508,7 +508,7 @@ geliştirilmeyen, API'si 1.0'da baştan değişmiş bir dal. Bu, merdivenin son
 basamağına bir **ön koşul** ekliyor ve o ön koşul kod değil: Editor sürümü
 yükseltmesi.
 
-### ██ Ölçüsüz övgü yasağı ██
+### ***Ölçüsüz övgü yasağı***
 
 Bu belgede "N kat hızlı" biçiminde **tek bir sayı yok** ve bu bir eksiklik değil,
 bir kural. `performance-research` kuralı üç şeyi ayırmayı istiyor: yerel ölçüm,
@@ -541,7 +541,7 @@ Dört satır, ve dördü de koda karşı doğrulandı.
 | **davranış** | `static` kural sınıfı, tek şeye cevap verir | system, **sorgu** ile küme üstünde koşar |
 | **döngüyü kim çevirir** | `Battle.Tick`, elle yazılmış iki `foreach` | zamanlayıcı, sıralı sistem grupları |
 
-██ Her satırın kanıtı: ██
+***Her satırın kanıtı:***
 
 **Satır 1 · kimlik.** `Unit.cs:41` bir `public sealed class Unit` ve tek üyesi
 `Unit.cs:56`'daki `public string Name { get; }`. `Equals`/`GetHashCode`
@@ -570,11 +570,11 @@ Assets/Game/Core/UnitGrid.cs:26   public sealed class UnitGrid
 Assets/Game/Core/UnitGrid.cs:28   private readonly Unit[,] cells;
 ```
 
-██ Bu, bu projedeki **tek bitişik depo**. ██ `Unit[,]` gerçekten ardışık bir
+***Bu, bu projedeki **tek bitişik depo**.*** `Unit[,]` gerçekten ardışık bir
 bellek bloğu — ama içindeki şey veri değil, **referans**. Yani bitişik olan
 oklar; okların gösterdiği nesneler değil.
 
-> ██ BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI ██
+> ***BEŞ ALAN BAĞLAMIYOR — KAPSAM DIŞI***
 >
 > **NEDEN SENET YAZILMADI:** Yukarıdaki «Beşinci bir tablo daha var» cümlesi,
 > bu bölümün dört satırlık «BU PROJE / ECS» tablosunun beşinci satırıdır. O
@@ -600,7 +600,7 @@ Assets/Game/Unity/BoardAdapter.cs:625   private void AdvanceBattleTime()
 Assets/Game/Unity/BoardAdapter.cs:627   battle.Tick(Time.deltaTime);
 ```
 
-██ SONUÇ — dürüst cümle: ██ bu proje ECS'in **mimari** yarısını bütünüyle
+***SONUÇ — dürüst cümle:*** bu proje ECS'in **mimari** yarısını bütünüyle
 yapmış, **yerleşim** yarısını hiç yapmamış durumda. Ve bu tam olarak doğru
 karardır, çünkü ikinci yarının bedeli birinci yarının kazancıyla ödenmiyor;
 ancak varlık sayısıyla ödeniyor. Varlık sayısı iki.
@@ -630,14 +630,14 @@ kare başına dolaşılan varlık    2
 
 Ve o iki varlığın kare başına yaptığı iş de ölçülü. `Battle.Tick` her savaşçının
 `Combatant.Tick`'ini çağırıyor (`Combatant.cs:204`), o da `UnitLifecycle.Tick`e
-iniyor (`UnitLifecycle.cs:176`) ve orada ilk kontrol şu:
+iniyor (`UnitLifecycle.cs:185`) ve orada ilk kontrol şu:
 
 ```
-Assets/Game/Core/Combat/UnitLifecycle.cs:188   if (State == UnitState.Alive)
+Assets/Game/Core/Combat/UnitLifecycle.cs:197   if (State == UnitState.Alive)
 ```
 
-██ Yani hiçbir şey olmayan bir karede kare başına iş: iki `enum` karşılaştırması
-ve iki erken dönüş. ██ Bu bir abartma değil, kodun okunuşu.
+***Yani hiçbir şey olmayan bir karede kare başına iş: iki `enum` karşılaştırması
+ve iki erken dönüş.*** Bu bir abartma değil, kodun okunuşu.
 
 ### Eşik ne kadar uzak
 
@@ -645,10 +645,10 @@ ve iki erken dönüş. ██ Bu bir abartma değil, kodun okunuşu.
 BUGÜN            2 varlık × ~2 karşılaştırma
 ECS'in kazandığı eşik   binlerce varlık × kare başına gerçek iş
                         (konum, çarpışma, ömür, hedefleme — her karede)
-mesafe                  ██ üç ila dört büyüklük mertebesi ██
+mesafe                  >> üç ila dört büyüklük mertebesi <<
 ```
 
-██ Ve asıl cümle: **sıra tabanlı bir tahta oyununda bu eşiğe ulaşılmaz.** ██
+***Ve asıl cümle: **sıra tabanlı bir tahta oyununda bu eşiğe ulaşılmaz.*****
 Sebebi tahtanın küçük olması değil — tahta büyütülebilir. Sebebi **tür**: sıra
 tabanlı bir oyunda kare başına yapılan iş, tanımı gereği, oyuncunun düşünme
 süresi boyunca **sıfıra yakındır**. İş, oyuncu bir hamle yaptığında bir kez
@@ -672,11 +672,11 @@ kod değil:
    ── artık geliştirilmeyen bir dal; öğrenilen API 1.0'da geçersiz
 ```
 
-██ İkinci yol bir öğrenme egzersizi için bile **kötü** bir seçim: ██ öğrenilen
+***İkinci yol bir öğrenme egzersizi için bile **kötü** bir seçim:*** öğrenilen
 şeyin bugünkü karşılığı yok. Birinci yol doğru ama pahalı — ve pahalı olduğu
 için merdivenin **en sonunda** duruyor.
 
-### ██ İYİLEŞTİRME mi, ÖĞRENME EGZERSİZİ mi ██
+### ***İYİLEŞTİRME mi, ÖĞRENME EGZERSİZİ mi***
 
 Bu ayrım bu belgenin omurgası ve karıştırılması en pahalı hata:
 
@@ -684,12 +684,12 @@ Bu ayrım bu belgenin omurgası ve karıştırılması en pahalı hata:
 İYİLEŞTİRME             ölçülmüş bir darboğaz var
                         değişiklikten sonra AYNI ölçüm tekrarlanır
                         başarı ölçüsü: sayı düştü mü
-                        bu projede bugün: ██ ÖLÇÜLMÜŞ DARBOĞAZ YOK ██
+                        bu projede bugün: >> ÖLÇÜLMÜŞ DARBOĞAZ YOK <<
 
 ÖĞRENME EGZERSİZİ       ölçülmüş bir öğrenme hedefi var
                         değişiklikten sonra "ne gördüm" sorulur
                         başarı ölçüsü: kavram görünür oldu mu
-                        bu projede bugün: ██ GEÇERLİ ██ — ve merdiveni bu yazıyor
+                        bu projede bugün: >> GEÇERLİ << — ve merdiveni bu yazıyor
 ```
 
 Mentor kuralları burada birlikte uygulanıyor. **K22 (tam zamanında)**: bir
@@ -701,21 +701,21 @@ mekanizma ihtiyaç doğmadan öğretilmez — bu yüzden bu belge ECS'i *anlatı
 
 ## Beşinci durak: genişletme merdiveni — projeyi nasıl büyütürüz
 
-██ Bu bölüm operatörün açık talebi: "o kısımları gerçekten anlayabilmem için
-projenin genişletilmesi gerekiyorsa ona göre genişletiriz." ██
+***Bu bölüm operatörün açık talebi: "o kısımları gerçekten anlayabilmem için
+projenin genişletilmesi gerekiyorsa ona göre genişletiriz."***
 
 Yedi basamak, artan zorlukta. Her basamak altı alan taşıyor:
 
 ```
 NE EKLENİR          somut: kaç birim, hangi sistem, hangi dosya
-GÖRÜNÜR KILAR       ██ esas nokta ██ — hangi kavram gözle görülür hâle gelir
+GÖRÜNÜR KILAR       >> esas nokta << — hangi kavram gözle görülür hâle gelir
 ÖLÇÜM               hangi sayaç, hangi kanıt kovası (EditMode/PlayMode/cihaz)
 KIRDIĞI KARAR       bugünkü hangi karar geçersiz olur
 MEVCUT KODA DOKUNUR MU
 GERİ DÖNÜŞ          nasıl geri alınır
 ```
 
-### Basamak 0 · Ölçüm aygıtı — ██ ÖN KOŞUL, atlanamaz ██
+### Basamak 0 · Ölçüm aygıtı — ***ÖN KOŞUL, atlanamaz***
 
 **NE EKLENİR** — Kod değil. `Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs`
 zaten tahsis ölçüyor (`:69` negatif kontrol, `:103` sıcak yol). Eksik olan
@@ -732,11 +732,11 @@ Kanıt kovası: **PlayMode**, yani sahne kanıtı. Hedef cihaz kanıtı değil.
 **KIRDIĞI KARAR** — Hiçbiri. `02-sonraki-asamalar.md` Aşama 6 bunu zaten
 yazıyor: ölçüm, üretim kodunu değiştirmeyen tek maddedir.
 
-**MEVCUT KODA DOKUNUR MU** — ██ Hayır. ██ Tek satır değişmez.
+**MEVCUT KODA DOKUNUR MU** — ***Hayır.*** Tek satır değişmez.
 
 **GERİ DÖNÜŞ** — Gerekmiyor.
 
-██ Bu basamak neden 0 numaralı: ██ 1'den 6'ya kadarki her basamağın "ÖLÇÜM"
+***Bu basamak neden 0 numaralı:*** 1'den 6'ya kadarki her basamağın "ÖLÇÜM"
 satırı bunun var olduğunu varsayıyor. Ölçüm aygıtı olmadan merdiven bir
 **hikâyeye** dönüşür.
 
@@ -745,7 +745,7 @@ satırı bunun var olduğunu varsayıyor. Ölçüm aygıtı olmadan merdiven bir
 **NE EKLENİR** — Tek bir Inspector değeri. `BoardAdapter.cs:113` ve `:114`
 alanları `[SerializeField]`, yani kod derlemeden değiştirilebiliyor.
 
-**GÖRÜNÜR KILAR** — ██ Tam tarama maliyeti. ██ `Battle.cs:528`'deki
+**GÖRÜNÜR KILAR** — ***Tam tarama maliyeti.*** `Battle.cs:528`'deki
 `TryGetPosition` tahtayı `Width × Height` tarıyor:
 
 ```
@@ -759,11 +759,11 @@ bugün      3 × 5    =     15 hücre
 200 × 200           = 40.000 hücre      ── 2.666 kat
 ```
 
-██ Bu, `03-kavram-borc-defteri.md`'deki tek ilgili **KISMİ** satırın tam
-karşılığı: ██ "Tarama maliyeti ve karmaşıklık — EKSİK: karmaşıklık gösterimi ve
+***Bu, `03-kavram-borc-defteri.md`'deki tek ilgili **KISMİ** satırın tam
+karşılığı:*** "Tarama maliyeti ve karmaşıklık — EKSİK: karmaşıklık gösterimi ve
 ölçüm; bugün tahta 15 hücre." Bu basamak o eksiği kapatır.
 
-**ÖLÇÜM** — ██ Ve burada dürüst bir düzeltme gerekiyor: ██ [YEREL ÖLÇÜM]
+**ÖLÇÜM** — ***Ve burada dürüst bir düzeltme gerekiyor:*** [YEREL ÖLÇÜM]
 2026-08-23, `TryGetPosition`ın üretim kodundaki çağıranları sayıldı — **iki
 tane**, ve ikisi de kare başına yolda **değil**:
 
@@ -786,15 +786,15 @@ dosyası var ve bir kısmı sabit koordinat kullanıyor. Tahta büyürken **test
 kırılmaz** (büyük tahtada küçük koordinatlar hâlâ geçerli), ama tahta
 küçültülürse kırılır.
 
-**MEVCUT KODA DOKUNUR MU** — ██ Hayır. ██ Inspector değeri.
+**MEVCUT KODA DOKUNUR MU** — ***Hayır.*** Inspector değeri.
 
 **GERİ DÖNÜŞ** — İki sayıyı geri yaz.
 
 ### Basamak 2 · Birim sayısını artır — 2 → 200 → 2.000
 
 **NE EKLENİR** — `BoardAdapter.cs:267-268`'deki iki `SpawnUnit` çağrısı yerine
-bir döngü. ██ Bu basamak mevcut koda **dokunuyor** — merdivenin ilk dokunan
-basamağı. ██
+bir döngü. ***Bu basamak mevcut koda **dokunuyor** — merdivenin ilk dokunan
+basamağı.***
 
 **GÖRÜNÜR KILAR** — Üç şey birden:
 ① **Yaratma maliyeti.** `BoardAdapter.cs:739`'daki `Instantiate` bugün yalnız
@@ -803,12 +803,12 @@ iki kez çalışıyor. 2.000 kez çalıştığında yükleme süresi **görünü
 konusu hâline gelir.
 ② **Sözlük büyümesi.** Dört yan tablo 2.000 girdiye çıkar. `Dictionary`'nin
 yeniden boyutlandırma davranışı ölçülebilir olur.
-③ ██ **Ve asıl olan: `Battle.Tick`in kare başına dolaştığı varlık sayısı** ██ —
+③ *****Ve asıl olan: `Battle.Tick`in kare başına dolaştığı varlık sayısı***** —
 2'den 2.000'e. Bu, ECS tartışmasının **tek gerçek girdisidir**.
 
 **ÖLÇÜM** — Profiler'da `BoardAdapter.Update` → `Battle.Tick`. Kanıt kovası:
-PlayMode. ██ Ve beklenen sonuç dürüstçe yazılmalı: ██ 2.000 varlıkta bile
-`Tick`in yaptığı iş `UnitLifecycle.cs:188`'deki erken dönüş yüzünden neredeyse
+PlayMode. ***Ve beklenen sonuç dürüstçe yazılmalı:*** 2.000 varlıkta bile
+`Tick`in yaptığı iş `UnitLifecycle.cs:197`'deki erken dönüş yüzünden neredeyse
 sıfır kalacaktır. Yani bu basamak tek başına ECS'i **haklı çıkarmaz** — ve bunu
 görmek basamağın asıl dersidir.
 
@@ -818,7 +818,7 @@ görmek basamağın asıl dersidir.
 ② Tahta kapasitesi: 2.000 birim en az `2.000` hücre ister, yani Basamak 1 bunun
 **ön koşuludur**.
 
-**MEVCUT KODA DOKUNUR MU** — ██ Evet, iki satır. ██ Ama dokunuş yalıtılabilir:
+**MEVCUT KODA DOKUNUR MU** — ***Evet, iki satır.*** Ama dokunuş yalıtılabilir:
 iki `SpawnUnit` çağrısı bir `[SerializeField] private int demoUnitCount` ile
 sarılabilir ve varsayılan 2 kalabilir. O gün mevcut davranış **bit düzeyinde**
 korunur.
@@ -831,7 +831,7 @@ korunur.
 geçiyor. Bu basamak **sürekli hareket** ekliyor — birim hedefe doğru her karede
 biraz ilerliyor.
 
-**GÖRÜNÜR KILAR** — ██ Merdivenin en önemli basamağı bu. ██ Basamak 2'nin
+**GÖRÜNÜR KILAR** — ***Merdivenin en önemli basamağı bu.*** Basamak 2'nin
 gösterdiği şey "2.000 varlık var ama iş yok"tu. Bu basamak **işi** koyuyor:
 
 ```
@@ -839,12 +839,12 @@ gösterdiği şey "2.000 varlık var ama iş yok"tu. Bu basamak **işi** koyuyor
 sonrası  kare başına iş = 2.000 × (konum güncelle + hedef kontrol + sınır kontrol)
 ```
 
-██ İşte ECS'in optimize ettiği profil tam olarak budur ██ ve bu basamak onu ilk
+***İşte ECS'in optimize ettiği profil tam olarak budur*** ve bu basamak onu ilk
 kez **bu projede** üretiyor. Buraya gelmeden ECS hakkında yapılacak her ölçüm
 boş bir aralığı ölçer.
 
 **ÖLÇÜM** — Profiler'da `Battle.Tick`in milisaniye payı. Kanıt kovası: PlayMode,
-ve ██ burada ilk kez **hedef cihaz** kovası anlamlı hâle gelir ██ — bu makine
+ve ***burada ilk kez **hedef cihaz** kovası anlamlı hâle gelir*** — bu makine
 (16 çekirdek, 64 MB L3) darboğazı **gizler**.
 
 **KIRDIĞI KARAR** — Üç tanesi, ve üçü de büyük:
@@ -856,43 +856,43 @@ yol bulma (`03-kavram-borc-defteri.md`'de `HENÜZ YOK`) gündeme girer.
 ③ **EditMode test yüzeyi.** Zamana yayılan bir hareket, tek bir `Tick`te bitmez;
 testler `Tick`i döngüde çağırmak zorunda kalır.
 
-**MEVCUT KODA DOKUNUR MU** — ██ Evet, derinden. ██ Bu basamak bir "ayar" değil,
-bir oyun tasarımı değişikliği. ██ Merdivende geri dönüşü en zor basamak budur. ██
+**MEVCUT KODA DOKUNUR MU** — ***Evet, derinden.*** Bu basamak bir "ayar" değil,
+bir oyun tasarımı değişikliği. ***Merdivende geri dönüşü en zor basamak budur.***
 
 **GERİ DÖNÜŞ** — Ayrı bir dalda yapılmalı. Bu basamak bir Inspector değeriyle
 geri alınamaz.
 
-### Basamak 4 · Job System — ██ TEK BAŞINA, ECS'siz, Burst'süz ██
+### Basamak 4 · Job System — ***TEK BAŞINA, ECS'siz, Burst'süz***
 
 **NE EKLENİR** — Basamak 3'teki konum güncellemesi bir `IJobParallelFor`a taşınır.
 Veri bir `NativeArray<float2>`e kopyalanır, job koşar, sonuç geri yazılır.
 
 **GÖRÜNÜR KILAR** — Dört şey ve dördü de bu belgenin ikinci durağının konusu:
-① ██ **DOTS'un üç parçasının gerçekten ayrılabildiği.** ██ ECS yok, Entities
+① *****DOTS'un üç parçasının gerçekten ayrılabildiği.***** ECS yok, Entities
 paketi yok, Editor sürümü yükseltilmedi — ve yine de paralellik var.
 ② `NativeArray` sahipliği: `Dispose` kimin işi, `Allocator.TempJob` ne demek.
 ③ Güvenlik sisteminin **kızması**: iki job aynı diziye yazdırılmaya çalışılınca
 zamanlama anında hata. Bunu bir kez görmek, "veri yarışı" kelimesini kalıcı
 olarak öğretir.
-④ ██ Yanlış paylaşım (false sharing) ██ — `JobsUtility.CacheLineSize = 64`
+④ ***Yanlış paylaşım (false sharing)*** — `JobsUtility.CacheLineSize = 64`
 sabitinin neden var olduğu, ancak burada görünür.
 
 **ÖLÇÜM** — Aynı iş yükü, aynı varlık sayısı, tek iş parçacığı ve job hâli
-yan yana. Kanıt kovası: PlayMode ve hedef cihaz. ██ Ve bu makinede ölçülen kazanç
-**yanıltıcı olacak**: ██ 16 çekirdek, tipik bir hedef cihazda yok.
+yan yana. Kanıt kovası: PlayMode ve hedef cihaz. ***Ve bu makinede ölçülen kazanç
+**yanıltıcı olacak**:*** 16 çekirdek, tipik bir hedef cihazda yok.
 
 **KIRDIĞI KARAR** — İki tanesi:
-① ██ `noEngineReferences: true` ██ — [YEREL ÖLÇÜM] `GridStrategy.Core`,
+① ***`noEngineReferences: true`*** — [YEREL ÖLÇÜM] `GridStrategy.Core`,
 `GridStrategy.Combat` ve `GridStrategy.Battle` asmdef'lerinin üçü de bu satırı
 taşıyor. `Unity.Jobs` ve `Unity.Collections` motor çekirdeğinde, yani bir job
 yazıldığı gün ilgili asmdef motoru **tanımak zorunda** kalır. Duvarın faturası:
 [`../deep/konular/02-assembly-duvari.md`](../deep/konular/02-assembly-duvari.md).
 ② EditMode testlerinin sahnesiz koşabilmesi — job zamanlaması motor bağımlı.
 
-██ Kaçış yolu var ve önemli: ██ job'lar yalnız Unity katmanında (`GridStrategy.Unity`,
+***Kaçış yolu var ve önemli:*** job'lar yalnız Unity katmanında (`GridStrategy.Unity`,
 `noEngineReferences: false`) yazılırsa duvar ayakta kalır. O gün çekirdek saf C#
-kalır, paralellik motor tarafında yaşar. ██ Bu, merdivendeki en öğretici mimari
-karardır ve ECS'e hiç gerek duymaz. ██
+kalır, paralellik motor tarafında yaşar. ***Bu, merdivendeki en öğretici mimari
+karardır ve ECS'e hiç gerek duymaz.***
 
 **MEVCUT KODA DOKUNUR MU** — Basamak 3'ün eklediği koda dokunur; bugünkü koda
 hayır.
@@ -900,23 +900,23 @@ hayır.
 **GERİ DÖNÜŞ** — Job çağrısı yerine düz döngü. İkisi yan yana **bırakılabilir**
 ve bir bayrakla seçilebilir — ölçüm için doğru olan da budur.
 
-### Basamak 5 · Burst — ██ TEK BAŞINA, Basamak 4'ün üstüne ██
+### Basamak 5 · Burst — ***TEK BAŞINA, Basamak 4'ün üstüne***
 
 **NE EKLENİR** — Basamak 4'teki job'a bir `[BurstCompile]` niteliği. Başka
 hiçbir şey.
 
-**GÖRÜNÜR KILAR** — ██ "Burst açılınca hızlanır" yanlış modelinin ölümü. ██
+**GÖRÜNÜR KILAR** — ***"Burst açılınca hızlanır" yanlış modelinin ölümü.***
 İki sonuçtan biri çıkar ve ikisi de öğretir:
 ① Job zaten HPC# alt kümesindeyse derlenir ve bir fark ölçülür.
-② Bir yerde bir `string`, bir `class`, bir `try`/`catch` varsa ██ derlenmez ve
-hiçbir şey olmaz ██ — Burst Inspector penceresinde bunun **neden** olmadığı
+② Bir yerde bir `string`, bir `class`, bir `try`/`catch` varsa ***derlenmez ve
+hiçbir şey olmaz*** — Burst Inspector penceresinde bunun **neden** olmadığı
 okunabilir.
 
-██ İkinci sonuç birincisinden daha değerli. ██ Bir kez görüldüğünde "Burst bir
+***İkinci sonuç birincisinden daha değerli.*** Bir kez görüldüğünde "Burst bir
 düğme değil bir sözleşme" cümlesi ezber olmaktan çıkar.
 
-**ÖLÇÜM** — Aynı job, Burst açık ve kapalı. Kanıt kovası: PlayMode ve ██ özellikle
-hedef cihaz ██ — Burst'ün kazancı işlemci mimarisine bağlı ve bu makinedeki sayı
+**ÖLÇÜM** — Aynı job, Burst açık ve kapalı. Kanıt kovası: PlayMode ve ***özellikle
+hedef cihaz*** — Burst'ün kazancı işlemci mimarisine bağlı ve bu makinedeki sayı
 bir telefonu temsil etmez.
 
 **KIRDIĞI KARAR** — Bir tanesi ve ince: `com.unity.burst` bugün **dolaylı** bir
@@ -928,13 +928,13 @@ gider.
 
 **GERİ DÖNÜŞ** — Niteliği sil. Tek satır.
 
-### Basamak 6 · ██ Aynı mantığı ECS ile İKİNCİ KEZ yaz ██
+### Basamak 6 · ***Aynı mantığı ECS ile İKİNCİ KEZ yaz***
 
 **NE EKLENİR** — Editor sürümü yükseltmesi (2022.3+, birincil kaynaktan zorunlu),
 `com.unity.entities`, ve Basamak 3'teki hareket mantığının **ikinci bir
 uygulaması**: `IComponentData` struct'ları, bir `ISystem`, bir sorgu.
 
-██ Ve buradaki tek doğru yöntem: ██ eskisini **silmeden**. İki uygulama yan yana
+***Ve buradaki tek doğru yöntem:*** eskisini **silmeden**. İki uygulama yan yana
 durur, aynı iş yükünü koşar, aynı Profiler penceresinde ölçülür.
 
 **GÖRÜNÜR KILAR** — Beş şey:
@@ -943,25 +943,25 @@ durur, aynı iş yükünü koşar, aynı Profiler penceresinde ölçülür.
 olduğu gibi taşınamaz.
 ③ Bir sorgunun bir `foreach`ten farkı.
 ④ Zamanlayıcının döngüyü çevirmesi; `[UpdateInGroup]` ile sıra kararı.
-⑤ ██ Ve ölçülen fark. ██ Yan yana ölçüm olmadan bu basamağın hiçbir değeri yok.
+⑤ ***Ve ölçülen fark.*** Yan yana ölçüm olmadan bu basamağın hiçbir değeri yok.
 
 **ÖLÇÜM** — İki uygulama, aynı varlık sayısı, aynı sahne, aynı derleme, aynı
 ısınma. Mentor arşivindeki havuz karşılaştırma sözleşmesi burada da geçerli:
 kalite kazananı, hız kazananı, bellek kazananı ve varsayılan kazananı **ayrı
 ayrı** raporlanır.
 
-**KIRDIĞI KARAR** — ██ Neredeyse hepsi. ██ `02-sonraki-asamalar.md` Aşama 5'in
+**KIRDIĞI KARAR** — ***Neredeyse hepsi.*** `02-sonraki-asamalar.md` Aşama 5'in
 D alanı bunu zaten sayıyor: okunabilir nesne modeli, 26 EditMode test dosyasının
 kurulum yarısı, `noEngineReferences` duvarı, `Docs/deep/kod/` altındaki 33 ayna
 belgenin tip başına bölünmesi.
 
-Buraya bir tane daha eklenir: ██ Editor sürümü yükseltmesi kendi başına bir
-turdur ██ ve bu depodaki dört makine kapısı (`check-doc-code-refs.py`,
+Buraya bir tane daha eklenir: ***Editor sürümü yükseltmesi kendi başına bir
+turdur*** ve bu depodaki dört makine kapısı (`check-doc-code-refs.py`,
 `check-doc-links.py`, `check-curriculum-coverage.py`, `check-cross-file-refs.py`)
 ile 26 test dosyası yükseltmeden sonra yeniden koşturulmalıdır.
 
 **MEVCUT KODA DOKUNUR MU** — Hayır, eğer ikinci uygulama **ayrı bir asmdef**te
-yaşarsa. ██ Ve yaşamalıdır. ██
+yaşarsa. ***Ve yaşamalıdır.***
 
 **GERİ DÖNÜŞ** — İkinci asmdef silinir. Editor sürümü geri alınmaz — o karar tek
 yönlüdür ve merdivenin en sonunda olmasının sebebi budur.
@@ -978,7 +978,7 @@ yönlüdür ve merdivenin en sonunda olmasının sebebi budur.
 | 5 | Burst | "düğme değil sözleşme" | hayır | tek satır |
 | 6 | ECS, ikinci uygulama | yerleşim farkı — ölçülerek | hayır (ayrı asmdef) | asmdef sil |
 
-██ Merdivenin okunma kuralı: ██ 0 → 1 → 2 → 3 zorunlu sıradır, çünkü 3 olmadan
+***Merdivenin okunma kuralı:*** 0 → 1 → 2 → 3 zorunlu sıradır, çünkü 3 olmadan
 4, 5 ve 6'nın ölçeceği bir iş yükü yoktur. 4 ve 5 birbirine bağlıdır. 6 ise
 **hiçbir zaman zorunlu değildir** — 0'dan 5'e kadar giden biri DOTS'un üç
 parçasından ikisini eliyle çalıştırmış, üçüncüsünü de neden ertelediğini ölçüyle
@@ -988,13 +988,13 @@ biliyor olur.
 
 ## Altıncı durak: gerçek dünya — kim kullanıyor, kim KULLANMIYOR
 
-██ Bu bölümün kuralı sert: uydurma vaka çalışması bu belgenin en pahalı hatası
-olurdu. ██ Aşağıda yalnız doğrulanabilen adlar var, ve doğrulanamayanlar
+***Bu bölümün kuralı sert: uydurma vaka çalışması bu belgenin en pahalı hatası
+olurdu.*** Aşağıda yalnız doğrulanabilen adlar var, ve doğrulanamayanlar
 işaretli.
 
 ### Doğrulanmış — Unity'nin kendi vaka listesi
 
-[BİRİNCİL, kısmi] 2026-08-23'te doğrulandı. ██ Kaynak sınırı: ██ `unity.com`
+[BİRİNCİL, kısmi] 2026-08-23'te doğrulandı. ***Kaynak sınırı:*** `unity.com`
 alan adı bu turda doğrudan getirilemedi (sunucu 403 döndü); aşağıdaki adlar ve
 cümleler **arama dizini üzerinden** okundu. Yani ad ve iş doğrulandı, sayfanın
 kendisi elle açılmadı.
@@ -1009,18 +1009,18 @@ Detonation Racing   Electric Square     Apple Arcade yarış — belirlenimci oy
 IXION               Kasedo Games        şehir kurma / hayatta kalma — ağır NPC simülasyonu
 ```
 
-██ Ve bu listedeki tek **maliyet** sayısı, ki en öğretici olan da o: ██ Stunlock
+***Ve bu listedeki tek **maliyet** sayısı, ki en öğretici olan da o:*** Stunlock
 ekibi Entities 1.0'a geçerken V Rising'in kurulum (authoring) sistemini altı ayda
 sıfırdan yeniden yazdı — yaklaşık 1.000 `IConvertGameObjectToEntity` ve 140
 `GameObjectConversionSystem`. [BİRİNCİL, kısmi] aynı 403 sınırıyla.
 
-██ Bu sayı bir başarı hikâyesi değil, bir **fiyat etiketi**. ██ ECS'in bedeli bir
+***Bu sayı bir başarı hikâyesi değil, bir **fiyat etiketi**.*** ECS'in bedeli bir
 kütüphane eklemek değil; kurulum yolunun tamamının yeniden yazılması. Bu depoda
 karşılığı: 26 sınıf, 26 EditMode test dosyası, üç asmdef.
 
-### ██ KARŞI ÖRNEK — binlerce varlık, ECS YOK ██
+### ***KARŞI ÖRNEK — binlerce varlık, ECS YOK***
 
-██ Bu, bölümün en değerli satırı, çünkü sezgiyi kırıyor. ██
+***Bu, bölümün en değerli satırı, çünkü sezgiyi kırıyor.***
 
 `02-sonraki-asamalar.md`'nin ÜÇ OYUN satırları Vampire Survivors'ı defalarca
 "eşiğin gerçekten aşıldığı yer" diye işaretliyor — ve bu **iş profili** olarak
@@ -1033,10 +1033,10 @@ doğru. Ama iş profilinin doğru olması, çözümün ECS olduğu anlamına gel
    YAPILAMADI.
 
 [DOĞRULANABİLİR OLGU] Unity'nin resmî ECS vaka listesinde Vampire Survivors
-   ██ YOK ██. Listede V Rising, Zenith, Detonation Racing ve IXION var.
+   >> YOK <<. Listede V Rising, Zenith, Detonation Racing ve IXION var.
 ```
 
-██ Sonuç, dikkatli hâliyle: ██ ekranda binlerce varlığın bulunması ECS'i
+***Sonuç, dikkatli hâliyle:*** ekranda binlerce varlığın bulunması ECS'i
 **gerektirmez**. Bir HTML5 motorunda çalışabilen bir oyun için Unity'nin
 Entities paketi zorunlu değildir. ECS bir **seçenektir**, bir eşik geçildiğinde
 otomatik olarak doğru olan bir cevap değil.
@@ -1062,8 +1062,8 @@ varlıklar birbirine az bağlı               varlıklar karmaşık ilişkilerde
    kalabalık RTS, parçacık dünyaları          tabanlı taktik, bulmaca, anlatı
 ```
 
-██ Bu proje sağ sütunda ve orada kalması bir eksiklik değil, tür kararının
-sonucu. ██
+***Bu proje sağ sütunda ve orada kalması bir eksiklik değil, tür kararının
+sonucu.***
 
 ### ECS'in NE KAZANDIRMADIĞI — sağ sütundaki bir oyun için
 
@@ -1084,25 +1084,25 @@ sonucu. ██
 
 ## Üç oyun — "varlık sayısı ve kare başı iş nasıl ölçekleniyor"
 
-██ Yalnız ad ve iş; oynanış anlatısı yok. ██ Doğrulanmamış satırlar işaretli.
+***Yalnız ad ve iş; oynanış anlatısı yok.*** Doğrulanmamış satırlar işaretli.
 
 **Slay the Spire** — Ekranda onlarca eleman: eldeki kartlar, birkaç düşman, bir
 avuç kalıntı. Kare başına iş, oyuncu bir kart oynayana kadar sıfıra yakın; oynadığı
-anda bir zincir çalışır ve biter. ██ Varlık sayısı sabit, kare başı iş olay
-güdümlü. ██ ECS'in kazanacağı hiçbir şey yok — bu profil bu projenin profili.
+anda bir zincir çalışır ve biter. ***Varlık sayısı sabit, kare başı iş olay
+güdümlü.*** ECS'in kazanacağı hiçbir şey yok — bu profil bu projenin profili.
 
-**Vampire Survivors** — ██ EŞLEŞMEYEN, ama ters yönde. ██ Ekranda aynı anda
+**Vampire Survivors** — ***EŞLEŞMEYEN, ama ters yönde.*** Ekranda aynı anda
 yüzlerce/binlerce düşman ve mermi; her karede konum, çarpışma ve ömür güncelleniyor.
-██ Varlık sayısı büyüyor VE kare başı iş varlık sayısıyla çarpılıyor — ECS'in
-optimize ettiği tek profil budur. ██ Eşleşmemesinin sebebi: bu belgede anlatılan
+***Varlık sayısı büyüyor VE kare başı iş varlık sayısıyla çarpılıyor — ECS'in
+optimize ettiği tek profil budur.*** Eşleşmemesinin sebebi: bu belgede anlatılan
 her şeyin **karşıt örneği**, ve yukarıda ölçüldüğü gibi bunu ECS **kullanmadan**
 yapıyor. [İKİNCİL KAYNAK — motor geçmişi doğrulanmadı; ECS kullanmadığı ise
 Unity'nin resmî vaka listesinde bulunmamasıyla dolaylı olarak destekleniyor]
 
 **Stardew Valley** — Kasabada yüzlerce varlık (ekin, hayvan, köylü, eşya) ama
 çoğunun işi **günde bir kez** çalışıyor: gün sonu hesabı. Kare başına iş, ekranda
-görünen küçük bir alt kümeyle sınırlı. ██ Varlık sayısı büyük, kare başı iş
-küçük — ikisi ayrışıyor. ██ Bu ayrışma ECS'in eşiğini **uzaklaştırıyor**: çok
+görünen küçük bir alt kümeyle sınırlı. ***Varlık sayısı büyük, kare başı iş
+küçük — ikisi ayrışıyor.*** Bu ayrışma ECS'in eşiğini **uzaklaştırıyor**: çok
 varlık tek başına yeterli değil, işin **her karede** tekrarlanması gerekiyor.
 [DOĞRULANMADI — bu üç oyunun hiçbirinin iç mimarisi birincil kaynakla
 doğrulanmadı; satırlar oyunun gözlemlenebilir davranışından çıkarıldı]
@@ -1111,7 +1111,7 @@ doğrulanmadı; satırlar oyunun gözlemlenebilir davranışından çıkarıldı
 
 ## Araştırılacaklar — o gün açılacak sorular
 
-██ `performance-research` çıktısı. Bugün cevaplayamadığım her soru burada; ██
+***`performance-research` çıktısı. Bugün cevaplayamadığım her soru burada;***
 cevaplamış gibi yapılmadı. Her satır dört alan taşıyor.
 
 **S1 · Bir chunk gerçekte kaç varlık alır?**
@@ -1132,7 +1132,7 @@ durmak doğru karar olur.
 **S3 · Bu projenin hedef platformu ne, ve kaç çekirdeği var?**
 *Kaynak:* `ProjectSettings` derleme hedefi; hedef cihazın işlemci künyesi.
 *Ölçüm:* Bir Development Build alıp hedef cihazda Profiler'a bağlanmak.
-*Hangi kararı değiştirir:* ██ Basamak 4'ün (Job System) tamamı. ██ Bu makinede
+*Hangi kararı değiştirir:* ***Basamak 4'ün (Job System) tamamı.*** Bu makinede
 16 çekirdek var; hedefte 4 varsa paralellik kazancının tavanı dörtte bire iner.
 Bugün bu depoda **hiçbir hedef platform kararı yazılı değil**. [DOĞRULANMADI]
 
@@ -1187,7 +1187,7 @@ sorusu.
 
 ---
 
-## ██ DOĞRULANMADI ██ — bu turda kapatılamayanlar
+## ***DOĞRULANMADI*** — bu turda kapatılamayanlar
 
 Dürüstlük listesi. Yukarıdaki metinde geçen ve **doğrulanamayan** her iddia:
 
@@ -1204,7 +1204,7 @@ Dürüstlük listesi. Yukarıdaki metinde geçen ve **doğrulanamayan** her iddi
 ③ Vampire Survivors'ın motor geçmişi (Phaser → Unity) yalnız ikincil
    kaynaklarda. Birincil doğrulama yok. ECS kullanmadığı ise doğrudan
    kanıtlanmadı — Unity'nin resmî vaka listesinde bulunmamasıyla dolaylı olarak
-   destekleniyor. ██ Yokluk kanıtı, kanıt değildir. ██
+   destekleniyor. >> Yokluk kanıtı, kanıt değildir. <<
 
 ④ Bir chunk'ın gerçek varlık kapasitesi (16 KiB'ın ne kadarı başlık, ne kadarı
    veri) doğrulanmadı. "Satır başına 16 varlık" bir ÇIKARIM ve üst sınırdır.
@@ -1237,7 +1237,7 @@ Dürüstlük listesi. Yukarıdaki metinde geçen ve **doğrulanamayan** her iddi
                  ┌───────────────┴───────────────┐
                 HAYIR                           EVET
                  │                               │
-        ██ DUR. Bakma. ██          Darboğazın sahibi kim (Profiler)?
+        >> DUR. Bakma. <<          Darboğazın sahibi kim (Profiler)?
         Basamak 0'ı yap:                         │
         önce ölç.                ┌───────────────┼──────────────┐
                               çizim          bellek/GC      CPU, çok varlık
@@ -1257,11 +1257,11 @@ Dürüstlük listesi. Yukarıdaki metinde geçen ve **doğrulanamayan** her iddi
                                                                ③ HÂLÂ yetmiyorsa
                                                                   ve ekip bedeli
                                                                   ödeyebiliyorsa
-                                                                  ██ ECS ██
+                                                                  >> ECS <<
 ```
 
-██ Karar ağacının en önemli özelliği: ECS'e giden yolda **üç kapı** var ve üçü de
-"hayır" diyebilir. ██ ECS son çare değil — ECS **en pahalı** çare, ve pahalılığı
+***Karar ağacının en önemli özelliği: ECS'e giden yolda **üç kapı** var ve üçü de
+"hayır" diyebilir.*** ECS son çare değil — ECS **en pahalı** çare, ve pahalılığı
 hız değil **değiştirme maliyeti** cinsinden.
 
 Bu projede bugün ağacın **ilk düğümünde** duruluyor ve cevap "HAYIR". Doğru
@@ -1279,7 +1279,7 @@ hamle: Basamak 0.
    Burst bir PAKET ve zaten kurulu (com.unity.burst 1.8.18, "depth": 3),
    Entities ise NE kurulu NE de bu Editor sürümünde kurulabilir
    (Entities 1.0 belgesi: "you must have Unity version 2022.3.0f1 and later").
-   ██ Üç teslim yolu, üç ayrı karar. ██
+   >> Üç teslim yolu, üç ayrı karar. <<
 
 "Burst açılınca hızlanır"
    DEĞİL. Burst rastgele C# derlemez; HPC# denen bir alt küme derler ve o alt
@@ -1288,7 +1288,7 @@ hamle: Basamak 0.
    Derleyemediği bir metot SESSİZCE yönetilen yoldan koşar.
    ÖLÇÜ, bu depodan: Burst kurulu, [BurstCompile] işaretli metot sayısı 0,
    kullanıcı tanımlı struct sayısı 0, class sayısı 26.
-   ██ Yani bugünkü kodun hiçbiri o alt kümeye girmiyor. ██
+   >> Yani bugünkü kodun hiçbiri o alt kümeye girmiyor. <<
    Burst bir düğme değil, bir SÖZLEŞME.
 
 "ECS'in kazancı veriyi davranıştan ayırmasıdır"
@@ -1296,7 +1296,7 @@ hamle: Basamak 0.
    tiplerinin alanı yok (TargetingRules.cs:31, DamageRules.cs:24,
    TurnRules.cs:28, MovementRules.cs:22 — dördü de `static class`), varlıkların
    kuralı yok (Unit.cs:41 — tek üye bir ad).
-   ██ ECS'in ikinci ve asıl kararı YERLEŞİM: ██ aynı tipteki bileşenler 16 KiB'lık
+   >> ECS'in ikinci ve asıl kararı YERLEŞİM: << aynı tipteki bileşenler 16 KiB'lık
    chunk'larda BİTİŞİK dizilerde durur (Entities 1.0.16 belgesi, 2026-08-23).
    Bu projede depo dört Dictionary ve bitişiklik diye bir şey yok.
    Birinci yarıyı yapıp ikincisini yapmamak TAM OLARAK doğru karardır —
@@ -1307,22 +1307,22 @@ hamle: Basamak 0.
 
 ## Kaçış yolu — ECS olmadan aynı sorunlar nasıl çözülür
 
-██ Bu bölüm merdivenin sigortası: ██ Basamak 3'te iş yükü üretildiğinde ilk
+***Bu bölüm merdivenin sigortası:*** Basamak 3'te iş yükü üretildiğinde ilk
 refleks ECS olmamalı. Aynı sorunların ECS'siz cevapları:
 
 ```
 SORUN                          ECS'SİZ CEVAP                        BU PROJEDEKİ HÂLİ
 ─────────────────────────      ──────────────────────────────       ──────────────────
 Çok varlık, çok tarama         Uzamsal bölümleme (ızgara kovası)    UnitGrid ZATEN bir ızgara
-Kare başına gereksiz iş        Erken çıkış                          UnitLifecycle.cs:188
+Kare başına gereksiz iş        Erken çıkış                          UnitLifecycle.cs:197
 Kare başına tahsis             Tampon yeniden kullanımı             BoardAdapter.cs:210 cleanupBuffer
 Yaratma/yok etme maliyeti      Nesne havuzu                         02-sonraki-asamalar.md Aşama 2
-Tek çekirdek dolu              Job System — ██ ECS'SİZ ██           Basamak 4
-Yorumlanan kod yavaş           Burst — ██ ECS'SİZ ██                Basamak 5
+Tek çekirdek dolu              Job System — >> ECS'SİZ <<           Basamak 4
+Yorumlanan kod yavaş           Burst — >> ECS'SİZ <<                Basamak 5
 Dağınık bellek                 Struct dizisi (SoA) elle             HENÜZ YOK → Basamak 6 öncesi denenebilir
 ```
 
-██ Son satır merdivende olmayan gizli bir basamak ve kasten öyle: ██ ECS'e
+***Son satır merdivende olmayan gizli bir basamak ve kasten öyle:*** ECS'e
 geçmeden, elle bir `struct` dizisi (`Health[]`, `Position[]`) yazıp aynı bitişik
 yerleşimi kendi ellerinle kurmak mümkündür. Kazancın büyük kısmı oradan gelir,
 ve bedeli bir paket bile değildir. Merdivende ayrı bir basamak olarak
@@ -1371,8 +1371,8 @@ Assets/Game/Core/Combat/Health.cs:76           public void Heal(int amount)
 Assets/Game/Core/Combat/MovementRules.cs:22    public static class MovementRules
 Assets/Game/Core/Combat/MovementRules.cs:47    public static bool CanMove(UnitState state)
 Assets/Game/Core/Combat/TargetingRules.cs:31   public static class TargetingRules
-Assets/Game/Core/Combat/UnitLifecycle.cs:176   public void Tick(float deltaSeconds)
-Assets/Game/Core/Combat/UnitLifecycle.cs:188   if (State == UnitState.Alive)
+Assets/Game/Core/Combat/UnitLifecycle.cs:185   public void Tick(float deltaSeconds)
+Assets/Game/Core/Combat/UnitLifecycle.cs:197   if (State == UnitState.Alive)
 Assets/Game/Unity/BoardAdapter.cs:113          [SerializeField, Min(1)] private int width = 3;
 Assets/Game/Unity/BoardAdapter.cs:114          [SerializeField, Min(1)] private int height = 5;
 Assets/Game/Unity/BoardAdapter.cs:199          private readonly Dictionary<Unit, UnitView> unitViews =

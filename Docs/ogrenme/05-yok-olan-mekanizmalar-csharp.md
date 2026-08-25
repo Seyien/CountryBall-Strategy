@@ -3,8 +3,8 @@
 **Alt başlık:** dilin sunduğu ama bu projenin **henüz almadığı** mekanizmalar —
 ve onların arkada gerçekte ne yaptığı.
 
-██ Bir mekanizmanın projede **olmadığını** bilmek, onun **arkada ne yaptığını**
-bilmek değildir. ██ `Assets/Game/` altında `yield` de `await` de sıfır kez
+***Bir mekanizmanın projede **olmadığını** bilmek, onun **arkada ne yaptığını**
+bilmek değildir.*** `Assets/Game/` altında `yield` de `await` de sıfır kez
 geçiyor; bu, bu dosyanın **başlangıcı**, sonucu değil. Buradaki tek soru şu:
 `yield return` ve `await` gördüğünde **derleyici o metodu neye çeviriyor**.
 
@@ -25,7 +25,7 @@ Yani: motor tarafı `08`'in, `foreach` tarafı `dil/02`'nin, "ne zaman" tarafı
 
 ## Ölçüm künyesi — bu dosyadaki iddialar nasıl ölçüldü
 
-██ "Derleyici şunu üretir" diyen her cümle **çalıştırılarak** ölçüldü ██ —
+***"Derleyici şunu üretir" diyen her cümle **çalıştırılarak** ölçüldü*** —
 `sharplab.io` gibi bir çevrimiçi araç kullanılmadı; zincir bu makinedeki Unity
 kurulumunun **kendi** araçlarıyla kuruldu:
 
@@ -43,7 +43,7 @@ TARİH  2026-08-23        SÜRÜM  Unity 2021.3.45f2 (88f88f591b2e)
 ```
 
 Ölçüm kaynağı bu depoya **girmedi**: deneyler geçici bir dizinde derlendi, buraya
-yalnız sökülen IL ve koşum çıktısı alıntılandı. ██ Dürüst sınır ██ —
+yalnız sökülen IL ve koşum çıktısı alıntılandı. ***Dürüst sınır*** —
 derleyicinin ürettiği **adlar** bir sözleşme değildir (ölçülmüş karşı örneği
 birinci durağın sonunda); sözleşme olan şey **şekil**: durum alanı + `MoveNext`
 + alanlara dönüşen yereller.
@@ -67,7 +67,7 @@ public static IEnumerator Yurut(int tekrar)
 }
 ```
 
-### ██ Derlendikten sonra bu bir metot DEĞİLDİR ██
+### ***Derlendikten sonra bu bir metot DEĞİLDİR***
 
 Sökülen IL, harfi harfine:
 
@@ -80,13 +80,13 @@ Sökülen IL, harfi harfine:
 {
   .field private int32  '<>1__state'      ◄── NEREDE KALDIK
   .field private object '<>2__current'    ◄── EN SON NE VERDİK
-  .field public  int32  tekrar            ◄── ██ ARGÜMAN, ARTIK BİR ALAN ██
-  .field private int32  '<adim>5__1'      ◄── ██ YEREL DEĞİŞKEN, ARTIK BİR ALAN ██
+  .field public  int32  tekrar            ◄── >> ARGÜMAN, ARTIK BİR ALAN <<
+  .field private int32  '<adim>5__1'      ◄── >> YEREL DEĞİŞKEN, ARTIK BİR ALAN <<
 }
 ```
 
 Üç şey birden ölçüldü: **① bir sınıf üretildi**; **② metodun parametresi bir alan
-oldu**; ██ **③ yerel değişken bir alan oldu** ██. Üçüncüsü bu dosyanın **en
+oldu**; *****③ yerel değişken bir alan oldu*****. Üçüncüsü bu dosyanın **en
 önemli tek cümlesi**: `adim` bir yığın (stack) değişkeni olsaydı metot döndüğü an
 yok olurdu. Alan olduğu için, öbekte (heap) duran o nesne yaşadığı sürece yaşar —
 ve **kareler arasında yaşamasının sebebi tam olarak budur**.
@@ -112,7 +112,7 @@ Gövde artık `MoveNext`'te; geriye kalanın IL'i **tamamı**:
 
 Okunuşu: **nesneyi kur, argümanı alanına yaz, dön.** Başka hiçbir şey yok.
 
-### ██ Metot çağrıldığında GÖVDESİ KOŞMAZ — ölçüldü ██
+### ***Metot çağrıldığında GÖVDESİ KOŞMAZ — ölçüldü***
 
 Koşturulmuş çıktı, ve yanında IL'in **neden**i:
 
@@ -130,10 +130,10 @@ MoveNext() içinde — throw BURADA, metodun 14 baytında DEĞİL:
   IL_002b:  brfalse.s  IL_0038
   IL_002d:  ldstr   "tekrar"
   IL_0032:  newobj  instance void ArgumentOutOfRangeException::.ctor(string)
-  IL_0037:  throw                                          ◄── ██ BURADA ██
+  IL_0037:  throw                                          ◄── >> BURADA <<
 ```
 
-### ██ Bu, `dil/03`'ün konusuyla DOĞRUDAN ÇELİŞEN bir tuzaktır ██
+### ***Bu, `dil/03`'ün konusuyla DOĞRUDAN ÇELİŞEN bir tuzaktır***
 
 [../deep/dil/03-hata-bildirme-ve-dogrulama.md](../deep/dil/03-hata-bildirme-ve-dogrulama.md)
 bu projenin doğrulama sözleşmesini yazıyor: `Assets/Game` içinde 66 `throw`
@@ -153,7 +153,7 @@ yığın izi ÇAĞIRANI gösterir           ▼   bambaşka bir dosyada)
                                    ilk MoveNext()
                                       ▼
                                    ArgumentOutOfRangeException
-                                   yığın izi ██ MoveNext'i gösterir ██
+                                   yığın izi >> MoveNext'i gösterir <<
                                    Çağıranın adı orada YOK.
 ```
 
@@ -181,22 +181,22 @@ public static IEnumerator Yurut(int tekrar)
 private static IEnumerator YurutIc(int tekrar) { /* ... yield return null; */ }
 ```
 
-██ Bu projede böyle bir metot bugün **yok**, çünkü `yield` yok. Bu satır bir
+***Bu projede böyle bir metot bugün **yok**, çünkü `yield` yok. Bu satır bir
 öneri değil, bir **borç kaydı**: ilk coroutine yazıldığı gün bu ayrım **aynı
-gün** yazılmalı. ██ **Durum sayıları — `<>1__state` ne anlatıyor:**
+gün** yazılmalı.*** **Durum sayıları — `<>1__state` ne anlatıyor:**
 
 ```
 ctor(0)          ►  state = 0    "hiç koşmadım, baştan başlayacağım"
 MoveNext girer   ►  state = -1   "şu anda gövdemin içindeyim"
 yield return     ►  state = 1    "birinci yield'da durdum"
-tekrar girer     ►  state = -1   ve ██ o yield'ın hemen ARDINDAN devam eder ██
+tekrar girer     ►  state = -1   ve >> o yield'ın hemen ARDINDAN devam eder <<
 gövde biter      ►  false döner  "bitti"
 IEnumerable biçiminde ek olarak:
                     state = -2   "numaralandırma henüz başlamadı" (şablon nesne)
                     state = -3   "gövdenin içindeyim ve bir try bloğundayım"
 ```
 
-██ **Duraklayan bir metot diye bir şey yoktur.** ██ Her `MoveNext` çağrısı
+*****Duraklayan bir metot diye bir şey yoktur.***** Her `MoveNext` çağrısı
 sıradan bir metot çağrısıdır: girer, `switch (state)` ile kaldığı yere **atlar**,
 bir parça iş yapar, döner. Yığında hiçbir şey donmuyor; donan tek şey, alanlarda
 duran değerler.
@@ -223,7 +223,7 @@ private sealed class YurutDurumMakinesi : IEnumerator
         switch (state) { case 0: goto BAS; case 1: goto DEVAM; default: return false; }
     BAS:
         state = -1;
-        // ██ DOĞRULAMA İŞTE BURADA — çağrı anında DEĞİL ██
+        // >> DOĞRULAMA İŞTE BURADA — çağrı anında DEĞİL <<
         if (tekrar < 0) throw new ArgumentOutOfRangeException(nameof(tekrar));
         adim = 0;
         while (adim < tekrar)
@@ -249,13 +249,13 @@ public static IEnumerator Yurut(int tekrar)
 **ortasına** atlamanın başka bir yazımı yoktur; bu makineyi elle yazan kimse
 yok, derleyici yazıyor.
 
-### ██ Adın kendisi bir sözleşme DEĞİL — ölçülmüş karşı örnek ██
+### ***Adın kendisi bir sözleşme DEĞİL — ölçülmüş karşı örnek***
 
 Aynı kaynak dosya, yalnız derleyici bayrağı değişti:
 
 ```
 -optimize-  (Debug)    ►  .field private int32 '<adim>5__1'
--optimize+  (Release)  ►  .field private int32 '<adim>5__2'   ██ FARKLI SON EK ██
+-optimize+  (Release)  ►  .field private int32 '<adim>5__2'   >> FARKLI SON EK <<
 ```
 
 Sınıfın adı (`<Yurut>d__0`) iki koşumda da aynı kaldı, ama alan adının sayısal
@@ -273,17 +273,17 @@ bu kez **iki** rolü birden üstleniyor ve `GetEnumerator` sebebi veriyor:
        implements IEnumerable`1<int32>, IEnumerable,
                   IEnumerator`1<int32>, IEnumerator, IDisposable
 {
-  .field private int32 '<>l__initialThreadId'   ◄── ██ BU NE ██
+  .field private int32 '<>l__initialThreadId'   ◄── >> BU NE <<
   .field private int32 n                        ◄── çalışan kopyanın argümanı
-  .field public  int32 '<>3__n'                 ◄── ██ ŞABLONUN argümanı ██
+  .field public  int32 '<>3__n'                 ◄── >> ŞABLONUN argümanı <<
   ... '<>1__state' · '<>2__current' · '<i>5__2'
 }
 
 GetEnumerator():
   if (state == -2 && <>l__initialThreadId == Environment.CurrentManagedThreadId)
-  {   state = 0;  sonuc = this;   }   ◄── ██ KENDİSİNİ verir — tahsis YOK ██
+  {   state = 0;  sonuc = this;   }   ◄── >> KENDİSİNİ verir — tahsis YOK <<
   else
-  {   sonuc = new '<Say>d__0'(0);  }  ◄── ██ YENİ nesne — tahsis VAR ██
+  {   sonuc = new '<Say>d__0'(0);  }  ◄── >> YENİ nesne — tahsis VAR <<
   sonuc.n = this.'<>3__n';            ◄── argüman şablondan kopyalanır
   return sonuc;
 ```
@@ -291,7 +291,7 @@ GetEnumerator():
 Okunuşu: **ilk** `foreach` — aynı iş parçacığında, henüz kullanılmamış nesne
 üzerinde — fazladan tahsis yapmaz, nesne kendisini verir; **ikinci** `foreach`
 yeni bir nesne doğurur, iş parçacığı farklıysa ilki bile doğurur.
-██ Bu, bu projenin tahsis kültürüne doğrudan bağlanan bir ölçüdür. ██
+***Bu, bu projenin tahsis kültürüne doğrudan bağlanan bir ölçüdür.***
 `Assets/Game/Battle/Battle.cs:373-376` savaşçı kümesini `IEnumerable` olarak
 dışarı **açmamayı** seçerken "numaralandırıcı arayüz ardında kutulanır, her
 `Update` bir tahsis yapardı" diyor; yukarıdaki `else` dalı aynı ailenin ikinci
@@ -311,8 +311,8 @@ Aynı ölçümde gövdedeki `finally` ayrı bir metoda çıkarıldı; `Dispose` 
 }
 ```
 
-██ Bir yineleyicinin `finally` bloğu, numaralandırma **yarıda kesilirse** ancak
-`Dispose` çağrıldığında koşar. ██ `foreach` bunu senin için yapar (kendi
+***Bir yineleyicinin `finally` bloğu, numaralandırma **yarıda kesilirse** ancak
+`Dispose` çağrıldığında koşar.*** `foreach` bunu senin için yapar (kendi
 `try/finally`'sini üretir); elle `MoveNext` çağıran taraf — ki coroutine'de motor
 tam olarak bunu yapar — `Dispose` çağırmazsa o `finally` **hiç koşmaz**.
 `HENÜZ YOK → sahip: bu projede tek bir finally bloğu yok`; serbest bırakılacak
@@ -337,7 +337,7 @@ DENEY   public static int Yanlis() { yield return 1; }
 
 ## İkinci durak: `async` / `await` — aynı fikir, farklı makine
 
-██ `await` de bir durum makinesi üretir. ██ Şekil neredeyse birebir aynı: durum
+***`await` de bir durum makinesi üretir.*** Şekil neredeyse birebir aynı: durum
 alanı, alanlara dönüşen yereller, gövdeyi taşıyan bir `MoveNext`. **Fark tek bir
 soruda:** o `MoveNext`'i bir dahaki sefer **kim** çağırır. Ölçülen kaynak ve
 üretilen sınıf:
@@ -356,10 +356,10 @@ public static async Task<int> Getir(int x)
        implements [netstandard]System.Runtime.CompilerServices.IAsyncStateMachine
 {
   .field public  int32 '<>1__state'                              ◄── AYNI FİKİR
-  .field public  AsyncTaskMethodBuilder`1<int32> '<>t__builder'  ◄── ██ YENİ ██
+  .field public  AsyncTaskMethodBuilder`1<int32> '<>t__builder'  ◄── >> YENİ <<
   .field public  int32 x                                         ◄── argüman → alan
   .field private int32 '<yerel>5__1'                             ◄── yerel  → alan
-  .field private YieldAwaitable/YieldAwaiter '<>u__1'            ◄── ██ YENİ ██
+  .field private YieldAwaitable/YieldAwaiter '<>u__1'            ◄── >> YENİ <<
 }
 ```
 
@@ -367,8 +367,8 @@ public static async Task<int> Getir(int x)
 üretir, sonucu yazar (`SetResult`), istisnayı yazar (`SetException`), devamı
 zamanlar (`AwaitUnsafeOnCompleted`); sökülen IL'de dördü de görünüyor.
 `<>u__1` — **bekleyici (awaiter)**: `await` edilen şeyin "bitti mi" sorusunu
-cevaplar. IL'de `call YieldAwaiter::get_IsCompleted()` var — ██ beklenen şey
-zaten bitmişse durum makinesi **hiç duraklamaz**, düz akar. ██
+cevaplar. IL'de `call YieldAwaiter::get_IsCompleted()` var — ***beklenen şey
+zaten bitmişse durum makinesi **hiç duraklamaz**, düz akar.***
 
 Metodun kendisi yine bir kurulum metodu:
 
@@ -377,11 +377,11 @@ Getir(int32 x):
   newobj   '<Getir>d__1'
   builder = AsyncTaskMethodBuilder`1<int32>::Create()
   .x = ldarg.0   ·   .state = -1
-  builder.Start<'<Getir>d__1'>(ref makine)    ◄── ██ İLK MoveNext BURADA ██
+  builder.Start<'<Getir>d__1'>(ref makine)    ◄── >> İLK MoveNext BURADA <<
   return   builder.get_Task()                 ◄── çağırana Task döner
 ```
 
-██ Şimdi farkı `yield` ile karşılaştır: ██ `Yurut()` çağrısı gövdeden **tek
+***Şimdi farkı `yield` ile karşılaştır:*** `Yurut()` çağrısı gövdeden **tek
 satır** koşturmuyordu; `Getir()` çağrısı `builder.Start(...)` ile ilk
 `MoveNext`'i **hemen** çağırır — yani `async` bir metodun gövdesi, ilk `await`'e
 kadar **çağıranın iş parçacığında, senkron olarak** koşar. Aynı şekil, bu
@@ -398,28 +398,28 @@ MoveNext'i MOTOR çağırır                 MoveNext'i BEKLEYİCİNİN DEVAMI �
    "ne zaman" cevabını Current verir        "ne zaman" cevabını görev verir
       null → sonraki kare                      tamamlandığı an
       WaitForSeconds(2f) → 2 saniye sonra
-   ██ kare döngüsü durursa DURUR ██        ██ kare döngüsü durursa DURMAZ ██
+   >> kare döngüsü durursa DURUR <<        >> kare döngüsü durursa DURMAZ <<
 ```
 
 Son satır bu ayrımın en pahalı sonucudur; üçüncü durakta geri geliyor.
 
-### ██ Debug'da SINIF, Release'de STRUCT — ölçüldü ██
+### ***Debug'da SINIF, Release'de STRUCT — ölçüldü***
 
 ```
                         ITERATOR              ASYNC
 -optimize-  (Debug)     extends Object        extends Object       ← sınıf
--optimize+  (Release)   extends Object        extends ValueType    ← ██ STRUCT ██
+-optimize+  (Release)   extends Object        extends ValueType    ← >> STRUCT <<
 ```
 
 `yield` makinesi **her zaman** bir sınıftır (`IEnumerator` bir arayüz; nesnenin
 referans olarak dolaşması gerekir). `async` makinesi Release'de bir `struct`'a
 dönüşür ve bu bir **tahsis** kararıdır: `struct` hâlinde metot ilk `await`'e
 gelmeden **biterse** makine yığında kalır, öbekte hiçbir şey doğmaz ("sıfır
-tahsisli async" budur); ██ gerçekten duraklarsa makine KUTULANIR ██ ve öbeğe
+tahsisli async" budur); ***gerçekten duraklarsa makine KUTULANIR*** ve öbeğe
 kopyalanır (`builder.AwaitUnsafeOnCompleted`). `class` hâlinde ise her çağrıda
 bir nesne doğar, duraklasın duraklamasın.
 
-██ Bunun bu proje için ölçülmüş bir anlamı var. ██
+***Bunun bu proje için ölçülmüş bir anlamı var.***
 [02-sonraki-asamalar.md](02-sonraki-asamalar.md) Aşama 6 "Editor'deki bir sayı
 hedef cihazdaki davranışı kanıtlamaz" diyor; yukarıdaki tablo o cümlenin en somut
 örneğidir — Editor'de ölçülen bir `async` metodun tahsisi **derleyici ayarının**
@@ -427,18 +427,18 @@ sonucudur, kodun değil. `DamageRulesAllocationTests` disiplini bir gün bir
 `async` yola uygulanırsa, ölçüm **hem** EditMode **hem** optimize edilmiş yapı
 üzerinde tekrarlanmadıkça bir şey kanıtlamaz.
 
-### ██ `async void` — istisna YAKALANAMAZ ██
+### ***`async void` — istisna YAKALANAMAZ***
 
 Önce **neden**: sökülen IL'de üç `async` biçimin üç ayrı kurucusu var.
 
 ```
 async Task<int>  ►  .field AsyncTaskMethodBuilder`1<int32> '<>t__builder'
 async Task       ►  .field AsyncTaskMethodBuilder            (aynı aile)
-async void       ►  .field AsyncVoidMethodBuilder '<>t__builder'   ██ FARKLI ██
+async void       ►  .field AsyncVoidMethodBuilder '<>t__builder'   >> FARKLI <<
 ```
 
-Sebep tek cümle: ██ dönen bir görev yoksa, istisnayı **taşıyacak yer** de
-yoktur. ██ `AsyncTaskMethodBuilder.SetException(e)` istisnayı `Task`'ın içine
+Sebep tek cümle: ***dönen bir görev yoksa, istisnayı **taşıyacak yer** de
+yoktur.*** `AsyncTaskMethodBuilder.SetException(e)` istisnayı `Task`'ın içine
 koyar; `AsyncVoidMethodBuilder.SetException(e)`'nin koyacağı bir `Task` yoktur ve
 tek seçeneği onu **yakalanamayacak** bir yere fırlatmaktır. Şimdi **ölçü** —
 iki metot, aynı `try/catch`, aynı koşum:
@@ -468,14 +468,14 @@ istisnayı bir `QueueUserWorkItemCallback` ile **başka bir iş parçacığına*
 | Bitişini bekleyebilir misin | evet | ██ hayır — bittiğini bilemezsin ██ |
 | Ne zaman doğru | neredeyse her zaman | yalnız bir olay işleyicisi imzası zorluyorsa |
 
-██ Uyarı: ölçüm bir **konsol** programında yapıldı; orada
+***Uyarı: ölçüm bir **konsol** programında yapıldı; orada
 `SynchronizationContext` yoktu ve istisna havuza düştü. Unity'de bir
 `SynchronizationContext` **var** (aşağıda ölçüldü) ve orada istisnanın nereye
 düşeceği farklıdır — bu projede `async void` hiç yazılmadığı için **Unity
 içindeki tam davranış bu turda DOĞRULANMADI**. Değişmeyen kısım kanıtlı: `catch`
-yakalamıyor ve çağıran bitişini bekleyemiyor. ██
+yakalamıyor ve çağıran bitişini bekleyemiyor.***
 
-### ██ `await` bir İŞ PARÇACIĞI yaratmaz ██ — üç ölçüm, tek koşum
+### ***`await` bir İŞ PARÇACIĞI yaratmaz*** — üç ölçüm, tek koşum
 
 "async = paralel", bu konudaki en yaygın yanlış model. Ölçüsü, tek koşum:
 
@@ -485,10 +485,10 @@ ANA is parcacigi = 1     SynchronizationContext.Current = YOK (null)
 [A] SynchronizationContext YOKKEN await:
       await ONCESI = 1   await SONRASI = 4  ◄── devam BAŞKA parçacıkta sürdü
 [B] SynchronizationContext VARKEN await (Unity'nin yaptığı şey):
-      await ONCESI = 1   await SONRASI = 1  ◄── ██ AYNI parçacığa geri döndü ██
+      await ONCESI = 1   await SONRASI = 1  ◄── >> AYNI parçacığa geri döndü <<
 [C] await IS PARCACIGI yaratir mi (Task.Run ile karşılaştırma):
       Task.Run cagiran       = 1
-      Task.Run lambda icinde = 5   ◄── ██ İŞ PARÇACIĞINI YARATAN BU ██
+      Task.Run lambda icinde = 5   ◄── >> İŞ PARÇACIĞINI YARATAN BU <<
       Task.Run await SONRASI = 5
 ```
 
@@ -509,7 +509,7 @@ planda çalışır" doğrudur — ikisi ayrı mekanizma.
     "SynchronizationContext"       ►  3 kez geçiyor
 ```
 
-██ Yani mekanizma bu sürümde **vardır** ve motorun kendi dosyasında yaşar. ██
+***Yani mekanizma bu sürümde **vardır** ve motorun kendi dosyasında yaşar.***
 Bunun ötesi — "Unity ana iş parçacığında bir `UnitySynchronizationContext` kurar,
 dolayısıyla `await` sonrası ana iş parçacığında devam eder" — bu turda
 **DOĞRULANMADI**: bir PlayMode koşumu ister ve bu projede çalıştırılacak tek
@@ -526,7 +526,7 @@ DENEY   public static int AwaitAsyncsiz()
 ```
 
 Aynı hata `IEnumerator` dönen bir metodun içine `await` konduğunda da çıktı — yani
-██ `yield` makinesi ile `await` makinesi **aynı metotta birleşemez**. ██
+***`yield` makinesi ile `await` makinesi **aynı metotta birleşemez**.***
 Birleşenin ayrı bir adı var ve bu kurulumda **derleniyor**:
 
 ```
@@ -542,7 +542,7 @@ DENEY   public static async IAsyncEnumerable<int> AsyncIterator()
 
 ---
 
-## Üçüncü durak: ██ İPTAL — coroutine ölür, `Task` ÖLMEZ ██
+## Üçüncü durak: ***İPTAL — coroutine ölür, `Task` ÖLMEZ***
 
 Bu, iki makine arasındaki en tehlikeli fark — ve bir dil farkı değil, bir
 **sahiplik** farkı:
@@ -550,14 +550,14 @@ Bu, iki makine arasındaki en tehlikeli fark — ve bir dil farkı değil, bir
 ```
 COROUTINE                          TASK / AWAIT
 ─────────                          ────────────
-sahibi bir MonoBehaviour           ██ SAHİBİ YOK ██
+sahibi bir MonoBehaviour           >> SAHİBİ YOK <<
    ► GameObject Destroy edilir        ► hiçbir şey olmaz
      coroutine ÖLÜR                     devam çağrılmaya devam eder
    ► GameObject SetActive(false)      ► hiçbir şey olmaz
      coroutine DURUR
    ► bileşen enabled = false          ► hiçbir şey olmaz
-     ██ DURMAZ ██  (ölçüsü konular/08'de)
-   ► sahne yeniden yüklenir           ► ██ HİÇBİR ŞEY OLMAZ ██
+     >> DURMAZ <<  (ölçüsü konular/08'de)
+   ► sahne yeniden yüklenir           ► >> HİÇBİR ŞEY OLMAZ <<
      coroutine ölür                     görev hâlâ koşuyor
 ```
 
@@ -570,7 +570,7 @@ ikisi iki ayrı ömrü gösterir (ayrımın sahibi
 dördüncü durak). Buradaki tek katkı: **coroutine'de bu soruyu hiç sormazsın,
 çünkü coroutine zaten ölmüştür; `Task`'ta her devamda sormak zorundasın.**
 
-██ `CancellationToken` bu yüzden var. ██ Mentor katmanının kuralı tek cümlelik:
+***`CancellationToken` bu yüzden var.*** Mentor katmanının kuralı tek cümlelik:
 *iptal, ömrün kendisidir* — token'ın **kökü** işin gerçek sahibinin ömrüne
 bağlanır (bileşen yıkımı, bileşen kapanması, sahne ömrü, uygulama çıkışı,
 kullanıcı eylemi, zaman aşımı). Kural `unity-game-dev-mentor` →
@@ -586,7 +586,7 @@ altındaki işlem hâlâ yıkılmış durumu değiştirebiliyorsa iptal değildi
 
 ## Dördüncü durak: `Task` · `Awaitable` · coroutine · iş parçacığı — DÖRT AYRI ŞEY
 
-██ Dördü de "zamana yayılan iş" için kullanılır, ama dördü ayrı mekanizmadır. ██
+***Dördü de "zamana yayılan iş" için kullanılır, ama dördü ayrı mekanizmadır.***
 
 | | **coroutine** | **`Task`** | **`Awaitable`** | **iş parçacığı / havuz** |
 |---|---|---|---|---|
@@ -598,12 +598,12 @@ altındaki işlem hâlâ yıkılmış durumu değiştirebiliyorsa iptal değildi
 | **Unity API'sine dokunabilir mi** | evet | ██ yalnız ana parçacıkta devam ediyorsa ██ | evet (ana parçacık devamında) | ██ hayır ██ |
 | **Bu projede** | ██ 0 ██ | ██ 0 ██ | ██ bu sürümde tip yok ██ | ██ 0 ██ |
 
-### ██ `Awaitable` bu sürümde VAR MI — ölçüldü ██
+### ***`Awaitable` bu sürümde VAR MI — ölçüldü***
 
 ```
 "Awaitable" dizesini taşıyan dosya sayısı — Editor/Data/Managed/UnityEngine/ altında
-  Unity 2021.3.45f2  ►   0 dosya   ██ TİP BU SÜRÜMDE YOK ██
-  Unity 6000.5.7f1   ►  16 dosya   ██ VAR ██ (CoreModule.dll ve .xml dâhil)
+  Unity 2021.3.45f2  ►   0 dosya   >> TİP BU SÜRÜMDE YOK <<
+  Unity 6000.5.7f1   ►  16 dosya   >> VAR << (CoreModule.dll ve .xml dâhil)
 
 6000.5.7f1 · UnityEngine.CoreModule.xml içinde UnityEngine.Awaitable üyesi: 31 adet
    T:UnityEngine.Awaitable      "Custom Unity type that can be awaited and used
@@ -613,17 +613,17 @@ altındaki işlem hâlâ yıkılmış durumu değiştirebiliyorsa iptal değildi
                                  System.OperationCanceledException."
 ```
 
-Sonuç, sürüme damgalı: ██ **`Awaitable` bu projenin sürümünde (2021.3.45f2)
-mevcut değildir.** ██ Bu bir tercih değil, bir sürüm olgusu — ve
+Sonuç, sürüme damgalı: *****`Awaitable` bu projenin sürümünde (2021.3.45f2)
+mevcut değildir.***** Bu bir tercih değil, bir sürüm olgusu — ve
 [02-sonraki-asamalar.md](02-sonraki-asamalar.md) diliyle söylenirse tetikleyici
 koşulu bir kod olayı bile değil: **Unity sürümünün yükseltilmesi**.
-██ DOĞRULANMADI ██ — `Awaitable`'ın **ilk hangi sürümde** geldiği. Elde iki uç
+***DOĞRULANMADI*** — `Awaitable`'ın **ilk hangi sürümde** geldiği. Elde iki uç
 nokta var; aradaki sürümler bu makinede kurulu değil, tahmin yazılmıyor.
 
 **`UniTask` — yalnız adıyla.**
 Üçüncü taraf bir paket; `Task`'ın Unity'nin oyuncu döngüsüne oturan karşılığı
-diye anılır. ██ Bu projede **yok**; ölçüsü tek satır: `Packages/manifest.json`
-içindeki 41 bağımlılığın hiçbirinde `UniTask` ya da `Cysharp` geçmiyor. ██ Adı
+diye anılır. ***Bu projede **yok**; ölçüsü tek satır: `Packages/manifest.json`
+içindeki 41 bağımlılığın hiçbirinde `UniTask` ya da `Cysharp` geçmiyor.*** Adı
 yalnızca dördüncü bir seçenek olduğunu göstermek için geçiyor.
 `HENÜZ YOK → sahip: unity-game-dev-mentor → references/async-and-concurrency.archive
 → UniTask Rule` — seçilme koşulu orada yazılı ve ilk maddesi bu ağacın diliyle
@@ -658,29 +658,29 @@ tip kendi okumuyor.
 ```
 BoardAdapter.Update()                             ← motor çağırır (Unity katmanı)
    BoardAdapter.cs:323   AdvanceBattleTime()
-      BoardAdapter.cs:627   battle.Tick(Time.deltaTime)  ◄── ██ Time.deltaTime BURADA BİTER ██
+      BoardAdapter.cs:627   battle.Tick(Time.deltaTime)  ◄── >> Time.deltaTime BURADA BİTER <<
          Battle.cs:377        Tick(float deltaSeconds)
             Battle.cs:383/:383  foreach → Combatant.Tick / Structure.Tick
-                                   UnitLifecycle.cs:176   Tick(float deltaSeconds)
-                                      ██ Time.deltaTime YOK. Saniye bir ARGÜMAN. ██
+                                   UnitLifecycle.cs:185   Tick(float deltaSeconds)
+                                      >> Time.deltaTime YOK. Saniye bir ARGÜMAN. <<
 ```
 
 Ölçüsü kodda yazılı (`UnitLifecycle.cs:163-166`): EditMode'da `Time.deltaTime`
 sıfır değil `0,017675` dönüyor — zamanı içeriden okuyan tasarım testte
 **patlamaz**, sessizce anlamsız bir sayıyla yürür.
 
-██ İşte kazanç ölçüsü: ██ `Tick(10.1f)` yazan bir EditMode testi, gerçek zamanda
+***İşte kazanç ölçüsü:*** `Tick(10.1f)` yazan bir EditMode testi, gerçek zamanda
 **10 saniye beklemeden** düşme penceresinin tam yerini sınayabiliyor. Aynı iddia
 bir coroutine'e taşınsaydı `yield return new WaitForSeconds(10.1f)` olurdu ve üç
 şey birden değişirdi: test EditMode'dan PlayMode'a düşer, dosyanın süresi
 milisaniyeden **dakikaya** çıkar, ve kırmızılığı kurala değil **o günkü kare
-süresine** bağlanır. ██ Yani "`async` yok" bir eksiklik değil, ölçülmüş bir
+süresine** bağlanır. ***Yani "`async` yok" bir eksiklik değil, ölçülmüş bir
 **kazanç**: 26 test dosyasının sahnesiz ve gerçek zaman beklemeden koşabilmesinin
-tek sebebi budur. ██
+tek sebebi budur.***
 
 ### "Bugün gerekmiyor" eksik bir cümledir — her mekanizma için koşulu
 
-██ Her satırda bir **koşul** var; koşulsuz bir satır bu ağaçta ihlaldir. ██
+***Her satırda bir **koşul** var; koşulsuz bir satır bu ağaçta ihlaldir.***
 
 | Mekanizma | Bugün 0, çünkü | ██ Onu ÖNEMLİ hâle getirecek koşul ██ |
 |---|---|---|
@@ -699,12 +699,12 @@ tek sebebi budur. ██
 
 ## Altıncı durak: nesne havuzunun BCL yarısı — tek paragraf
 
-██ Havuzun Unity yarısı burada **değil**. ██ Deaktif etme, `Awake`'in bir daha
+***Havuzun Unity yarısı burada **değil**.*** Deaktif etme, `Awake`'in bir daha
 çalışmaması, `OnEnable` tekrarı ve sıfırlama sözleşmesi
 [02-sonraki-asamalar.md](02-sonraki-asamalar.md) Aşama 2'nin konusu; buraya
 yalnız .NET tarafı düşüyor. `System.Buffers.ArrayPool<T>` paylaşılan bir dizi
 havuzudur: `Rent(minimumLength)` **en az** istediğin kadar uzun bir dizi verir —
-██ tam olarak istediğin kadar değil ██, bu yüzden `array.Length`'e değil kendi
+***tam olarak istediğin kadar değil***, bu yüzden `array.Length`'e değil kendi
 tuttuğun uzunluğa güvenmen gerekir — `Return(array)` geri verir. Geri vermezsen
 sızıntı değil **kazanç kaybı** olur; iki kez geri verirsen aynı diziyi iki ayrı
 sahip alır ve hata sessizdir. Ölçü: `ArrayPool` bu projenin derlendiği
@@ -725,7 +725,7 @@ ailedendir ([../deep/dil/07-bellek-canlilik-ve-yikim.md](../deep/dil/07-bellek-c
 
 Eşleşmeyen satırın sebebi bu projeyle **aynı**: sıra tabanlı bir oyunda
 "beklemek" bir mekanizma değil, bir arayüz seçimidir — ve tam olarak bu yüzden
-burada bir `yield` yok. ██ DOĞRULANMADI ██ — üç oyunun da kaynak kodu kapalıdır;
+burada bir `yield` yok. ***DOĞRULANMADI*** — üç oyunun da kaynak kodu kapalıdır;
 yukarıdaki satırlar **oynanış gözlemidir**, uygulama iddiası değil: hiçbiri
 "Stardew Valley coroutine kullanır" demiyor.
 
@@ -738,22 +738,22 @@ yukarıdaki satırlar **oynanış gözlemidir**, uygulama iddiası değil: hiçb
       evet → iş parçacığı ELENDİ, ③'e geç          hayır → ②
 ② İŞ, ÖLÇÜLMÜŞ BİÇİMDE İŞLEMCİ-AĞIR MI (kare bütçesini yiyor mu)?
       hayır → ③
-      evet  → iş parçacığı / havuz. ██ "Ölçülmüş" zorunlu: profil çıktısı
-              olmadan bu dala girilmez — 02-sonraki-asamalar.md · Aşama 6 ██
+      evet  → iş parçacığı / havuz. >> "Ölçülmüş" zorunlu: profil çıktısı
+              olmadan bu dala girilmez — 02-sonraki-asamalar.md · Aşama 6 <<
 ③ BEKLENEN ŞEY BİR DIŞ OLAY MI (disk, ağ, kullanıcı), YOKSA ZAMAN MI?
       dış olay → ④                                 zaman/kare → ⑤
 ④ BEKLENEN ŞEY ZATEN Task DÖNDÜRÜYOR MU?
-      evet  → async/await.  ██ İPTAL TOKENI AYNI GÜN YAZILIR ██
+      evet  → async/await.  >> İPTAL TOKENI AYNI GÜN YAZILIR <<
       hayır → yine async/await, ama devamın ANA PARÇACIKTA olduğunu DOĞRULA;
               yoksa Unity API'sine dokunamazsın
 ⑤ İŞİN SAHİBİ BİR MonoBehaviour MU VE ONUNLA BİRLİKTE ÖLMELİ Mİ?
       evet  → coroutine. Sahiplik ve iptal BEDAVA gelir
       hayır → durum makinesini KENDİN yaz: bir enum + bir sayaç + Tick(delta)
-              ██ BU PROJENİN BUGÜN YAPTIĞI ŞEY BUDUR ██
+              >> BU PROJENİN BUGÜN YAPTIĞI ŞEY BUDUR <<
               UnitLifecycle.cs:82 (hâl) + :44 (sayaç) + :169 (Tick)
 ```
 
-██ Beşinci soruda "hayır" demek bir kayıp değil. ██ Bu proje o dalı seçti ve
+***Beşinci soruda "hayır" demek bir kayıp değil.*** Bu proje o dalı seçti ve
 kazandığı şey ölçülü: üç çekirdek assembly `noEngineReferences: true` taşıyor,
 26 EditMode test dosyası sahnesiz koşuyor, zaman testte bir **argüman**.
 
@@ -761,21 +761,21 @@ kazandığı şey ölçülü: üç çekirdek assembly `noEngineReferences: true`
 
 ## Yanlış hatırlanan üç şey
 
-**① "`async` paraleldir / arka planda çalışır."** ██ DEĞİL. ██ Ölçüldü:
+**① "`async` paraleldir / arka planda çalışır."** ***DEĞİL.*** Ölçüldü:
 `await`'in kendisi hiçbir iş parçacığı yaratmadı; yeni parçacığı doğuran şey
 `Task.Run`'dı (ana = 1, lambda içi = 5). Devamın **nerede** koşacağı ayrı bir
 sorudur ve cevabı bağlamdır: bağlam yokken havuza düştü (1 → 4), bağlam varken
 çağıranın parçacığında sürdü (1 → 1). `async` bir **eşzamanlılık**
 mekanizmasıdır, bir **paralellik** mekanizması değil.
 
-**② "Coroutine bir iş parçacığıdır."** ██ DEĞİL. ██ Coroutine ana iş
+**② "Coroutine bir iş parçacığıdır."** ***DEĞİL.*** Coroutine ana iş
 parçacığında, kare döngüsünün **içinde** koşar; `MoveNext()` gövdesi bir saniye
 sürerse kare bir saniye uzar. Derleyici tarafından bakınca daha da açık:
 coroutine, `IEnumerator` uygulayan **sıradan bir nesnedir** — motor onun
 `MoveNext`'ini her karede bir kez çağırıyor, o kadar. Ölçüsü `konular/08`'de.
 
 **③ "Bir `yield` metodunun başındaki `if (x < 0) throw` çağıranı korur."**
-██ KORUMAZ. ██ Ölçüldü: `Yurut(-1)` istisna atmadan **döndü**; istisna ilk
+***KORUMAZ.*** Ölçüldü: `Yurut(-1)` istisna atmadan **döndü**; istisna ilk
 `MoveNext()` içinde çıktı ve yığın izi çağıranı değil `MoveNext`'i gösterdi. IL
 bunu kanıtlıyor: `throw` `MoveNext`'in içinde, metodun 14 baytlık gövdesinde
 değil. Tek çare **ayrık doğrulamadır**.
@@ -791,10 +791,10 @@ DERLEYİCİNİN ÜRETTİĞİ MAKİNE            BU PROJENİN ELLE YAZDIĞI MAKİ
 ────────────────────────────            ───────────────────────────────
 '<>1__state'  (int, gizli)              UnitLifecycle.cs:82   State (UnitState enum)
 '<adim>5__1'  (gizli alan)              UnitLifecycle.cs:44   remainingSeconds
-MoveNext()    (motor çağırır)           UnitLifecycle.cs:176  Tick(float deltaSeconds)
-                                                              ██ ÇAĞIRAN DIŞARIDA ██
+MoveNext()    (motor çağırır)           UnitLifecycle.cs:185  Tick(float deltaSeconds)
+                                                              >> ÇAĞIRAN DIŞARIDA <<
 adı okunmaz, ayıklanamaz                adı okunur, testte doğrudan çağrılabilir
-kare süresine bağlı                     ██ saniye bir ARGÜMAN ██
+kare süresine bağlı                     >> saniye bir ARGÜMAN <<
 ```
 
 **KAZANDIRDIĞI:** 26 EditMode test dosyası sahnesiz koşuyor; `Tick(10.1f)`
@@ -802,8 +802,8 @@ gerçek zamanda beklemiyor; üç çekirdek assembly motoru hiç tanımıyor.
 
 **KAYBETTİRDİĞİ, dürüstçe:** her yeni "zamana yayılan iş" için bir enum değeri,
 bir sayaç ve bir `Tick` dalı elle yazılıyor. Beş hâlde bu okunur; yirmi hâlde
-`switch` şişer. ██ Coroutine'in kazandığı şey tam olarak burasıdır: karmaşık ve
-sıralı bir akışı **doğrusal** yazabilmek. ██ Bedeli de yazılı: akış sahibini bir
+`switch` şişer. ***Coroutine'in kazandığı şey tam olarak burasıdır: karmaşık ve
+sıralı bir akışı **doğrusal** yazabilmek.*** Bedeli de yazılı: akış sahibini bir
 `MonoBehaviour`'a bağlar, zamanı kareye bağlar ve testi PlayMode'a düşürür.
 
 **NE ZAMAN TERSİNE DÖNER:** bir tek metotta beş ya da daha fazla ardışık bekleme
@@ -816,8 +816,8 @@ iki adımlı (`Downed → Dead → temizlik`).
 
 ## Bu turda DOĞRULANMADI diye işaretlenenler
 
-██ Aşağıdakiler bu dosyada **iddia edilmedi**; listelenme sebebi bir sonraki
-turun nereden başlayacağını bilmesi: ██
+***Aşağıdakiler bu dosyada **iddia edilmedi**; listelenme sebebi bir sonraki
+turun nereden başlayacağını bilmesi:***
 
 ```
 ① UnitySynchronizationContext'in ne zaman kurulduğu ve await sonrası devamın

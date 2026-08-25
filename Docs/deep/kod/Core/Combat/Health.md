@@ -57,7 +57,7 @@ SEÇİLEN
                                                 ╔═══════════════╗
 çağıran ─► Current ──────── yalnız OKUR ───────►║   current     ║
                                                 ╚═══════════════╝
-                     ◄── ██ HER YAZI KURALDAN GEÇER ██
+                     ◄── >> HER YAZI KURALDAN GEÇER <<
 
 REDDEDILEN — `set` eklenirse ÜÇÜNCÜ bir ok doğar
 çağıran ─► Current = 3 ────────────────────────────────────┐
@@ -65,7 +65,7 @@ REDDEDILEN — `set` eklenirse ÜÇÜNCÜ bir ok doğar
                                                 ╔═══════════════╗
                                                 ║   current     ║
                                                 ╚═══════════════╝
-                     ◄── ██ KURAL DEVREDE DEĞİL ██
+                     ◄── >> KURAL DEVREDE DEĞİL <<
 kelepçe atlanır, formül atlanır, negatif can yazılabilir hâle gelir
 ```
 
@@ -143,7 +143,7 @@ SORU                     CEVABIN TEK SAHİBİ        burası bilir mi
 ────────────────────────────────────────────────────────────────
 "kaç can kaldı"          Health.Current            ✓ bilir
 "canı kaldı mı"          Health.HasRemaining       ✓ bilir
-═══════════════════ ██ BU TİPİN SINIRI ██ ══════════════════════
+═══════════════════ >> BU TİPİN SINIRI << ══════════════════════
 "ayakta mı"              Structure.IsStanding      ✗ bilmez
 "canlı mı / düşmüş mü"   UnitState (Combatant)     ✗ bilmez
 "hasarsız mı"            SAHİPSİZ — kimse ölçmüyor ✗ bilmez
@@ -221,7 +221,7 @@ DamageRules ╔═════════════════════�
             ║ ön koşul : current >= 0 , amount >= 0    ║
             ║ formül   : Math.Max(0, current - amount) ║
             ╚═══════════════════╤══════════════════════╝
-                                │ tek çağrı  ◄── ██ SAHİP ██
+                                │ tek çağrı  ◄── >> SAHİP <<
 Health.TakeDamage ──────────────┘   (kendi ön koşulu YOK)
 
 REDDEDILEN — kopya konursa ön koşul İKİ evde yaşar
@@ -230,7 +230,7 @@ DamageRules ┌ ön koşul ┐          Health ┌ ön koşul KOPYASI ┐
                   │   zırh gelir, "negatif hasar" │
                   │   anlam kazanır, BİRİ genişler│
                   └────────────► ◄───────────────-┘
-                       ██ AYRIŞMA NOKTASI ██
+                       >> AYRIŞMA NOKTASI <<
             derleyici sessiz · DamageRulesTests yeşil kalır
 ```
 
