@@ -153,6 +153,13 @@ namespace GridStrategy.Combat
 
         public int CurrentHealth => health.Current;
 
+        /// <summary>
+        /// Bu savaşçının tam can değeri. Ekranın can barını çizebilmesi için
+        /// gerekli: "17 can" tek başına bir oran vermez, oyuncu 17'nin çok mu az
+        /// mı olduğunu ancak tavanı bilirse anlar.
+        /// </summary>
+        public int MaxHealth => health.Max;
+
         public float RemainingSeconds => lifecycle.RemainingSeconds;
 
         public bool IsReadyForCleanup => lifecycle.IsReadyForCleanup;

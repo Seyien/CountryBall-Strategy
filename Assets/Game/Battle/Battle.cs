@@ -483,6 +483,21 @@ namespace GridStrategy.Battle
         }
 
         /// <summary>
+        /// Bir birimin şu hücreye YÜRÜYEREK varıp varamayacağını söyler, ve
+        /// varabiliyorsa basacağı hücreleri verir.
+        /// </summary>
+        // TAHTA DIŞARI AÇILMIYOR, SORU İÇERİ ALINIYOR: `board` alanı internal
+        // ve öyle kalmalı — dışarı verilseydi herhangi bir çağıran savaşın
+        // haberi olmadan hücre yazabilirdi. Ekran katmanı "nereye gidebilirim"
+        // sorusunu sormak zorunda (hedefe yaklaşma yolunu o seçiyor), o yüzden
+        // soruyu cevaplayan ince bir kapı açıldı.
+        public bool TryFindPath(
+            Unit mover, int fromX, int fromY, int toX, int toY, out List<GridStep> path)
+        {
+            return PathFinder.TryFindPath(board, mover, fromX, fromY, toX, toY, out path);
+        }
+
+        /// <summary>
         /// Birimin savaş durumunu verir. Kayıtlı değilse false.
         /// </summary>
         public bool TryGetCombatant(Unit unit, out Combatant combatant)

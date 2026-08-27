@@ -37,7 +37,17 @@ namespace GridStrategy.Combat
     // İMKÂNdır, bugünkü kullanım değil: üretimde profil kuran TEK yer BoardAdapter
     // içindeki NewCombatant ve her birime yeni bir örnek veriyor, paylaşım sıfır.
     // Paylaşımı gerçeğe çeviren aşama ScriptableObject; tetikleyici koşulu orada.
-    public sealed class AttackProfile
+    // ═══ record, class DEĞİL ═══════════════════════════════════════════
+    // Künyedeki "Ölçü `==` DEĞİL — Equals yazılmadığı için o karşılaştırma false
+    // döner" satırı bir İTİRAFtı: tip değer semantiği vaat ediyor ama
+    // uygulamıyordu. `record` bunu derleyiciye yaptırıyor; (10 hasar, 1 menzil)
+    // olan iki profil artık gerçekten eşit.
+    //
+    // İkizi MoveProfile ile aynı karar, aynı gerekçe — ayrıntı orada yazılı.
+    // Paylaşım cümlesi de bozulmuyor: record bir SINIFtır, hâlâ tek örneğe ok
+    // tutulur ve null olabilir, yani AttackResolver'daki null koruması anlamlı
+    // kalır. `readonly struct` seçilseydi ikisi de düşerdi.
+    public sealed record AttackProfile
     {
         // DOĞRULAMA KURUCUDA DURUR: profil HANGİ yoldan gelirse gelsin (kod,
         // test, gelecekteki bir yükleyici) geçersiz değer üretilemez. Tip

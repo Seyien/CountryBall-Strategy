@@ -141,14 +141,15 @@ namespace GridStrategy.Unity
         [Tooltip("How many cells away a unit can strike. Must be at least 1.")]
         [SerializeField, Min(1)] private int attackRange = 1;
 
-        // HAREKET MENZİLİNİN SAHİBİ: bugün BU ALAN, yani Unity katmanı — ve bu
-        // bir karar değil, adı konmuş bir BORÇ. Kuralın sahibi MoveProfile
-        // (Core), yalnız SAYI hâlâ burada. Menzili Unit başına bir
-        // Dictionary<Unit, int> içinde tutmak REDDEDİLDİ: aynı nesneyle
-        // anahtarlanan ÜÇÜNCÜ tablo, senkronunu hiçbir tipin garanti etmediği
-        // üçüncü bir doğruluk kaynağı olurdu. → BoardAdapter.md#moverange
-        [Tooltip("How many cells a unit can travel in one move. 0 means rooted.")]
-        [SerializeField, Min(0)] private int moveRange = 1;
+        // Birimin YÜRÜME HIZI: saniyede kaç hücre. Oyuncu bu sayıyı büyütünce
+        // savaşçı gözle görülür biçimde hızlanır; küçültünce ağırlaşır.
+        //
+        // "Hareket menzili" alanının YERİNE geçti. Menzil, oyuncunun tıklayabildiği
+        // yeri birimin çevresindeki birkaç hücreye hapsediyordu; artık haritanın
+        // her yerine tıklanabilir ve tek kısıt oraya bir YOLUN bulunmasıdır
+        // (PathFinder). Menzil kuralı Core'da duruyor, tahta onu artık sormuyor.
+        [Tooltip("Walking speed in cells per second. Cells are 1 unit wide, so 3 means three cells a second.")]
+        [SerializeField, Min(0.1f)] private float moveSpeed = 3f;
 
         // ═══ YERLEŞTİRME KİPİ (#10) ══════════════════════════════════
         // HAYALET GERÇEK BİR Structure DEĞİLDİR: tahtaya girmez, Battle onu
@@ -181,6 +182,28 @@ namespace GridStrategy.Unity
         // bırakılması gereken üçüncü bir durum doğardı ve OnDisable'ın bırakma
         // listesi uzardı.
         [Tooltip("Hold this key while clicking a fallen ally to REVIVE instead of attacking.")]
+        // Seçili birimi/yapıyı kaldıran tuş. Arayüzdeki çöp kutusu düğmesiyle
+        // AYNI işi yapar; düğme henüz sahnede yoksa oyun yine de oynanabilsin
+        // diye var.
+        [Header("Remove selected - same action as the trash button")]
+        [SerializeField] private KeyCode removeSelectedKey = KeyCode.Delete;
+
+        // Yapı görselinin hücreye göre büyüklüğü. 1 = tam bir hücre. Birimler
+        // 1,25 ölçekle çizildiği için yapı ondan büyük olmalı, yoksa bina
+        // askerden küçük görünür.
+        [Header("Structure size relative to one cell")]
+        [SerializeField, Min(0.5f)] private float structureScale = 1.6f;
+
+        // Can barının çizildiği düz beyaz kare. Renk koddan veriliyor, bu yüzden
+        // sprite'ın kendisi renksiz olmalı.
+        [Header("Health bar - assign the plain white square sprite")]
+        [SerializeField] private Sprite healthBarSprite;
+
+        // İmlecin altındaki hücreyi çerçeveleyen görsel. İçi boş bir kare olmalı,
+        // yoksa hücrenin içindekini kapatır.
+        [Header("Hover highlight - assign the hollow cell frame sprite")]
+        [SerializeField] private Sprite hoverFrameSprite;
+
         [SerializeField] private KeyCode reviveModifierKey = KeyCode.LeftShift;
 
         [Header("Structure stats - applied to every placed structure")]
@@ -243,6 +266,28 @@ namespace GridStrategy.Unity
         // satırının altına düşer.
         private bool isPlacingStructure;
 
+        // Şu an yerleştirilmekte olan yapının görseli. Paletten sürüklenen
+        // düğmenin simgesi buraya yazılır; hem önizleme hayaleti hem de tahtaya
+        // konan bina onu kullanır — böylece oyuncunun sürüklerken gördüğü şey
+        // ile bıraktığında oluşan şey AYNI olur.
+        private Sprite pendingStructureSprite;
+
+        // Kimlik → can barı. ÜÇÜNCÜ bir tablo ve bilerek: alternatifi her karede
+        // GetComponentInChildren çağırmaktı — o da savaşçı ve yapı görsellerinin
+        // İÇ YAPISINI (barın bir çocuk olduğu) tahtanın bilgisi hâline getirirdi.
+        // Tablo tek yerden doldurulup tek yerden (DespawnView) siliniyor.
+        private readonly Dictionary<Unit, HealthBarView> healthBars =
+            new Dictionary<Unit, HealthBarView>();
+
+        // İmleç çerçevesinin çizicisi. Sahnede elle kurulmuyor, Awake'te
+        // doğuyor — bir nesne daha sürüklettirmemek için.
+        private SpriteRenderer hoverHighlight;
+
+        // Savaşçı görsellerinin havuzu. Awake'te kuruluyor çünkü prefab ve
+        // ebeveyn ancak o zaman hazır; alan tanımında kurulsaydı serileştirilmiş
+        // prefab referansı henüz okunmamış olurdu.
+        private UnitViewPool viewPool;
+
         // Hayalet fareye YAPIŞTI mı. İki giriş şeklini ayıran tek alan budur:
         // sürükle-bırak hiç yapıştırmaz, tıkla-bırak ilk bırakışta yapıştırır.
         // Sayaç değil bool, çünkü ayrım "kaçıncı tıklama" değil — hayalet fareye
@@ -287,6 +332,21 @@ namespace GridStrategy.Unity
         // hiçbir karşılığı görünmezdi.
         public event Action<Unit> UnitRemoved;
 
+        /// <summary>
+        /// Sıra el değiştirdiğinde tetiklenir: hangi takım ve kaçıncı tur.
+        /// </summary>
+        // OLAY, HER KARE OKUNAN BİR PROPERTY DEĞİL — gerekçesi SelectionChanged
+        // ile birebir aynı ve orada yazılı. Sırayı gösteren etiket bu olaya
+        // abone; olay olmasaydı etiket her karede tahtayı yoklamak zorunda
+        // kalırdı ve sıranın ikinci bir kopyası doğardı.
+        public event Action<Team, int> TurnChanged;
+
+        // Son duyurulan sıra. Duyurunun İKİ kez yapılmasını engelliyor: tur
+        // numarası ile takımın ikisi birden karşılaştırılıyor, çünkü iki
+        // oyunculu bir sırada tur numarası aynı kalırken takım değişebilir.
+        private Team lastAnnouncedTeam;
+        private int lastAnnouncedTurn = -1;
+
         // DERİN ANLATIM: Docs/deep/konular/08-motor-cagri-dongusu.md — bu metodu
         // hiçbir satır ÇAĞIRMIYOR ve bir C# `event` de değil; motor onu ADINA
         // bakarak buluyor, çağrı sırası ve koşulları orada ölçüyle yazılı.
@@ -317,7 +377,10 @@ namespace GridStrategy.Unity
                 placementGhost.enabled = false;
             }
 
+            viewPool = new UnitViewPool(unitPrefab, transform);
+
             BuildCellVisuals();
+            BuildHoverHighlight();
 
             // GEÇİCİ: iki demo birim. İKİSİ de gerekli ve bu bir tercih değil —
             // saldırı zincirinin kapandığını göstermek için birbirine
@@ -421,6 +484,10 @@ namespace GridStrategy.Unity
             // sürece asla ölmezdi.
             AdvanceBattleTime();
 
+            // Çerçeve girdiden ÖNCE tazeleniyor: tıklama akışı seçimi
+            // değiştirdiğinde çerçevenin rengi aynı karede eskimiş kalmasın.
+            UpdateHoverHighlight();
+
             // KİP AYRIMI, MEVCUT AKIŞIN ÜSTÜNDE — ve sıra bir karardır. Altına
             // konsaydı yerleştirme sırasındaki her basış önce HandleClick'ten
             // geçerdi: hayalet taşınırken tahtadaki birimler seçilirdi. Kip,
@@ -434,6 +501,14 @@ namespace GridStrategy.Unity
             if (Input.GetKeyDown(placementModeKey))
             {
                 TryEnterPlacementMode();
+                return;
+            }
+
+            // Kaldırma tıklamadan ÖNCE sorulur: tuş basılıyken gelen bir tıklama
+            // seçimi değiştirirse oyuncu yanlış nesneyi silmiş olurdu.
+            if (Input.GetKeyDown(removeSelectedKey))
+            {
+                RemoveSelected();
                 return;
             }
 
@@ -798,15 +873,34 @@ namespace GridStrategy.Unity
             structureObject.transform.position = CellCentre(x, y);
 
             var renderer = structureObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = placementGhost.sprite;
+
+            // YAPI KENDİ GÖRSELİYLE ÇİZİLİR. Eskiden hayaletin sprite'ı
+            // kullanılıyordu ve sonuç şuydu: tahtaya konan HER yapı aynı binaya
+            // benziyordu, üstelik takımı da yanlıştı. Sprite'ı paletten getiren
+            // yol SetPlacementVisual.
+            renderer.sprite = pendingStructureSprite != null
+                ? pendingStructureSprite
+                : placementGhost.sprite;
 
             // Zemin 0, birimler ve yapılar 1: yapı zeminin üstünde çizilir.
             renderer.sortingOrder = 1;
+
+            // YAPI BİRİMDEN BÜYÜK DURUR. Ölçek 1 olduğunda bina tam bir hücre
+            // kaplıyordu ve yanındaki 1,25 ölçekli savaşçıdan KÜÇÜK görünüyordu —
+            // oysa oyuncunun beklediği tam tersi. Sayı Inspector'da: tahta
+            // büyüdükçe ya da sprite değiştikçe koda dönmek gerekmesin.
+            // SIFIR ÖLÇEĞE KARŞI SİGORTA: [Min] yalnız Inspector YAZARKEN çalışır,
+            // sahnede o anahtar hiç yoksa alan 0 doğar ve yapı GÖRÜNMEZ olur —
+            // hata da vermez. Bu, ekranda hiçbir iz bırakmayan türden bir
+            // kusurdur, o yüzden değeri burada da savunuyoruz.
+            float scale = structureScale > 0.01f ? structureScale : 1.6f;
+            structureObject.transform.localScale = new Vector3(scale, scale, 1f);
 
             // TABLOYA YAZMA EN SONDA: yukarıdaki kurulum satırlarından biri
             // patlarsa tabloda yarım kurulmuş bir görsele ok kalmamalı. Aynı
             // sıra Battle.AddUnit'in aboneliği en sona koymasıyla aynı sebepten.
             structureViews.Add(structureUnit, structureObject);
+            AttachHealthBar(structureUnit, structureObject.transform, sortingOrder: 3);
         }
 
         /// <summary>
@@ -930,6 +1024,12 @@ namespace GridStrategy.Unity
         {
             battle.Tick(Time.deltaTime);
 
+            // Can barları temizlikten ÖNCE tazeleniyor: sırası ters olsaydı
+            // ölen bir birimin barı, görseli silinmeden önceki son karede eski
+            // değerinde donmuş kalırdı.
+            RefreshHealthBars();
+            AnnounceTurnIfChanged();
+
             if (battle.RemoveReadyForCleanup(cleanupBuffer) == 0)
             {
                 return;
@@ -948,6 +1048,84 @@ namespace GridStrategy.Unity
                 // yokmuş gibi işleyebilirdi.
                 UnitRemoved?.Invoke(cleanupBuffer[i]);
             }
+        }
+
+        /// <summary>
+        /// Sıradaki yerleştirmenin hangi binaya ait olduğunu tahtaya söyler.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncu paletten bir bina sürüklerken imlecin
+        /// altında O binayı görür ve bıraktığında aynısı kurulur. Bu çağrı
+        /// olmasaydı her bina, hayalete atanmış tek sprite olarak çizilirdi.
+        /// </summary>
+        // TAHTA SEÇİMİ BİLMEZ, KENDİSİNE SÖYLENİR: hangi binanın seçili olduğunu
+        // palet bilir ve palet bu dosyayı tanımaz. Bilgi bu yüzden yukarıdan
+        // AŞAĞI akıyor; tahta yukarı doğru soru sormuyor.
+        public void SetPlacementVisual(Sprite sprite)
+        {
+            pendingStructureSprite = sprite;
+
+            if (placementGhost != null && sprite != null)
+            {
+                placementGhost.sprite = sprite;
+            }
+        }
+
+        /// <summary>
+        /// Şu an seçili olan savaşçıyı ya da yapıyı oyundan tamamen kaldırır.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncunun yanlış yere koyduğu binayı ya da artık
+        /// istemediği birimi geri alma yolu. Arayüzdeki ÇÖP KUTUSU düğmesi bu
+        /// metodu çağırır; klavyedeki <see cref="removeSelectedKey"/> de aynı
+        /// yere gider — iki kapı, TEK mekanizma.
+        /// </summary>
+        /// <returns>Kaldırılacak bir seçim varsa ve kaldırıldıysa true.</returns>
+        // TEK GİRİŞ NOKTASI, ÇÜNKÜ SIRA KIRILGAN: kaldırmanın üç katmanı var ve
+        // ikisi ötekini göremiyor. Sırayı burada bir kez yazıp her çağıranı buraya
+        // yönlendirmek, aynı sıranın düğme ve klavye yollarında AYRI AYRI
+        // yazılmasını (ve bir gün ayrışmasını) engelliyor.
+        public bool RemoveSelected()
+        {
+            if (selectedUnit == null)
+            {
+                Debug.Log("[Board] Nothing is selected; there is nothing to remove.", this);
+                return false;
+            }
+
+            Unit doomed = selectedUnit;
+
+            // ① SEÇİM ÖNCE BIRAKILIR ki panel ve palet, birazdan var olmayacak bir
+            // kimliği göstermeyi bıraksın. ClearSelection kullanılıyor çünkü
+            // görsel HÂLÂ ayakta — çerçeveyi kapatacak biri var.
+            ClearSelection();
+
+            // ② SAVAŞIN KAYDINDAN ÇIKAR. Tahtadaki hücre de burada boşalır;
+            // yapılmasaydı ekranda kimse durmadığı hâlde o hücreye yeni bir şey
+            // konamazdı.
+            if (!battle.RemoveUnit(doomed))
+            {
+                Debug.LogWarning($"[Board] '{doomed.Name}' was not part of this battle.", this);
+            }
+
+            // ③ EKRANDAN SİL, ④ SONRA DUYUR. Sıra temizlik döngüsündekinin
+            // birebir aynısı ve gerekçesi orada yazılı: ters sırada dinleyici,
+            // ekranda hâlâ duran bir nesneyi yokmuş gibi işlerdi.
+            DespawnView(doomed);
+            UnitRemoved?.Invoke(doomed);
+
+            Debug.Log($"[Board] '{doomed.Name}' was removed by the player.", this);
+            return true;
+        }
+
+        /// <summary>
+        /// Çöp kutusu düğmesinin bağlandığı kapı.
+        /// </summary>
+        // AYRI BİR ÜYE, ÇÜNKÜ IMZA ŞART: Unity'nin düğme olayı yalnızca void
+        // dönen metotları kalıcı dinleyici olarak bağlayabilir. RemoveSelected'ın
+        // bool dönüşü çağıranlar için anlamlı, o yüzden değiştirilmedi — kural
+        // tek yerde kaldı, buraya yalnız imza uyarlandı.
+        public void RemoveSelectedFromUi()
+        {
+            RemoveSelected();
         }
 
         private void BuildCellVisuals()
@@ -1075,12 +1253,265 @@ namespace GridStrategy.Unity
             // ebeveyni verir, böylece tahta yok olunca birimler de gider.
             // Argüman UnitView olduğu için dönüş de UnitView'dır — bu yüzden
             // burada tek bir GetComponent yok.
-            UnitView view = Instantiate(unitPrefab, transform);
-            view.name = $"Unit_{identity.Name}_{x}_{y}";
-            view.transform.position = CellCentre(x, y);
+            // GÖRSEL HAVUZDAN GELİYOR, Instantiate'ten değil. Ölen birimler
+            // sahneden silinmiyor, saklanıp yeniden kullanılıyor — gerekçesi
+            // UnitViewPool'un başında.
+            UnitView view = viewPool.Rent(CellCentre(x, y), $"Unit_{identity.Name}_{x}_{y}");
+
+            // TAKIM RENGİ DOĞUŞTA VERİLİR: oyuncunun kendi birimini düşmanınkinden
+            // ayırt etmesinin tek yolu bu. Savaşçıdan okunuyor, çağırandan değil —
+            // takımın tek sahibi Combatant.
+            view.SetTeam(combatant.Team);
 
             unitViews.Add(identity, view);
+            AttachHealthBar(identity, view.transform, sortingOrder: 3);
             return true;
+        }
+
+        /// <summary>
+        /// Bir görselin başının üstüne can barı takar.
+        /// </summary>
+        // ÇOCUK NESNE, BİLEŞEN DEĞİL: bar birimin KENDİ ölçeğinden etkilenmemeli.
+        // Savaşçı 1,25, yapı 1,6 ölçekle çiziliyor; bar aynı nesnenin üstünde
+        // yaşasaydı her birimde farklı boyda görünürdü. Ayrı bir çocuk, ebeveynin
+        // ölçeğini ters çevirerek bunu tek yerde çözüyor.
+        private void AttachHealthBar(Unit identity, Transform parent, int sortingOrder)
+        {
+            if (healthBarSprite == null)
+            {
+                Debug.LogError(
+                    "[Board] healthBarSprite is not assigned; no health bars will be drawn. " +
+                    "Assign the plain white square sprite on the Board component.",
+                    this);
+                return;
+            }
+
+            // HAVUZDAN GELEN GÖRSELDE BAR ZATEN VARDIR. Yeniden kurulsaydı her
+            // yeniden kullanımda bir bar daha eklenir ve barlar üst üste birikirdi
+            // — havuz kullanan kodların ikinci klasik hatası.
+            HealthBarView existing = parent.GetComponentInChildren<HealthBarView>(includeInactive: true);
+            if (existing != null)
+            {
+                existing.SetFraction(1f);
+                healthBars[identity] = existing;
+                return;
+            }
+
+            var go = new GameObject("HealthBar");
+            go.transform.SetParent(parent, worldPositionStays: false);
+
+            Vector3 parentScale = parent.localScale;
+            go.transform.localScale = new Vector3(
+                parentScale.x > 0.0001f ? 1f / parentScale.x : 1f,
+                parentScale.y > 0.0001f ? 1f / parentScale.y : 1f,
+                1f);
+
+            var bar = go.AddComponent<HealthBarView>();
+            bar.Build(healthBarSprite, sortingOrder);
+
+            healthBars[identity] = bar;
+        }
+
+        /// <summary>
+        /// İmleç çerçevesini bir kez kurar.
+        /// </summary>
+        private void BuildHoverHighlight()
+        {
+            if (hoverFrameSprite == null)
+            {
+                // SESSİZ DEĞİL AMA ÖLÜMCÜL DE DEĞİL: çerçevesiz oyun oynanır,
+                // yalnız geri bildirim zayıflar. Bu yüzden LogWarning.
+                Debug.LogWarning(
+                    "[Board] hoverFrameSprite is not assigned; the cursor highlight is off.",
+                    this);
+                return;
+            }
+
+            var go = new GameObject("HoverHighlight");
+            go.transform.SetParent(transform, worldPositionStays: false);
+
+            hoverHighlight = go.AddComponent<SpriteRenderer>();
+            hoverHighlight.sprite = hoverFrameSprite;
+
+            // Zemin 0, birim/yapı 1, can barı 3. Çerçeve 2: zeminin ve birimin
+            // üstünde görünsün ama can barını kapatmasın.
+            hoverHighlight.sortingOrder = 2;
+            hoverHighlight.enabled = false;
+        }
+
+        /// <summary>
+        /// İmlecin altındaki hücreyi çerçeveler ve oraya tıklamanın NE anlama
+        /// geldiğini renkle söyler.
+        /// </summary>
+        // OYUNCU TIKLAMADAN ÖNCE BİLMELİ: yeşil "buraya yürürüm", kırmızı
+        // "buraya vururum", gri "burada bir şey olmaz". Bu geri bildirim
+        // olmadan oyuncu her hamleyi deneyerek öğreniyordu ve reddedilen
+        // hamlelerin sebebi yalnızca Console'da görünüyordu.
+        //
+        // KURAL KOPYALANMIYOR, SORULUYOR: "yürüyebilir miyim" sorusunu
+        // PathFinder cevaplıyor — burada ikinci bir menzil/yol hesabı YOK.
+        // Kopyalansaydı çerçeve yeşil yanıp hamle reddedilebilirdi.
+        private void UpdateHoverHighlight()
+        {
+            if (hoverHighlight == null)
+            {
+                return;
+            }
+
+            if (isPlacingStructure || !TryReadPointerCell(out _, out _, out int x, out int y)
+                || !battle.IsInsideGrid(x, y))
+            {
+                hoverHighlight.enabled = false;
+                return;
+            }
+
+            hoverHighlight.enabled = true;
+            hoverHighlight.transform.position = CellCentre(x, y);
+
+            bool occupied = battle.TryGetUnit(x, y, out Unit standing);
+
+            if (selectedUnit == null)
+            {
+                // Seçim yokken tek anlamlı eylem SEÇMEK; dolu hücre onu vaat eder.
+                hoverHighlight.color = occupied
+                    ? new Color(1f, 1f, 1f, 0.75f)
+                    : new Color(1f, 1f, 1f, 0.25f);
+                return;
+            }
+
+            if (occupied)
+            {
+                // Kendi üstü = seçimi bırakma, başkası = saldırı.
+                hoverHighlight.color = ReferenceEquals(standing, selectedUnit)
+                    ? new Color(1f, 1f, 1f, 0.55f)
+                    : new Color(1f, 0.3f, 0.25f, 0.9f);
+                return;
+            }
+
+            bool reachable = battle.TryGetPosition(selectedUnit, out int fromX, out int fromY)
+                             && battle.TryFindPath(selectedUnit, fromX, fromY, x, y, out List<GridStep> _);
+
+            hoverHighlight.color = reachable
+                ? new Color(0.35f, 0.9f, 0.4f, 0.9f)
+                : new Color(0.5f, 0.5f, 0.5f, 0.4f);
+        }
+
+        /// <summary>
+        /// Sıra değiştiyse duyurur.
+        /// </summary>
+        // SIRANIN SAHİBİ TAHTA DEĞİL, TurnState — burada saklanan tek şey "en son
+        // neyi duyurdum" bilgisi, sıranın kendisi değil. İkisi karıştırılsaydı
+        // ekran ile kural sessizce ayrışabilirdi.
+        private void AnnounceTurnIfChanged()
+        {
+            Team current = battle.Turn.Current;
+            int number = battle.Turn.TurnNumber;
+
+            if (number == lastAnnouncedTurn && current == lastAnnouncedTeam)
+            {
+                return;
+            }
+
+            lastAnnouncedTurn = number;
+            lastAnnouncedTeam = current;
+            TurnChanged?.Invoke(current, number);
+        }
+
+        /// <summary>
+        /// Bir kimliğin hangi tarafa ait olduğunu söyler.
+        /// </summary>
+        /// <returns>Kimlik bu savaşta tanınmıyorsa false.</returns>
+        // İKİ DEFTER, TEK SORU: takım bilgisi savaşçıda da yapıda da var ama
+        // ayrı tablolarda duruyor. Çağıranın hangi tabloya bakacağını bilmesi
+        // gerekmesin diye soru burada birleştiriliyor — DespawnView'ın iki
+        // tabloyu birleştirmesiyle aynı desen ve aynı gerekçe.
+        private bool TryGetTeam(Unit unit, out Team team)
+        {
+            if (unit != null && battle.TryGetCombatant(unit, out Combatant combatant))
+            {
+                team = combatant.Team;
+                return true;
+            }
+
+            if (unit != null && battle.TryGetStructure(unit, out Structure structure))
+            {
+                team = structure.Team;
+                return true;
+            }
+
+            team = Team.None;
+            return false;
+        }
+
+        /// <summary>
+        /// Bir kimliği oyuncuya okunur biçimde anlatır: adı, canı, hasarı.
+        /// </summary>
+        /// <returns>Kimlik bu savaşta tanınmıyorsa false.</returns>
+        // METİN BURADA KURULUYOR ÇÜNKÜ KAYNAK BURADA: canı ve hasarı bilen tek
+        // yer savaşın defteri. Etiketin kendisi bu tipi tanımıyor, yalnızca
+        // hazır cümleyi alıyor.
+        public bool TryDescribe(Unit unit, out string description)
+        {
+            description = string.Empty;
+
+            if (unit == null)
+            {
+                return false;
+            }
+
+            if (battle.TryGetCombatant(unit, out Combatant combatant))
+            {
+                string state = combatant.State == UnitState.Alive
+                    ? "ayakta"
+                    : combatant.State == UnitState.Downed ? "düşmüş" : "ölü";
+
+                description =
+                    $"{unit.Name}  ·  {combatant.CurrentHealth}/{combatant.MaxHealth} can  ·  " +
+                    $"{combatant.AttackProfile.Damage} hasar  ·  {state}";
+                return true;
+            }
+
+            if (battle.TryGetStructure(unit, out Structure structure))
+            {
+                description =
+                    $"{unit.Name}  ·  {structure.CurrentHealth}/{structure.MaxHealth} can  ·  yapı";
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Her can barını sahibinin güncel canına göre tazeler.
+        /// </summary>
+        // HER KARE SORULUYOR, OLAYA BAĞLANMIYOR: canın değiştiğini duyuran bir
+        // olay yok (Health sessiz bir tip) ve bir tane eklemek savaş çekirdeğini
+        // ekran için değiştirmek olurdu. Tahtadaki nesne sayısı onlarla ölçüldüğü
+        // için okuma ucuz; bar zaten değişmediğinde hiçbir iş yapmıyor.
+        private void RefreshHealthBars()
+        {
+            foreach (KeyValuePair<Unit, HealthBarView> pair in healthBars)
+            {
+                if (pair.Value == null)
+                {
+                    continue;
+                }
+
+                if (battle.TryGetCombatant(pair.Key, out Combatant combatant))
+                {
+                    pair.Value.SetFraction(combatant.MaxHealth <= 0
+                        ? 0f
+                        : (float)combatant.CurrentHealth / combatant.MaxHealth);
+                    continue;
+                }
+
+                if (battle.TryGetStructure(pair.Key, out Structure structure))
+                {
+                    pair.Value.SetFraction(structure.MaxHealth <= 0
+                        ? 0f
+                        : (float)structure.CurrentHealth / structure.MaxHealth);
+                }
+            }
         }
 
         /// <summary>
@@ -1173,11 +1604,156 @@ namespace GridStrategy.Unity
                 return;
             }
 
+            // KENDİ TARAFINA TIKLAMAK SEÇİMİ DEĞİŞTİRİR, SALDIRI DEĞİLDİR.
+            //
+            // Bu dal olmadan oyuncu ikinci savaşçısını seçemiyordu: tıklama
+            // doğrudan saldırı akışına düşüyor, kural onu reddediyor ve ekranda
+            // hiçbir şey olmuyordu. Oyuncunun gördüğü şey "tıklıyorum, bir şey
+            // olmuyor" idi — sessiz bir kilitlenme.
+            //
+            // AYRIM TAKIMDAN OKUNUYOR, TİPTEN DEĞİL: hedef bir yapı da olabilir
+            // ve kendi binana tıklamak da onu SEÇMELİ (üretim paneli ancak
+            // seçiliyken açılıyor). "Aynı takım mı" sorusunun tek kaynağı savaşın
+            // defteri; burada ikinci bir kopya tutulmuyor.
+            if (TryGetTeam(clicked, out Team clickedTeam)
+                && TryGetTeam(selectedUnit, out Team selectedTeam)
+                && clickedTeam == selectedTeam)
+            {
+                SelectUnit(clicked);
+                Debug.Log($"[Board] ({x},{y}) holds friendly '{clicked.Name}' - SELECTION MOVED.", this);
+                return;
+            }
+
+            // UZAKTAKİ DÜŞMANA TIKLAMAK "ORAYA GİT VE VUR" DEMEKTİR. Oyuncu
+            // menzili gözüyle ölçmek zorunda kalmasın diye: tıkladığı hedef
+            // uzaktaysa savaşçı önce yanına yürür, sonra vurur. İkisi TEK bir
+            // hamledir ve tek bir hak harcar.
+            if (!TryCloseInOn(clicked, x, y))
+            {
+                return;
+            }
+
             // Mesafe BURADA hesaplanmıyor ve hesaplatılmıyor bile: BattleActions
             // konumları Battle'dan bulup GridDistance'a ölçtürüyor. Bu satırın
             // bildiği tek şey "kim kime".
             AttackOutcome outcome = BattleActions.Attack(battle, selectedUnit, clicked);
             ReactToAttack(outcome, clicked, x, y);
+        }
+
+        /// <summary>
+        /// Seçili savaşçı hedefe vuramayacak kadar uzaktaysa, ona komşu bir
+        /// hücreye yürütür.
+        /// </summary>
+        /// <returns>
+        /// Saldırı denemesi YAPILABİLİR ise true. Yaklaşma başarısızsa false —
+        /// o zaman bu tur yalnızca yürüme (ya da hiçbir şey) olur.
+        /// </returns>
+        // NEDEN AYRI BİR ADIM: hareket ile saldırı iki ayrı eylem ve ikisinin de
+        // kendi kuralları var (sıra, durum, menzil). Bunları tek bir "saldır"
+        // çağrısının içine gömmek, hareket reddedildiğinde saldırının neden
+        // olmadığını söyleyemez hâle getirirdi.
+        //
+        // SIRA KURALI BİR KEZ HARCANIR: BattleActions.Move başarılı olduğunda
+        // sırayı devrediyor, dolayısıyla peşinden gelen saldırı reddedilirdi.
+        // Bu yüzden yaklaşma başarılıysa BURADA duruyoruz ve vuruş bir sonraki
+        // tıklamaya kalıyor — oyuncuya da bunu söylüyoruz.
+        private bool TryCloseInOn(Unit target, int targetX, int targetY)
+        {
+            if (!battle.TryGetPosition(selectedUnit, out int fromX, out int fromY))
+            {
+                return true;
+            }
+
+            // Zaten menzildeyse yürümeye gerek yok; doğrudan saldırıya geç.
+            if (GridDistance.Between(fromX, fromY, targetX, targetY) <= attackRange)
+            {
+                return true;
+            }
+
+            if (!TryFindApproachCell(fromX, fromY, targetX, targetY, out int stepX, out int stepY))
+            {
+                Debug.Log(
+                    $"[Board] '{selectedUnit.Name}' cannot get close enough to '{target.Name}'; " +
+                    "every cell around the target is blocked.",
+                    this);
+                return false;
+            }
+
+            MoveOutcome outcome =
+                BattleActions.Move(battle, selectedUnit, stepX, stepY, out List<GridStep> path);
+
+            if (outcome != MoveOutcome.Moved)
+            {
+                ReactToMove(outcome, selectedUnit, stepX, stepY, path);
+                return false;
+            }
+
+            WalkViewAlong(selectedUnit, path, stepX, stepY);
+            Debug.Log(
+                $"[Board] '{selectedUnit.Name}' closed in on '{target.Name}' and is now in range. " +
+                "Click the target again to strike.",
+                this);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Hedefe vurabilecek, boş ve ULAŞILABİLİR hücrelerin en yakınını bulur.
+        /// </summary>
+        // ADAYLAR MENZİLE GÖRE ÜRETİLİYOR, KOMŞULUĞA GÖRE DEĞİL: attackRange 2
+        // olan bir birim hedefin dibine kadar gitmemeli, vurabildiği yerde
+        // durmalı. Aday listesi hedefin çevresindeki kareyi tarar ve her adayı
+        // ÜÇ süzgeçten geçirir: menzilde mi, boş mu, yolu var mı.
+        private bool TryFindApproachCell(
+            int fromX, int fromY, int targetX, int targetY, out int bestX, out int bestY)
+        {
+            bestX = 0;
+            bestY = 0;
+
+            int bestSteps = int.MaxValue;
+
+            for (int dy = -attackRange; dy <= attackRange; dy++)
+            {
+                for (int dx = -attackRange; dx <= attackRange; dx++)
+                {
+                    int candidateX = targetX + dx;
+                    int candidateY = targetY + dy;
+
+                    if (dx == 0 && dy == 0)
+                    {
+                        continue;
+                    }
+
+                    if (GridDistance.Between(candidateX, candidateY, targetX, targetY) > attackRange)
+                    {
+                        continue;
+                    }
+
+                    if (!IsCellFree(candidateX, candidateY))
+                    {
+                        continue;
+                    }
+
+                    if (!battle.TryFindPath(
+                            selectedUnit, fromX, fromY,
+                            candidateX, candidateY, out List<GridStep> candidatePath))
+                    {
+                        continue;
+                    }
+
+                    // EN AZ ADIM KAZANIR, en kısa kuş uçuşu değil: engellerin
+                    // etrafından dolaşan bir hücre, düz çizgide yakın görünüp
+                    // gerçekte uzak olabilir.
+                    if (candidatePath.Count < bestSteps)
+                    {
+                        bestSteps = candidatePath.Count;
+                        bestX = candidateX;
+                        bestY = candidateY;
+                    }
+                }
+            }
+
+            return bestSteps != int.MaxValue;
         }
 
         /// <summary>
@@ -1218,8 +1794,10 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            MoveOutcome outcome = BattleActions.Move(battle, selectedUnit, x, y, moveRange);
-            ReactToMove(outcome, selectedUnit, x, y);
+            // Yol da buradan çıkıyor: tahta hareketi ANINDA işler, ekran ise
+            // birimi bu duraklardan geçirerek gecikmeli takip eder.
+            MoveOutcome outcome = BattleActions.Move(battle, selectedUnit, x, y, out List<GridStep> path);
+            ReactToMove(outcome, selectedUnit, x, y, path);
         }
 
         /// <summary>
@@ -1231,6 +1809,16 @@ namespace GridStrategy.Unity
         // DERİN ANLATIM: Docs/deep/konular/06-sonuc-enumlari.md
         private void ReactToAttack(AttackOutcome outcome, Unit target, int x, int y)
         {
+            // VURUŞ EKRANDA GÖRÜNÜR — ve yalnızca GERÇEKTEN vurulduğunda.
+            // Reddedilen bir saldırıda da hamle oynatılsaydı oyuncu isabet ile
+            // reti ayırt edemezdi; gösterim o zaman bilgi taşımaz, gürültü olurdu.
+            if (outcome == AttackOutcome.Hit
+                || outcome == AttackOutcome.HitAndDowned
+                || outcome == AttackOutcome.HitAndDestroyed)
+            {
+                PlayAttackVisual(selectedUnit, x, y);
+            }
+
             switch (outcome)
             {
                 // GÖRSEL BU DALDAN TAZELENMİYOR ARTIK: durum değişikliğinin TEK
@@ -1307,7 +1895,7 @@ namespace GridStrategy.Unity
         /// </summary>
         // → BoardAdapter.md#reacttomovemoveoutcome-outcome-unit-unit-int-x-int-y
         // DERİN ANLATIM: Docs/deep/konular/06-sonuc-enumlari.md
-        private void ReactToMove(MoveOutcome outcome, Unit unit, int x, int y)
+        private void ReactToMove(MoveOutcome outcome, Unit unit, int x, int y, List<GridStep> path)
         {
             switch (outcome)
             {
@@ -1315,12 +1903,21 @@ namespace GridStrategy.Unity
                     // Görsel tahtayı TAKİP eder, tahtaya yön vermez: hareketi
                     // MoveAction çoktan yaptı. Ters sırada yazılsaydı reddedilen
                     // bir hareket ekranda gerçekleşmiş görünürdü.
-                    MoveViewTo(unit, x, y);
-                    Debug.Log($"[Board] '{unit.Name}' moved to ({x},{y}).", this);
+                    WalkViewAlong(unit, path, x, y);
+                    Debug.Log($"[Board] '{unit.Name}' is walking to ({x},{y}) — {path.Count} step(s).", this);
                     break;
 
+                // Oyuncu tıkladı ama oraya varılamıyor: hedef, birimler ya da
+                // tahta kenarıyla çevrili. Menzil kuralının yerini bu aldı.
+                case MoveOutcome.RejectedUnreachable:
+                    Debug.Log($"[Board] '{unit.Name}' cannot reach ({x},{y}); no path is open.", this);
+                    break;
+
+                // BUGÜN ULAŞILAMAZ: tahta menzil sormayan sürümü çağırıyor.
+                // Yazılı kalıyor çünkü menzilli sürüm Core'da hâlâ duruyor ve
+                // tur bazlı bir mod geri geldiği gün bu dal yeniden canlanır.
                 case MoveOutcome.RejectedOutOfRange:
-                    Debug.Log($"[Board] ({x},{y}) is further than {moveRange} cell(s) for '{unit.Name}'.", this);
+                    Debug.Log($"[Board] ({x},{y}) is out of range for '{unit.Name}'.", this);
                     break;
 
                 // AŞAĞIDAKİ İKİ DAL BUGÜN ULAŞILAMAZ ve yine de yazılı: iki
@@ -1409,16 +2006,67 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Görseli hücrenin merkezine taşır.
+        /// Birimin görselini, yolun duraklarından geçirerek hedefe YÜRÜTÜR.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncunun ışınlanma yerine yürüyüş gördüğü tek
+        /// yer burası. Tahta hareketi çoktan işledi; bu çağrı yalnızca ekranı
+        /// gecikmeli olarak oraya taşır.
         /// </summary>
-        private void MoveViewTo(Unit unit, int x, int y)
+        // YÜRÜTÜCÜ SAHNEDE ELLE BAĞLANMAZ, BURADA TAKILIR: prefab'a bir bileşen
+        // daha eklemek operatöre bir sürükleme borcu daha yazardı ve unutulduğu
+        // gün birim sessizce ışınlanmaya geri dönerdi. Bileşen kendi başına
+        // hiçbir kural bilmediği için runtime'da eklenmesinin bir bedeli yok.
+        /// <summary>
+        /// Saldıranın vuruş hamlesini oynatır: silah kalkar, hedefe doğru bir
+        /// adım atılır ve yerine dönülür.
+        /// </summary>
+        // YÜRÜTÜCÜYLE AYNI DESEN: bileşen prefab'da değil, ilk ihtiyaç anında
+        // runtime'da takılıyor. Gerekçe orada yazılı ve burada tekrarlanmıyor —
+        // operatöre bir sürükleme borcu daha yazmamak.
+        private void PlayAttackVisual(Unit attacker, int targetX, int targetY)
+        {
+            if (attacker == null || !TryGetView(attacker, out UnitView view))
+            {
+                return;
+            }
+
+            UnitAttackView attackView = view.GetComponent<UnitAttackView>();
+            if (attackView == null)
+            {
+                attackView = view.gameObject.AddComponent<UnitAttackView>();
+            }
+
+            attackView.Play(CellCentre(targetX, targetY));
+        }
+
+        private void WalkViewAlong(Unit unit, List<GridStep> path, int x, int y)
         {
             if (!TryGetView(unit, out UnitView view))
             {
                 return;
             }
 
-            view.transform.position = CellCentre(x, y);
+            UnitWalker walker = view.GetComponent<UnitWalker>();
+            if (walker == null)
+            {
+                walker = view.gameObject.AddComponent<UnitWalker>();
+            }
+
+            // Yol boşsa (savunma amaçlı) hedefe otur: ekran ile tahtanın
+            // ayrışması, yavaş yürümekten çok daha kötü bir hatadır.
+            if (path == null || path.Count == 0)
+            {
+                view.transform.position = CellCentre(x, y);
+                return;
+            }
+
+            var waypoints = new List<Vector3>(path.Count);
+            for (int i = 0; i < path.Count; i++)
+            {
+                waypoints.Add(CellCentre(path[i].X, path[i].Y));
+            }
+
+            walker.Walk(waypoints, moveSpeed);
         }
 
         /// <summary>
@@ -1440,6 +2088,11 @@ namespace GridStrategy.Unity
             {
                 selectedUnit = null;
             }
+
+            // Bar, sahibinin ÇOCUĞU olduğu için sahneden kendiliğinden gidiyor;
+            // silinmesi gereken tek şey tabloda kalan ok. Bırakılsaydı tablo
+            // savaş boyunca büyür ve RefreshHealthBars ölü kayıtları gezerdi.
+            healthBars.Remove(unit);
 
             // YAPI ÖNCE SORULUYOR ve sıra burada GÖZLENEMEZ: bir kimlik aynı
             // anda hem savaşçı hem yapı OLAMAZ, o kelepçe ThrowIfCannotJoin'de
@@ -1466,11 +2119,15 @@ namespace GridStrategy.Unity
             // EDİLMİŞ bir görsel referansı kalırdı ve Unity'nin aşırı yüklenmiş
             // eşitliği yüzünden "null gibi ama null değil" hâlde dolaşırdı.
             unitViews.Remove(unit);
-            // ÖDÜNÇ ALINAN — `Destroy`: yalnız motor tarafındaki eşi yıkım sırasına
-            // sokar, yönetilen C# nesnesini geri VERMEZ; `System.Object` ile
-            // `UnityEngine.Object` ayrımı tam bu satırda görünür.
-            // DİL: Docs/deep/dil/07-bellek-canlilik-ve-yikim.md
-            Destroy(view.gameObject);
+
+            // YOK EDİLMİYOR, HAVUZA GERİ VERİLİYOR. Eskiden burada Destroy vardı;
+            // her ölüm bir yıkım, her doğum bir tahsis demekti. Artık görsel
+            // gizlenip saklanıyor ve bir sonraki birim onu devralıyor.
+            //
+            // TABLODAN ÇIKARMA HÂLÂ ÖNCE: havuza verilen bir görselin tabloda
+            // kalan oku, o görsel BAŞKA bir birime kiralandığında iki kimliğin
+            // aynı nesneyi göstermesine yol açardı.
+            viewPool.Return(view);
 
             Debug.Log($"[Board] '{unit.Name}' was cleaned up and left the battle.", this);
         }

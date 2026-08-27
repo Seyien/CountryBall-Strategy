@@ -152,7 +152,8 @@ namespace GridStrategy.Unity
 
             director.BeginStructurePlacement(
                 flattened[entry.Index].Definition,
-                TeamOf(entry.Index));
+                TeamOf(entry.Index),
+                flattened[entry.Index].Icon);
         }
 
         private void OnEntryDragged(PaletteEntryView entry, Vector2 screenPoint)

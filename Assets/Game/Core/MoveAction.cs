@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GridStrategy.Core
 {
@@ -25,8 +26,12 @@ namespace GridStrategy.Core
     /// aynı deseni izler.
     ///
     /// Neyi BİLMEZ: sıranın kimde olduğunu, birimin bu turda daha önce hareket
-    /// edip etmediğini, yolun üzerinde ne olduğunu (bugün adım adım yürünmüyor,
-    /// hücreden hücreye ışınlanılıyor), sonucu kimin göstereceğini.
+    /// edip etmediğini, sonucu kimin göstereceğini.
+    ///
+    /// TAHTA IŞINLANIR, EKRAN YÜRÜR — ve bu bir kusur değil, bir iş bölümü:
+    /// burada birim tek adımda yeni hücresine yazılır, çünkü kurallar sorulurken
+    /// tahtanın yarı yolda olması anlamsız olurdu. Oyuncunun gördüğü yürüyüşü
+    /// <see cref="PathFinder"/>'ın çıkardığı yol ile ekran katmanı üretir.
     ///
     /// Birimin DURUMUNU da bilmez — düşmüş bir birim bu akıştan geçer ve yer
     /// değiştirir. Bu bir eksik değil, bir SINIR: durum GridStrategy.Combat'ta
@@ -179,6 +184,81 @@ namespace GridStrategy.Core
             }
 
             return Execute(board, unit, fromX, fromY, toX, toY, profile.Range);
+        }
+
+        /// <summary>
+        /// Menzil SORMAYAN hareket: birim, yolu varsa tahtanın herhangi bir boş
+        /// hücresine gider.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncu haritada uzak bir noktaya tıklar ve birim
+        /// aradaki hücrelere basarak oraya yürür. "Şu kadar hücre uzağa
+        /// gidebilirsin" kısıtının yerini ULAŞILABİLİRLİK aldı — engellerle
+        /// çevrili bir hücreye gidilemez, uzak ama açık bir hücreye gidilir.
+        ///
+        /// Menzilli sürümü SİLMİYORUZ: süvari/piyade gibi tur bazlı menzil
+        /// isteyen bir mod geri gelirse kural orada duruyor. Tahta bugün bu
+        /// sürümü çağırıyor.
+        /// </summary>
+        /// <param name="path">
+        /// Birimin sırayla basacağı hücreler; çıkış hücresi listede YOKTUR.
+        /// Ekran, yürüyüşü bu listeye bakarak canlandırır. Ret hâlinde boştur.
+        /// </param>
+        // TAHTA ANINDA GÜNCELLENİR, EKRAN GECİKMELİ TAKİP EDER: birim buradan
+        // çıktığında hedef hücrede zaten duruyor. Yürüyüşü hücre hücre işlemek
+        // (referans oyunun yaptığı) çekirdeği zamana bağlardı; o yol seçilmedi
+        // çünkü kurallar o an sorulduğunda tahtanın yarı yolda olması gerekirdi.
+        public static MoveOutcome ExecuteAlongPath(
+            UnitGrid board,
+            Unit unit,
+            int fromX,
+            int fromY,
+            int toX,
+            int toY,
+            out List<GridStep> path)
+        {
+            path = new List<GridStep>();
+
+            if (board == null)
+            {
+                throw new ArgumentNullException(nameof(board));
+            }
+
+            if (unit == null)
+            {
+                throw new ArgumentNullException(nameof(unit));
+            }
+
+            // Kaynak kaydı ile tahta ayrışmışsa bu bir ÇAĞIRAN hatasıdır —
+            // menzilli sürümdeki ile birebir aynı gerekçe.
+            if (!board.TryGetUnit(fromX, fromY, out Unit standing)
+                || !ReferenceEquals(standing, unit))
+            {
+                throw new ArgumentException(
+                    "The unit is not standing on the given source cell.", nameof(unit));
+            }
+
+            // SIRA BİR KARARDIR: SINIR ► DOLULUK ► YOL. Önce, düzeltilse bile
+            // ayakta kalan sebep sorulur; en pahalı soru olan arama en sona
+            // bırakılır.
+            if (!board.IsInsideGrid(toX, toY))
+            {
+                return MoveOutcome.RejectedInvalidDestination;
+            }
+
+            if (board.TryGetUnit(toX, toY, out Unit occupant)
+                && !ReferenceEquals(occupant, unit))
+            {
+                return MoveOutcome.RejectedCellOccupied;
+            }
+
+            if (!PathFinder.TryFindPath(board, unit, fromX, fromY, toX, toY, out path))
+            {
+                return MoveOutcome.RejectedUnreachable;
+            }
+
+            board.MoveUnit(fromX, fromY, toX, toY);
+
+            return MoveOutcome.Moved;
         }
     }
 }

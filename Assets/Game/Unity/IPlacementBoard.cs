@@ -6,29 +6,36 @@ using UnityEngine;
 
 namespace GridStrategy.Unity
 {
-    // ═══ ROL: SÖZLEŞME (Seam) ════════════════════════════════════════
-    // kimlik : yok — arayüzün örneği olmaz; kimliği UYGULAYAN taşır
-    // hafıza : yok — hiçbir üyesi bir şey saklamaz; saklayan taraf
-    //          uygulayandır ve bugün o taraf tahtayı zaten tutuyor
-    // Unity  : gerekmez ama VAR — Vector2 bir UnityEngine tipidir ve bu
-    //          arayüz ekran noktası konuşmak zorunda; işte bu yüzden
-    //          dosya Unity katmanında, çekirdekte değil
-    // karar  : vermez — motor tarafındaki tahtadan NE İSTENDİĞİNİ
-    //          adlandırır; nasıl yapıldığı uygulayanın işi
     /// <summary>
-    /// Üretim ve yerleştirme katmanının tahtadan istediği HER ŞEY.
+    /// Üretim katmanının tahtadan isteyebileceği şeylerin LİSTESİ.
     ///
-    /// <b>Bu arayüz var olduğu için <see cref="ProductionDirector"/> tahtanın
-    /// somut tipini hiç görmüyor</b> — ve bu bir soyutlama merakı değil, bir
-    /// SAHİPLİK sınırıdır: tahtayı çizen dosya başka bir hattın malı ve o
-    /// dosyaya dokunulmadan bu katman yazılabilmeliydi.
+    /// EN BASİT HÂLİYLE: bunu bir <b>sipariş formu</b> gibi düşün.
     ///
-    /// Uygulayan tek tip <c>BoardAdapter</c>; bağlanma 2026-08-25'te yapıldı.
-    /// Tek aday olması tesadüf değil: sözleşmenin her üyesi tahtanın KENDİ
-    /// alanına bakıyor, yani başka bir tip bunları cevaplayamaz. Alan
-    /// atanmazsa <see cref="ProductionDirector"/> konsola bağırır.
+    /// Oyunda iki taraf var. Biri TAHTA: hücreleri çizen, birimleri tutan,
+    /// tıklamayı hücreye çeviren taraf (<c>BoardAdapter</c>). Öteki ÜRETİM
+    /// MÜDÜRÜ: oyuncunun paletten sürüklediği binayı alıp "şunu şuraya koy"
+    /// diyen taraf (<see cref="ProductionDirector"/>).
     ///
-    /// AYNA BELGE: bu tipin gerekçeleri bugün yalnızca bu dosyada.
+    /// Üretim müdürünün tahtanın nasıl çalıştığını bilmesine gerek yok. Ona
+    /// gereken tek şey birkaç soru sorabilmek: <i>"bu hücre boş mu?"</i>,
+    /// <i>"şu binayı buraya koyar mısın?"</i>, <i>"önizlemeyi şuraya taşı"</i>.
+    /// İşte bu dosya o soruların listesi — fazlası değil.
+    ///
+    /// NE KAZANDIRIYOR, SOMUT OLARAK: üretim müdürü tahtanın 1700 satırlık
+    /// dosyasını değil, bu 8 maddelik listeyi tanıyor. Yani tahtanın içinde ne
+    /// değişirse değişsin — hücreler nasıl çizilir, tıklama nasıl okunur,
+    /// birimler hangi tabloda tutulur — üretim müdürü etkilenmiyor. Değişiklik
+    /// bu listeye dokunmadığı sürece öteki dosya hiç açılmıyor.
+    ///
+    /// DÜRÜST SINIR: bu ayrım bugün bir DERLEME sınırı değil, bir SÖZ. İki tip
+    /// aynı assembly ve aynı namespace içinde; yani üretim müdürü isteseydi
+    /// tahtanın somut tipine uzanabilirdi. Onu engelleyen şey derleyici değil,
+    /// bu arayüzü kullanma kararı. Gerçek bir duvar isteseydik ikisini ayrı
+    /// assembly'lere koymamız gerekirdi.
+    ///
+    /// BUGÜN TEK UYGULAYICISI VAR: <c>BoardAdapter</c>. Tek olması arayüzü
+    /// gereksiz kılmıyor ama kazancını da küçültüyor — asıl kazanç ikinci bir
+    /// uygulayıcı doğduğunda (örneğin testlerde sahte bir tahta) ortaya çıkar.
     /// </summary>
     // ARAYÜZ, SOYUT SINIF DEĞİL: uygulayacak tip zaten bir MonoBehaviour ve C#
     // tek kalıtıma izin verir. Soyut sınıf yazsaydık tahtanın motor bileşeni
@@ -104,6 +111,16 @@ namespace GridStrategy.Unity
         // kullanılıyor. Sürükleme sırasında ikinci bir önizleme çizmek, aynı
         // işi yapan iki nesne demek olurdu.
         void SetPlacementGhost(bool visible, int x, int y);
+
+        /// <summary>
+        /// Sıradaki yerleştirmenin hangi binaya ait olduğunu söyler; hem
+        /// önizleme hayaleti hem de kurulan bina bu görseli kullanır.
+        /// </summary>
+        // BU ÜYE OLMASAYDI HER BİNA AYNI GÖRÜNÜRDÜ: tahta, kurduğu yapının
+        // sprite'ını hayaletin üstünden okuyordu ve hayaletin sprite'ı sahnede
+        // sabit atanmıştı. Oyuncu mavi bir karargâh sürükleyip kırmızı bir depo
+        // bırakmış oluyordu.
+        void SetPlacementVisual(Sprite sprite);
 
         /// <summary>
         /// Bir kimliğin karşılığı olan yapıyı verir; o kimlik bir yapı değilse

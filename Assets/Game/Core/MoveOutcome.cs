@@ -65,6 +65,17 @@ namespace GridStrategy.Core
         /// elvermiyor (<c>MovementRules.CanMove</c> — bu tipin GÖREMEDİĞİ bir
         /// kural). Bu değeri yalnızca <c>GridStrategy.Battle</c> katmanı üretir.
         /// </summary>
-        RejectedActorCannotAct
+        RejectedActorCannotAct,
+
+        /// <summary>
+        /// Hedef hücre tahtada ve boş, ama oraya YÜRÜNEBİLECEK bir yol yok —
+        /// birimlerle ya da tahta kenarıyla çevrili.
+        ///
+        /// Oyuncu tarafı: tıkladığı yere gidilemeyeceğini söyleyen mesaj budur.
+        /// <see cref="RejectedOutOfRange"/> ile karıştırılmamalı; o "menzil"
+        /// kuralının cevabıydı ve tahta artık menzil sormuyor, ULAŞILABİLİRLİK
+        /// soruyor. Yolu <see cref="PathFinder"/> arar.
+        /// </summary>
+        RejectedUnreachable
     }
 }

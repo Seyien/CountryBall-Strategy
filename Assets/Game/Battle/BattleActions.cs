@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using GridStrategy.Combat;
 using GridStrategy.Core;
 
@@ -211,6 +212,64 @@ namespace GridStrategy.Battle
             // tek başarı değeri var; kara liste yazılsaydı üç ret değerinin üçünü
             // de saymak gerekirdi ve dördüncüsü eklendiği gün sessizce sıra
             // yakardı.
+            if (outcome == MoveOutcome.Moved)
+            {
+                battle.Turn.EndTurn();
+            }
+
+            return outcome;
+        }
+
+        /// <summary>
+        /// Menzil SORMAYAN hareket: oyuncu haritada bir yere tıklar, birim yolu
+        /// varsa oraya yürür.
+        ///
+        /// OYUNDA NE İŞE YARAR: tahtanın bugün kullandığı hareket budur. "Bu tur
+        /// en fazla şu kadar hücre" kısıtı kalktı; yerine ULAŞILABİLİRLİK geldi.
+        /// Sıra kuralı ve durum kuralı DEĞİŞMEDİ — sırası olmayan ya da düşmüş
+        /// bir birim hâlâ yürüyemez.
+        /// </summary>
+        /// <param name="path">
+        /// Birimin sırayla basacağı hücreler; ekran yürüyüşü buna bakarak
+        /// canlandırır. Ret hâlinde boştur.
+        /// </param>
+        public static MoveOutcome Move(
+            Battle battle,
+            Unit unit,
+            int toX,
+            int toY,
+            out List<GridStep> path)
+        {
+            path = new List<GridStep>();
+
+            if (battle == null)
+            {
+                throw new ArgumentNullException(nameof(battle));
+            }
+
+            if (unit == null)
+            {
+                throw new ArgumentNullException(nameof(unit));
+            }
+
+            Combatant combatant = RequireCombatant(battle, unit, nameof(unit));
+            RequireCell(battle, unit, nameof(unit), out int fromX, out int fromY);
+
+            // İki kural, tek ret değeri — menzilli sürümdeki ile birebir aynı
+            // gerekçe, bu yüzden orada yazılı ve burada tekrarlanmıyor.
+            if (!TurnRules.CanAct(combatant.Team, battle.Turn.Current))
+            {
+                return MoveOutcome.RejectedActorCannotAct;
+            }
+
+            if (!MovementRules.CanMove(combatant.State))
+            {
+                return MoveOutcome.RejectedActorCannotAct;
+            }
+
+            MoveOutcome outcome =
+                MoveAction.ExecuteAlongPath(battle.Board, unit, fromX, fromY, toX, toY, out path);
+
             if (outcome == MoveOutcome.Moved)
             {
                 battle.Turn.EndTurn();

@@ -19,31 +19,60 @@ namespace GridStrategy.Unity
     // karar  : VERMEZ, SORAR ve UYGULAR — üretim izni ProductionRules'un,
     //          yerleştirme izni tahtanın; buranın işi sırayı doğru kurmak
     /// <summary>
-    /// Panellerle tahta arasındaki tek köprü: hangi tanımın elde tutulduğunu,
-    /// hangi yapının seçili olduğunu ve yerleşmiş her yapının üretim hattını
-    /// bilen yer.
+    /// Oyuncunun paletten sürüklediği şeyi tahtaya indiren ve kurulmuş her
+    /// binanın üretim sayacını işleten yer.
     ///
-    /// <b>Bu tip <c>BoardAdapter</c>'ı tip olarak bile YAZMAZ.</b> Tahtayla
-    /// tek teması <see cref="IPlacementBoard"/> üzerinden; sahnede hangi
-    /// bileşenin o sözleşmeyi taşıdığına Inspector karar verir.
+    /// EN BASİT HÂLİYLE: bunu bir <b>şantiye şefi</b> gibi düşün.
+    ///
+    /// Oyuncu soldaki paletten bir bina tutup tahtaya sürüklüyor. Bu sırada üç
+    /// ayrı taraf iş yapıyor ve hiçbiri ötekinin işini bilmiyor:
+    /// <list type="number">
+    /// <item>PALET — düğmeyi çizer, parmağın nereye gittiğini bildirir.
+    /// Tahtanın var olduğundan haberi bile yoktur.</item>
+    /// <item>TAHTA — hücreleri bilir, "burası boş mu" sorusuna cevap verir.
+    /// Paletin var olduğundan haberi yoktur.</item>
+    /// <item>ŞANTİYE ŞEFİ (burası) — ikisini konuşturur: paletten "elimde şu
+    /// bina var" bilgisini alır, tahtaya "burası uygun mu" diye sorar,
+    /// uygunsa "koy" der.</item>
+    /// </list>
+    ///
+    /// BU TİP OLMASAYDI NE OLURDU: paletin doğrudan tahtayı çağırması
+    /// gerekirdi. O zaman her yeni panel (üretim paneli, ileride bir teknoloji
+    /// ağacı) tahtanın nasıl çalıştığını baştan öğrenmek zorunda kalır ve aynı
+    /// "önce hücreyi sor, sonra koy, sonra sayacı başlat" sırası her panelde
+    /// yeniden yazılırdı. Sıranın bir yerde yanlış yazılması ise sessiz bir hata
+    /// olurdu: bina konmadan sayaç başlar, oyuncu neden beklediğini anlamazdı.
+    ///
+    /// İKİNCİ İŞİ — ÜRETİM SAATİ: kurulmuş her bina "3 saniyede bir asker"
+    /// gibi bir hızda üretim yapıyor. O saniyeleri sayan yer burası
+    /// (<c>Update</c> içinde <c>Time.deltaTime</c>). Sayaç savaş çekirdeğine
+    /// konamazdı, çünkü çekirdek motoru hiç görmüyor.
+    ///
+    /// TAHTAYI ADIYLA TANIMAZ: teması yalnızca <see cref="IPlacementBoard"/>
+    /// üzerinden — yani kısa bir sipariş formu üzerinden. Gerekçesi o dosyada.
     ///
     /// Neyi BİLMEZ: bir düğmenin nasıl çizildiğini, panellerin kaç satır
     /// olduğunu, simgelerin nereden geldiğini. Üçü de görünüm katmanının işi.
-    ///
-    /// AYNA BELGE: bu tipin gerekçeleri bugün yalnızca bu dosyada.
     /// </summary>
     public sealed class ProductionDirector : MonoBehaviour
     {
-        // ALAN TİPİ MonoBehaviour, IPlacementBoard DEĞİL — ve bu bir taviz
-        // değil, Unity'nin serileştirmesinin dayattığı bir olgu: Inspector bir
-        // ARAYÜZ alanına nesne sürükletmez. Alternatif [SerializeReference] idi
-        // ve reddedildi: o öznitelik sahne nesnesine değil, serileştirilmiş bir
-        // GRAFA referans verir ve buradaki hedef sahnede duran bir bileşen.
-        // Bedeli aşağıdaki Awake'teki tip sınaması, ve o sınama BAĞIRIYOR.
+        // Oyundaki tahta. Bu alan boş kalırsa oyuncu hiçbir bina kuramaz, hiçbir
+        // birim üretemez — panel açılır ama sürüklenen şey hiçbir yere düşmez.
+        // Sahneden sürüklenir: Hierarchy'deki Board nesnesinin BoardAdapter'ı.
+        //
+        // TİP NEDEN MonoBehaviour: Inspector bir ARAYÜZ alanına nesne
+        // sürükletmez, o yüzden sürüklenen şey somut bileşen olarak alınır.
+        // Gerçek sözleşme aşağıdaki `board` alanı; ikisini Awake bağlıyor.
         [Header("Board - drag the component that implements IPlacementBoard")]
         [Tooltip("Any MonoBehaviour that implements IPlacementBoard. Validated loudly on Awake.")]
         [SerializeField] private MonoBehaviour boardBehaviour;
 
+        // Yukarıdaki alanın ARAYÜZ hâli. Awake içinde `boardBehaviour as
+        // IPlacementBoard` ile bir kez çözülür ve bu tip tahtayla yalnızca
+        // buradan konuşur.
+        //
+        // TUZAK: yanlış bileşen sürüklenirse derleyici susar, cast null verir ve
+        // hatayı ancak Awake'teki LogError yakalar.
         private IPlacementBoard board;
 
         // YERLEŞMİŞ YAPILARIN DEFTERİ. Anahtar Unit çünkü seçim OLAYININ
@@ -154,7 +183,13 @@ namespace GridStrategy.Unity
         /// <summary>
         /// Sol panelden bir yapı türü alınır. Bırakılana kadar elde tutulur.
         /// </summary>
-        public void BeginStructurePlacement(StructureBlueprint definition, Team team)
+        /// <param name="icon">
+        /// Bu binanın görseli. Tahtaya iletiliyor ki oyuncu sürüklerken imlecin
+        /// altında O binayı görsün ve bıraktığında aynısı kurulsun. Görsel bir
+        /// EKRAN bilgisidir; <paramref name="definition"/> içinde taşınmaz,
+        /// çünkü tanım Core tarafında yaşıyor ve orada Sprite diye bir tip yok.
+        /// </param>
+        public void BeginStructurePlacement(StructureBlueprint definition, Team team, Sprite icon)
         {
             if (definition == null)
             {
@@ -165,6 +200,8 @@ namespace GridStrategy.Unity
             pendingUnit = null;
             pendingProducer = null;
             pendingTeam = team;
+
+            board?.SetPlacementVisual(icon);
         }
 
         /// <summary>

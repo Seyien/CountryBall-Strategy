@@ -99,6 +99,12 @@ namespace GridStrategy.Combat
 
         public int CurrentHealth => health.Current;
 
+        /// <summary>
+        /// Bu yapının tam can değeri — ikizi <c>Combatant.MaxHealth</c> ile aynı
+        /// gerekçeyle var: ekran, can barını ancak tavanı bilirse çizebilir.
+        /// </summary>
+        public int MaxHealth => health.Max;
+
         public float RemainingSeconds => lifecycle.RemainingSeconds;
 
         public bool IsReadyForCleanup => lifecycle.IsReadyForCleanup;

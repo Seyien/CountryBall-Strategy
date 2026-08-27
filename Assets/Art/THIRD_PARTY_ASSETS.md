@@ -1,7 +1,7 @@
 # Third-party art asset manifest
 
 Last verified: 2026-08-16  
-Scope: the 17 PNG files under `Assets/Art/ThirdParty/Kenney/` only.
+Scope: the 32 PNG files under `Assets/Art/ThirdParty/Kenney/` only.
 
 ## Licence and source record
 
@@ -99,3 +99,43 @@ Against the selected Tiny Battle subset, the three equipment sprites share 5 of 
 The S04 diagnostic contact sheet, per-color measurements, nearest-color mapping, import receipt, and Unity serializer logs are retained under `parallel_sessions/S04_ASSET_SOURCING_RESEARCH/staging/COHERENCE/`.
 
 The five imported Tiny Town dirt fills are part of the S05-measured 14-tile dirt family, which reached `99.247%` exact pixel coverage against the full Tiny Battle palette. The selected files remain unmodified. S05 evidence is retained under `parallel_sessions/S05_TERRAIN_VFX_RESEARCH/staging/TERRAIN/`.
+
+
+## 2026-08-27 — fifteen tiles added from the already-verified Tiny Battle archive
+
+The archive was re-downloaded and its SHA-256 re-checked against the hash
+recorded above; it matched byte for byte
+(`7751EC7D9A07E57BAA9FA1174D6F78FCD779A050377227AFEE77993C73CB5F9E`). No new
+licence question arises — same pack, same CC0 1.0 grant.
+
+Fifteen tiles were cut from `Tilemap/tilemap_packed.png` (18x11 grid, 16x16
+tiles, no spacing) with no pixel edits. Index is preserved in each file name.
+
+| Role | Tiles | Files |
+|---|---|---|
+| Terrain | 0, 1, 2 | `Terrain/grass_plain`, `grass_tufts`, `grass_flowers` |
+| Player unit | 143 | `Units/Friendly/friendly_vanguard_infantry_attack` |
+| Enemy unit | 160, 161 | `Units/Enemy/enemy_vanguard_infantry`, `..._attack` |
+| Player buildings | 47, 49, 50 | `Buildings/friendly_factory`, `friendly_turret`, `friendly_fort` |
+| Enemy buildings | 65, 66, 67, 68 | `Buildings/enemy_factory`, `enemy_headquarters`, `enemy_turret`, `enemy_fort` |
+| UI | 192, 195 | `UI/icon_trash`, `icon_heart` |
+
+Two findings worth recording, because both reverse an earlier decision:
+
+**The pack already ships both team colours.** Buildings and units exist in grey,
+green, blue, red and orange rows. The earlier palette-swap derivation under
+`Assets/Art/Derived/` solved a problem the pack had already solved; the native
+red tiles (160/161, 65-68) are now used instead. The derived files stay on disk
+— `enemy_command_depot_from_tile_0045` is still referenced by the enemy barracks
+blueprint — but no further derivation is needed for team colour.
+
+**Tiles 142/143 and 160/161 are the same soldier in two poses.** The second of
+each pair has the weapon raised. That is a two-frame attack animation authored
+into the pack, so the attack visual needs no Animator, no controller, and no
+separate weapon child object — the reference project's approach. `UnitView`
+swaps between the two poses and `UnitAttackView` times the swap.
+
+Terrain moved from the Tiny Town dirt fills to these three Tiny Battle grass
+tiles. The dirt family measured well on palette coherence but read as visual
+noise under units; the grass tiles are from the same pack as every unit and
+building, so coherence is exact rather than measured.

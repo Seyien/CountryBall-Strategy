@@ -134,6 +134,8 @@ namespace GridStrategy.Core
             // giriş sistemi. AttackProfile ve MoveProfile'ın int alan
             // kurucularında bu tuzak yoktu; float'a geçmenin bedeli tam olarak
             // bu satırdır.
+
+            // Kısaca matematik hesaplamalarıyla dışarıdan gelecek değerin sayısal değer olarak gelmeme ihtimali var ve bunu sessiz bir şekilde kapatmak yerine exception fırlatıyoruz.
             if (float.IsNaN(dragThreshold))
             {
                 throw new ArgumentException("Drag threshold cannot be NaN.", nameof(dragThreshold));

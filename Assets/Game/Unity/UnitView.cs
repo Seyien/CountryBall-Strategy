@@ -65,11 +65,31 @@ namespace GridStrategy.Unity
         [Header("Dead tint - multiplied over the authored body color")]
         [SerializeField] private Color deadTint = new Color(0.35f, 0.35f, 0.38f, 1f);
 
+        // TAKIM GÖRSELLERİ. Oyuncunun "bu benim mi, düşman mı" sorusunu tek
+        // bakışta cevaplamasını sağlayan şey bunlar: mavi bizim, kırmızı karşı
+        // taraf. Renk TİNT ile değil AYRI SPRITE ile veriliyor, çünkü Kenney
+        // paketi iki takımı da kendi çizmiş — tint uygulasaydık askerin teni ve
+        // silahı da boyanır, sprite bulanırdı.
+        //
+        // Her takımın İKİ pozu var: bekleme ve saldırı (silah kalkmış). İkisi de
+        // paketin kendi karesi; ara kare üretmiyoruz.
+        [Header("Team sprites - blue is the player, red is the enemy")]
+        [SerializeField] private Sprite friendlyIdle;
+        [SerializeField] private Sprite friendlyAttacking;
+        [SerializeField] private Sprite enemyIdle;
+        [SerializeField] private Sprite enemyAttacking;
+
         // Birimin KENDİ gövde çizicisi. selectionOverlay'in aksine
         // [SerializeField] DEĞİL: o bir çocukta yaşıyor ve dışarıdan
         // gösterilmek zorunda, bu ise tam bu GameObject'in üstünde ve
         // GetComponent onu her zaman bulur. → UnitView.md#body
         private SpriteRenderer body;
+
+        // Bu birimin takımına ait iki poz, doğuşta bir kez seçilir. authoredColor
+        // ile aynı kategoride: bir OYUN durumu değil, prefab'da YAZILI değerin
+        // önbelleği. Takım bilgisinin kendisi burada saklanmıyor — o Combatant'ta.
+        private Sprite teamIdle;
+        private Sprite teamAttacking;
 
         // Gövdenin PREFAB'DA YAZILI rengi. Bir oyun durumu değil, TÜREV bir
         // değerin önbelleği; "unutulamaz" olma sebebi Body'nin üstünde.
@@ -127,6 +147,48 @@ namespace GridStrategy.Unity
                 }
 
                 return body;
+            }
+        }
+
+        /// <summary>
+        /// Birimin hangi takımdan olduğunu ekrana yazar: oyuncununki MAVİ,
+        /// düşmanınki KIRMIZI görünür.
+        /// </summary>
+        // DOĞUŞTA BİR KEZ ÇAĞRILIR: takım savaş boyunca değişmez, dolayısıyla bu
+        // her karede sorulacak bir şey değil. Sprite atanmamışsa gövde prefab'da
+        // ne ise o kalır — eksik atama oyunu durdurmaz, yalnız iki takım aynı
+        // görünür, ve Console'da sebebi yazar.
+        public void SetTeam(Team team)
+        {
+            bool friendly = team == Team.Player;
+            teamIdle = friendly ? friendlyIdle : enemyIdle;
+            teamAttacking = friendly ? friendlyAttacking : enemyAttacking;
+
+            if (teamIdle == null)
+            {
+                Debug.LogError(
+                    $"[UnitView] No idle sprite assigned for {team}. Both teams will look alike. " +
+                    "Assign the four team sprites on the Unit prefab.",
+                    this);
+                return;
+            }
+
+            Body.sprite = teamIdle;
+        }
+
+        /// <summary>
+        /// Saldırı pozunu açar ya da kapatır: silah kalkar, sonra iner.
+        /// </summary>
+        /// <param name="attacking">Vuruş anı için true, bittiğinde false.</param>
+        // POZ SÜRESİNİ BU TİP TUTMAZ ve tutmamalı — "kaç saniye sonra insin"
+        // bir zamanlama kararıdır ve zaman tutmak hafıza demektir. Süreyi
+        // UnitAttackView sayıyor, burası yalnızca UYGULUYOR.
+        public void SetAttacking(bool attacking)
+        {
+            Sprite wanted = attacking ? teamAttacking : teamIdle;
+            if (wanted != null)
+            {
+                Body.sprite = wanted;
             }
         }
 
