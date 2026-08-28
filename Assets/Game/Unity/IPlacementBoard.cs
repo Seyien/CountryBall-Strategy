@@ -95,13 +95,26 @@ namespace GridStrategy.Unity
         /// <summary>
         /// Savaşçıyı tahtaya koyar, savaşa katar ve görselini oluşturur.
         /// </summary>
+        /// <param name="bodySprite">
+        /// Üretilen birimin KENDİ gövde görseli; <c>null</c> geçilirse tahta
+        /// prefab'daki takım karelerinde kalır.
+        /// </param>
         /// <returns>Hücre dolu ya da tahta dışıysa false.</returns>
         // DÖNÜŞ bool, PlacementOutcome DEĞİL — ve asimetri bilerek: yapı
         // yerleştirmenin ret sebepleri bir OYUN eylemidir ve adlandırılmıştır,
         // birim doğurmanın ret sebebi ise bu noktada tek bir olgudur (hücre
         // uygun değil) çünkü geri kalan bütün retler zaten ProductionRules
         // tarafından, bu çağrıdan ÖNCE verilmiştir.
-        bool PlaceUnit(Unit identity, Combatant combatant, int x, int y);
+        //
+        // SİMGE İÇERİ GİRİYOR, TAHTAYA SORDURULMUYOR — ve gerekçesi
+        // SetPlacementVisual'ınkiyle birebir aynı: simge yalnız varlık
+        // dosyasında yaşıyor ve çekirdek tanımının içinde taşınamıyor. Tahtaya
+        // "bu kimliğin simgesi ne" diye sordurmak, tahtanın varlık defterini
+        // tanıması demekti; bu arayüzün var olma sebebi tam o satırda çökerdi.
+        // Ölçüm: bu parametre yokken tahtadaki HER birim aynı piyade
+        // görünüyordu, sürüklerken doğru simgeyi gören oyuncu bırakınca
+        // başkasını buluyordu.
+        bool PlaceUnit(Unit identity, Combatant combatant, int x, int y, Sprite bodySprite);
 
         /// <summary>
         /// Yerleştirme önizlemesini gösterir ya da gizler.
@@ -121,6 +134,19 @@ namespace GridStrategy.Unity
         // sabit atanmıştı. Oyuncu mavi bir karargâh sürükleyip kırmızı bir depo
         // bırakmış oluyordu.
         void SetPlacementVisual(Sprite sprite);
+
+        /// <summary>
+        /// Sıradaki yerleştirmenin görselini VE tahtada kaç hücre kaplayacağını
+        /// birlikte söyler; önizleme ile kurulan nesne aynı ölçüyü kullanır.
+        /// </summary>
+        // ÖLÇÜ SİMGEYLE BİRLİKTE GELİYOR VE AYRI DEĞİL, çünkü ikisi aynı varlık
+        // dosyasından okunuyor ve ayrı iki çağrı hâline gelseydi biri
+        // gönderilip öteki unutulduğunda oyuncu bir boyutta önizleyip başka bir
+        // boyutta bina koyardı — ölçülmüş bir kusurun tam olarak bu biçimi bu
+        // turda kapatıldı.
+        // SIFIR ÖLÇÜ "tanım söylemiyor" demektir ve tahta kendi varsayılanına
+        // düşer; tek argümanlı sürüm de tam olarak bunu yapıyor.
+        void SetPlacementVisual(Sprite sprite, float sizeInCells);
 
         /// <summary>
         /// Bir kimliğin karşılığı olan yapıyı verir; o kimlik bir yapı değilse

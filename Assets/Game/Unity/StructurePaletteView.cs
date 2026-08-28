@@ -150,10 +150,11 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            director.BeginStructurePlacement(
-                flattened[entry.Index].Definition,
-                TeamOf(entry.Index),
-                flattened[entry.Index].Icon);
+            // VARLIĞIN KENDİSİ GİDİYOR, tanımı ve simgesi ayrı ayrı değil: ikisi
+            // de bu dosyada zaten aynı satırdan okunuyordu ve ayrı ayrı
+            // geçirmek, karşı tarafa aynı varlığı yeniden birleştirme işi
+            // bırakıyordu.
+            director.BeginStructurePlacement(flattened[entry.Index], TeamOf(entry.Index));
         }
 
         private void OnEntryDragged(PaletteEntryView entry, Vector2 screenPoint)

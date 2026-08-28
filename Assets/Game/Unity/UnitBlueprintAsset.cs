@@ -57,6 +57,20 @@ namespace GridStrategy.Unity
         [Tooltip("Icon drawn on the palette button. May be left empty - the icon slot is then hidden.")]
         [SerializeField] private Sprite icon;
 
+        // BİR ASKER TAM BİR HÜCRE KAPLAR, ve 1 sayısı burada bir varsayılan
+        // değil bir KURAL: birim hücresinden taşarsa yanındaki hücreyi boyar ve
+        // oyuncu "oraya yürüyebilir miyim" sorusunu artık gözle cevaplayamaz.
+        // Görsel yine de hücreden bir tık küçük okunur, çünkü bu sanatta birim
+        // karolarının kenarında bir iki piksellik saydam pay var.
+        //
+        // ALAN BURADA, BoardAdapter'DA DEĞİL — ve ölçü şu: boyut TÜR kimliğinin
+        // parçasıdır, tahtanın değil. Tahtada tek bir sayı durduğu sürece bütün
+        // türler aynı büyüklükte olmak zorundaydı ve taretin karargâhtan küçük
+        // olması hiçbir yere yazılamıyordu.
+        [Header("Board footprint - how many cells this unit covers")]
+        [Tooltip("How many cells the unit covers on the board. 1 means exactly one cell.")]
+        [SerializeField, Min(0.1f)] private float boardSizeInCells = 1f;
+
         [Header("Combat numbers - shared by every unit of this type")]
         [Tooltip("Starting and maximum health of every unit of this type.")]
         [SerializeField, Min(1)] private int maxHealth = 30;
@@ -66,6 +80,17 @@ namespace GridStrategy.Unity
 
         [Tooltip("How many cells away this unit can strike. Must be at least 1.")]
         [SerializeField, Min(1)] private int attackRange = 1;
+
+        // İKİ VURUŞ ARASINDAKİ BEKLEME, SALDIRININ TEK BEDELİ. Sıra kuralı
+        // FreeForAll kipinde kalktığından beri bir saldırı hiçbir şey harcamıyor
+        // ve ölçülen sonuç şuydu: oyuncu aynı hedefe üst üste tıklayınca vuruşlar
+        // yığılıyor, hasar fare hızına bağlanıyordu. Buradaki sayı bir EŞİK;
+        // kalan süreyi savaşçının kendi örneği (Combatant) tutuyor, tıpkı üretim
+        // sayacının yapı başına yaşaması gibi.
+        // SIFIR HÂLÂ GEÇERLİ ve "bekleme yok" demek — eski davranışı isteyen
+        // varlık dosyası bu alanı sıfıra çeker.
+        [Tooltip("Seconds between two attacks. 0 means no wait at all.")]
+        [SerializeField, Min(0f)] private float attackCooldownSeconds = 1f;
 
         // ÖNBELLEK BİR OYUN DURUMU DEĞİL — ve aradaki fark bu tipin en pahalı
         // satırıdır. Docs/ogrenme/02-sonraki-asamalar.md dosyasının Aşama 1
@@ -92,6 +117,26 @@ namespace GridStrategy.Unity
         public Sprite Icon => icon;
 
         /// <summary>
+        /// Bu birimin tahtada kaç hücre kapladığı; 1 tam bir hücre demektir.
+        /// </summary>
+        /// <remarks>
+        /// Sayının kendisi bir ÖLÇEK DEĞİL — motorun anladığı ölçeğe çeviren tek
+        /// yer <see cref="BoardSizing"/>. Ayrım 32x32 bir görsel geldiği gün
+        /// ölçülebilir hâle gelir: bu sayı aynı kalır, ölçek yarıya iner.
+        ///
+        /// TAŞIYICI TİP AÇILMADI ve tetikleyicisi yazılı: bugün elde TEK bir
+        /// sayı ve tek bir değişmez var ("sıfırdan büyük"), onu da
+        /// <c>[Min]</c> ile <see cref="BoardSizing"/> birlikte tutuyor. Bir
+        /// <c>[Serializable] struct</c> her varlık dosyasına bir YAML katmanı ve
+        /// Inspector'a bir açılır ok eklerdi; <c>readonly struct</c> ise
+        /// serileştiricinin alanları yansımayla yazması yüzünden
+        /// değişmezliği hakkında YALAN söylerdi. Tip, tahtada TUTARLI KALMASI
+        /// GEREKEN İKİNCİ bir sayı doğduğu gün açılır — ayrı en ve boy, ya da
+        /// birden çok hücre işgal eden bir ayak izi.
+        /// </remarks>
+        public float BoardSizeInCells => boardSizeInCells;
+
+        /// <summary>
         /// Bu varlığın düz C# karşılığı. Her okumada AYNI nesne döner.
         /// </summary>
         // TEMBEL KURULUM, Awake'te DEĞİL — ve gerekçe UnitView'in Body üyesinin
@@ -112,7 +157,7 @@ namespace GridStrategy.Unity
                     definition = new UnitBlueprint(
                         DisplayName,
                         maxHealth,
-                        new AttackProfile(damage, attackRange));
+                        new AttackProfile(damage, attackRange, attackCooldownSeconds));
                 }
 
                 return definition;

@@ -24,12 +24,11 @@ namespace GridStrategy.Unity
     /// (örneğin hep ilki), tasarımcının varlık dosyasına yazdığı sayı sessizce
     /// ölürdü.
     ///
-    /// SİMGE YOK VE YOKLUĞU ÖLÇÜLDÜ: seçili yapının üretim listesi düz C#
-    /// tanımlarından oluşuyor, motor tarafındaki varlık dosyalarından değil —
-    /// ve simge yalnızca varlık dosyasında yaşıyor. Tanımdan varlığa geri
-    /// dönen bir dizin açmak, bugün hiçbir kuralın istemediği ikinci bir
-    /// tablo demekti.
-    /// TETİKLEYİCİ: sağ paneldeki simge oyun için gerçekten gerektiği gün.
+    /// SİMGEYİ BU PANEL ÇÖZMEZ, SORAR: adı seçili yapının çekirdek tanımından,
+    /// simgeyi <see cref="ProductionDirector.ProducedIcon"/>'dan okuyor. İkisi
+    /// aynı indisi kullanıyor ve o indisin iki listede AYNI birimi göstermesi
+    /// <see cref="StructureBlueprintAsset"/> içinde tek geçişle güvence altına
+    /// alınmış durumda.
     ///
     /// AYNA BELGE: bu tipin gerekçeleri bugün yalnızca bu dosyada.
     /// </summary>
@@ -141,8 +140,11 @@ namespace GridStrategy.Unity
             {
                 PaletteEntryView entry = Instantiate(entryPrefab, row);
 
-                // Simge bilerek null: gerekçe bu tipin belgesinde yazılı.
-                entry.Bind(i, produces[i].DisplayName, null);
+                // AD İLE SİMGE AYNI İNDİSTEN OKUNUYOR ve okunabilmelerinin tek
+                // sebebi iki listenin aynı geçişte kurulması. Simge yine de
+                // null gelebilir — birim varlığında resim atanmamışsa düğme
+                // yalnız yazıyla çizilir.
+                entry.Bind(i, produces[i].DisplayName, director.ProducedIcon(i));
 
                 entry.Clicked += OnEntryClicked;
                 entry.DragBegan += OnEntryDragBegan;

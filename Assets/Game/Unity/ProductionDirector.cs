@@ -51,8 +51,15 @@ namespace GridStrategy.Unity
     /// TAHTAYI ADIYLA TANIMAZ: teması yalnızca <see cref="IPlacementBoard"/>
     /// üzerinden — yani kısa bir sipariş formu üzerinden. Gerekçesi o dosyada.
     ///
+    /// SİMGENİN TAŞIYICISI, ÇİZİCİSİ DEĞİL: paletten gelen yapı varlığını ve
+    /// onun ürettiği birim varlıklarını defterinde tutuyor, çünkü simge yalnız
+    /// varlık dosyasında yaşıyor ve çekirdek tanımının içinde taşınamıyor.
+    /// Simgeyi isteyen iki taraf var — sağ panel ile sürükleme önizlemesi — ve
+    /// ikisi de bu tipe soruyor.
+    ///
     /// Neyi BİLMEZ: bir düğmenin nasıl çizildiğini, panellerin kaç satır
-    /// olduğunu, simgelerin nereden geldiğini. Üçü de görünüm katmanının işi.
+    /// olduğunu, bir simgenin ekranda kaç piksel yer kapladığını. Üçü de
+    /// görünüm katmanının işi.
     /// </summary>
     public sealed class ProductionDirector : MonoBehaviour
     {
@@ -86,12 +93,34 @@ namespace GridStrategy.Unity
         private readonly Dictionary<Unit, StructureProduction> productions =
             new Dictionary<Unit, StructureProduction>();
 
+        // AYNI DEFTERİN MOTOR TARAFI. Yukarıdaki tablo çekirdek tanımını
+        // tutuyor ve orada simge diye bir şey YOK; simge yalnız varlık
+        // dosyasında yaşıyor. İki tablo aynı anahtarla yazılıp aynı anda
+        // siliniyor, yani ayrışmaları için bir yol bırakılmadı.
+        // TEK TABLOYA BİRLEŞTİRME REDDEDİLDİ: birleşik bir kayıt tipi, her
+        // karede dolaşılan üretim döngüsünü motor tarafındaki bir alana bağlar
+        // ve o döngünün çekirdeğe inme yolunu bugünden kapatırdı.
+        private readonly Dictionary<Unit, StructureBlueprintAsset> structureAssets =
+            new Dictionary<Unit, StructureBlueprintAsset>();
+
         // ELDE TUTULAN TANIM. İkisinden en fazla biri dolu olur ve ikisi de
         // boşken sürükleme yoktur. Tek bir "object payload" alanı reddedildi:
         // bırakma anında tipi geri sormak gerekirdi ve o soru, derleyicinin
         // burada bedavaya verdiği ayrımı çalışma zamanına ertelerdi.
         private StructureBlueprint pendingStructure;
         private UnitBlueprint pendingUnit;
+
+        // Elde tutulan tanımın VARLIK dosyası. Yerleştirme başarılı olursa
+        // deftere bu yazılıyor; sürükleme boşa çıkarsa hiçbir yere yazılmadan
+        // düşüyor.
+        private StructureBlueprintAsset pendingStructureAsset;
+
+        // Elde tutulan BİRİM tanımının varlık dosyası. Yukarıdakinin ikizi ve
+        // aynı sebeple var: simge yalnız varlıkta yaşıyor, tahtaya bırakma anında
+        // gövde görselini verecek olan da bu alan. İndis saklamak REDDEDİLDİ —
+        // seçim sürüklemenin ortasında değişirse indis başka bir yapının
+        // listesine bakardı, oysa varlık referansı sürüklenen şeyin kendisidir.
+        private UnitBlueprintAsset pendingUnitAsset;
 
         private Team pendingTeam;
 
@@ -103,6 +132,12 @@ namespace GridStrategy.Unity
 
         private Unit selectedUnit;
         private StructureProduction selectedProduction;
+
+        // Seçili hattın varlık dosyası; simge sorusunun tek cevabı burada.
+        // İkisi TEK yerde, aynı satırlarda güncelleniyor — ayrı yerlerden
+        // yazılsalardı biri değişip öteki kalır ve panel eski yapının
+        // simgelerini çizmeye devam ederdi.
+        private StructureBlueprintAsset selectedProductionAsset;
 
         /// <summary>
         /// Seçili yapının üretim hattı değiştiğinde haber verir; seçili şey bir
@@ -183,25 +218,31 @@ namespace GridStrategy.Unity
         /// <summary>
         /// Sol panelden bir yapı türü alınır. Bırakılana kadar elde tutulur.
         /// </summary>
-        /// <param name="icon">
-        /// Bu binanın görseli. Tahtaya iletiliyor ki oyuncu sürüklerken imlecin
-        /// altında O binayı görsün ve bıraktığında aynısı kurulsun. Görsel bir
-        /// EKRAN bilgisidir; <paramref name="definition"/> içinde taşınmaz,
-        /// çünkü tanım Core tarafında yaşıyor ve orada Sprite diye bir tip yok.
+        /// <param name="asset">
+        /// Yapının VARLIK dosyası — tanım değil. Ayrımın bedeli ölçüldü: tanım
+        /// çekirdek tarafında yaşıyor ve orada Sprite diye bir tip yok, yani
+        /// simge ile tanım tanımın içinde bir arada taşınamaz. Üçüncü bir
+        /// parametre olarak simgeyi ayrıca istemek ise aynı varlıktan gelen iki
+        /// bilgiyi çağırana yeniden birleştirtirdi; birleşik olan şey zaten
+        /// varlığın kendisi, o yüzden içeri o giriyor.
         /// </param>
-        public void BeginStructurePlacement(StructureBlueprint definition, Team team, Sprite icon)
+        public void BeginStructurePlacement(StructureBlueprintAsset asset, Team team)
         {
-            if (definition == null)
+            if (asset == null)
             {
                 return;
             }
 
-            pendingStructure = definition;
+            pendingStructure = asset.Definition;
+            pendingStructureAsset = asset;
             pendingUnit = null;
+            pendingUnitAsset = null;
             pendingProducer = null;
             pendingTeam = team;
 
-            board?.SetPlacementVisual(icon);
+            // Tahtaya simge SÜRÜKLEME BAŞLARKEN veriliyor: oyuncu imlecin
+            // altında O binayı görsün ve bıraktığında aynısı kurulsun.
+            board?.SetPlacementVisual(asset.Icon, asset.BoardSizeInCells);
         }
 
         /// <summary>
@@ -240,7 +281,74 @@ namespace GridStrategy.Unity
             // gün ikisi sessizce ayrışırdı.
             pendingUnit = produces[producedIndex];
             pendingStructure = null;
+            pendingStructureAsset = null;
             pendingProducer = selectedProduction;
+
+            // VARLIK BURADA YAKALANIYOR, bırakma anında DEĞİL: bırakma anında
+            // yeniden sorulsaydı sürüklemenin ortasında değişen bir seçim,
+            // bambaşka bir birimin resmini tahtaya indirirdi. Aynı gerekçe bir
+            // satır yukarıda pendingProducer için ölçülmüş durumda.
+            pendingUnitAsset = ProducedAsset(producedIndex);
+
+            // BU SATIRIN YOKLUĞU GÖRÜLEBİLİR BİR KUSURDU: tahta simgeyi kendi
+            // sormuyor, kendisine söyleniyor — ve burada kimse söylemeyince
+            // imlecin altında en son sürüklenen YAPININ resmi kalıyordu. Oyuncu
+            // bir asker sürükleyip bir baraka bırakıyor gibi görünüyordu.
+            board?.SetPlacementVisual(
+                ProducedIcon(producedIndex), ProducedSizeInCells(producedIndex));
+        }
+
+        /// <summary>
+        /// Seçili yapının üretim listesindeki bir birimin simgesi; seçim yoksa
+        /// ya da indis listenin dışındaysa <c>null</c>.
+        /// </summary>
+        /// <remarks>
+        /// SESSİZ <c>null</c> BURADA DOĞRU, çünkü bu üye bir KARAR değil bir
+        /// GÖRÜNTÜ veriyor: eksik simge boş bir düğme kutusu demektir, oynanamaz
+        /// bir oyun değil. Aynı indisin gerçekten geçersiz olduğu durum
+        /// <see cref="BeginUnitPlacement"/> içinde zaten konsola düşüyor ve o
+        /// gürültünün ikinci bir sahibi olmamalı.
+        /// </remarks>
+        public Sprite ProducedIcon(int producedIndex)
+        {
+            UnitBlueprintAsset asset = ProducedAsset(producedIndex);
+            return asset == null ? null : asset.Icon;
+        }
+
+        /// <summary>
+        /// Seçili yapının o indeksteki biriminin tahtada kaç hücre kaplayacağı;
+        /// bilinmiyorsa sıfır, yani "tanım söylemiyor".
+        /// </summary>
+        // ÖLÇÜ SİMGEYLE AYNI KAPIDAN GELİYOR ve ikisi aynı varlık dosyasını
+        // okuyor; ayrı bir yol açılsaydı simgeyi bulan bir indeks ölçüyü
+        // bulamadığında oyuncu doğru resmi yanlış boyutta sürüklerdi.
+        public float ProducedSizeInCells(int producedIndex)
+        {
+            UnitBlueprintAsset asset = ProducedAsset(producedIndex);
+            return asset == null ? 0f : asset.BoardSizeInCells;
+        }
+
+        /// <summary>
+        /// Seçili yapının üretim listesindeki bir birimin VARLIK dosyası; seçim
+        /// yoksa ya da indis listenin dışındaysa <c>null</c>.
+        /// </summary>
+        // TEK ARAMA, İKİ SORU: simge de gövde görseli de aynı varlıktan geliyor
+        // ve arama iki yerde ayrı ayrı yazılsaydı biri sınır kontrolünü kaybettiği
+        // gün öteki hâlâ doğru cevap verir, hata da yalnız bir yolda görünürdü.
+        private UnitBlueprintAsset ProducedAsset(int producedIndex)
+        {
+            if (selectedProductionAsset == null)
+            {
+                return null;
+            }
+
+            IReadOnlyList<UnitBlueprintAsset> assets = selectedProductionAsset.ProducedAssets;
+            if (producedIndex < 0 || producedIndex >= assets.Count)
+            {
+                return null;
+            }
+
+            return assets[producedIndex];
         }
 
         /// <summary>
@@ -303,12 +411,23 @@ namespace GridStrategy.Unity
         public void CancelPlacement()
         {
             pendingStructure = null;
+            pendingStructureAsset = null;
             pendingUnit = null;
+            pendingUnitAsset = null;
             pendingProducer = null;
 
             if (board != null)
             {
                 board.SetPlacementGhost(false, 0, 0);
+
+                // SİMGE DE BIRAKILIYOR ve bu satır sürükleme yolunun DIŞINDAKİ
+                // yolu koruyor: tahtanın klavyeli yerleştirme kipi kurduğu
+                // yapıyı en son söylenen simgeyle çiziyor. Sürüklenen birimin
+                // simgesi orada asılı kalsaydı, klavyeyle konan bir bina bir
+                // askerin resmiyle görünürdü. Sıra da bir karardır — yapı
+                // yerleştirme bu çağrıdan ÖNCE bitiyor, yani kurulmuş bina kendi
+                // resmini almış oluyor.
+                board.SetPlacementVisual(null);
             }
         }
 
@@ -326,7 +445,20 @@ namespace GridStrategy.Unity
                 return;
             }
 
+            // ELDEKİ SÜRÜKLEME DE DÜŞER, ve bu ÖLÇÜLMÜŞ bir sızıntının kapağı:
+            // oyuncu barakadan bir asker sürüklerken çöp kutusuyla o barakayı
+            // kaldırırsa, bırakma anında pendingProducer hâlâ yıkılmış hattı
+            // gösteriyordu — sayaç yakılıyor ve tahtaya, artık var olmayan bir
+            // yapının askeri iniyordu. Defterden silmek yetmiyordu çünkü bu alan
+            // deftere değil hattın KENDİSİNE bakıyor.
+            if (productions.TryGetValue(identity, out StructureProduction line)
+                && ReferenceEquals(line, pendingProducer))
+            {
+                CancelPlacement();
+            }
+
             productions.Remove(identity);
+            structureAssets.Remove(identity);
 
             // Silinen şey seçiliyse seçim de düşer; düşmeseydi sağ panel yıkılmış
             // bir barakanın ürettiklerini göstermeye devam ederdi.
@@ -358,6 +490,11 @@ namespace GridStrategy.Unity
             // "üretmeyen bir yapı" mı yoksa "hiç tanımadığım bir şey" mi olduğunu
             // ayırt edemezdi.
             productions[identity] = new StructureProduction(pendingStructure, structure);
+
+            // VARLIK DA AYNI SATIRDA DEFTERE GİRİYOR: yalnız üretim hattı
+            // kaydedilseydi bu yapı seçildiğinde sağ panelin elinde yine yalnız
+            // çekirdek tanımı olur ve simge sorusu yeniden cevapsız kalırdı.
+            structureAssets[identity] = pendingStructureAsset;
         }
 
         private void DropUnit(int x, int y)
@@ -380,8 +517,14 @@ namespace GridStrategy.Unity
                 return;
             }
 
+            // GÖVDE GÖRSELİ SÜRÜKLEMEDEN GELİYOR, tahtadan sorulmuyor: oyuncunun
+            // imlecin altında gördüğü simge ile tahtaya inen görselin AYNI
+            // olmasının tek yolu ikisini aynı alandan okumak. Varlık atanmamışsa
+            // null geçiyor ve tahta prefab'ın takım karelerinde kalıyor.
+            Sprite bodySprite = pendingUnitAsset == null ? null : pendingUnitAsset.Icon;
+
             var identity = new Unit(pendingUnit.DisplayName);
-            if (!board.PlaceUnit(identity, produced, x, y))
+            if (!board.PlaceUnit(identity, produced, x, y, bodySprite))
             {
                 // Buraya düşmek, yukarıdaki hücre sorusu ile bu çağrı arasında
                 // tahtanın fikrini değiştirdiği anlamına gelir — yani iki üyenin
@@ -400,9 +543,11 @@ namespace GridStrategy.Unity
             selectedUnit = identity;
 
             StructureProduction next = null;
+            StructureBlueprintAsset nextAsset = null;
             if (identity != null)
             {
                 productions.TryGetValue(identity, out next);
+                structureAssets.TryGetValue(identity, out nextAsset);
             }
 
             // AYNI SEÇİM İKİNCİ KEZ YAYINLANMIYOR: sağ panel her yayında
@@ -414,7 +559,10 @@ namespace GridStrategy.Unity
                 return;
             }
 
+            // İKİSİ YAN YANA, YAYINDAN ÖNCE: sağ panel yayını alır almaz simge
+            // soruyor ve o soruyu eski varlıkla cevaplamamalı.
             selectedProduction = next;
+            selectedProductionAsset = nextAsset;
             SelectedProductionChanged?.Invoke(next);
         }
     }
