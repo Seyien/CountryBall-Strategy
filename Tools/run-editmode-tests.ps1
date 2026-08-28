@@ -23,7 +23,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$UnityExe = "C:\Program Files\Unity\Hub\Editor\2021.3.45f2\Editor\Unity.exe",
+    [string]$UnityExe = "",
     [ValidateSet("EditMode", "PlayMode")]
     [string]$TestPlatform = "EditMode",
     [string]$Filter = "",
@@ -37,6 +37,23 @@ $artifactDir = Join-Path $projectPath "Tools\.test-results"
 $resultsXml = Join-Path $artifactDir "$TestPlatform-results.xml"
 $logFile = Join-Path $artifactDir "$TestPlatform-unity.log"
 
+# SURUM ELLE YAZILMIYOR, PROJEDEN OKUNUYOR — ve gerekcesi olculdu: elle yazilan
+# bir varsayilan bir gun projenin surumunden ayrilir, ve o gun kapi kirmizi
+# vermez. Eski editor diskte durmaya devam ettigi icin script hatasizca ESKI
+# Unity'yi acar ve YANLIS YESIL uretir: testler gecmis gibi gorunur ama olculen
+# sey yukseltilmis proje degildir. (olculdu: bu proje 2021.3.45f2 -> 6000.5.7f1
+# yukseltmesinde tam olarak bu tuzagi tasiyordu.)
+if (-not $UnityExe) {
+    $versionFile = Join-Path $projectPath "ProjectSettings\ProjectVersion.txt"
+    if (-not (Test-Path $versionFile)) { Write-Error "ProjectVersion.txt bulunamadi: $versionFile" }
+    $versionLine = Select-String -Path $versionFile -Pattern '^m_EditorVersion:\s*(\S+)' | Select-Object -First 1
+    if (-not $versionLine) { Write-Error "ProjectVersion.txt icinde m_EditorVersion satiri yok: $versionFile" }
+    $editorVersion = $versionLine.Matches[0].Groups[1].Value
+    $UnityExe = "C:\Program Files\Unity\Hub\Editor\$editorVersion\Editor\Unity.exe"
+    Write-Output "Projenin surumu: $editorVersion"
+}
+
+Write-Output "Kullanilan Unity: $UnityExe"
 if (-not (Test-Path $UnityExe)) { Write-Error "Unity bulunamadi: $UnityExe" }
 
 # Kilit kontrolu ONCE: Unity'yi bosuna baslatip crash handler'a dusmekten iyi.
