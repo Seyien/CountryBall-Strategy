@@ -45,7 +45,7 @@ Hiçbir mevcut dosya değiştirilmedi. Eklenenler:
 | `Assets/Art/Generated/ui_white_square_4x4.png` | Boyanabilir beyaz dolgu (sağlık/ilerleme çubuğu, panel zemini) |
 | `Assets/Art/Generated/ui_cell_frame_16x16.png` | 1 px beyaz çerçeve, içi şeffaf (hücre vurgusu, menzil) |
 | `Assets/Art/Generated/GENERATED-ASSETS.md` | Üretilmiş primitif kaydı |
-| `Assets/Game/Prefabs/Structure.prefab` | Yapı görsel prefabı (elle yazıldı, aşağıda doğrulaması var) |
+| ~~`Assets/Game/Prefabs/Structure.prefab`~~ | **2026-08-28'de SİLİNDİ** — guid'ine hiçbir sahne/varlık atıf yapmıyordu, yapı görselini `BoardAdapter.CreateStructureVisual` kodla kuruyor. Gerekçe ve geri gelme tetikleyicisi `Assets/Editor/SceneSetupTool.cs` başında yazılı. |
 | `Assets/Game/Prefabs/PlacementGhost.prefab` | Yerleştirme hayaleti prefabı (elle yazıldı) |
 
 `.meta` dosyası kasıtlı olarak YAZILMADI — Unity ilk odak değişiminde
@@ -110,7 +110,13 @@ UI (Canvas/RectTransform) prefabları elle YAZILMADI: bileşen sayısı üç kat
 yerleşik kaynak referansları belgesiz, ve panel işi panel kodunun sahipliğiyle
 çakışıyor. Onlar için Adım 5'teki Unity-içi prosedür geçerli.
 
-#### `Structure.prefab` içeriği
+#### `Structure.prefab` içeriği — TARİHSEL KAYIT, DOSYA ARTIK YOK
+
+> Aşağıdaki tarif 2026-08-28'e kadar geçerliydi. Dosya o gün silindi: hiçbir
+> yerden okunmuyordu ve taşıdığı üç sayı (kök `sortingOrder 2`, çocuk
+> `sortingOrder 1`, `m_LocalScale 1.25`) bugünkü çizim merdiveniyle ve
+> `BoardSizing` hesabıyla ÇELİŞİYORDU. Bölüm, elle YAML yazımının neye
+> benzediğini gösteren bir örnek olarak duruyor.
 
 - Kök `Structure`: SpriteRenderer — sprite: `friendly_command_depot`,
   sortingOrder **2**, renk beyaz. Bilerek MonoBehaviour YOK: `StructureView`
@@ -147,9 +153,9 @@ sözleşmesine uygun; Awake zaten kapatır ama prefab da kapalı başlar).
 
 | Aday | Karar | Ölçülen gerekçe |
 |---|---|---|
-| Yapı görseli | **PREFAB** (`Structure.prefab`) | Çok kopya + çalışma zamanında doğar. Bugünkü kod (`BoardAdapter.CreateStructureVisual`) görseli kodla kuruyor ve sprite'ı hayaletten ödünç alıyor; hedef akışta iki FARKLI yapı tipi ve seçilebilir yapı var — kodla kurulum her tip için satır ekletir, prefab tek Instantiate. `Unit.prefab` ile aynı iskelet olması, kod tarafının tek kalıpla iki görünüm tablosunu birleştirmesine izin verir. |
+| Yapı görseli | **KOD** (karar 2026-08-28'de TERSİNE DÖNDÜ; prefab silindi) | Çok kopya + çalışma zamanında doğar. Bugünkü kod (`BoardAdapter.CreateStructureVisual`) görseli kodla kuruyor ve sprite'ı hayaletten ödünç alıyor; hedef akışta iki FARKLI yapı tipi ve seçilebilir yapı var — kodla kurulum her tip için satır ekletir, prefab tek Instantiate. **BU TAHMİN ÖLÇÜLDÜ VE TUTMADI:** bugün on yapı türü var ve `CreateStructureVisual`'da tür başına tek satır bile yok — tür kimliği `.asset` dosyalarında, boyut `BoardSizeInCells`'te, sprite palette yaşıyor. Prefab okunmadan durdu ve silindi. |
 | Yerleştirme hayaleti | **PREFAB** (`PlacementGhost.prefab`), sahneye BİR kopya | Tek kopya ama sahne dosyası o turun yazma alanı dışındaydı; prefab yapıp sürüklemek operatöre tek adım bırakır. BoardAdapter alanı `[SerializeField] SpriteRenderer placementGhost` sahnede BOŞ (ölçüldü: sahne YAML'ında alan hiç serileşmemiş) ve Awake bunu LogError ile söylüyor. |
-| Seçim çerçevesi | **AYRI PREFAB DEĞİL** | Zaten `Unit.prefab` ve `Structure.prefab` içinde çocuk. Ayrı prefab, "hangi nesnenin çocuğu" sorusunu her kullanıcıya yeniden sordurur; UnitView sözleşmesi (Inspector'dan çocuk referansı) mevcut deseni kilitlemiş. |
+| Seçim çerçevesi | **AYRI PREFAB DEĞİL** | Zaten `Unit.prefab` içinde çocuk (yapı tarafında görsel kodla kuruluyor). Ayrı prefab, "hangi nesnenin çocuğu" sorusunu her kullanıcıya yeniden sordurur; UnitView sözleşmesi (Inspector'dan çocuk referansı) mevcut deseni kilitlemiş. |
 | UI panelleri | **SAHNE NESNESİ (şimdilik)** | Tek Canvas, tek kopya, tek sahne. Prefab'ın getirisi (çok sahnede yeniden kullanım) bu projede yok; maliyeti (elle yazılamayan karmaşık YAML + panel koduyla çakışma) ölçülür biçimde yüksek. Liste ELEMANI (yapı butonu, asker butonu) ise çok kopyalıdır — istenirse Adım 5 sonunda butonu prefaba çevirmek tek sürüklemedir. |
 | Sağlık çubuğu | **ERTELENDİ** — sprite hazır, prefab kararı kod tarafının | Çubuğu kim doğuracak (UnitView mi, ayrı bir HealthBarView mi) kod sahipliği sorusu. Görsel taraf hazır: `ui_white_square_4x4` dolgu + zemin, iki SpriteRenderer, tint kodla. |
 
@@ -157,11 +163,12 @@ sözleşmesine uygun; Awake zaten kapatır ama prefab da kapalı başlar).
 
 Düşman yapı prefabı gerektiğinde elle YAML yazmak yerine Unity'ye yazdır:
 
-1. Project'te `Structure.prefab` seçiliyken Ctrl+D (Duplicate), adını `StructureEnemy` yap.
-2. Çift tıkla, kökteki Sprite Renderer'ın Sprite alanına
-   `enemy_command_depot_from_tile_0045` sürükle. Kaydet (Ctrl+S).
-   **Doğrula:** Önizlemede bina KIRMIZI. Bu yol fileID/guid üretimini tümüyle
-   Unity'ye bırakır — elle yazımın taşıdığı riskin hiçbiri yok.
+> **BU ADIM ARTIK UYGULANAMAZ.** `Structure.prefab` 2026-08-28'de silindi ve
+> düşman yapıları prefab çoğaltmayla değil, kendi `StructureBlueprintAsset`
+> dosyalarıyla ayrışıyor: sprite, can, hasar, menzil, üretim listesi ve tahtada
+> kapladığı hücre sayısı orada yaşıyor. Yeni bir düşman yapısı eklemenin yolu
+> `SceneSetupTool.EnsureBlueprints` içine bir satır yazıp menüyü çalıştırmaktır;
+> Unity içinde elle prefab çoğaltmak değil.
 
 ### 5 · UI panelleri — Unity içi kurulum (görsel taraf)
 

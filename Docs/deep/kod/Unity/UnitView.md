@@ -407,6 +407,45 @@ durumu **uygular**.
 
 ---
 
+## SetBodySprite(Sprite sprite)
+
+Üretilen birim tahtada **kendi** resmiyle durur. Bu üye olmadan hangi tanımdan
+üretilirse üretilsin ekranda aynı piyade duruyordu: `SetTeam` yalnız
+Inspector'daki dört kareden birini seçer ve o dört kare TAKIMI anlatır, TÜRÜ
+değil.
+
+### ÖLÇÜLEN KUSUR
+
+Oyuncu sağ panelden bir okçu sürüklerken imlecin altında doğru simgeyi
+görüyordu — simge zinciri panele kadar uzanmıştı. Bıraktığı anda tahtaya bir
+piyade iniyordu, çünkü zincir `PlaceUnit`'e kadar UZANMIYORDU. Belirti tam
+olarak şuydu: *"sürüklerken düzgün, bırakınca savaşçı oluyor."*
+
+### GEÇERSİZ KILMA HER İKİ POZU DA YUTAR
+
+`SetAttacking` geçersiz kılmayı önce okur, yani saldırı pozunda da aynı kare
+çizilir. Alternatif ölçüldü ve reddedildi: saldırı anında takımın genel
+saldırı karesine düşmek, okçuyu vuruş anında bir an için piyadeye çevirirdi.
+Vuruşun ekranda okunması `UnitAttackView` hamlesi ve `ProjectileView` mermisi
+üzerinden sürüyor; poz değişimi o işin tek taşıyıcısı değil.
+
+### TAKIM RENGİ ÇARPILMIYOR
+
+Geçersiz kılınan gövdeye takım rengi UYGULANMAZ. Bu tipin kendi kararı takım
+ayrımını tint ile değil AYRI KARE ile veriyor ve iki yöntemi üst üste bindirmek
+o kararı sessizce ikiye bölerdi. **AÇIK SINIR:** takım ayrımı böylece simgenin
+kendisine kalıyor; düşman üretimi eklendiği gün mavi/kırmızı ayrımı üretilen
+birimlerde yeniden ölçülmelidir.
+
+### HAVUZ BU ALANI SIFIRLAMAK ZORUNDA
+
+`null` geçmek gövdeyi takım karesine geri verir ve `UnitViewPool` iadede tam
+olarak bunu yapar. Sıfırlanmasaydı havuzdan çıkan bir sonraki birim öncekinin
+resmiyle doğardı — aynı sınıftan bir kusur `SetState` ekseninde GERÇEKTEN
+yaşandı: düşmüş bedenin solgun rengi ve yatık duruşu bir sonraki savaşçıya
+miras kalıyordu. Sıfırlama listesinin sahibi bu yüzden `UnitView.ResetVisuals`,
+havuz değil: liste, sıfırladığı alanlarla aynı dosyada durmalı.
+
 ## SetState(UnitState state)
 
 ### BU BLOK ÇEVRİLDİ, SİLİNMEDİ
