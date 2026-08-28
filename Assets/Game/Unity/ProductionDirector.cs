@@ -212,6 +212,26 @@ namespace GridStrategy.Unity
             foreach (KeyValuePair<Unit, StructureProduction> pair in productions)
             {
                 pair.Value.Tick(Time.deltaTime);
+
+                // ██ GERİ SAYIM YALNIZ ÜRETEN BİNANIN TEPESİNDE ██
+                // Operatörün cümlesi: "saldırı yapan kulelerin illa ki bunu
+                // göstermesine gerek yok, sadece savaşçı üreten yapılardan
+                // bahsediyorum." Taretin ve hisarın `Produces` listesi boş,
+                // dolayısıyla soru bir takım ya da tür listesi değil, binanın
+                // KENDİ tanımı üzerinden cevaplanıyor — ve cevabın sahibi
+                // burası değil çekirdek. → StructureProduction.ProducesUnits
+                //
+                // İKİ TAKIM DA GÖSTERİYOR ve bu bir taraf tutmama kararı:
+                // düşman kışlasının sayacı gizlenseydi oyuncu baskının ne zaman
+                // geleceğini tahmin etmek zorunda kalırdı, oysa bilgi zaten
+                // ekranda duran bir binanın üstünde.
+                if (board != null && pair.Value.ProducesUnits)
+                {
+                    board.ShowProductionCountdown(
+                        pair.Key,
+                        pair.Value.RemainingSeconds,
+                        pair.Value.Blueprint.ProductionSeconds);
+                }
             }
         }
 
@@ -361,15 +381,32 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            if (board.TryScreenPointToCell(screenPoint, out int x, out int y))
+            // ██ ÇEVRİLEN KARAR: TAHTA DIŞINDA GİZLEMEK → KIRMIZI GÖSTERMEK ██
+            // Burada `TryScreenPointToCell` duruyordu ve tahtanın dışında false
+            // dönüyordu; sonraki satır da hayaleti GİZLİYORDU. Gerekçesi
+            // yazılıydı ve o gün doğruydu: "bırakılsaydı oyuncu, parmağını
+            // tahtanın dışında kaldırdığında oraya bir şey konacağını sanırdı."
+            //
+            // KIRILAN ŞEY: gizlemek o yanlış anlamayı önlüyordu ama yerine
+            // İKİNCİ bir belirsizlik koyuyordu — elindeki şeyin hâlâ sürüklenip
+            // sürüklenmediğini de göremiyordun. Operatörün cümlesi: "o unit
+            // grid'in dışındakileri de hayalet kısmını görebilmeliyiz ama
+            // kırmızılı hâlinde." Kırmızı hayalet iki soruyu birden cevaplıyor:
+            // sürükleme sürüyor VE buraya konmaz.
+            //
+            // BIRAKMA DALI DEĞİŞMEDİ ve değişmemeli: DropAt hâlâ
+            // TryScreenPointToCell çağırıyor, yani tahta dışına bırakmak yine
+            // bir vazgeçme. Görünen şey değişti, kural değil.
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md
+            if (board.TryScreenPointToAnyCell(screenPoint, out int x, out int y))
             {
                 board.SetPlacementGhost(true, x, y);
                 return;
             }
 
-            // Tahta dışına çıkan sürükleme önizlemeyi GİZLER, son geçerli
-            // hücrede BIRAKMAZ. Bırakılsaydı oyuncu, parmağını tahtanın dışında
-            // kaldırdığında oraya bir şey konacağını sanırdı.
+            // BURAYA ANCAK KAMERA YOKSA DÜŞÜLÜR: TryScreenPointToAnyCell yalnız
+            // ekran noktasını dünyaya çevirecek kamera bulunamadığında false
+            // döner. O hâlde gösterilecek doğru bir hücre de yok.
             board.SetPlacementGhost(false, 0, 0);
         }
 

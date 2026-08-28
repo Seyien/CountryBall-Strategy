@@ -63,10 +63,12 @@ yoktur.
 
 ### Bu deponun Unity kurulumu
 
-[YEREL ÖLÇÜM] · 2026-08-23:
+[YEREL ÖLÇÜM] · 2026-08-23, ***sürüm satırı 2026-08-28'de yeniden ölçüldü ve
+DEĞİŞTİ; eski değer görünür bırakıldı çünkü bu belgedeki bir hükmü o taşıyordu:***
 
 ```
-ProjectSettings/ProjectVersion.txt          m_EditorVersion: 2021.3.45f2
+ProjectSettings/ProjectVersion.txt          m_EditorVersion: 6000.5.7f1
+                                            (2026-08-23'te: 2021.3.45f2 — BAYAT)
 Packages/manifest.json                      com.unity.entities  ── YOK
                                             com.unity.burst     ── doğrudan YOK
 Packages/packages-lock.json                 com.unity.burst 1.8.18  "depth": 3
@@ -499,14 +501,18 @@ Entities 0.51.1-preview.21 · installation sayfası, 2026-08-23'te doğrulandı:
    "You must use Unity Editor versions 2020.3.30+ or 2021.3.4+
     with entities 0.51."
 
-Bu deponun sürümü [YEREL ÖLÇÜM]:  2021.3.45f2
+Bu deponun sürümü [YEREL ÖLÇÜM] · 2026-08-23:  2021.3.45f2   >> BAYAT <<
+Bu deponun sürümü [YEREL ÖLÇÜM] · 2026-08-28:  6000.5.7f1    >> GÜNCEL <<
 ```
 
-Sonuç, çıkarım değil doğrudan okuma: **bu Editor sürümünde Entities 1.0 ve
-sonrası kurulamaz.** Kurulabilen tek sürüm 0.51 önizlemesi — yani artık
-geliştirilmeyen, API'si 1.0'da baştan değişmiş bir dal. Bu, merdivenin son
-basamağına bir **ön koşul** ekliyor ve o ön koşul kod değil: Editor sürümü
-yükseltmesi.
+***BU BLOĞUN HÜKMÜ ÇEVRİLDİ.*** 2026-08-23'te doğrudan okuma şuydu: bu Editor
+sürümünde Entities 1.0 ve sonrası **kurulamaz**, kurulabilen tek sürüm 0.51
+önizlemesidir. 2026-08-28'de ölçülen sürüm `6000.5.7f1` ve o eşiğin çok
+üstünde. **Entities 1.0 ve sonrası artık kurulabilir.**
+
+Birincil kaynaktan okunan iki alıntı hâlâ doğru; yanlışlanan şey alıntı değil,
+onunla karşılaştırılan **yerel sayıdır**. Çevrilmiş kararın tamamı aşağıda,
+*"İkinci sert engel: sürüm duvarı"* bölümünde.
 
 ### ***Ölçüsüz övgü yasağı***
 
@@ -615,11 +621,16 @@ o satırı **sayıyla sertleştiriyor**.
 
 ### Bugünkü ölçü
 
+***Atıf biçimi 2026-08-28'de DEĞİŞTİ ve sebebi ölçülmüş bir kusurdur.*** Bu blok
+eskiden dört satır numarası taşıyordu (`:114`, `:115`, `:328`, `:329`) ve
+dördü de kaydı: bugünkü karşılıkları sırasıyla `:127`, `:128`, `:697`, `:698`.
+Satır numarası bu depoda kayan bir çapadır. Aşağıdaki atıflar bu yüzden **tip ve
+üye adıyla** yazılı:
+
 ```
-Assets/Game/Unity/BoardAdapter.cs:114   [SerializeField, Min(1)] private int width = 3;
-Assets/Game/Unity/BoardAdapter.cs:115   [SerializeField, Min(1)] private int height = 5;
-Assets/Game/Unity/BoardAdapter.cs:328   SpawnUnit("Vanguard", Team.Player, 1, 2);
-Assets/Game/Unity/BoardAdapter.cs:329   SpawnUnit("Raider", Team.Enemy, 1, 3);
+BoardAdapter   ->  width       [SerializeField, Min(1)] private int width = 3;
+BoardAdapter   ->  height      [SerializeField, Min(1)] private int height = 5;
+BoardAdapter   ->  Awake       iki SpawnUnit çağrısı: "Vanguard" ve "Raider"
 ```
 
 ```
@@ -658,23 +669,147 @@ yapmak". Bu iki profil birbirinin karşıtı.
 Bu proje bir gün gerçek zamanlı bir savaşa dönerse cümle değişir. Bugünkü hâliyle
 değişmez.
 
-### İkinci sert engel: sürüm duvarı
+### İkinci sert engel: sürüm duvarı — ***BU ENGEL ÇEVRİLDİ, ARTIK YOK***
 
-Yukarıda birincil kaynaktan okundu: Entities 1.0 **2022.3.0f1** ve sonrasını
-istiyor; bu depo **2021.3.45f2**. Yani "ECS'i deneyelim" cümlesinin ilk adımı
-kod değil:
+Bu bölüm bir **çevrilmiş karardır**. Eski hâli silinmedi, çünkü çevrilmiş bir
+kararın öğrettiği şey yeni cevap değil, **iki cevap arasındaki cümledir**:
+hangi ölçüm dünkü cevabı yanlış yaptı. Bu sözleşmenin tamamı
+[../deep/konular/10-geri-alinan-kararlar.md](../deep/konular/10-geri-alinan-kararlar.md)
+içinde.
+
+**ESKİ İDDİA** (2026-08-23'te doğruydu):
 
 ```
-① Editor sürümünü yükselt (2021.3 → 2022.3 LTS ya da üstü)
-   ── ve bu tek başına bir tur: paket uyumu, API değişiklikleri, testlerin
-      yeniden koşturulması
-② VEYA Entities 0.51 önizlemesiyle çalış
-   ── artık geliştirilmeyen bir dal; öğrenilen API 1.0'da geçersiz
+Entities 1.0  2022.3.0f1 ve sonrasını istiyor.
+Bu depo       2021.3.45f2.
+Sonuç         bu Editor sürümünde Entities 1.0 KURULAMAZ.
+              "ECS'i deneyelim" cümlesinin ilk adımı kod değil, sürüm yükseltmesi.
 ```
 
-***İkinci yol bir öğrenme egzersizi için bile **kötü** bir seçim:*** öğrenilen
-şeyin bugünkü karşılığı yok. Birinci yol doğru ama pahalı — ve pahalı olduğu
-için merdivenin **en sonunda** duruyor.
+**İDDİAYI YANLIŞ YAPAN ÖLÇÜM** — [YEREL ÖLÇÜM] · 2026-08-28,
+`ProjectSettings/ProjectVersion.txt`:
+
+```
+m_EditorVersion: 6000.5.7f1              <- Unity 6.5
+```
+
+**YENİ İDDİA:** Editor sürümü `6000.5.7f1`, yani `2022.3.0f1` eşiğinin **çok
+üstünde**. ***Sürüm duvarı artık yok.*** Entities 1.0 ve sonrası bu depoya
+kurulabilir; kurulmamış olması bir **kısıt** değil, bir **karardır**.
+
+***VE BU, KARARI DEĞİŞTİRMİYOR — DEĞİŞTİRDİĞİ ŞEY GEREKÇEDİR.*** Reddin iki
+ayağı vardı ve yalnız ikincisi düştü:
+
+```
+BİRİNCİ AYAK  tür engeli  -- sıra tabanlı oyunda eşiğe ULAŞILMAZ     >> AYAKTA <<
+İKİNCİ AYAK   sürüm duvarı -- Editor 2021.3, Entities 2022.3 istiyor  >> DÜŞTÜ <<
+```
+
+Birinci ayak tek başına yeterli ve yukarıda ölçüsüyle duruyor. Bu yüzden hüküm
+aynı kaldı, ama artık **daha dürüst** bir hükümdür: ECS bu projeye
+girmiyor çünkü **baskı yok**, kurulamadığı için değil. ***Bir reddin yanlış
+gerekçeyle ayakta durması, reddin kendisi doğru olsa bile bir kusurdur*** —
+yanlış gerekçe düştüğü gün ret de onunla birlikte düşer gibi görünür.
+
+Merdivenin son basamağındaki **ön koşul da bu yüzden değişti**: eskiden "önce
+Editor'ü yükselt" diyordu, artık öyle bir adım yok. Yerine geçen ön koşul
+Basamak 0'dan Basamak 3'e kadar olan sıradır — ölçüm aygıtı, tahta, birim
+sayısı, kare başına gerçek iş.
+
+### Jobs ve Burst'ün KENDİ eşiği — ECS'inkinden ayrı ve daha alçak
+
+Yukarıdaki bütün hüküm **ECS** hakkındaydı. Job System ile Burst'ün eşiği
+ECS'inkiyle **aynı değil** ve üç ölçülmüş sebeple daha alçak: Job System
+motorun çekirdeğinde (paket kurulumu gerekmiyor), Burst bu depoda **zaten
+kurulu**, ve `[BurstCompile]` bir `static` metoda ECS olmadan uygulanabiliyor.
+Belge bu ayrımı *"İkinci durak"*ta yapıyordu ama **kararını vermiyordu**. Karar
+burada.
+
+**YEDİ EKSENLİ YÜK SAYIMI** — [YEREL ÖLÇÜM] · 2026-08-28. `ÖLÇÜLDÜ MÜ` sütunu
+zorunlu: ölçülmemiş bir eksen **sıfır değildir**, ölçülmemiştir.
+
+| Eksen | BUGÜN | HEDEF | ÖLÇÜLDÜ MÜ |
+|---|---|---|---|
+| `N` varlık sayısı | Tahta `3×5` = 15 hücre; tahtadaki varlık için **sert tavan 15** | Değişmedi | **ÖLÇÜLDÜ** — `BoardAdapter` → `width`, `height` |
+| `NxM` çift sayısı | Ayrı bir tümce-tarama döngüsü **yok** | — | **ÖLÇÜLDÜ** |
+| `d/s` yapısal değişim | `productionSeconds = 3f` → yapı başına en çok **0,33 doğum/sn** | — | **ÖLÇÜLDÜ** — `StructureBlueprintAsset` → `productionSeconds` |
+| `draw` çizim çağrısı | Birim başına bir `SpriteRenderer`, zemin tek `Tilemap`, `N ≤ 15` | — | **KISMEN** — tavan ölçüldü, **gerçek çağrı sayısı ÖLÇÜLMEDİ** |
+| `phys` fizik / çarpışma | **SIFIR** — `Rigidbody`, `Collider`, `Physics2D`, `OnTrigger`, `OnCollision` hiçbiri geçmiyor | — | **ÖLÇÜLDÜ** |
+| `io` ses · arayüz · girdi | **7** `Update`/`LateUpdate` sahibi; hepsi dallanma ve erken dönüş | — | **ÖLÇÜLDÜ** |
+| `mem` bellek · yükleme | `UnitViewPool` var; kare başına doğum **sıfır** | — | **ÖLÇÜLDÜ** |
+
+Ve kullanım sayımı, `Assets/` altında:
+
+```
+BurstCompile · IJob · NativeArray · Unity.Jobs · Unity.Collections   ── SIFIR
+```
+
+#### ***ASIL CÜMLE: Burst'ün önündeki engel HIZ değil, VERİ ŞEKLİ***
+
+Bu, bu bölümün taşıdığı tek önemli fikir ve belgede bugüne kadar yoktu.
+
+Burst bir C# derleyicisi değil, **HPC#** derleyicisidir — C#'ın bir alt
+kümesi. O alt kümede olmayanlar: yönetilen nesne, `class`, `string`, istisna,
+arayüz, delege. Yani Burst'ün dokunabildiği şey **bitişik bellekteki blittable
+`struct` dizileridir**.
+
+Şimdi bu projenin sıcak verisine bak:
+
+```
+Combatant       sealed class           -> yönetilen nesne
+Structure       sealed class           -> yönetilen nesne
+Battle          Dictionary<Unit, X>    -> SINIF ANAHTARLI sözlük
+UnitGrid        Dictionary<Unit, int>  -> SINIF ANAHTARLI sözlük
+IUnitOrder      interface              -> Burst'te yok
+```
+
+***Sınıf anahtarlı bir sözlük, Burst'ün dokunamadığı şeyin ta kendisidir.***
+Dolayısıyla "Jobs'a geçelim" cümlesi bir **paket kurulumu değildir**. Sıcak
+verinin referans tiplerinden bitişik dizideki blittable `struct`'lara
+çevrilmesidir — yani ECS'in istediği dönüşümün **aynısı**, başka kapıdan
+girilmiş hâli.
+
+Bu yüzden "Jobs ECS'ten ucuzdur" cümlesi yarı doğrudur. **Kurulumu** ucuzdur.
+**Dönüşümü** değil.
+
+#### REDDİN YENİDEN AÇMA KOŞULU — dört alan
+
+> **HANGİ EKSEN:** `N` × kare başına gerçek iş. Tek başına `N` değil; bugün
+> `N = 15` ve kare başına iş iki `enum` karşılaştırması, ve çarpım sıfıra
+> yakın.
+> **HANGİ EŞİK:** Bir sayı değil, bir **TÜR değişimi** — birimler oyuncu
+> tıklamadan kendi kendine yürüyüp saldırdığı gün. Ölçülebilir hâli: tek bir
+> `Update` sahibinin **hedef cihazda ~2 ms**'yi aşması, `N > 200` hareketli
+> varlıkla.
+> **HANGİ KANIT KOVASI:** Hedef cihaz profiler'ı. ***Editor profiler'ı bu
+> soruda kanıt değildir*** — Editor bir masaüstü CPU'sunda koşuyor ve iş
+> parçacığı sayısı, çekirdek büyüklüğü, bellek bant genişliği hedef cihazla
+> aynı değil.
+> **KİM YENİDEN ÖLÇER:** Operatör, ilk gerçek zamanlı hareket özelliği indiği
+> gün.
+
+#### Bunun yerine bugün ne öğrenilir
+
+Merdivenin 1. ve 2. basamağı, ve ***ikisi de bu depoda zaten yaşandı*** — yani
+bu bir tavsiye değil, bir **kayıt**:
+
+**① Önce algoritma.** `UnitGrid` → `TryGetPosition` eskiden her çağrıda tahtayı
+baştan sona tarıyordu. Bugün `Unit` anahtarlı bir ters dizin tutuyor ve cevabı
+tek adımda veriyor. Kararı çeviren şey **iki ölçümün çarpımıydı**: tahtanın
+`100×50` olabilmesi ve kalıcı saldırı emrinin doğması. İkisinden yalnız biri
+olsaydı eski hâl hâlâ doğruydu.
+
+**② Sonra motorun kendi sahibi.** Zemin eskiden hücre başına bir `GameObject`
+doğuruyordu. Bugün tek bir `Tilemap`. `Tilemap` bir GoF deseni değil, motorun
+kendi sahibidir — ve Object Pool, tek başına Flyweight ve elde yazılmış
+ayıklama, üçü de bu iş için **ölçülüp reddedildi**.
+
+**③ Sonra profiler okuryazarlığı.** Hangi sayacın neyi saydığını bilmeden
+alınan bir Jobs kararı, kanıt kovası boş bir karardır.
+
+***Üçü de her `N` değerinde karşılığını verir ve üçü olmadan Jobs kararı zaten
+dürüstçe verilemez.*** Bir iş parçacığı, yanlış algoritmayı yalnızca daha
+paralel biçimde yanlış yapar.
 
 ### ***İYİLEŞTİRME mi, ÖĞRENME EGZERSİZİ mi***
 
@@ -1410,6 +1545,9 @@ Assets/Tests/EditMode/Combat/DamageRulesAllocationTests.cs:103   public void Res
   [../deep/dil/05-deger-referans-ve-kimlik.md](../deep/dil/05-deger-referans-ve-kimlik.md)
 - Assembly duvarının faturaları — Basamak 4 ve 6 bu duvarı zorlar:
   [../deep/konular/02-assembly-duvari.md](../deep/konular/02-assembly-duvari.md)
+- ***Sürüm duvarının çevrilmesi*** — bu belgedeki hangi iddianın hangi ölçümle
+  yanlışlandığı, çevrilmiş kararların ortak defterinde:
+  [../deep/konular/10-geri-alinan-kararlar.md](../deep/konular/10-geri-alinan-kararlar.md)
 - Motorun çağrı döngüsü ve Domain Reload:
   [../deep/konular/08-motor-cagri-dongusu.md](../deep/konular/08-motor-cagri-dongusu.md)
 - Üç ağacın yönlendirmesi: [../deep/README.md](../deep/README.md)

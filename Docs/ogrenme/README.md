@@ -40,6 +40,24 @@ Docs/ogrenme/
                                       kapsama tablosu: kavram × sahip dosya
 ```
 
+## Desen belgeleri — hangi soru hangi dosyada
+
+***Desenler DÖRT ayrı soruya bölünmüş durumda ve dördü ayrı dosyada.*** Aynı
+metnin ikinci bir kopyası **açılmaz**: iki markdown bloğunu hiçbir derleyici
+karşılaştırmaz, o yüzden ikilik sessizce ayrışır. Aradığın soruyu seç:
+
+| Soru | Dosya |
+|---|---|
+| *"Bu projede hangi desenler **uygulandı**?"* — kodda gerçekten duran dokuz desen, baskısı ve ölçüsüyle | [01-koda-gomulu-desenler.md](01-koda-gomulu-desenler.md) |
+| *"Bugün ne **yok**, ve **ne zaman** gelir?"* — uygulanmayan mekanizmaların tetikleyici koşulları | [02-sonraki-asamalar.md](02-sonraki-asamalar.md) |
+| *"Önümdeki ihtiyaç **hangi desene iner**?"* — on iki desenin hepsi, ayırıcı test ve motor karşılığıyla | [13-desen-secim-rehberi.md](13-desen-secim-rehberi.md) |
+| *"Bana sorulan **kavram sorusunun** cevabı neydi?"* — katlanmış cevaplı soru defteri | [15-kavram-sorulari.md](15-kavram-sorulari.md) |
+
+Ayrım pratikte şöyle: `01` **yalnız uygulananları** yazar ve Singleton orada
+*elenen aday* olarak, ölçüsüyle durur. `13` **on ikisini birden** yazar ve
+Singleton'ın neden reddedildiğini beş alanla açar. İkisi çelişirse `01` dar,
+`13` geniş olandır; ikisi de aynı ölçüye dayanır.
+
 | Dosya | Ne yapar | Ne YAPMAZ |
 |---|---|---|
 | [00-okuma-sirasi.md](00-okuma-sirasi.md) | `Docs/deep/` ağacını **hangi sırayla** okuyacağını 15 adım ve 5 oturuma böler; her adımın ön koşulunu, yanında açık duracak `.cs` dosyasını ve bitiş koşturmasını yazar | Hiçbir mekanizmayı **anlatmaz** — bir yol tarifi, bir ders değil. Dosya numaralarını da değiştirmez: ***numara kimliktir, sıra buradadır*** |
@@ -55,6 +73,9 @@ Docs/ogrenme/
 | [10-mufredat-ve-catal-karari.md](10-mufredat-ve-catal-karari.md) | Bu ağaçta **öneri yazan tek dosya**: hangi desenin bu projede baskısı var, hangisi ayrı bir projeye ait, çatal ne zaman açılır, başvuru hangi gün başlar | Bir desenin **nasıl uygulanacağını** yazmaz (`01` ve `02`'nin işi); projenin koduna dair karar vermez — kararı okuyanın **yoluna** dairdir |
 | [11-unity-penceresi-adim-adim.md](11-unity-penceresi-adim-adim.md) | Bu ağaçta **prosedür yazan tek dosya**: `BoardAdapter` ve `UnitView` üstündeki 16 serileştirilmiş alanın her biri için Inspector başlığını, oraya ne sürükleneceğini, boş bırakılırsa kodun ne yapacağını ve tanım satırını verir; sonra bugünkü sahnenin ölçülmüş eksiğini pencere pencere onartır | Hiçbir **mekanizma** anlatmaz (`08`'in ve `konular/07`'nin işi) ve koddaki yerleştirme kusurunu **düzeltmez** — onu yalnızca ulaşılabilir kılar |
 | [12-unity-editor-baglama.md](12-unity-editor-baglama.md) | Yapı türü, üretim ve panel katmanının Unity penceresinde nasıl kurulacağını adım adım yazar: varlık dosyaları, sahne hiyerarşisi, prefab, bileşen bağlantıları ve **27 `[SerializeField]` alanının her biri için "boş bırakılırsa ne olur"** | Mekanizmayı anlatmaz (`02` Aşama 1'in işi); mevcut sahnenin onarımını yazmaz (`11`'in işi) ve **`11`'den önce okunmaz** |
+| [13-desen-secim-rehberi.md](13-desen-secim-rehberi.md) | *"Tek bir oyun altyapısında bu desenlerin hangisini hangi durumda kullanırım"* sorusunu **tek bir ayırıcı testle** cevaplar; on iki deseni yedi alanla tabloya döker ve her birinde **motorun kendi mekanizmasının** baskıyı emip emmediğini sorar; en sık karıştırılan dokuz çifti ayıran ölçüyü verir | Hiçbir şey **önermez** — `02` ile aynı kural. Bir desenin **nasıl uygulanacağını** yazmaz; yalnız hangi ölçünün onu doğuracağını yazar |
+| [15-kavram-sorulari.md](15-kavram-sorulari.md) | Operatöre **sorulmuş** kavram sorularını, cevabı `<details>` içinde **katlanmış** olarak tutar; her soruya ölçüm adresi, destekleyici mekanizma, en cazip **yanlış cevap** ve mülakat hâli eşlik eder | Cevabı doğrudan **vermez** — okuyan önce kendi cevabını kurar. Yeni mekanizma **anlatmaz**; anlatım `08`, `13` ve `deep/` ağacının işidir |
+| [14-gorsel-sozluk-ve-eksikler.md](14-gorsel-sozluk-ve-eksikler.md) | Bu ağaçta **ekrana bakan tek dosya**: türün borçlu olduğu 20 maddelik görsel sözlüğü oyuncunun döngüsünden türetir, 38 PNG'nin her birini GUID'iyle serileştirilmiş dosyalarda arayıp **34 bağlı / 4 atıl** diye ayırır, atıl grupları `TASARIM HENÜZ GELMEDİ` ya da `YANLIŞ ENVANTER` diye verdikler, yanlış rolde duran varlıklara geri ödeme koşulu yazar ve büyücü hattının bugünkü maliyetini ölçer | Hiçbir görsel **indirmez, üretmez ya da içeri almaz**; `Assets/` altına yazmaz, manifest satırlarını yalnızca TASLAK olarak önerir; doğrulanmamış bir karo numarası ya da hash **yazmaz** |
 
 ## Üç kural — bu ağaç yazılırken uyulan
 

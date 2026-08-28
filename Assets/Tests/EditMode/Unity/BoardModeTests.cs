@@ -16,10 +16,10 @@ namespace GridStrategy.Tests.EditMode.Unity
     /// sahne kurmuyor, <c>GameObject</c> doğurmuyor ve <c>TearDown</c>
     /// istemiyor — kipler ekranı değil, ekranı yazan tarafı ARIYOR.
     ///
-    /// <b>ESKİ TESTLERİN YERİNE GEÇMİYOR.</b> <c>PendingStrikeIsAlive</c> ve
-    /// <c>RepeatsPendingStrike</c> testleri <see cref="BoardAdapterTests"/>
-    /// içinde AYNEN duruyor; onlar tahtanın kapısını, buradakiler kipin
-    /// gövdesini sınıyor ve ikisi birden düşerse hata iki yerde birden görünür.
+    /// <b>BEKLEYEN VURUŞ TESTLERİ BU DOSYADAN GİTTİ.</b> Üçüncü kip
+    /// (<c>PendingStrikeMode</c>) kaldırıldı ve emirler kip olmaktan çıktı;
+    /// onların yerini <c>UnitOrderTests</c> aldı. Buradaki testler artık
+    /// yalnız geçişin kendisini ve yerleştirme kipini ölçüyor.
     /// </summary>
     public sealed class BoardModeTests
     {
@@ -111,229 +111,28 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(machine.Current, Is.SameAs(idle));
         }
 
-        // ══ İKİ KİP YAN YANA YAŞAYAMAZ — "TEK MAKİNE" KANITI ═════════════
-        // Bu turun tasarım kararı buydu: iki ayrı durum makinesi değil, TEK bir
-        // kip makinesi. Aşağıdaki test o kararın koda düşmüş hâli.
+        // ══ KİP YAN YANA BİR EMİRLE YAŞAYABİLİR — VE BU ÇEVRİLMİŞ BİR KARAR ══
+        // Burada `Enter_PlacementWhileAStrikeIsPending_DropsTheOrderInTheTransition`
+        // duruyordu (SILINDI): yerleştirme kipine girmek yazılı emri geçişin
+        // kendisinde düşürüyordu. O test bir KARAR KAYDIYDI ve dünyada değişen
+        // şey şudur — emir artık tahtaya değil BİRİME ait. Bina koymak, üç
+        // savaşçının sürmekte olan saldırısını neden kessin? Yerini alan iddia
+        // UnitOrderTests içinde: emirler kip makinesinden bağımsız yaşıyor.
+        //
+        // Aynı kaldırmayla giden ötekiler: PendingStrike_IsAlive_* (4),
+        // PendingStrike_ConsumesClick_* (3), PendingStrike_Advance_* (3) ve
+        // Idle_ConsumesNoClick. Toplam ON İKİ test gitti; iddialarının
+        // karşılığı UnitOrderTests'te yeniden yazıldı ve ConsumesClick,
+        // çağıranı kalmadığı için ARAYÜZDEN de çıktı.
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
 
         /// <summary>
-        /// Yerleştirme kipine girmek, yazılı bekleyen vuruşu geçişin KENDİSİNDE
-        /// düşürür — hiçbir çağıranın ayrıca iptal yazmasına gerek kalmadan.
-        /// </summary>
-        // ESKİ HÂLDE BU BİR ELLE YAZILMIŞ SATIRDI ve yazılmadığı her yeni geçiş
-        // sessiz bir hata olurdu: bina koyulurken savaşçı kendiliğinden vurur ve
-        // oyuncu vuruşun nereden geldiğini anlamazdı.
-        [Test]
-        public void Enter_PlacementWhileAStrikeIsPending_DropsTheOrderInTheTransition()
-        {
-            var board = new FakeBoard();
-            var strike = new PendingStrikeMode(board);
-            var placement = new StructurePlacementMode(board);
-            var machine = new BoardModeMachine(new IdleBoardMode());
-            board.Machine = machine;
-
-            var attacker = new Unit("Striker");
-            var target = new Unit("Raider");
-            board.SelectedUnit = attacker;
-            board.PutOnBoard(attacker, target);
-
-            machine.Enter(strike);
-            strike.Write(attacker, target, 0, 4);
-            Assert.That(strike.IsAlive(), Is.True, "setup");
-
-            machine.Enter(placement);
-
-            Assert.That(board.StrikeAttacker, Is.Null);
-            Assert.That(board.StrikeTarget, Is.Null);
-            Assert.That(machine.Current, Is.SameAs(placement));
-        }
-
-        // ══ BEKLEYEN VURUŞUN İPTAL KOŞULLARI — KİPİN İÇİNDE AYNEN ════════
-        // Üç koşul da eskiden BoardAdapter.PendingStrikeIsAlive'ın gövdesindeydi.
-        // Buradaki testler onların taşınırken bozulmadığını ölçüyor.
-
-        /// <summary>
-        /// İki taraf da tahtada ve saldıran hâlâ seçili: emir ayakta.
+        /// Boşta kip fareyi sahiplenmez: sıradan tıklama akışı her zaman çalışır.
         /// </summary>
         [Test]
-        public void PendingStrike_IsAlive_WithBothSidesOnTheBoardAndTheAttackerSelected_IsTrue()
+        public void Idle_OwnsNoPointer()
         {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit attacker, out Unit target);
-
-            Assert.That(strike.IsAlive(), Is.True);
-            Assert.That(attacker, Is.SameAs(board.SelectedUnit));
-            Assert.That(target, Is.SameAs(board.StrikeTarget));
-        }
-
-        /// <summary>
-        /// SEÇİM DEĞİŞTİ: oyuncu başka bir birime geçtiyse eski emir düşer.
-        /// </summary>
-        [Test]
-        public void PendingStrike_IsAlive_WhenTheSelectionMovedToAnotherUnit_IsFalse()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit _, out Unit _);
-
-            var other = new Unit("Sapper");
-            board.PutOnBoard(other);
-            board.SelectedUnit = other;
-
-            Assert.That(strike.IsAlive(), Is.False);
-        }
-
-        /// <summary>
-        /// HEDEF TAHTADAN KALKTI: emir düşer.
-        /// </summary>
-        [Test]
-        public void PendingStrike_IsAlive_WhenTheTargetLeftTheBoard_IsFalse()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit _, out Unit target);
-
-            board.TakeOffBoard(target);
-
-            Assert.That(strike.IsAlive(), Is.False);
-        }
-
-        /// <summary>
-        /// SALDIRAN TAHTADAN KALKTI: emir düşer.
-        /// </summary>
-        // AYRI BİR TEST, ÇÜNKÜ İKİ TARAF AYRI SORULUYOR: tek bir test yazılsaydı
-        // koşullardan biri silindiği gün öteki testi hâlâ yeşil tutardı.
-        [Test]
-        public void PendingStrike_IsAlive_WhenTheAttackerLeftTheBoard_IsFalse()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit attacker, out Unit _);
-
-            board.TakeOffBoard(attacker);
-
-            Assert.That(strike.IsAlive(), Is.False);
-        }
-
-        // ══ TIKLAMANIN ANLAMI KİPE GÖRE DEĞİŞİYOR ════════════════════════
-
-        /// <summary>
-        /// Aynı hedefe gelen ikinci tıklama emrin TEKRARIDIR ve kip onu yutar.
-        /// </summary>
-        [Test]
-        public void PendingStrike_ConsumesClick_OnTheSameTarget_IsTrue()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit _, out Unit target);
-
-            Assert.That(strike.ConsumesClick(target), Is.True);
-        }
-
-        /// <summary>
-        /// BAŞKA bir hedefe tıklamak fikir değiştirmektir; kip onu yutmaz.
-        /// </summary>
-        [Test]
-        public void PendingStrike_ConsumesClick_OnAnotherTarget_IsFalse()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit _, out Unit _);
-
-            var other = new Unit("Scout");
-            board.PutOnBoard(other);
-
-            Assert.That(strike.ConsumesClick(other), Is.False);
-        }
-
-        /// <summary>
-        /// Yazılı bir emir yokken hiçbir tıklama tekrar sayılmaz.
-        /// </summary>
-        // BU TEST BİR KİLİTLENMEYİ ÖNLÜYOR: koşul emirsiz durumda true dönseydi
-        // dolu hücreye yapılan her tıklama sessizce tüketilir ve oyuncu hiçbir
-        // şey seçemezdi. null argüman ayrıca sınanıyor, çünkü boş hücreye
-        // tıklandığında oraya null geliyor ve iki null'un referans eşitliği
-        // TRUE'dur.
-        [Test]
-        public void PendingStrike_ConsumesClick_WithNoOrderWritten_IsFalse()
-        {
-            var board = new FakeBoard();
-            var strike = new PendingStrikeMode(board);
-
-            Assert.That(strike.ConsumesClick(new Unit("Raider")), Is.False);
-            Assert.That(strike.ConsumesClick(null), Is.False);
-        }
-
-        /// <summary>
-        /// Boşta kip hiçbir tıklamayı yutmaz: sıradan akış her zaman çalışır.
-        /// </summary>
-        [Test]
-        public void Idle_ConsumesNoClick()
-        {
-            var idle = new IdleBoardMode();
-
-            Assert.That(idle.OwnsPointer, Is.False);
-            Assert.That(idle.ConsumesClick(new Unit("Raider")), Is.False);
-            Assert.That(idle.ConsumesClick(null), Is.False);
-        }
-
-        // ══ BEKLEYEN VURUŞUN KARE İŞİ ════════════════════════════════════
-
-        /// <summary>
-        /// Görsel hâlâ yürüyorsa vuruş BEKLER ve emir ayakta kalır.
-        /// </summary>
-        [Test]
-        public void PendingStrike_Advance_WhileTheViewIsWalking_WaitsAndKeepsTheOrder()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit attacker, out Unit _);
-            board.Machine.Enter(strike);
-            board.StartWalking(attacker);
-
-            strike.Advance();
-
-            Assert.That(board.Strikes, Is.Empty);
-            Assert.That(board.StrikeAttacker, Is.SameAs(attacker));
-            Assert.That(board.Machine.Current, Is.SameAs(strike));
-        }
-
-        /// <summary>
-        /// Yürüyüş bitince vuruş iner — ve emir vuruştan ÖNCE silinir.
-        /// </summary>
-        // SIRA BİR KARARDIR: saldırı bir durum değişikliği doğuruyor, o zincir
-        // temizliğe kadar gidebiliyor ve yarım kalmış bir emrin o sırada ikinci
-        // kez okunması aynı vuruşu tekrarlardı.
-        [Test]
-        public void PendingStrike_Advance_WhenTheWalkEnded_ClearsTheOrderBeforeStriking()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit attacker, out Unit target);
-            board.Machine.Enter(strike);
-
-            strike.Advance();
-
-            Assert.That(board.Strikes.Count, Is.EqualTo(1));
-            Assert.That(board.Strikes[0].Attacker, Is.SameAs(attacker));
-            Assert.That(board.Strikes[0].Target, Is.SameAs(target));
-            Assert.That(board.Strikes[0].X, Is.EqualTo(2));
-            Assert.That(board.Strikes[0].Y, Is.EqualTo(3));
-
-            // EMİR VURUŞ ANINDA ZATEN SİLİNMİŞTİ: sahte tahta, kaydı vuruş
-            // çağrısının İÇİNDE okuyor.
-            Assert.That(board.Strikes[0].OrderWasStillWritten, Is.False);
-            Assert.That(board.Machine.Current, Is.InstanceOf<IdleBoardMode>());
-        }
-
-        /// <summary>
-        /// Emir düştüyse kipten çıkılır ve hiçbir vuruş yapılmaz.
-        /// </summary>
-        [Test]
-        public void PendingStrike_Advance_WhenTheOrderDied_LeavesTheModeWithoutStriking()
-        {
-            var board = new FakeBoard();
-            PendingStrikeMode strike = NewStrikeOrder(board, out Unit _, out Unit target);
-            board.Machine.Enter(strike);
-            board.TakeOffBoard(target);
-
-            strike.Advance();
-
-            Assert.That(board.Strikes, Is.Empty);
-            Assert.That(board.StrikeAttacker, Is.Null);
-            Assert.That(board.Machine.Current, Is.InstanceOf<IdleBoardMode>());
+            Assert.That(new IdleBoardMode().OwnsPointer, Is.False);
         }
 
         // ══ YERLEŞTİRME KİPİNİN KARE İŞİ ═════════════════════════════════
@@ -511,22 +310,6 @@ namespace GridStrategy.Tests.EditMode.Unity
         }
 
         /// <summary>
-        /// Emri yazılı, iki tarafı da tahtada duran bir bekleyen vuruş kurar.
-        /// </summary>
-        private static PendingStrikeMode NewStrikeOrder(
-            FakeBoard board, out Unit attacker, out Unit target)
-        {
-            attacker = new Unit("Striker");
-            target = new Unit("Raider");
-            board.PutOnBoard(attacker, target);
-            board.SelectedUnit = attacker;
-
-            var strike = new PendingStrikeMode(board);
-            strike.Write(attacker, target, 2, 3);
-            return strike;
-        }
-
-        /// <summary>
         /// Yerleştirme kipini kurar, makineye sokar ve girdirir.
         /// </summary>
         private static StructurePlacementMode EnterPlacement(FakeBoard board)
@@ -568,11 +351,6 @@ namespace GridStrategy.Tests.EditMode.Unity
             {
                 trace.Add($"{name}.Advance");
             }
-
-            public bool ConsumesClick(Unit clicked)
-            {
-                return false;
-            }
         }
 
         /// <summary>
@@ -581,20 +359,14 @@ namespace GridStrategy.Tests.EditMode.Unity
         // SINGLETON YOK VE OLMAMASI ÖLÇÜLEBİLİR: her test kendi tahtasını
         // kuruyor, hiçbir test ötekinden bir durum devralmıyor ve bu yüzden
         // TearDown'a gerek kalmıyor.
-        private sealed class FakeBoard : IPlacementModeHost, IPendingStrikeHost
+        private sealed class FakeBoard : IPlacementModeHost
         {
-            private readonly HashSet<Unit> onBoard = new HashSet<Unit>();
-            private readonly HashSet<Unit> walking = new HashSet<Unit>();
-
             public readonly List<string> Lines = new List<string>();
             public readonly List<(int X, int Y)> Placements = new List<(int, int)>();
             // ADLANDIRILMIŞ DEMET, `record` DEĞİL: konumsal bir record `init`
             // erişimcisi üretiyor ve o da IsExternalInit istiyor — bu tip
             // GridStrategy.Core içinde `internal` yaşadığı için test derlemesinden
             // görünmüyor (ölçüldü: CS0518). Demet aynı okunaklılığı bedelsiz veriyor.
-            public readonly List<(Unit Attacker, Unit Target, int X, int Y, bool OrderWasStillWritten)>
-                Strikes = new List<(Unit, Unit, int, int, bool)>();
-
             public BoardModeMachine Machine = new BoardModeMachine(new IdleBoardMode());
 
             public Unit SelectedUnit { get; set; }
@@ -610,28 +382,6 @@ namespace GridStrategy.Tests.EditMode.Unity
             public int GhostX = -1;
             public int GhostY = -1;
             public int GestureResets;
-
-            public Unit StrikeAttacker { get; private set; }
-
-            public Unit StrikeTarget { get; private set; }
-
-            public void PutOnBoard(params Unit[] units)
-            {
-                for (int i = 0; i < units.Length; i++)
-                {
-                    onBoard.Add(units[i]);
-                }
-            }
-
-            public void TakeOffBoard(Unit unit)
-            {
-                onBoard.Remove(unit);
-            }
-
-            public void StartWalking(Unit unit)
-            {
-                walking.Add(unit);
-            }
 
             public void PointerCell(int x, int y)
             {
@@ -683,35 +433,6 @@ namespace GridStrategy.Tests.EditMode.Unity
             public void CommitPlacement(int x, int y)
             {
                 Placements.Add((x, y));
-            }
-
-            public void WriteStrikeOrder(Unit attacker, Unit target)
-            {
-                StrikeAttacker = attacker;
-                StrikeTarget = target;
-            }
-
-            public void ClearStrikeOrder()
-            {
-                StrikeAttacker = null;
-                StrikeTarget = null;
-            }
-
-            public bool IsOnBoard(Unit unit)
-            {
-                return unit != null && onBoard.Contains(unit);
-            }
-
-            public bool IsViewWalking(Unit unit)
-            {
-                return unit != null && walking.Contains(unit);
-            }
-
-            public void ExecuteStrike(Unit attacker, Unit target, int x, int y)
-            {
-                // KAYIT VURUŞUN İÇİNDE OKUNUYOR: "emir önce silinir, sonra
-                // vurulur" sırasını ölçmenin tek yolu bu an.
-                Strikes.Add((attacker, target, x, y, StrikeAttacker != null));
             }
         }
     }

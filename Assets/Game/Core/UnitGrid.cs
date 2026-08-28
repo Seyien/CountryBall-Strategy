@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GridStrategy.Core
 {
@@ -26,6 +27,18 @@ namespace GridStrategy.Core
     public sealed class UnitGrid
     {
         private readonly Unit[,] cells;
+
+        // ██ AYNI GERÇEĞİN İKİNCİ OKUMA YÖNÜ — KOPYASI DEĞİL ██
+        // Yukarıdaki dizi "şu hücrede kim var" sorusunu O(1) cevaplıyor; bu
+        // sözlük "şu birim nerede" sorusunu O(1) cevaplıyor. İkisi AYNI olguyu
+        // taşıyor, yani ayrışabilirler — ve ayrışmalarını engelleyen şey bir
+        // disiplin değil bir YAPI: ikisine de yalnız WriteCell dokunuyor.
+        //
+        // DEĞER int, ÇÜNKÜ Core MOTORU GÖRMÜYOR: `noEngineReferences: true`,
+        // yani Vector2Int burada yok. İki alanlık bir struct açmak yerine
+        // hücre `y * Width + x` ile paketleniyor; paketleme bu tipin İÇİNDE
+        // kalıyor ve dışarıya hiç sızmıyor.
+        private readonly Dictionary<Unit, int> occupied = new Dictionary<Unit, int>();
 
         // Ölçünün pozitifliği burada doğrulanır: "tahtanın ölçüsü pozitif
         // olmalı" kuralının başka sahibi yok. Ölçü bu kurucuda dizinin ŞEKLİ
@@ -80,7 +93,7 @@ namespace GridStrategy.Core
         {
             ThrowIfOutsideGrid(x, y, nameof(x), nameof(y));
 
-            cells[x, y] = unit;
+            WriteCell(x, y, unit);
         }
 
         // TAHTANIN ANAHTARI KOORDİNATTIR, KİMLİK DEĞİL. Kimlikle silmek
@@ -95,7 +108,7 @@ namespace GridStrategy.Core
         {
             ThrowIfOutsideGrid(x, y, nameof(x), nameof(y));
 
-            cells[x, y] = null;
+            WriteCell(x, y, null);
         }
 
         // TEK PARÇA BİR İŞLEM, RemoveUnit + PlaceUnit BİLEŞİMİ DEĞİL. Sebep
@@ -124,8 +137,81 @@ namespace GridStrategy.Core
             // Önce kaynağı boşalt, sonra hedefe yaz. Aynı hücreye taşımada
             // (fromX == toX && fromY == toY) sıra önemlidir: tersi olsaydı
             // birim hedefe yazılır, hemen ardından aynı hücre boşaltılırdı.
-            cells[fromX, fromY] = null;
-            cells[toX, toY] = moving;
+            WriteCell(fromX, fromY, null);
+            WriteCell(toX, toY, moving);
+        }
+
+        /// <summary>
+        /// Bu birim tahtada duruyor mu, duruyorsa hangi hücrede.
+        /// </summary>
+        // ██ ÇEVRİLEN KARAR: HER ÇAĞRIDA TARAMA → SÖZLÜK ██
+        // Bu cevabı Battle şöyle üretiyordu ve 10x5'lik bir tahtada bedeli
+        // gözlenemezdi:
+        //
+        //     for (int cellX = 0; cellX < board.Width; cellX++)
+        //         for (int cellY = 0; cellY < board.Height; cellY++)
+        //             if (board.TryGetUnit(cellX, cellY, out Unit standing)
+        //                 && ReferenceEquals(standing, unit)) { ... }
+        //
+        // KIRILAN ŞEY İKİ ÖLÇÜMÜN ÇARPIMI: tahta 100x50 oldu (çağrı başına
+        // 5000 hücre) VE kalıcı saldırı emri doğdu — her emir her karede bu
+        // soruyu ÜÇ kez soruyor (saldıran, hedef, vuruşun kendisi). On emirde
+        // saniyede milyonlarca hücre yoklaması. İkisinden yalnız biri olsaydı
+        // eski hâl hâlâ doğruydu.
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 11)
+        //
+        // SORU BURAYA TAŞINDI, Battle'DA KALMADI: cevabı O(1) verebilmenin tek
+        // yolu hücrelerin yazıldığı yerde bir dizin tutmak ve o yer burası.
+        // Battle'da tutulsaydı dizin, mutasyonları görmeyen bir tipte yaşar ve
+        // her yazmada elle güncellenmesi gerekirdi.
+        public bool TryGetPosition(Unit unit, out int x, out int y)
+        {
+            if (unit == null)
+            {
+                throw new ArgumentNullException(nameof(unit));
+            }
+
+            if (!occupied.TryGetValue(unit, out int packed))
+            {
+                // Bulunamayınca (0,0) DEĞİL (-1,-1): sıfır geçerli bir hücredir
+                // ve dönüşü yok sayan bir çağıran onu sessizce köşe sanardı.
+                x = -1;
+                y = -1;
+                return false;
+            }
+
+            x = packed % Width;
+            y = packed / Width;
+            return true;
+        }
+
+        /// <summary>
+        /// Bir hücreyi yazar ve ters dizini AYNI çağrıda günceller.
+        /// </summary>
+        // ██ TEK YAZMA NOKTASI — VE BU BİR ÜSLUP DEĞİL, KELEPÇE ██
+        // İki gerçek (dizi ve sözlük) ancak ikisine de aynı satırda dokunulursa
+        // ayrışamaz. Üç mutasyon üyesi (PlaceUnit, RemoveUnit, MoveUnit) kendi
+        // gövdelerinde `cells[x, y] = ...` yazsaydı, dördüncü bir üye eklendiği
+        // gün sözlüğü güncellemeyi unutmak SESSİZ bir hata olurdu: birim
+        // ekranda doğru yerde durur, kural katmanı onu başka hücrede sanırdı.
+        //
+        // ÖNCEKİ SAKİN DÜŞÜYOR: bir hücrenin üstüne yazmak, orada duran birimi
+        // tahtadan düşürür. Dizinden silinmeseydi o birim, artık kimsenin
+        // olmadığı bir hücrede duruyor görünürdü.
+        private void WriteCell(int x, int y, Unit unit)
+        {
+            Unit previous = cells[x, y];
+            if (previous != null)
+            {
+                occupied.Remove(previous);
+            }
+
+            cells[x, y] = unit;
+
+            if (unit != null)
+            {
+                occupied[unit] = (y * Width) + x;
+            }
         }
 
         // Üç yazma metodunun ortak sınır kontrolü. Parametre adı DIŞARIDAN

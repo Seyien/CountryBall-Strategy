@@ -547,6 +547,8 @@ eksik olan eksen veriliyor: **soru**.
 | "Neden `bool` değil enum, sıfırıncı değer neden ret" | [konular/06-sonuc-enumlari.md](konular/06-sonuc-enumlari.md) |
 | "Tıklama nereye gidiyor, sürükleme nerede ayrılıyor" | [konular/07-tiklamadan-eyleme.md](konular/07-tiklamadan-eyleme.md) |
 | "`Battle`'daki o sözlük neden var, olay nasıl akıyor" | [konular/01-olay-zinciri.md](konular/01-olay-zinciri.md) |
+| "Bu karar neden çevrildi, dünkü cevabı ne yanlış yaptı" | [konular/09-kararlarin-cevrilmesi.md](konular/09-kararlarin-cevrilmesi.md) |
+| "Bir geri almayı nasıl kaydederim, silinen kod nerede" | [konular/10-geri-alinan-kararlar.md](konular/10-geri-alinan-kararlar.md) |
 | "Bu tip neden var, bu ÜYE neden böyle yazılmış" | [kod/README.md](kod/README.md) → tipin ayna belgesi |
 | "`readonly` / `IReadOnlyList` / `nameof` ne vaat ediyor" | [dil/README.md](dil/README.md) |
 | "Kapanış (closure) kimliği nedir, `-=` neden sessizce başarısız olur" | [dil/04-delege-olay-ve-kapanis.md](dil/04-delege-olay-ve-kapanis.md) |

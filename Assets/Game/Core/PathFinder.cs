@@ -89,6 +89,23 @@ namespace GridStrategy.Core
             int width = board.Width;
             int cellCount = width * board.Height;
 
+            // ██ ÖLÇEK BORCU — YAZILI, ONARILMADI ██
+            // Aşağıdaki beş dizi ve init döngüsü, yol BİR hücre bile olsa
+            // tahtanın TAMAMI kadar iş yapıyor. 10x5'te çağrı başına 250
+            // eleman; 100x50'de 25.000 — yüz kat. Çağıranlar: imleç her YENİ
+            // hücreye girdiğinde (BoardAdapter.IsHoverReachable, önbellek
+            // anahtarı kırılıyor) ve TryFindApproachCell'in aday döngüsü.
+            //
+            // NEDEN ŞİMDİ ONARILMADI VE DOĞRU ONARIM NE: tamponları yeniden
+            // kullanmak `PathFinder`'ı static sınıf olmaktan çıkarıp bir örneğe
+            // (Battle'ın sahibi olduğu) çevirmeyi gerektiriyor — static tampon,
+            // bu projenin bilerek reddettiği global durum olurdu ve testlerin
+            // sahnesiz koşabilmesinin sebebi tam olarak o reddediş.
+            // `MoveAction` da bu üyeyi static çağırıyor, yani imza değişikliği
+            // oraya ve testlerine yayılıyor. Ayrı bir turun işi.
+            //
+            // TAVAN: ~1000 hücre. Yeniden açma: Profiler'da fare tahtada
+            // gezinirken kare başına GC sıçraması.
             var gCost = new int[cellCount];
             var fCost = new int[cellCount];
             var cameFrom = new int[cellCount];
@@ -112,9 +129,24 @@ namespace GridStrategy.Core
 
             while (open.Count > 0)
             {
-                // Açık kümenin en ucuz düğümü. Düz liste taraması O(n); bu oyunun
-                // tahtası birkaç yüz hücre olduğu için öncelik kuyruğu kurmanın
-                // karmaşıklığı kazancından büyük olurdu.
+                // Açık kümenin en ucuz düğümü. Düz liste taraması O(n).
+                //
+                // ██ BAYAT İDDİA ONARILDI — SAYI DÜNYAYI TAKİP ETMEDİ ██
+                // Burada şu yazıyordu: "bu oyunun tahtası birkaç yüz hücre
+                // olduğu için öncelik kuyruğu kurmanın karmaşıklığı kazancından
+                // büyük olurdu." O cümle yazıldığı gün DOĞRUYDU (10x5 = 50
+                // hücre) ve tahta 100x50 = 5000 hücre olduğunda kimse geri
+                // dönüp okumadı. Bayat bir sayı, bayat bir satır atfıyla aynı
+                // sınıftan bir kusurdur.
+                //
+                // ÖLÇEK: açık kümenin tavanı hücre sayısı. Yol bulunamayan ya
+                // da geniş alan taranan kötü senaryoda toplam karşılaştırma
+                // ~O(hücre²) — 10x5'te ~2.500, 100x50'de ~25.000.000.
+                // TAVAN: BU ŞEKİL ~1000 HÜCREYE KADAR ÖLÇÜLMEDEN KABUL EDİLDİ;
+                // 5000 hücrede ARTIK GÜVENLİ DEĞİL ve borç olarak yazılı.
+                // Yeniden açma: uzak ya da ulaşılamaz bir hedefe tıklamada
+                // gözle görülür kare donması. O gün çözüm ikili yığın (binary
+                // heap) ve aşağıdaki dizi tahsisinin yeniden kullanımı.
                 int current = open[0];
                 int currentSlot = 0;
                 for (int i = 1; i < open.Count; i++)

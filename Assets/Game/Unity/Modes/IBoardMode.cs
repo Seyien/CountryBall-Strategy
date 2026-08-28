@@ -1,30 +1,35 @@
-using GridStrategy.Core;
-
 namespace GridStrategy.Unity
 {
-    //   ═══ KİP GEÇİŞ ŞEMASI — TEK MAKİNE, ÜÇ KİP ════════════════════
+    //   ═══ KİP GEÇİŞ ŞEMASI — TEK MAKİNE, İKİ KİP ═══════════════════
     //
     //                        ┌─────────┐
-    //          B tuşu   ┌────┤  BOŞTA  ├────┐  uzak hedefe tıklama
-    //                   ▼    └─────────┘    ▼
-    //        ┌────────────────┐      ┌────────────────────┐
-    //        │ YAPI           │      │ BEKLEYEN VURUŞ     │
-    //        │ YERLEŞTİRME    │      │ (yürü, sonra vur)  │
-    //        └───────┬────────┘      └─────────┬──────────┘
-    //     iptal / yapı kondu          vuruş indi / emir düştü
-    //                └──────► BOŞTA ◄──────────┘
-    //   YAN GEÇİŞ YOK: B tuşu, emri geçişin kendisinde düşürür.
+    //          B tuşu   ┌────┤  BOŞTA  │
+    //                   ▼    └─────────┘
+    //        ┌────────────────┐
+    //        │ YAPI           │
+    //        │ YERLEŞTİRME    │
+    //        └───────┬────────┘
+    //     iptal / yapı kondu
+    //                └──────► BOŞTA
+    //
+    //   ÜÇÜNCÜ KİP (BEKLEYEN VURUŞ) BU TURDA KALDIRILDI ve yerini kip
+    //   OLMAYAN bir şey aldı: emir defteri. Sebep tek cümlede —
+    //   kip TAHTANIN ne yaptığıdır ve TEKTİR; emir HER BİRİME ne
+    //   söylendiğidir ve ÇOĞULDUR. Bir savaşçının emri yazılıyken üç
+    //   savaşçının daha emri yazılı olabilmeli, ve bu bir kip makinesine
+    //   sığmaz. → Orders/IUnitOrder.cs
 
     // ═══ NEDEN TEK MAKİNE — ÖLÇÜLDÜ, VARSAYILMADI ════════════════════
-    // İki ayrı makine kurulacaktı; ölçüm onu çürüttü. Yerleştirme kipine
-    // girmek bekleyen vuruşu her koşulda iptal ediyor, ve ters yön de kapalı:
-    // bekleyen vuruşu yazan tek satır HandleOccupiedCellClick'in içinde ve o
-    // yola ancak Update'in yerleştirme dalından ÇIKAMADIĞI karelerde
-    // varılıyor. Yani "yerleştirme açık" ile "emir yazılı" aynı karede asla
-    // birlikte doğru olamaz; iki bayrak değil, bir kipin iki değeriydi.
+    // Eski gerekçe şuydu: "yerleştirme açık" ile "emir yazılı" aynı karede asla
+    // birlikte doğru olamaz, dolayısıyla iki bayrak değil bir kipin iki
+    // değeridir. O ölçüm DOĞRUYDU ve bugün ARTIK GEÇERLİ DEĞİL — çünkü
+    // istenen şeyin kendisi değişti: operatör, bina sürüklerken savaşçısının
+    // vurmaya DEVAM etmesini istiyor. İkisi artık aynı karede birlikte doğru,
+    // ve bu yüzden ikisi ayrı sahiplerde yaşıyor: kip makinesinde bir kip,
+    // defterde n emir.
     //
-    // KAZANCI SATIRLA ÖLÇÜLEBİLİR: iptal artık hiçbir yerde elle yazılmıyor,
-    // geçişin kendisi yapıyor — açık kipin Cik() işi emri siliyor.
+    // MAKİNENİN KAZANCI DURUYOR: yerleştirmenin iptali hâlâ hiçbir çağıranın
+    // hafızasında değil, geçişin kendisinde.
 
     // REDDEDILEN - RemoveSelected'ı dördüncü bir kip yapmak.
     // KIRILAN: kaldırma tek çağrıda başlayıp biten bir eylem; kareler arasında
@@ -79,11 +84,13 @@ namespace GridStrategy.Unity
         /// </summary>
         void Advance();
 
-        /// <summary>
-        /// Bu tıklamayı kip kendisi mi yutuyor?
-        /// </summary>
-        /// <param name="clicked">Tıklanan hücrede duran kimlik; boşsa null.</param>
-        /// <returns>Tıklama burada bitiyorsa true; sıradan akışa gidecekse false.</returns>
-        bool ConsumesClick(Unit clicked);
+        // ═══ BURADA DÖRDÜNCÜ BİR ÜYE VARDI: ConsumesClick(Unit) ═══════
+        // Bir önceki turda eklenmişti ve tek çağıranı vardı: "aynı hedefe gelen
+        // ikinci tıklama yazılı emrin tekrarı mı" sorusu. O soruyu bugün emir
+        // defteri cevaplıyor — ve DAHA DOĞRU cevaplıyor, çünkü soru artık
+        // "tahtada yazılı emir" değil "SEÇİLİ BİRİMİN emri" hakkında.
+        // Geriye kalan iki kip de koşulsuz false dönüyordu; kimsenin sormadığı
+        // bir soruya iki uydurma cevap, arayüzü yalancı yapardı.
+        // → BoardAdapter.RepeatsOrder, Orders/UnitOrderBook.cs
     }
 }

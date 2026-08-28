@@ -6,6 +6,164 @@ namespace GridStrategy.Tests.EditMode.Core
 {
     public sealed class UnitGridTests
     {
+        // ══ TERS DİZİN — "ŞU BİRİM NEREDE" SORUSU ══════════════════════
+        // Bu bölüm bir HIZ testi değil, bir SENKRON testi. Hücre dizisi ile
+        // ters dizin aynı olguyu iki yönden okuyor; ayrışırlarsa hiçbir şey
+        // patlamaz, yalnız kural katmanı birimi yanlış hücrede sanır. Aşağıdaki
+        // iddiaların hepsi o ayrışmayı arıyor.
+
+        /// <summary>
+        /// Konulan birim, konduğu hücrede bulunuyor.
+        /// </summary>
+        [Test]
+        public void TryGetPosition_ForAPlacedUnit_ReturnsItsCell()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var kral = new Unit("kral");
+            grid.PlaceUnit(2, 5, kral);
+
+            Assert.That(grid.TryGetPosition(kral, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(2));
+            Assert.That(y, Is.EqualTo(5));
+        }
+
+        /// <summary>
+        /// Hiç konulmamış birim bulunamıyor ve (-1,-1) dönüyor.
+        /// </summary>
+        // (0,0) DEĞİL: sıfır geçerli bir hücredir ve dönüşü yok sayan bir
+        // çağıran onu sessizce köşe sanardı. Eski tarama sürümü de aynı sözü
+        // veriyordu; sözleşme korundu.
+        [Test]
+        public void TryGetPosition_ForAUnitThatWasNeverPlaced_IsFalseAndNegative()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+
+            Assert.That(grid.TryGetPosition(new Unit("hayalet"), out int x, out int y), Is.False);
+            Assert.That(x, Is.EqualTo(-1));
+            Assert.That(y, Is.EqualTo(-1));
+        }
+
+        /// <summary>
+        /// Taşınan birim YENİ hücresinde bulunuyor, eskisinde değil.
+        /// </summary>
+        // ██ AYRIŞMANIN EN OLASI HÂLİ ██
+        // Dizin MoveUnit'te güncellenmeseydi bu iddia kırmızıya dönerdi ve
+        // birim ekranda doğru yerde durup kural katmanında eski hücresinde
+        // görünürdü — saldırı menzili yanlış ölçülür, yol bulma yanlış yerden
+        // başlardı.
+        [Test]
+        public void TryGetPosition_AfterMoveUnit_ReportsTheNewCell()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var kral = new Unit("kral");
+            grid.PlaceUnit(0, 0, kral);
+
+            grid.MoveUnit(0, 0, 3, 4);
+
+            Assert.That(grid.TryGetPosition(kral, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(3));
+            Assert.That(y, Is.EqualTo(4));
+            Assert.That(grid.TryGetUnit(0, 0, out Unit _), Is.False, "eski hücre boşalmalı");
+        }
+
+        /// <summary>
+        /// Kaldırılan birim artık hiçbir yerde bulunmuyor.
+        /// </summary>
+        [Test]
+        public void TryGetPosition_AfterRemoveUnit_IsFalse()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var kral = new Unit("kral");
+            grid.PlaceUnit(1, 1, kral);
+
+            grid.RemoveUnit(1, 1);
+
+            Assert.That(grid.TryGetPosition(kral, out int _, out int _), Is.False);
+        }
+
+        /// <summary>
+        /// Üstüne yazılan birim tahtadan DÜŞÜYOR — dizinde asılı kalmıyor.
+        /// </summary>
+        // ██ SESSİZ SIZINTININ TESTİ ██
+        // Önceki sakin dizinden silinmeseydi, artık kimsenin olmadığı bir
+        // hücrede duruyor görünürdü. Hücre dizisi doğru, dizin yalan söylerdi
+        // ve ikisini karşılaştıran hiçbir kod olmadığı için kimse fark etmezdi.
+        [Test]
+        public void TryGetPosition_ForAUnitThatWasOverwritten_IsFalse()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var eski = new Unit("eski");
+            var yeni = new Unit("yeni");
+            grid.PlaceUnit(2, 2, eski);
+
+            grid.PlaceUnit(2, 2, yeni);
+
+            Assert.That(grid.TryGetPosition(eski, out int _, out int _), Is.False,
+                "üstüne yazılan birim tahtadan düşmeli");
+            Assert.That(grid.TryGetPosition(yeni, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(2));
+            Assert.That(y, Is.EqualTo(2));
+        }
+
+        /// <summary>
+        /// Aynı hücreye taşımak birimi kaybetmiyor.
+        /// </summary>
+        // SIRA TUZAĞI: MoveUnit önce kaynağı boşaltıp sonra hedefe yazıyor ve
+        // kaynak ile hedef AYNI hücre olduğunda o sıra dizinde de doğru
+        // sonucu vermeli. Ters sırada birim önce yazılır, hemen ardından
+        // silinirdi.
+        [Test]
+        public void TryGetPosition_AfterMovingOntoItsOwnCell_StillFindsTheUnit()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var kral = new Unit("kral");
+            grid.PlaceUnit(1, 3, kral);
+
+            grid.MoveUnit(1, 3, 1, 3);
+
+            Assert.That(grid.TryGetPosition(kral, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(1));
+            Assert.That(y, Is.EqualTo(3));
+        }
+
+        /// <summary>
+        /// Dolu bir hücreye taşımak, orada duranı düşürüyor.
+        /// </summary>
+        // "Dolu hücreye taşınamaz" kuralı bu tipin değil ÇAĞIRANIN işi ve o söz
+        // korunuyor; burada sınanan şey, üstüne yazıldığında dizinin de dürüst
+        // kalması.
+        [Test]
+        public void TryGetPosition_WhenAMoveOverwritesAnotherUnit_DropsTheOverwrittenOne()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+            var giden = new Unit("giden");
+            var ezilen = new Unit("ezilen");
+            grid.PlaceUnit(0, 0, giden);
+            grid.PlaceUnit(2, 2, ezilen);
+
+            grid.MoveUnit(0, 0, 2, 2);
+
+            Assert.That(grid.TryGetPosition(ezilen, out int _, out int _), Is.False);
+            Assert.That(grid.TryGetPosition(giden, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(2));
+            Assert.That(y, Is.EqualTo(2));
+        }
+
+        /// <summary>
+        /// null birim için istisna — programcı hatası, oyun olgusu değil.
+        /// </summary>
+        // Eski tarama sürümü de aynı istisnayı atıyordu; sözleşme korundu.
+        // TAM NİTELİKLİ AD: testlerde çıplak `using System;` yasak, çünkü
+        // `Object` adı `UnityEngine.Object` ile belirsizleşiyor (CS0104).
+        [Test]
+        public void TryGetPosition_WithNull_Throws()
+        {
+            var grid = new UnitGrid(width: 4, height: 6);
+
+            Assert.Throws<System.ArgumentNullException>(
+                () => grid.TryGetPosition(null, out int _, out int _));
+        }
+
         [Test]
         public void TryGetUnit_WhenCellIsOccupied_ReturnsTrueAndOutputsStoredUnit()
         {

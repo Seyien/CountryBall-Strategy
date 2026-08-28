@@ -7,6 +7,13 @@ Bir desenin adını bilmek onu kullanmak değildir; ama kullandığın bir şeyi
 bilmemek, onu ikinci kez bilinçli olarak seçememek demektir. Bu dosyanın tek
 işi o boşluğu kapatmak: projede **gerçekten** duran kararlara adlarını vermek.
 
+***SINIR — bu dosya "UYGULANANLAR" belgesidir.*** Burada yalnız kodda duran
+desenler var; on iki desenin **hepsini**, uygulanmayanları ve her birinin
+tetikleyici koşulunu arıyorsan yer burası değil,
+[13-desen-secim-rehberi.md](13-desen-secim-rehberi.md). Aşağıdaki *"İncelenip
+elenen desen adayları"* tablosu bir özettir; o tablonun uzun hâli, motor
+karşılığı ve kod taslağı `13`'te.
+
 ## Her bölümün beş alanı
 
 | Alan | Ne yazar |
@@ -826,8 +833,8 @@ Aşağıdakilerin hiçbiri bu projede **yok**. Yokluk bir eksiklik değil, bir
 | Aday | Neden yok — ölçü |
 |---|---|
 | Command | `MoveAction.cs:42`, `AttackAction.cs:36`, `BattleActions.cs:50` üçü de `static class`; saklanacak nesne yok, geri alma yok |
-| Strategy | Üretim kodunda **bir** `interface` var (`IPlacementBoard.cs:39`) ama uygulayanı **tek** (`BoardAdapter`); Strategy'nin ölçüsü arayüzün varlığı değil, aynı çağıranın **iki** uygulama arasında seçim yapmasıdır — o seçim sıfır yerde |
-| Factory | `BoardAdapter.cs:1089` `NewCombatant` bir **private yardımcı**; üretim politikası taşımıyor, tip seçmiyor |
+| Strategy | ***ÖLÇÜ DEĞİŞTİ, HÜKÜM DEĞİŞMEDİ*** — üretim kodunda artık **altı** `interface` var ve altısı da `GridStrategy.Unity` içinde: `IPlacementBoard`, `IBoardMode`, `IBoardModeHost`, `IPlacementModeHost`, `IUnitOrder`, `IUnitOrderHost`. İkisi birden fazla uygulama taşıyor ama ikisi de Strategy değil: `IUnitOrder` (`AttackOrder`, `ReviveOrder`) bir **Command**'dır ve yaratım noktası hangi tipi istediğini bilir; `IBoardMode` (`IdleBoardMode`, `StructurePlacementMode`) bir **State**'tir ve seçimi `BoardModeMachine` bir geçişle yapar. Strategy'nin ölçüsü arayüz sayısı değil, aynı çağıranın iki uygulama arasında **seçim** yapmasıdır — ve projede otomatik hedef seçen bir algoritma hiç yok; hedefi oyuncu tıklıyor. Ayrıntı: [13-desen-secim-rehberi.md](13-desen-secim-rehberi.md) |
+| Factory | Üç doğum yolu var — `UnitBlueprint.CreateCombatant`, `StructureBlueprint.CreateStructure` ve `BoardAdapter.NewCombatant` — ve **üçü de** dönüş tipini çağırana söylüyor. `StructureProduction.Produce` üyesi somut tipi `out Combatant produced` parametresiyle **imzasında** taşıyor. `Combatant` ve `Structure` ikisi de `sealed`, üretilen somut tip sayısı **bir**. ***Nesne üretmek fabrika değildir; fabrikanın ölçüsü çağıranın dönüş TİPİNİ bilmemesidir.*** Ayrıntı: [13-desen-secim-rehberi.md](13-desen-secim-rehberi.md) |
 | Singleton | Üretim kodunda değiştirilebilir hiçbir `static` alan yok; tek `static` alan `TurnState.cs:44` ve `readonly` + salt okunur görünüm |
 | Service Locator | Kayıt defteri yok; bağımlılıklar kurucudan ya da `[SerializeField]`'den geliyor |
 | Decorator | Sözleşme artık **var** (`IPlacementBoard`), ama Decorator'ın ölçüsü sözleşme değil: aynı sözleşmeyi uygulayıp **başka bir uygulamayı sarmalayan** bir tip gerekir. Uygulayan tek ve hiçbir şeyi sarmalamıyor — sıfır |

@@ -7,7 +7,8 @@ namespace GridStrategy.Unity
     //     BoardAdapter (MonoBehaviour)          kipler (sade C#)
     //     ────────────────────────────          ────────────────
     //     Input, Camera, Battle,   ──────►  IPlacementModeHost ──► YERLEŞTİRME
-    //     hayalet, jest, görseller ──────►  IPendingStrikeHost ──► BEKLEYEN VURUŞ
+    //     hayalet, jest, görseller ──────►  IUnitOrderHost ──────► EMİRLER
+    //                                       (Orders/, kip DEĞİL)
     //
     //     Ok TEK YÖN: kip tahtayı arayüzüyle tanır, tahta kipi ADIYLA tanır.
     //     Testte tahtanın yerine sahte bir host konur ve kip aynen koşar.
@@ -83,38 +84,17 @@ namespace GridStrategy.Unity
         void CommitPlacement(int x, int y);
     }
 
-    /// <summary>
-    /// Bekleyen vuruş kipinin tahtadan istedikleri: emrin iki kimliği, iki
-    /// hayatta kalma sorusu ve vuruşun kendisi.
-    /// </summary>
-    // İKİ KİMLİK NEDEN TAHTADA DURUYOR — ÖLÇÜLDÜ VE BİR BEDELİ VAR: saldıranı
-    // ve hedefi yalnızca kip değil, temizlik de okuyor (tahtadan kalkan kimlik
-    // emri de götürür) ve mevcut testler o alanları ADIYLA yazıp okuyor. Hedefin
-    // HÜCRESİ ise bu sözleşmede hiç yok, çünkü onu soran tek taraf kipin kendisi.
-    public interface IPendingStrikeHost : IBoardModeHost
-    {
-        /// <summary>Emri yazan saldıran; emir yoksa null.</summary>
-        Unit StrikeAttacker { get; }
-
-        /// <summary>Emrin hedefi; emir yoksa null.</summary>
-        Unit StrikeTarget { get; }
-
-        /// <summary>Emrin iki kimliğini yazar; öncekini sessizce ezer.</summary>
-        // HEDEFİN HÜCRESİ BURADA YOK ve yokluğu ölçülmüş: o sayıyı okuyan tek
-        // yer emrin kendi yürümesi, yani kipin İÇİ. Tahtaya yazılsaydı hiçbir
-        // çağıranı olmayan iki alan daha doğardı.
-        void WriteStrikeOrder(Unit attacker, Unit target);
-
-        /// <summary>Emri siler. Tahtaya ve savaşa HİÇ dokunmaz.</summary>
-        void ClearStrikeOrder();
-
-        /// <summary>Bu kimlik hâlâ tahtada bir hücrede duruyor mu?</summary>
-        bool IsOnBoard(Unit unit);
-
-        /// <summary>Bu kimliğin görseli şu anda yürüyor mu?</summary>
-        bool IsViewWalking(Unit unit);
-
-        /// <summary>Vuruşu savaşa yaptırır ve ekranı sonuca göre günceller.</summary>
-        void ExecuteStrike(Unit attacker, Unit target, int x, int y);
-    }
+    // ═══ BURADA ÜÇÜNCÜ BİR SÖZLEŞME DURUYORDU: IPendingStrikeHost ═══
+    // Dokuz üyesi vardı (altısı kendisinin, üçü IBoardModeHost'tan) ve bekleyen
+    // vuruşun TEK emrini tahtada tutuyordu: StrikeAttacker, StrikeTarget,
+    // WriteStrikeOrder, ClearStrikeOrder, IsOnBoard, IsViewWalking,
+    // ExecuteStrike. Yerini dört üyeli `IUnitOrderHost` aldı ve emirler kip
+    // olmaktan çıktı — çünkü kip TEKTİR, emir ÇOĞUL.
+    //
+    // Bir önceki devir belgesinin bu tura koyduğu ölçüt buydu: "IPlacementModeHost
+    // (7 üye) ve IPendingStrikeHost (9 üye) kalan bağımlılığın fotoğrafı; god
+    // object bölündükçe daralmalı, daralmazlarsa pattern kozmetik kalmış
+    // demektir." Dokuz üye dört üyeye indi ve sahibi değişti.
+    // → Orders/IUnitOrderHost.cs
+    // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
 }

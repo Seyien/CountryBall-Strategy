@@ -162,9 +162,29 @@ namespace GridStrategy.EditorTools
         private const float PanelHeader = 34f;
         private const float PanelPadding = 8f;
 
-        // Panellerin ekran kenarına olan payları.
-        private const float PaletteMargin = 12f;
-        private const float ProductionMargin = 14f;
+        // ██ EKRAN KENARININ TEK SAHİBİ ██
+        // Burada `PaletteMargin = 12f` ve `ProductionMargin = 14f` duruyordu ve
+        // ikisi de bir YALANDI: paneli KURAN satırlar onları hiç okumuyor,
+        // yerlerine çıplak sayı yazıyordu (palet 12, üretim 14, çöp kutusu 20,
+        // durum şeridi 16). Yani dört ayrı kenar payı vardı, ikisinin adı vardı
+        // ve o iki adı yalnız KAMERA okuyordu — panel bir gün kaydırılsa kamera
+        // eski payı kullanmaya devam ederdi.
+        //
+        // Operatörün bildirdiği belirti bu dağınıklığın en görünür ucuydu:
+        // "sağ alttaki sil düğmesi direkt köşeye yapışık, düzgün değil."
+        // Ölçüm daha kötüsünü gösterdi — düğmenin "SİL" etiketi düğmenin ALTINDA
+        // yaşıyor (22 piksel) ve 20 piksellik payla ekranın DIŞINA taşıyordu.
+        //
+        // TEK SAYI, TEK SAHİP: aşağıdaki her panel bunu okuyor ve kamera da
+        // aynı sayıyla çerçeveliyor. 24, 12 ile 14'ün ortalaması değil bir
+        // ÖLÇÜ: 1920x1080 referansında ekran yüksekliğinin ~%2,2'si, yani
+        // dokunma hedefinin kenardan gerçekten ayrıldığı en küçük değer.
+        private const float ScreenMargin = 24f;
+
+        // Çöp kutusunun altında asılı duran etiketin yüksekliği. AYRI BİR SAYI,
+        // ÇÜNKÜ AYRI BİR ŞEY: kenar payı bütün panellerin ortak payı, bu ise tek
+        // bir düğmenin kendi taşmasıdır ve yalnız o düğmenin alt payına eklenir.
+        private const float TrashLabelHeight = 22f;
 
         // CanvasScaler'ın referans çözünürlüğü. Panellerin payı bu çözünürlükte
         // piksel cinsinden biliniyor; kamera onu orana çevirip kullanıyor.
@@ -194,6 +214,10 @@ namespace GridStrategy.EditorTools
         // uçlarda da kameranın arka planı denizle aynı aileden olduğu için taşma
         // görünmüyor.
         private const float SeaOversize = 2.2f;
+
+        // Tek bir döşeli kuşağın çizebileceği en çok karo. Gerekçesi ve neden
+        // kareköke girdiği TileScaleFor'da yazılı.
+        private const float TileBudget = 8000f;
 
         // 0. KATMANIN ÇİZİM SIRASI. BoardAdapter'ın sırası yazılı: zemin 0,
         // birim ve yapı 1, imleç çerçevesi 2, can barı 3, kenar halkası -1.
@@ -773,7 +797,7 @@ namespace GridStrategy.EditorTools
             var turnRect = Need<RectTransform>(turnGo);
             turnRect.anchorMin = new Vector2(0f, 0f);
             turnRect.anchorMax = new Vector2(0.42f, 1f);
-            turnRect.offsetMin = new Vector2(16f, 0f);
+            turnRect.offsetMin = new Vector2(ScreenMargin, 0f);
             turnRect.offsetMax = Vector2.zero;
             var turnLabel = Need<Text>(turnGo);
             StyleText(turnLabel, "SIRA: SEN", 24, TextAnchor.MiddleLeft);
@@ -783,7 +807,7 @@ namespace GridStrategy.EditorTools
             selRect.anchorMin = new Vector2(0.42f, 0f);
             selRect.anchorMax = new Vector2(1f, 1f);
             selRect.offsetMin = Vector2.zero;
-            selRect.offsetMax = new Vector2(-16f, 0f);
+            selRect.offsetMax = new Vector2(-ScreenMargin, 0f);
             var selLabel = Need<Text>(selGo);
             StyleText(selLabel, "Seçim yok", 20, TextAnchor.MiddleRight);
 
@@ -992,8 +1016,11 @@ namespace GridStrategy.EditorTools
             rect.anchorMin = new Vector2(0f, 0f);
             rect.anchorMax = new Vector2(0f, 1f);
             rect.pivot = new Vector2(0f, 0.5f);
-            rect.anchoredPosition = new Vector2(12f, -StatusBarHeight * 0.5f);
-            rect.sizeDelta = new Vector2(panelWidth, -(24f + StatusBarHeight));
+            // ÇIPLAK SAYILAR GİTTİ: burada 12 ve 24 yazılıydı ve 24, 12'nin iki
+            // katı olduğu için değil öyle DENK GELDİĞİ için doğruydu. Bugün
+            // ikisi de aynı sahipten türüyor — alt ve üst payın toplamı.
+            rect.anchoredPosition = new Vector2(ScreenMargin, -StatusBarHeight * 0.5f);
+            rect.sizeDelta = new Vector2(panelWidth, -(2f * ScreenMargin + StatusBarHeight));
             Need<Image>(go).color = new Color(0.09f, 0.10f, 0.12f, 0.88f);
 
             Header(rect, "PlayerHeader", "SENİN", new Vector2(0f, 1f), -6f, new Color(0.45f, 0.75f, 1f));
@@ -1039,7 +1066,7 @@ namespace GridStrategy.EditorTools
             rect.anchorMin = new Vector2(0.5f, 0f);
             rect.anchorMax = new Vector2(0.5f, 0f);
             rect.pivot = new Vector2(0.5f, 0f);
-            rect.anchoredPosition = new Vector2(0f, 14f);
+            rect.anchoredPosition = new Vector2(0f, ScreenMargin);
             rect.sizeDelta = new Vector2(
                 5f * EntryWidth + 4f * EntrySpacing + 2f * PanelPadding,
                 ProductionHeight());
@@ -1090,11 +1117,18 @@ namespace GridStrategy.EditorTools
                             ?? NewUi("TrashButton", canvas.transform, typeof(Image), typeof(Button));
 
             // Sağ alt köşe: tahtayı kapatmayan, fareyle en kolay ulaşılan yer.
+            //
+            // ██ ALT PAY SAĞ PAYDAN BÜYÜK, VE FARK BİR ÖLÇÜ ██
+            // Düğmenin "SİL" etiketi düğmenin ALTINDA yaşıyor (aşağıda, pivot
+            // üstte). Alt pay da sağ payla aynı yazılsaydı etiket ekranın
+            // dışına taşardı — eski hâlde tam olarak bu oluyordu: 20 piksel pay,
+            // 22 piksel etiket. Fark bir zevk tercihi değil, düğmenin kendi
+            // taşmasının birebir karşılığı.
             var rect = Need<RectTransform>(go);
             rect.anchorMin = new Vector2(1f, 0f);
             rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(1f, 0f);
-            rect.anchoredPosition = new Vector2(-20f, 20f);
+            rect.anchoredPosition = new Vector2(-ScreenMargin, ScreenMargin + TrashLabelHeight);
             rect.sizeDelta = new Vector2(88f, 88f);
 
             var image = Need<Image>(go);
@@ -1112,7 +1146,7 @@ namespace GridStrategy.EditorTools
             labelRect.anchorMax = new Vector2(1f, 0f);
             labelRect.pivot = new Vector2(0.5f, 1f);
             labelRect.anchoredPosition = new Vector2(0f, -4f);
-            labelRect.sizeDelta = new Vector2(0f, 22f);
+            labelRect.sizeDelta = new Vector2(0f, TrashLabelHeight);
 
             // ONCLICK KODDAN BAĞLANIYOR ve önce TEMİZLENİYOR: araç ikinci kez
             // çalıştığında aynı çağrı ikinci kez eklenseydi tek tıklama iki
@@ -1181,9 +1215,14 @@ namespace GridStrategy.EditorTools
             // buluşabiliyor. Sayılar CanvasScaler'ın referans çözünürlüğünde
             // geçerli; match 0,5 ile başka en boy oranlarında birkaç yüzde
             // kayıyorlar ve PlayMargin o kaymayı zaten yutuyor.
-            float leftInset = (PaletteMargin + PaletteWidth()) / ReferenceWidth;
+            // ÜÇ PAY DA AYNI SAHİPTEN: paneller ScreenMargin ile yerleşiyor,
+            // kamera da aynı sayıyla çerçeveliyor. Eskiden kamera PaletteMargin
+            // ve ProductionMargin'i okuyordu, oysa panelleri KURAN satırlar
+            // çıplak 12 ve 14 yazıyordu — iki sayı ayrıştığı gün tahtanın kenarı
+            // sessizce panelin altına girerdi.
+            float leftInset = (ScreenMargin + PaletteWidth()) / ReferenceWidth;
             float topInset = StatusBarHeight / ReferenceHeight;
-            float bottomInset = (ProductionMargin + ProductionHeight()) / ReferenceHeight;
+            float bottomInset = (ScreenMargin + ProductionHeight()) / ReferenceHeight;
 
             // BOŞ ALANIN MERKEZİ EKRANIN MERKEZİ DEĞİL: solda ve altta panel
             // var, sağda ve üstte neredeyse yok. Tahtanın boş alanın ortasına
@@ -1227,7 +1266,52 @@ namespace GridStrategy.EditorTools
             // Inspector'a bakan birine "burada bir şey eksik" diye okunur.
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = SkyColor;
+
+            AttachCameraRig(camera, width, height, aspect);
             return camera;
+        }
+
+        /// <summary>
+        /// Kameraya gezinme bileşenini takar ve çerçeveleme sayılarını ona yazar.
+        /// </summary>
+        // ██ SAYININ SAHİBİ BU ARAÇ, KOPYASI KAMERADA ██
+        // Kaydırmanın sınırı ve yakınlaştırmanın tavanı, yukarıda hesaplanan
+        // çerçeveden türüyor. Rig o dört sayıyı Inspector'da TAŞIYOR ama
+        // YAZMIYOR — elle doldurulması bir hata ve alanların Tooltip'leri bunu
+        // söylüyor. Tek yazan burası olduğu için panel genişliği değiştiğinde
+        // araç bir kez koşuyor ve kamera da yeni sınırı öğreniyor.
+        //
+        // REDDEDİLEN — rig'in panel paylarını kendi hesaplaması:
+        //     float leftInset = (ScreenMargin + PaletteWidth()) / ReferenceWidth;
+        // KIRDIĞI ŞEY: bu dört sabit Editor aracının içinde yaşıyor ve arayüzü
+        // KURAN satırlarla aynı yerde durmalarının sebebi de bu. Çalışma
+        // zamanına ikinci bir kopya inseydi aynı nicelik iki yerde yazılabilir
+        // olurdu — bu turda `PaletteMargin`/`ProductionMargin` yalanının
+        // düzeltilme sebebi tam olarak buydu.
+        // NE ZAMAN KAZANIRDI: paneller çalışma zamanında yeniden boyutlandığı
+        // gün; o gün pay bir sabit değil bir olaydır ve sahibi de araç olmaz.
+        private static void AttachCameraRig(Camera camera, float width, float height, float aspect)
+        {
+            var rig = camera.GetComponent<BoardCameraRig>();
+            if (rig == null)
+            {
+                rig = Undo.AddComponent<BoardCameraRig>(camera.gameObject);
+            }
+
+            Undo.RecordObject(rig, "Board camera rig");
+
+            // TAHTANIN DÜNYA DİKDÖRTGENİ: hücre (0,0) merkezi (0.5, 0.5) olduğu
+            // için tahta [0,width] x [0,height] aralığını kaplıyor. Hücre
+            // merkezlerinden değil KENARLARINDAN kurulmasının sebebi, kesişme
+            // kuralının kenarları ölçmesi.
+            Vector3 p = camera.transform.position;
+            rig.WriteHomeFraming(
+                new Rect(0f, 0f, width, height),
+                new Vector2(p.x, p.y),
+                camera.orthographicSize,
+                aspect);
+
+            EditorUtility.SetDirty(rig);
         }
 
         /// <summary>
@@ -1330,12 +1414,72 @@ namespace GridStrategy.EditorTools
             renderer.sprite = tile;
             renderer.color = color;
 
+            // ██ KARO SAYISI BİR BÜTÇEYE KELEPÇELENİYOR ██
+            // Operatör tahtayı 10x5'ten 100x50'ye çıkardığında Unity şunu
+            // bastı: "Cannot generate 9 slice most likely because the size is
+            // too big. Requires 161872 vertices and 242808 indices." Sebep
+            // burasıydı: döşeli bir SpriteRenderer karo BAŞINA dört köşe
+            // üretiyor ve tek bir mesh 65535 köşeyi (16 bit indeks) aşamıyor.
+            // Aşınca Unity mesh'i hiç kurmuyor — yani DENİZ ÇİZİLMİYORDU.
+            //
+            // ÖLÇEK BÜYÜTÜLÜYOR, ALAN KÜÇÜLTÜLMÜYOR: aynı dünya alanı aynı
+            // kalıyor, yalnız her karo daha büyük çiziliyor. Alanı kırpmak
+            // ekranın kenarını açıkta bırakırdı ve denizin var olma sebebi tam
+            // olarak orayı kapatmak.
+            float scale = TileScaleFor(tile, size);
+            go.transform.localScale = new Vector3(scale, scale, 1f);
+
             // SIRA ÖNEMLİ: size yalnız döşeme kipinde yazılabiliyor, kip Simple
             // kaldığı sürece sessizce yok sayılıyor.
             renderer.drawMode = SpriteDrawMode.Tiled;
             renderer.tileMode = SpriteTileMode.Continuous;
-            renderer.size = size;
+
+            // BOY YEREL UZAYDA YAZILIYOR: transform ölçeği onu zaten çarpıyor,
+            // yani istenen dünya boyunu almanın tek yolu o çarpanı burada
+            // bölmek. Aynı düzeltme can barında da var ve gerekçesi orada
+            // yazılı.
+            renderer.size = size / scale;
             renderer.sortingOrder = order;
+        }
+
+        /// <summary>
+        /// Döşeli bir kuşağın karo sayısını mesh bütçesinin altında tutan ölçek.
+        /// </summary>
+        /// <returns>1 ya da daha büyük bir çarpan; bütçe aşılmıyorsa tam 1.</returns>
+        // ██ SAYI YAZILMIYOR, TÜRETİLİYOR ██
+        // "Deniz için ölçek 3 yaz" denebilirdi ve o sayı 100x50'de doğru,
+        // 10x5'te ise deseni gereksizce kabalaştıran bir yalan olurdu. Çarpan
+        // karonun KENDİ dünya boyundan ve istenen alandan hesaplanıyor, yani
+        // tahta büyüdükçe kendiliğinden büyüyor ve küçük tahtada tam 1 kalıyor.
+        //
+        // BÜTÇE 8000 KARO = 32000 KÖŞE ve tavan olan 65535'in yarısı. Yarısı,
+        // çünkü Unity'nin kendi iç payları (kenar karoları, yuvarlama) sayıyı
+        // birkaç yüz artırabiliyor ve tam tavana yaslanan bir bütçe bir gün
+        // sessizce aşardı.
+        //
+        // KAREKÖK, BÖLME DEĞİL: karo sayısı ALANLA büyüyor, yani ölçeği k
+        // yapmak sayıyı k KARE kadar azaltıyor. Doğrudan bölünseydi büyük
+        // tahtada bütçe yine aşılırdı.
+        private static float TileScaleFor(Sprite tile, Vector2 size)
+        {
+            if (tile == null)
+            {
+                return 1f;
+            }
+
+            Vector2 tileWorld = tile.bounds.size;
+            if (tileWorld.x <= 0.0001f || tileWorld.y <= 0.0001f)
+            {
+                return 1f;
+            }
+
+            float tiles = (size.x / tileWorld.x) * (size.y / tileWorld.y);
+            if (tiles <= TileBudget)
+            {
+                return 1f;
+            }
+
+            return Mathf.Sqrt(tiles / TileBudget);
         }
 
         /// <summary>

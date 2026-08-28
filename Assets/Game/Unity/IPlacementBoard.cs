@@ -21,8 +21,8 @@ namespace GridStrategy.Unity
     /// <i>"şu binayı buraya koyar mısın?"</i>, <i>"önizlemeyi şuraya taşı"</i>.
     /// İşte bu dosya o soruların listesi — fazlası değil.
     ///
-    /// NE KAZANDIRIYOR, SOMUT OLARAK: üretim müdürü tahtanın 1700 satırlık
-    /// dosyasını değil, bu 8 maddelik listeyi tanıyor. Yani tahtanın içinde ne
+    /// NE KAZANDIRIYOR, SOMUT OLARAK: üretim müdürü tahtanın binlerce satırlık
+    /// dosyasını değil, bu 13 maddelik listeyi tanıyor. Yani tahtanın içinde ne
     /// değişirse değişsin — hücreler nasıl çizilir, tıklama nasıl okunur,
     /// birimler hangi tabloda tutulur — üretim müdürü etkilenmiyor. Değişiklik
     /// bu listeye dokunmadığı sürece öteki dosya hiç açılmıyor.
@@ -40,9 +40,15 @@ namespace GridStrategy.Unity
     // ARAYÜZ, SOYUT SINIF DEĞİL: uygulayacak tip zaten bir MonoBehaviour ve C#
     // tek kalıtıma izin verir. Soyut sınıf yazsaydık tahtanın motor bileşeni
     // olması ile bu sözleşmeyi taşıması arasında seçim yapmak gerekirdi.
-    // DAR TUTULDU: aşağıdaki sekiz üyenin her birinin bugün en az bir çağıranı
+    // DAR TUTULDU: aşağıdaki 13 üyenin her birinin bugün en az bir çağıranı
     // var. "İleride lazım olur" diye tek bir üye eklenmedi, çünkü uygulanmayan
     // bir üye uygulayanı yalan bir söze zorlar.
+    //
+    // ██ SAYI BİR ÖLÇÜDÜR VE BÜYÜDÜĞÜNDE YAZILIR ██
+    // Burada "sekiz" yazıyordu ve üye sayısı 13'e çıktığı hâlde öyle kalmıştı.
+    // Bayat bir sayı, bayat bir satır atfıyla aynı sınıftan bir KUSURDUR:
+    // arayüzün dar kaldığını iddia eden cümle, tam da darlığın ölçüsünü yanlış
+    // söylüyordu. Üye eklendiğinde bu iki sayı da güncellenir.
     public interface IPlacementBoard
     {
         /// <summary>
@@ -157,5 +163,55 @@ namespace GridStrategy.Unity
         // "bu bir yapı mı" bayrağı koymak o ayrımın ikinci bir kopyasını
         // üretirdi.
         bool TryGetStructure(Unit identity, out Structure structure);
+
+        /// <summary>
+        /// Bu yapının tepesinde bir sonraki üretime kaç saniye kaldığını
+        /// gösterir.
+        /// </summary>
+        /// <param name="identity">Geri sayımı gösterecek yapının kimliği.</param>
+        /// <param name="remainingSeconds">Bir sonraki üretime kalan saniye.</param>
+        /// <param name="totalSeconds">Bu yapının tam bekleme süresi.</param>
+        // ██ BİR SORU DEĞİL, BİR SİPARİŞ — VE OKUN YÖNÜ BU YÜZDEN DEĞİŞMİYOR ██
+        // Üstteki iki `Try...` üyesi tahtaya SORU soruyor; bu üye ona İŞ
+        // söylüyor ve şekli `SetPlacementGhost` / `SetPlacementVisual` ile
+        // birebir aynı. Sebebi sahiplik: sayacın doğruluğu üretim müdürünün
+        // (`StructureProduction` onun defterinde), o sayının nasıl ÇİZİLECEĞİ
+        // ise tahtanın — görselleri tutan tablo orada.
+        //
+        // TERSİ ÖLÇÜLDÜ VE REDDEDİLDİ: tahta her karede müdüre "bu binanın kaç
+        // saniyesi kaldı" diye sorabilirdi. O zaman ok ters yöne de akar ve
+        // bugün TEK YÖNLÜ olan bağ çift yönlü olurdu — arayüzün bütün kazancı
+        // (müdür tahtanın 3700 satırını değil bu listeyi tanıyor) tam olarak o
+        // gün biterdi.
+        //
+        // İKİ SAYI, BİR ORAN DEĞİL: 0,4 oranı hem "5 saniyenin 2'si" hem "2
+        // saniyenin 0,8'i" olabilir ve gösterge KAÇ SANİYE kaldığını çiziyor.
+        // Oran gönderilseydi bu ayrım kaybolur, iki saniyelik kışla ile beş
+        // saniyelik fabrika aynı görünürdü.
+        void ShowProductionCountdown(Unit identity, float remainingSeconds, float totalSeconds);
+
+        /// <summary>
+        /// İmlecin altındaki hücreyi verir — tahtanın DIŞINDA olsa bile.
+        /// </summary>
+        // <see cref="TryScreenPointToCell"/> İLE İKİZ VE İKİSİ DE GEREKLİ.
+        // Ayrım tek cümlede: BIRAKMA içerideki sürümü sorar (tahta dışına
+        // bırakmak bir vazgeçmedir ve hiçbir şey kurulmaz), ÖNİZLEME bunu sorar
+        // (dışarıda da bir hayalet çizilmeli, kırmızı olarak).
+        //
+        // İKİSİNİ TEK ÜYEDE BİRLEŞTİRMEK REDDEDİLDİ:
+        //     bool TryScreenPointToCell(Vector2 p, out int x, out int y, bool allowOutside)
+        // KIRDIĞI ŞEY: bir `bool` parametresi çağrı yerinde okunmaz —
+        // `TryScreenPointToCell(p, out x, out y, true)` satırını okuyan kimse
+        // `true`nun ne demek olduğunu bilemez. İki ad, iki anlam.
+        bool TryScreenPointToAnyCell(Vector2 screenPoint, out int x, out int y);
+
+        /// <summary>
+        /// Bu hücreye bir şey konabilir mi, konamazsa NEDEN konamaz.
+        /// </summary>
+        // ÜRETİM MÜDÜRÜ BUGÜN ÇAĞIRMIYOR ve üye yine de burada: hayaletin
+        // rengini tahta kendi yazıyor. Sözleşmede durmasının sebebi, bırakma
+        // dalının aynı soruyu `IsCellFree` üzerinden zaten soruyor olması —
+        // ikisi TEK kuraldan besleniyor ve bu üye o kuralın adı.
+        PlacementPreview PreviewAt(int x, int y);
     }
 }

@@ -564,26 +564,18 @@ namespace GridStrategy.Battle
                 throw new ArgumentNullException(nameof(unit));
             }
 
-            for (int cellX = 0; cellX < board.Width; cellX++)
-            {
-                for (int cellY = 0; cellY < board.Height; cellY++)
-                {
-                    if (board.TryGetUnit(cellX, cellY, out Unit standing)
-                        && ReferenceEquals(standing, unit))
-                    {
-                        x = cellX;
-                        y = cellY;
-                        return true;
-                    }
-                }
-            }
-
-            // Bulunamayınca (0,0) DEĞİL (-1,-1): sıfır geçerli bir hücredir ve
-            // dönüşü yok sayan bir çağıran onu sessizce köşe sanardı. -1 ise
-            // tahtaya verildiği anda UnitGrid tarafından gürültüyle reddedilir.
-            x = -1;
-            y = -1;
-            return false;
+            // ██ TARAMA GİTTİ, SORU AYNI KALDI ██
+            // Burada tahtanın tamamını gezen iki iç içe döngü duruyordu ve
+            // 10x5'te bedeli gözlenemezdi. Tahta 100x50 olunca çağrı başına
+            // 5000 hücre yoklaması oldu; kalıcı saldırı emri de aynı soruyu
+            // her karede emir başına ÜÇ kez soruyor. Cevabın sahibi artık
+            // hücreleri YAZAN tip ve karmaşıklık O(1).
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 11)
+            //
+            // BU ÜYE SİLİNMEDİ, DELEGE EDİLDİ: çağıranları savaşın defterini
+            // tanıyor, tahtanın iç tipini değil. Sorunun sahibi değişti,
+            // sözleşmesi değişmedi.
+            return board.TryGetPosition(unit, out x, out y);
         }
 
         /// <summary>

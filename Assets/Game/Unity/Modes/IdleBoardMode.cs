@@ -1,5 +1,3 @@
-using GridStrategy.Core;
-
 namespace GridStrategy.Unity
 {
     //   ═══ BOŞTA — VARSAYILAN KİP ═══════════════════════════════════
@@ -45,15 +43,6 @@ namespace GridStrategy.Unity
         /// <summary>Kare başına iş yok.</summary>
         public void Advance()
         {
-        }
-
-        /// <summary>
-        /// Hiçbir tıklamayı yutmaz.
-        /// </summary>
-        /// <param name="clicked">Tıklanan hücredeki kimlik; kullanılmıyor.</param>
-        public bool ConsumesClick(Unit clicked)
-        {
-            return false;
         }
     }
 }

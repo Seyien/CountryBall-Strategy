@@ -1,3 +1,26 @@
+# `PendingStrikeMode` — bekleyen vuruşun tahta başına tek kipi
+
+| | |
+|---|---|
+| Sahibi olduğu dosya | `Assets/Game/Unity/Modes/PendingStrikeMode.cs` |
+| Yerine geçen | `IUnitOrder`, `UnitOrderBook`, `AttackOrder`, `ReviveOrder` |
+| Hikâyesi | [../09-kararlarin-cevrilmesi.md](../09-kararlarin-cevrilmesi.md) madde 2 |
+| Kaydı | [../10-geri-alinan-kararlar.md](../10-geri-alinan-kararlar.md) bölüm 3 |
+| Kaynağı | `HEAD` işlemesindeki dosyanın tamamı, 174 satır |
+
+Bu dosya çalışma ağacında **silinmiş** durumda. Silme işlendiği gün kod ağaçtan
+tamamen kalkacak, ve o gün buradaki kopya tek kopya olacak.
+
+Kırılan şey sayıydı, biçim değil. Bekleyen vuruş tahta başına **tekti**, oysa
+emir birim başına olmalıydı. Aşağıdaki `host.StrikeAttacker` ve
+`host.StrikeTarget` okumalarının hepsi o tekliğin izidir: emrin sahibi kip
+değil, **tahta**.
+
+---
+
+## Dosyanın tamamı, birebir
+
+```csharp
 using GridStrategy.Core;
 
 namespace GridStrategy.Unity
@@ -172,3 +195,11 @@ namespace GridStrategy.Unity
         }
     }
 }
+```
+
+## Neden burada duruyor
+
+Tip ağaçtan kalkıyor ve 09'un madde 2'si ondan yalnızca `IBoardMode` arayüzünü
+ve birkaç satırı taşıyor. Kipin **anlamının** sahibi olduğu üç soru
+(`Ilerlet` ne zaman düşer, hangi tıklamayı yutar, hangi üç koşulda emir ölür)
+ancak tam metinde okunuyor.

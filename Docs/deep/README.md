@@ -135,9 +135,10 @@ Docs/deep/
 
 ***Numara bir DOSYA KİMLİĞİDİR, bir sıra değil.*** Aşağıdaki tablo bir
 **indekstir**: hangi soru hangi dosyaya gider. Öğrenme sırası ayrı bir belgede
-ve numaralara **uymuyor** — ölçüldü, sekiz `konular/` dosyasından yalnız ikisi
-(03 ve 08) numara sırasında doğru yerde duruyor:
-[../ogrenme/00-okuma-sirasi.md](../ogrenme/00-okuma-sirasi.md).
+ve numaralara **uymuyor** — ölçüldü, o günkü sekiz `konular/` dosyasından
+(`01`-`08`) yalnız ikisi (03 ve 08) numara sırasında doğru yerde duruyor:
+[../ogrenme/00-okuma-sirasi.md](../ogrenme/00-okuma-sirasi.md). Sonradan gelen
+`09` ve `10` o ölçümün dışında ve okuma yoluna henüz alınmadı.
 
 Dosyalar birbirinden bağımsız da değil: `01` ile `02` karşılıklı olarak
 ötekinin okunmuş olduğunu varsayıyor (`01:55` ↔ `02:440`). Bir dosyayı sırasız
@@ -153,6 +154,8 @@ açmak mümkün, ama "niye böyle" sorusunun cevabı çoğu zaman başka bir dos
 | [06](konular/06-sonuc-enumlari.md) | **Sonuç enum'ları** — sıfırıncı değer neden RET, bir asmdef bir enum değerini nasıl yasaklar | `AttackOutcome`, `MoveOutcome`, `PlacementOutcome`, `ReviveOutcome` |
 | [07](konular/07-tiklamadan-eyleme.md) | **Tıklamadan eyleme** — üç giriş sorgusu, jest durum makinesi, niyet vs geçerlilik | `PointerGesture`, `BoardAdapter.Update`/`HandleClick`, `BattleActions` |
 | [08](konular/08-motor-cagri-dongusu.md) | **Motorun çağrı döngüsü** — `Awake` neden bir `event` değil, sıranın sahipleri, `IEnumerator`'un ikinci hayatı | `BoardAdapter.Awake`/`OnEnable`/`OnDisable`/`Update`, `UnitView.Awake`, `PointerGesture.Reset`, `EditorSettings.asset` |
+| [09](konular/09-kararlarin-cevrilmesi.md) | **Kararların çevrilmesi** — hangi ölçüm dünkü cevabı yanlış yaptı, on iki maddenin hikâyesi | `IBoardMode`, `UnitOrderBook`, `UnitLifecycle.OnHealthDepleted`, `AttackProfile.CooldownSeconds`, `UnitGrid.TryGetPosition` |
+| [10](konular/10-geri-alinan-kararlar.md) | **Geri alınan kararlar** — kaydın yedi alanı, arşiv, henüz çevrilmemiş ikilik, reddedilen `Factory` | `UnitBlueprint.CreateCombatant`, `BoardAdapter.NewCombatant`/`SpawnUnit`, `UnitBlueprintAsset`, `arsiv/` |
 
 ## İlgili
 

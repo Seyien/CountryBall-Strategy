@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: "D\xFC\u015Fman Piyadesi"
   icon: {fileID: 21300000, guid: 1bd536c4affba1d4783ed887b248a7c4, type: 3}
+  boardSizeInCells: 1
   maxHealth: 30
   damage: 10
   attackRange: 1
+  attackCooldownSeconds: 0.8

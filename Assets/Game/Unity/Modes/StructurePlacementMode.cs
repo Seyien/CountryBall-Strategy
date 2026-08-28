@@ -179,17 +179,5 @@ namespace GridStrategy.Unity
             // demektir. Bir SONUÇ enum'unda işlenmeyen değer bir hatadır; bir
             // FAZ enum'unda işlenmeyen faz normal akıştır.
         }
-
-        /// <summary>
-        /// Bu kipte sıradan tıklama akışına hiç varılmaz.
-        /// </summary>
-        /// <param name="clicked">Tıklanan hücredeki kimlik; kullanılmıyor.</param>
-        // HER ZAMAN false VE BU BİR ÇELİŞKİ DEĞİL: kip fareyi zaten
-        // sahiplendiği için tahta bu soruyu ona hiç sormuyor, ve sormadığı bir
-        // soruya uydurma bir cevap yazmak arayüzü yalancı yapardı.
-        public bool ConsumesClick(Unit clicked)
-        {
-            return false;
-        }
     }
 }

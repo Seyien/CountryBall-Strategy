@@ -69,6 +69,25 @@ namespace GridStrategy.Combat
         public float RemainingSeconds => remainingSeconds;
 
         /// <summary>
+        /// Bu yapı savaşçı üretiyor mu — yoksa yalnız ayakta duran (ya da ateş
+        /// eden) bir bina mı.
+        ///
+        /// OYUNDA NE İŞE YARAR: geri sayım göstergesi yalnız üreten binaların
+        /// tepesinde çıkar. Operatörün cümlesi buydu: <i>"saldırı yapan
+        /// kulelerin illa ki bunu göstermesine gerek yok."</i>
+        /// </summary>
+        // KURAL BURADA, EKRANDA DEĞİL — ve bu ayrım ölçülebilir: soruyu motor
+        // tarafı sorsaydı `blueprint.Produces.Count > 0` yazan İKİNCİ bir satır
+        // doğardı ve o satır, üretim listesi bir gün başka bir kurala bağlandığı
+        // gün (örneğin "yıkık bina üretmez") sessizce eskirdi.
+        //
+        // IsReady İLE KARIŞTIRILMAMALI, çünkü ikisi FARKLI eksenler: bu üye
+        // yapının TÜRÜNÜ söyler ve ömrü boyunca değişmez; IsReady o türün şu
+        // anki sayacını söyler ve her saniye değişir. Tek üyede birleştirilmiş
+        // olsalardı taret ile "az önce üretmiş kışla" aynı cevabı verirdi.
+        public bool ProducesUnits => blueprint.Produces.Count > 0;
+
+        /// <summary>
         /// Bekleme süresi doldu mu. Yapının ayakta olup olmadığına BAKMAZ —
         /// bu ikisi bağımsız iki eksendir ve ikisini birden gören tek yer
         /// <see cref="ProductionRules"/>.

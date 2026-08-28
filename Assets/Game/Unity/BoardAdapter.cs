@@ -4,6 +4,7 @@ using GridStrategy.Battle;
 using GridStrategy.Combat;
 using GridStrategy.Core;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
 
 namespace GridStrategy.Unity
@@ -49,23 +50,28 @@ namespace GridStrategy.Unity
     // → BoardAdapter.md#cs0118-alias
     using Battle = global::GridStrategy.Battle.Battle;
 
-    // ═══ GİRİŞ OKUMA NOTU — ÜÇLÜ YALNIZ BİR AKIŞTA GEREKİR ═══════════
-    // ÖLÇÜSÜ ŞU: bu dosyada Input.GetMouseButton ile başlayan DÖRT çağrı
-    // var, üç değil — Update içinde 1 (GetMouseButtonDown), FeedGesture
-    // içinde 3 (Down / GetMouseButton / Up). Dördü İKİ AYRI AKIŞA düşer.
+    // ═══ GİRİŞ OKUMA NOTU — SOL TUŞU OKUYAN TEK TİP BU ═══════════════
+    // ÖLÇÜSÜ ŞU: bütün projede Input.GetMouseButton ile başlayan altı çağrı
+    // var ve düğme 0'ı soran ALTISI da bu dosyada; BoardCameraRig sol tuşu
+    // HİÇ okumuyor ve okuyamıyor (panButton alanı [Min(1)]). Çakışmanın
+    // imkânsızlığı bir söz değil, bir grep sonucudur.
     //
-    // SIRADAN TAHTA TIKLAMASI — tek sorgu yeter: Update'teki
-    // GetMouseButtonDown doğrudan HandleClick'e gider ve PointerGesture'a
-    // HİÇ UĞRAMAZ. Seçme, saldırı ve hareket bu yoldan geçer.
+    // SIRADAN TAHTA TIKLAMASI — üçü birden gerekir ve bu YENİ: eskiden
+    // Update'teki tek bir GetMouseButtonDown doğrudan HandleClick'e gidiyordu.
+    // Sol tuş artık haritayı da kaydırdığı için karar BASMA karesinde
+    // verilemez; AdvancePointer üç sorguyu BoardPointerArbiter'a veriyor ve
+    // tıklama ancak BIRAKMA karesinde doğuyor.
     //
-    // YERLEŞTİRME KİPİ — üçü birden gerekir: FeedGesture'ı yalnız
-    // StructurePlacementMode.Advance çağırıyor, o da yalnız yerleştirme kipi
-    // yürürlükteyken koşuyor.
+    // YERLEŞTİRME KİPİ — yine üçü birden: FeedGesture'ı yalnız
+    // StructurePlacementMode.Advance çağırıyor. İki akış aynı karede ASLA
+    // birlikte koşmaz, çünkü Update'te aralarında şu satır duruyor:
+    //     if (modeOwnsPointer) { ... return; }
     // Bir tıklama ile bir sürükleme BAŞLANGIÇTA aynıdır: Down yalnız
     // basıldığı kareyi, GetMouseButton basılı geçen HER kareyi, Up yalnız
     // bırakıldığı kareyi görür — ayrımı ancak ortadaki sorgu üretir.
     //
-    // Ayrımın KARARI yine de burada değil: GridStrategy.Core.PointerGesture.
+    // Ayrımın KARARI yine de burada değil: GridStrategy.Core.PointerGesture
+    // eşiği ölçüyor, BoardPointerArbiter onu bir eyleme çeviriyor.
     // → BoardAdapter.md#girdi-okuma-notu
     //
     // ═══ ROL: KARMA — ÇEVİRMEN + VARLIK (Adapter + Entity) ═══════════
@@ -115,7 +121,7 @@ namespace GridStrategy.Unity
     // → Modes/IBoardModeHost.cs
     [RequireComponent(typeof(Grid))]
     public sealed class BoardAdapter : MonoBehaviour, IPlacementBoard,
-        IPlacementModeHost, IPendingStrikeHost
+        IPlacementModeHost, IUnitOrderHost
     {
         [Header("Board size in CELLS, not world units")]
         [SerializeField, Min(1)] private int width = 3;
@@ -195,17 +201,29 @@ namespace GridStrategy.Unity
         [Tooltip("How far the pointer must travel, in WORLD units, before a press counts as a drag.")]
         [SerializeField, Min(0f)] private float dragThreshold = 0.25f;
 
+        // ██ HARİTAYI KAYDIRAN KAMERA — BOŞ BIRAKILIRSA KENDİ BULUNUR ██
+        // OYUNDA NE İŞE YARAR: sol tuşla sürüklendiğinde haritanın kayacağı
+        // kamera. Boş bırakılırsa MainCamera etiketli kameranın üstündeki
+        // BoardCameraRig aranır — sahne kurulum aracı rig'i tam oraya koyuyor,
+        // yani bugünkü sahne hiçbir elle bağlama istemeden çalışır.
+        // ALAN YİNE DE VAR: iki kameralı bir sahnede hangisinin kayacağını
+        // aramaya bırakmak, sessizce yanlış kamerayı kaydırmak olurdu.
+        // BOŞ VE BULUNAMAZ ise kaydırma olmaz, tıklama aynen çalışır.
+        [Header("Map panning - leave empty to use the MainCamera rig")]
+        [Tooltip("Camera rig that the left-drag pans. Empty means: find it on the MainCamera.")]
+        [SerializeField] private BoardCameraRig cameraRig;
+
         [Tooltip("Key that enters structure placement mode. Requires a selected unit.")]
         [SerializeField] private KeyCode placementModeKey = KeyCode.B;
 
         [Tooltip("Key that cancels structure placement mode without touching the board.")]
         [SerializeField] private KeyCode placementCancelKey = KeyCode.Escape;
 
-        // DİRİLTME KENDİ KİPİNİ AÇMIYOR — ve gerekçe DEĞİŞTİ, silinmedi: eskiden
-        // "hatırlanacak bir şey yok" deniyordu, bugün var (yaklaş, sonra
-        // kaldır). Var olan bekleyen-emir kipi o hafızayı zaten taşıyor ve
-        // emrin cinsini tek bir bool ayırıyor; dördüncü bir kip, aynı üç iptal
-        // koşulunun ikinci kopyasını doğururdu. → Modes/PendingStrikeMode.cs
+        // DİRİLTME KENDİ KİPİNİ AÇMIYOR ve gerekçe İKİNCİ KEZ DEĞİŞTİ: önce
+        // "hatırlanacak bir şey yok" deniyordu, sonra "var olan bekleyen-emir
+        // kipi o hafızayı taşıyor, cinsini bir bool ayırıyor" oldu. Bugün ne
+        // kip var ne bool: hafızayı emrin KENDİ TİPİ taşıyor ve kaldırma, kip
+        // makinesine hiç uğramayan ayrı bir emir sınıfı. → Orders/ReviveOrder.cs
         // Seçili birimi/yapıyı kaldıran tuş. Arayüzdeki çöp kutusu düğmesiyle
         // AYNI işi yapar; düğme henüz sahnede yoksa oyun yine de oynanabilsin
         // diye var.
@@ -330,6 +348,15 @@ namespace GridStrategy.Unity
         // istediği için Awake'te kurulur. → BoardAdapter.md#gesture
         private PointerGesture gesture;
 
+        // ██ İKİNCİ BİR JEST, PAYLAŞILAN BİR JEST DEĞİL ██
+        // Sol tuşun serbest akıştaki hakemi: haritayı mı kaydırıyoruz, tahtaya
+        // mı tıklıyoruz. Üstteki `gesture` yerleştirme kipine ait ve ikisi AYNI
+        // nesne DEĞİL — olsaydı kipten çıkarken yapılan bir Reset, o karede
+        // sürmekte olan bir kaydırmayı da sessizce düşürürdü. İki akış zaten
+        // aynı karede koşmuyor; paylaşılan tek şey eşiğin KENDİSİ ve onun tek
+        // bir yazarı var. → BoardPointerArbiter.cs
+        private BoardPointerArbiter pointerArbiter;
+
         // ═══ KİP MAKİNESİ — ALTI BAYRAĞIN YERİNE GEÇEN TEK NESNE ════════
         // Burada `isPlacingStructure` adında bir bool vardı, yanında
         // `ghostIsCarried`, aşağısında bekleyen vuruşun dört alanı. Altısı birer
@@ -339,7 +366,6 @@ namespace GridStrategy.Unity
         // → Modes/IBoardMode.cs
         private BoardModeMachine modes;
         private StructurePlacementMode placementMode;
-        private PendingStrikeMode pendingStrikeMode;
 
         // ÜÇÜ DE İLK SORULUŞTA KURULUYOR ve sebebi dilin kendisi: kipler host
         // olarak `this`i istiyor, alan başlatıcısı ise `this`i göremez (CS0027).
@@ -354,8 +380,6 @@ namespace GridStrategy.Unity
 
         private StructurePlacementMode Placement { get { EnsureModes(); return placementMode; } }
 
-        private PendingStrikeMode Strike { get { EnsureModes(); return pendingStrikeMode; } }
-
         private void EnsureModes()
         {
             if (modes != null)
@@ -364,9 +388,26 @@ namespace GridStrategy.Unity
             }
 
             placementMode = new StructurePlacementMode(this);
-            pendingStrikeMode = new PendingStrikeMode(this);
             modes = new BoardModeMachine(new IdleBoardMode());
         }
+
+        // ═══ EMİR DEFTERİ — KİP MAKİNESİNİN YANINDA, İÇİNDE DEĞİL ═══════
+        // Burada bekleyen vuruşun DÖRT TEKİL alanı vardı
+        // (pendingStrikeAttacker / pendingStrikeTarget / pendingStrikeX / Y) ve
+        // ikinci bir birime emir verildiği an birincisininki siliniyordu.
+        // Operatörün "iki taraf paralel olmuyor" şikâyeti bir ayar eksikliği
+        // değil bir SAHİPLİK hatasıydı.
+        //
+        // AYRIM TEK CÜMLE: kip TAHTANIN ne yaptığıdır ve tektir; emir HER
+        // BİRİME ne söylendiğidir ve çoğuldur. Emirleri kip makinesine sokmak,
+        // çoğul bir kavramı tekil bir sahibe vermek olurdu.
+        // → Modes/IBoardMode.cs, Orders/IUnitOrder.cs
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
+        //
+        // ALAN BAŞLATICISINDA KURULUYOR, kiplerin tersine: defter kurucusunda
+        // `this` istemiyor, dolayısıyla CS0027 doğmuyor ve EditMode'da hiç
+        // null olmuyor.
+        private readonly UnitOrderBook orders = new UnitOrderBook();
 
         // Şu an yerleştirilmekte olan yapının görseli. Paletten sürüklenen
         // düğmenin simgesi buraya yazılır; hem önizleme hayaleti hem de tahtaya
@@ -389,12 +430,24 @@ namespace GridStrategy.Unity
         // üstünde havada duran bir can barı ve geçilemeyen bir hücre.
         private Sprite authoredGhostSprite;
 
+        // Sahnede yazılı hayalet rengi — "bırakılabilir" hâlin rengi.
+        // authoredGhostSprite'ın ikizi ve aynı sebeple var; gerekçe
+        // CaptureAuthoredGhostSprite'ta bir kez yazılı.
+        private Color authoredGhostColour = Color.white;
+
         // Kimlik → can barı. ÜÇÜNCÜ bir tablo ve bilerek: alternatifi her karede
         // GetComponentInChildren çağırmaktı — o da savaşçı ve yapı görsellerinin
         // İÇ YAPISINI (barın bir çocuk olduğu) tahtanın bilgisi hâline getirirdi.
         // Tablo tek yerden doldurulup tek yerden (DespawnView) siliniyor.
         private readonly Dictionary<Unit, HealthBarView> healthBars =
             new Dictionary<Unit, HealthBarView>();
+
+        // GERİ SAYIM ŞERİTLERİ. Can barlarının ikizi ve AYRI bir tablo, çünkü
+        // ayrı bir küme: can barı HER kimliğin, geri sayım yalnız savaşçı ÜRETEN
+        // binanın. Tek tabloda birleştirilselerdi taretin de boş bir kaydı olur
+        // ve "kimin göstergesi var" sorusu tabloya sorulamaz hâle gelirdi.
+        private readonly Dictionary<Unit, ProductionTimerView> productionTimers =
+            new Dictionary<Unit, ProductionTimerView>();
 
         // İmleç çerçevesinin çizicisi. Sahnede elle kurulmuyor, Awake'te
         // doğuyor — bir nesne daha sürüklettirmemek için.
@@ -405,30 +458,12 @@ namespace GridStrategy.Unity
         // prefab referansı henüz okunmamış olurdu.
         private UnitViewPool viewPool;
 
-        // ═══ BEKLEYEN VURUŞUN İKİ KİMLİĞİ — SAKLAMA BURADA, ANLAM KİPTE ══
-        // Emrin ne zaman düştüğü, ne zaman yürüdüğü ve hangi tıklamayı yuttuğu
-        // artık PendingStrikeMode'un işi; bu iki alan yalnızca o emrin
-        // SAKLANDIĞI yer. Ayrımın bedeli açıkça ölçüldü ve TAM OLARAK BURADA
-        // DURUYOR: kimlikleri temizlik de okuyor (tahtadan kalkan kimlik emri de
-        // götürür) ve mevcut testler ikisini de adıyla yazıp okuyor, yani
-        // saklamaları kipe taşınamadı.
-        //
-        // HEDEFİN HÜCRESİ TAŞINDI ve farkı ölçüsü şu: onu okuyan tek yer emrin
-        // kendi yürümesi, yani hiçbir dış çağıranı yok.
-        // → Modes/PendingStrikeMode.cs
-        private Unit pendingStrikeAttacker;
-        private Unit pendingStrikeTarget;
-
-        // Bekleyen emrin CİNSİ: yürüyüş bitince vurulacak mı, yoksa düşmüş dost
-        // ayağa mı kaldırılacak. Bayrak emrin yanında duruyor çünkü kipin
-        // kendisi iki iş arasındaki farkı bilmiyor ve BİLMEMELİ — "yaklaş,
-        // sonra yap" makinesinin ikinci bir kopyasını açmamanın bedeli tam
-        // olarak bu tek bool.
-        //
-        // TEMİZLİKTE SİLİNMİYOR, YENİ EMİRDE SIFIRLANIYOR: kip emri ExecuteStrike
-        // çağrısından ÖNCE siliyor ve bayrak orada silinseydi vuruş anında
-        // cinsini çoktan unutmuş olurdu.
-        private bool pendingStrikeIsRevive;
+        // ═══ BURADA BEKLEYEN VURUŞUN DÖRTLÜSÜ DURUYORDU ═══════════════════
+        // `pendingStrikeAttacker`, `pendingStrikeTarget`, `pendingStrikeX/Y` ve
+        // yanlarında emrin cinsini taşıyan `pendingStrikeIsRevive` bool'u. Beşi
+        // de gitti; yerlerini `orders` defteri ve iki emir sınıfı aldı.
+        // Kaldırılan alanların eski hâli ve neyi kırdığı:
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
 
         // Yapı başına atış sayacı. Ayrı bir sözlük, çünkü sayacın sahibi savaşın
         // kaydı değil EKRANIN saati: Structure kendi ateş temposunu bilmez ve
@@ -441,20 +476,44 @@ namespace GridStrategy.Unity
         // gezerken değiştirmek gezintiyi patlatır. Önce anahtarlar kopyalanır.
         private readonly List<Unit> structureFireBuffer = new List<Unit>();
 
-        // Kenar halkasının kökü. Tek bir ebeveyn altında yaşıyor ki tahta
-        // yeniden kurulduğunda tek çağrıyla temizlenebilsin ve halkalar üst üste
-        // birikmesin.
-        private GameObject borderRoot;
+        // GÖRÜNÜM BAŞINA BİR KARO — hücre başına değil. Gerekçesi TileFor'da
+        // yazılı; buradaki tek not sözlüğün ANAHTARI: Sprite, çünkü aynı
+        // sprite'ı iki farklı hücre istediğinde dönmesi gereken şey aynı nesne.
+        private readonly Dictionary<Sprite, TileBase> tileCache =
+            new Dictionary<Sprite, TileBase>();
 
-        // Halkanın kök nesnesinin adı. Sabit, çünkü temizlik onu ADIYLA
-        // buluyor: sahne dosyasında kalmış eski bir halka borderRoot alanını
-        // hiç görmez.
+        // ESKİ halka kök nesnesinin adı. Bu bileşen artık böyle bir nesne
+        // KURMUYOR — halka bir tilemap oldu — ama ad duruyor, çünkü sahne
+        // dosyasında bir öncekinin bıraktığı bir "BorderRing" olabilir ve onu
+        // ADIYLA toplamaktan başka yol yok.
         private const string BorderRootName = "BorderRing";
+
+        // İki tilemap'in nesne adları. SABİT, çünkü ikisi de İKİ yerde okunuyor
+        // (kurma ve geri bulma) ve iki ayrı dizge literali, biri değiştiği gün
+        // sahnede ikinci bir tilemap doğmasına yol açardı.
+        private const string GroundMapName = "GroundTilemap";
+        private const string BorderMapName = "BorderTilemap";
 
         // Seçili yapının aldığı altın vurgu. Savaşçılarda seçim ayrı bir çerçeve
         // nesnesinde yaşıyor; yapı görselinde öyle bir çocuk yok ve renk çarpanı
         // burada güvenli, çünkü binanın kendi rengi hiç yazılmıyor (beyaz).
         private static readonly Color StructureSelectedTint = new Color(1f, 0.86f, 0.45f, 1f);
+
+        // Bırakılamayacak bir hücrenin üstündeki hayaletin rengi. Saydamlık
+        // KORUNUYOR (0,55): opak bir kırmızı, altındaki hücreyi ve orada duran
+        // birimi tamamen örterdi — oysa oyuncunun görmesi gereken tam olarak
+        // "orada zaten bir şey var" olgusu.
+        private static readonly Color RejectedGhostColour = new Color(1f, 0.30f, 0.28f, 0.55f);
+
+        // Seçim çerçevesinin rengi. Gövde çarpanından DAHA parlak ve bilerek:
+        // çarpan sprite'ın kendi rengine bağlı, çerçeve ise kendi rengini
+        // doğrudan çiziyor — yani binanın rengi ne olursa olsun aynı görünüyor.
+        private static readonly Color StructureSelectionFrameColour = new Color(1f, 0.95f, 0.35f, 1f);
+
+        // Çerçevenin nesne adı. SABİT, çünkü iki yerde okunuyor (kurma ve geri
+        // bulma) ve iki ayrı dizge literali, biri değiştiği gün ikinci bir
+        // çerçeve doğmasına yol açardı.
+        private const string StructureSelectionFrameName = "SelectionFrame";
 
         // ═══ ÇİZİM SIRASI MERDİVENİ — TEK SAHİP, ALTI BASAMAK ════════════
         // OYUNDA NE İŞE YARAR: aynı hücrede üst üste gelen bina ile asker her
@@ -472,6 +531,12 @@ namespace GridStrategy.Unity
         private const int UnitSortingOrder = 2;
         private const int HoverSortingOrder = 3;
         private const int HealthBarSortingOrder = 4;
+
+        // Geri sayım şeridi can barının BİR ÜSTÜNDE çiziliyor. Aynı yükseklikte
+        // olsalardı hangisinin öne geçeceği Unity'nin kendi sırasına kalırdı ve
+        // iki şerit birbirini kırpardı.
+        private const int ProductionTimerSortingOrder = 5;
+
         private const int GhostSortingOrder = 6;
 
         // Can barının, çizilen görselin ÜST kenarından ne kadar yukarıda
@@ -479,7 +544,13 @@ namespace GridStrategy.Unity
         // kullanılıyor, çünkü görselin kendi boyu binadan binaya değişiyor.
         private const float HealthBarMargin = 0.08f;
 
-        // ═══ IPlacementBoard SÖZLEŞMESİ — SEKİZ ÜYE, TEK YÖN ═════════════
+        // Geri sayım şeridinin CAN BARINDAN ne kadar yukarıda duracağı. Ayrı bir
+        // sayı, çünkü ayrı bir mesafe: HealthBarMargin görselin tepesi ile bar
+        // arasını ölçüyor, bu ise iki şerit arasını. Tek sabite indirilselerdi
+        // barı görselden uzaklaştırmak şeridi de sessizce iterdi.
+        private const float ProductionTimerMargin = 0.14f;
+
+        // ═══ IPlacementBoard SÖZLEŞMESİ — 13 ÜYE, TEK YÖN ════════════════
         // Bu tip artık üretim ve yerleştirme katmanının tahtadan istediği her
         // şeyi karşılıyor. OKUN YÖNÜ TEK VE ÖLÇÜLEBİLİR: aşağıdaki hiçbir satır
         // ne ProductionDirector'ı ne bir panel tipini ADIYLA anıyor; tahta
@@ -572,6 +643,30 @@ namespace GridStrategy.Unity
             // daha okunmamış olurdu ve Inspector'daki sayı boşa çıkardı.
             gesture = new PointerGesture(dragThreshold);
 
+            // AYNI EŞİK, İKİ TÜKETİCİ ve bu bir çift yazar DEĞİL: sayıyı yazan
+            // tek yer yukarıdaki Inspector alanı, okuyan iki akış var.
+            pointerArbiter = new BoardPointerArbiter(dragThreshold);
+
+            // KAMERA BURADA ARANIYOR, HER KAREDE DEĞİL: Camera.main etiketli
+            // kamerayı arayan bir sorgudur ve sürükleme boyunca her karede
+            // sorulsaydı kaydırma, işin kendisinden pahalı bir aramayı da
+            // beraberinde taşırdı.
+            if (cameraRig == null && Camera.main != null)
+            {
+                cameraRig = Camera.main.GetComponent<BoardCameraRig>();
+            }
+
+            // SESSİZ KALMIYOR: rig yoksa tıklama çalışır, kaydırma çalışmaz ve
+            // operatör bunu ancak sürükleyip hiçbir şey olmadığında anlardı.
+            // Log, LogError değil — rig'siz bir sahne bozuk değil, yalnız
+            // gezinmesizdir.
+            if (cameraRig == null)
+            {
+                Debug.Log(
+                    "[Board] No BoardCameraRig found; left-drag map panning is off. Assign one or add the rig to the MainCamera.",
+                    this);
+            }
+
             // Hayalet, kipte OLMADIĞIMIZ sürece çizilmez. Sahnede açık
             // bırakılmış olabilir; UnitView.Awake'in SetSelected(false) ile
             // yaptığı işin birebir aynısı — yazılı durumu değişmeze çevirmek.
@@ -642,6 +737,40 @@ namespace GridStrategy.Unity
             // yeniden açılan adaptörün ekranında sahipsiz durur.
             SetGhostVisible(false);
             gesture?.Reset();
+
+            // KAYDIRMA DA BIRAKILIYOR: tahta kapanırken sürmekte olan bir
+            // sürükleme kalırsa kamera, tahta yeniden açıldığında tutamağı
+            // eski bir dünya noktasında bulur ve ilk karede oraya sıçrar.
+            // `?.` burada GÜVENLİ, çünkü BoardPointerArbiter sade bir C#
+            // sınıfı — yukarıdaki cameraRig kontrolünün gerekçesi (yok edilmiş
+            // Unity nesnesi) bu tipte YOK.
+            ApplyPointerAction(pointerArbiter?.Cancel() ?? BoardPointerAction.None, Vector2.zero);
+        }
+
+        /// <summary>
+        /// Tahta yok edilirken, kendi kurduğu karo nesnelerini de yok eder.
+        /// </summary>
+        // ██ ScriptableObject SAHNEYLE BİRLİKTE GİTMEZ ██
+        // Bir GameObject sahne kapanınca yok olur; `ScriptableObject.CreateInstance`
+        // ile kurulan bir nesnenin sahnede bir kökü YOKTUR ve kimse onu
+        // toplamaz. Sahne her yeniden yüklendiğinde bir öncekinin karoları
+        // bellekte kalır — patlamayan, yalnız BÜYÜYEN bir sızıntı.
+        //
+        // OnDisable DEĞİL OnDestroy: bileşen kapanıp yeniden açıldığında
+        // (Modes.ToIdle yolundaki gibi) karolar hâlâ geçerli ve yeniden kurmak
+        // boşa iş olurdu. Ölçü şu — karoların ömrü bileşenin ömrü, açık
+        // kalmasının değil.
+        private void OnDestroy()
+        {
+            foreach (KeyValuePair<Sprite, TileBase> entry in tileCache)
+            {
+                if (entry.Value != null)
+                {
+                    Destroy(entry.Value);
+                }
+            }
+
+            tileCache.Clear();
         }
 
         /// <summary>
@@ -710,6 +839,17 @@ namespace GridStrategy.Unity
             // sürece asla ölmezdi.
             AdvanceBattleTime();
 
+            // ██ EMİRLER SAVAŞIN SAATİNDEN SONRA, GİRDİDEN ÖNCE ██
+            // SAATTEN SONRA, çünkü bekleme sayacını ilerleten şey battle.Tick:
+            // üste konsaydı her emir bir kare eski bir sayaç okur ve ilk vuruş
+            // bir kare gecikirdi. TEMİZLİKTEN de sonra: AdvanceBattleTime
+            // tahtadan kalkan kimlikleri süpürüyor ve emirler böylece o karede
+            // hâlâ ayakta olan bir dünyaya soruyor.
+            // GİRDİDEN ÖNCE, çünkü oyuncunun bu karede verdiği YENİ emir
+            // eskisinin yerine geçer; tersi olsaydı iptal edilmiş bir emir bir
+            // kare daha yaşar ve artık istenmeyen hedefe inerdi.
+            orders.Advance();
+
             // KİP, KARE İŞİNDEN ÖNCE KİLİTLENİR ve bu bir yerleşim kazası
             // değil: aşağıdaki iki soru da bu karenin BAŞINDAKİ kipe göre
             // cevaplanmalı. Kip kendini bu karede kapatsa bile çerçeve kapalı
@@ -735,6 +875,12 @@ namespace GridStrategy.Unity
             // girdinin ANLAMINI baştan sona değiştirir.
             if (modeOwnsPointer)
             {
+                // YARIM KALMIŞ KAYDIRMA BURADA BİTER: kip işaretçiyi
+                // sahiplendiği an harita imleci takip etmeyi bırakmalı. İptal
+                // edilmeseydi oyuncu bina taşırken fareyi her oynattığında
+                // harita da kayardı — hakem hâlâ "sürüklüyor" der, tahta ise
+                // ona bir daha hiç sormazdı.
+                ApplyPointerAction(pointerArbiter.Cancel(), Vector2.zero);
                 return;
             }
 
@@ -752,25 +898,104 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            // "Down" = SADECE basıldığı karede true; GetMouseButton (Down'suz)
-            // basılı olduğu her karede true olurdu. Tek tıklama istiyoruz.
-            if (!Input.GetMouseButtonDown(0))
+            AdvancePointer();
+        }
+
+        /// <summary>
+        /// Sol tuşun bu karedeki hâlini hakeme sorar ve çıkan eylemi uygular:
+        /// haritayı kaydırır ya da tahtaya tıklar.
+        /// </summary>
+        // ██ TIKLAMA ARTIK BIRAKMA KARESİNDE DOĞUYOR ██
+        // OYUNDA NE İŞE YARAR: oyuncu sol tuşu basılı tutup haritada
+        // gezinebiliyor ve bunu yaparken yanlışlıkla birim seçmiyor.
+        // Eskiden burada tek satır vardı — `if (!Input.GetMouseButtonDown(0))
+        // { return; }` — ve tıklama BASMA karesinde bitiyordu. O satır durdukça
+        // sol sürükleme imkânsızdı: basıldığı an tıklama çoktan olmuş oluyordu.
+        //
+        // ÜÇ SORGU BİR KEZ OKUNUYOR: aynı karede Input'a ikinci kez sormak
+        // ucuzdur ama SAHİPLİĞİ bulanıklaştırır — bir gün ikinci okuma bir
+        // if'in içine kayar ve hakem yarım bir kare görür.
+        private void AdvancePointer()
+        {
+            bool pressed = Input.GetMouseButtonDown(0);
+            bool held = Input.GetMouseButton(0);
+            bool released = Input.GetMouseButtonUp(0);
+
+            // UCUZ ÇIKIŞ: fare boştaysa ekran noktasını dünyaya çevirmeye hiç
+            // girilmiyor. Şart `IsActive`i de soruyor, çünkü odak kaybı Up
+            // karesini yutabilir ve o durumda üç sorgunun üçü de yanlıştır
+            // ama jest hâlâ etkindir — hakemin onu kapatabilmesi gerekiyor.
+            if (!pressed && !held && !released && !pointerArbiter.IsActive)
             {
                 return;
             }
 
-            // ARAYÜZÜN ÜSTÜNDEKİ TIKLAMA TAHTAYA GEÇMEZ. Bugün zararı kameranın
+            Vector2 screenPoint = Input.mousePosition;
+
+            if (!TryScreenPointToWorldCell(screenPoint, out float worldX, out float worldY, out _, out _))
+            {
+                return;
+            }
+
+            // ARAYÜZ SORUSU YALNIZ BASIŞ KARESİNDE. Bugün zararı kameranın
             // çerçevelemesi saklıyor (tahta panellerin altından çıkarılmış), ama
             // dar bir ekran oranında panel tahtanın üstüne biniyor ve üretim
             // düğmesine basan oyuncu aynı anda arkadaki hücreyi de tıklamış
-            // oluyor. Soru burada, HandleClick'in içinde değil: iptal edilen şey
-            // tıklamanın KENDİSİ, sonucu değil.
-            if (PointerIsOverUi())
+            // oluyor. Her karede sorulsaydı, tahtada başlayıp panelin üstünde
+            // biten bir kaydırma yarı yolda donardı.
+            BoardPointerAction action = pointerArbiter.Advance(
+                pressed, held, released, worldX, worldY, pressed && PointerIsOverUi());
+
+            ApplyPointerAction(action, screenPoint);
+        }
+
+        /// <summary>
+        /// Hakemin verdiği kararı kameraya ve tahtaya dağıtır.
+        /// </summary>
+        // KARARI VEREN İLE UYGULAYAN AYRI, ve ayrımın bedeli ölçüldü: karar
+        // saf bir tipte olduğu için EditMode'da sınanabiliyor (fare girdisi
+        // EditMode'da akmıyor), uygulama ise burada kalıyor çünkü Camera ve
+        // Input yalnız burada var.
+        //
+        // `cameraRig != null` AÇIK YAZILDI, `?.` DEĞİL: BoardCameraRig bir
+        // UnityEngine.Object ve yok edilmiş bir nesne C# tarafında null
+        // GÖRÜNMEZ; `?.` aşırı yüklenmiş eşitliği atlar. Aynı gerekçe
+        // PointerIsOverUi'nin EventSystem kontrolünde de yazılı.
+        private void ApplyPointerAction(BoardPointerAction action, Vector2 screenPoint)
+        {
+            switch (action)
             {
-                return;
+                case BoardPointerAction.PanBegin:
+                    if (cameraRig != null)
+                    {
+                        cameraRig.BeginPan(screenPoint);
+                    }
+
+                    break;
+
+                case BoardPointerAction.PanContinue:
+                    if (cameraRig != null)
+                    {
+                        cameraRig.ContinuePan(screenPoint);
+                    }
+
+                    break;
+
+                case BoardPointerAction.PanEnd:
+                    if (cameraRig != null)
+                    {
+                        cameraRig.EndPan();
+                    }
+
+                    break;
+
+                case BoardPointerAction.Click:
+                    HandleClick();
+                    break;
             }
 
-            HandleClick();
+            // default DALI BİLEREK YOK: None bir hata değil, bir karenin normal
+            // cevabıdır — IBoardMode'un faz switch'indeki gerekçenin aynısı.
         }
 
         /// <summary>
@@ -994,49 +1219,59 @@ namespace GridStrategy.Unity
 
         void IPlacementModeHost.CommitPlacement(int x, int y) => CommitPlacement(x, y);
 
-        Unit IPendingStrikeHost.StrikeAttacker => pendingStrikeAttacker;
-
-        Unit IPendingStrikeHost.StrikeTarget => pendingStrikeTarget;
-
-        void IPendingStrikeHost.WriteStrikeOrder(Unit attacker, Unit target)
+        bool IUnitOrderHost.TryGetCell(Unit unit, out int x, out int y)
         {
-            pendingStrikeAttacker = attacker;
-            pendingStrikeTarget = target;
-
-            // HER YENİ EMİR VURUŞ SAYILIR: kaldırma emri bayrağı bu satırdan
-            // SONRA yazıyor. Sıfırlama burada olmasaydı bir kez kaldırma emri
-            // veren savaşçının sonraki saldırı emri de kaldırmaya dönerdi.
-            pendingStrikeIsRevive = false;
+            return battle.TryGetPosition(unit, out x, out y);
         }
 
-        void IPendingStrikeHost.ClearStrikeOrder()
+        bool IUnitOrderHost.IsViewWalking(Unit unit) => IsViewWalking(unit);
+
+        // ██ İKİ İŞ, İKİ ÜYE — VE AYRIM ARTIK BİR BAYRAKTA DEĞİL, TİPTE ██
+        // Eski hâlde tek bir ExecuteStrike vardı ve varışta ne yapılacağını
+        // `pendingStrikeIsRevive` bool'u söylüyordu. Emir bir nesne olunca o
+        // bayrak gereksizleşti: hangi işin yapılacağını emrin KENDİ tipi
+        // biliyor ve üçüncü bir emir cinsi doğduğu gün buraya bir dal daha
+        // eklenmiyor, bir sınıf daha yazılıyor.
+        AttackOutcome IUnitOrderHost.Strike(Unit attacker, Unit target)
         {
-            pendingStrikeAttacker = null;
-            pendingStrikeTarget = null;
-        }
-
-        bool IPendingStrikeHost.IsOnBoard(Unit unit) => battle.TryGetPosition(unit, out _, out _);
-
-        bool IPendingStrikeHost.IsViewWalking(Unit unit) => IsViewWalking(unit);
-
-        // ██ TEK MAKİNE, İKİ İŞ — VE AYRIM BURADA, KİPTE DEĞİL ██
-        // Kip "yürüyüş bitti mi" sorusunu soruyor ve varışta bu üyeyi çağırıyor;
-        // varışta NE YAPILACAĞI ise emrin yanında saklanan bayrakta. İkinci bir
-        // bekleyen-emir kipi açmak, aynı üç iptal koşulunun (seçim düştü,
-        // saldıran tahtadan kalktı, hedef tahtadan kalktı) ikinci bir kopyasını
-        // doğururdu ve biri değiştiği gün öteki sessizce eskirdi.
-        void IPendingStrikeHost.ExecuteStrike(Unit attacker, Unit target, int x, int y)
-        {
-            if (pendingStrikeIsRevive)
+            // HÜCRE HER VURUŞTA TAZE OKUNUYOR — ve bu bir ONARIM. Eski emir
+            // hedefin YAZILDIĞI andaki hücresini saklıyordu; kalıcı emirde hedef
+            // kımıldadığı için mermi ve Console satırı hedefin ARTIK OLMADIĞI
+            // hücreyi gösterirdi.
+            if (!battle.TryGetPosition(target, out int x, out int y))
             {
-                pendingStrikeIsRevive = false;
-                ReviveOutcome revived = BattleActions.Revive(battle, attacker, target);
-                ReactToRevive(attacker, revived, target, x, y);
-                return;
+                return AttackOutcome.RejectedInvalidTarget;
             }
 
             AttackOutcome outcome = BattleActions.Attack(battle, attacker, target);
-            ReactToAttack(attacker, outcome, target, x, y);
+
+            // ██ BEKLEME BİR OLAY DEĞİL, EMRİN NORMAL HÂLİDİR ██
+            // Kalıcı emir her karede vurmayı deniyor ve sayaç dolana kadar
+            // "henüz yeniden vuramaz" cevabı alıyor. O cümle burada da
+            // yazılsaydı saniyede altmış satır Console'a düşerdi — tek bir
+            // bekleme penceresi ekranı yıkardı. Ölçülen sayı: 1 saniyelik bir
+            // bekleme, 60 kare/saniyede ~59 gereksiz satır.
+            //
+            // SUSTURULAN TEK DEĞER BU, ve seçilebilmesinin sebebi kalıcı bir
+            // emrin tekrar tekrar üretebildiği YEGÂNE ret olması: ötekilerin
+            // hepsi emri aynı karede düşürüyor, yani bir kez yazılıyor.
+            if (outcome != AttackOutcome.RejectedOnCooldown)
+            {
+                ReactToAttack(attacker, outcome, target, x, y);
+            }
+
+            return outcome;
+        }
+
+        void IUnitOrderHost.Revive(Unit reviver, Unit target)
+        {
+            if (!battle.TryGetPosition(target, out int x, out int y))
+            {
+                return;
+            }
+
+            ReviveOutcome revived = BattleActions.Revive(battle, reviver, target);
+            ReactToRevive(reviver, revived, target, x, y);
         }
 
         /// <summary>
@@ -1054,6 +1289,14 @@ namespace GridStrategy.Unity
             if (placementGhost != null)
             {
                 authoredGhostSprite = placementGhost.sprite;
+
+                // RENK DE YEDEKLENİYOR ve gerekçesi sprite'ınkiyle birebir aynı:
+                // önizleme artık hayaletin rengini YAZIYOR, dolayısıyla
+                // "geçerli" hâlin rengini bir yerden geri okuması gerekiyor.
+                // Sabit bir beyaz yazılsaydı sahnede ayarlanmış saydamlık ilk
+                // sürüklemede kalıcı olarak kaybolurdu — bu tuzağa proje
+                // sprite tarafında bir kez düştü.
+                authoredGhostColour = placementGhost.color;
             }
         }
 
@@ -1113,6 +1356,14 @@ namespace GridStrategy.Unity
             if (visible)
             {
                 placementGhost.transform.position = CellCentre(x, y);
+
+                // ██ RENGİ ÇAĞIRAN SÖYLEMİYOR, TAHTA KENDİ OKUYOR ██
+                // Verdikt bir parametre olsaydı çağıran onu bir yerden almak
+                // zorunda kalırdı ve o yer, kuralın ikinci bir okuyucusu olurdu.
+                // Hücreyi bilen taraf zaten cevabı da biliyor.
+                placementGhost.color = PreviewAt(x, y) == PlacementPreview.Placeable
+                    ? authoredGhostColour
+                    : RejectedGhostColour;
             }
         }
 
@@ -1315,7 +1566,55 @@ namespace GridStrategy.Unity
         // tahtanın kendisi ve cevabı burada hesaplanmıyor, soruluyor.
         public bool IsCellFree(int x, int y)
         {
-            return battle.IsInsideGrid(x, y) && !battle.TryGetUnit(x, y, out Unit _);
+            return PreviewAt(x, y) == PlacementPreview.Placeable;
+        }
+
+        /// <summary>
+        /// Bu hücreye bir şey konabilir mi, konamazsa NEDEN konamaz.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: sürükleme sürerken hayaletin rengi bu cevaba
+        // göre yazılıyor; oyuncu parmağını kaldırmadan önce sonucu görüyor.
+        //
+        // ██ "KONABİLİR Mİ" SORUSUNUN TEK SAHİBİ BURASI ██
+        // IsCellFree bu üyeye delege ediyor, kendi kuralını YAZMIYOR — eskiden
+        // iki koşulu kendisi taşıyordu ve önizleme ikinci bir kopyasını
+        // doğuracaktı. İki kopya, "boş hücre" tanımı değiştiği gün (örneğin
+        // enkazın üstüne inşaya izin verildiği gün) sessizce ayrışırdı:
+        // bırakma kabul eder, hayalet kırmızı gösterirdi.
+        //
+        // SIRA BİR KARARDIR: önce tahtanın DIŞI sorulur. Ters sırada, tahtanın
+        // dışındaki bir hücre için TryGetUnit çağrılırdı ve orada duran hiçbir
+        // şey olmadığı için cevap "boş" olurdu — yani tahta dışı yanlışlıkla
+        // Placeable görünürdü.
+        public PlacementPreview PreviewAt(int x, int y)
+        {
+            if (!battle.IsInsideGrid(x, y))
+            {
+                return PlacementPreview.OutsideBoard;
+            }
+
+            return battle.TryGetUnit(x, y, out Unit _)
+                ? PlacementPreview.CellOccupied
+                : PlacementPreview.Placeable;
+        }
+
+        /// <summary>
+        /// İmlecin altındaki hücreyi verir — tahtanın DIŞINDA olsa bile.
+        /// </summary>
+        // <see cref="TryScreenPointToCell"/>'İN İKİZİ VE TEK FARKI SON SATIR:
+        // o "tahtanın içinde mi" diye sorup dışarıyı reddediyor, bu sormuyor.
+        // İkisi de gerekli ve karıştırılmamalı — BIRAKMA hâlâ içerideki sürümü
+        // çağırıyor (tahta dışına bırakmak bir vazgeçmedir), yalnız ÖNİZLEME
+        // bunu çağırıyor.
+        //
+        // ÖNİZLEME NEDEN DIŞARIYI DA İSTİYOR: operatörün cümlesi —
+        // "sürükle-bırak yaparken o unit grid'in dışındakileri de hayalet
+        // kısmını görebilmeliyiz ama kırmızılı hâlinde." Eski hâlde hayalet
+        // tahtanın dışında tamamen KAYBOLUYORDU, yani oyuncu elindeki şeyin
+        // hâlâ sürüklendiğini bile göremiyordu.
+        public bool TryScreenPointToAnyCell(Vector2 screenPoint, out int x, out int y)
+        {
+            return TryScreenPointToWorldCell(screenPoint, out _, out _, out x, out y);
         }
 
         /// <summary>
@@ -1328,6 +1627,101 @@ namespace GridStrategy.Unity
         public bool TryGetStructure(Unit identity, out Structure structure)
         {
             return battle.TryGetStructure(identity, out structure);
+        }
+
+        /// <summary>
+        /// Bu yapının tepesinde bir sonraki üretime kaç saniye kaldığını
+        /// gösterir.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: kışlanın ne zaman asker vereceği artık binaya
+        // tıklayıp sağ panele bakmayı gerektirmiyor; sayı tahtanın üstünde.
+        //
+        // ŞERİT İLK ÇAĞRIDA KURULUYOR, DOĞUMDA DEĞİL — ve bu ölçülmüş bir
+        // ayrım: yapı yerleştiğinde onun ÜRETİCİ olup olmadığını tahta bilmiyor
+        // (`Produces` listesi çekirdek tanımında, tahtaya gelen şey görsel).
+        // Doğumda kurulsaydı ya her binaya bir şerit takılırdı ya da tahta
+        // üretim listesini ikinci kez okumak zorunda kalırdı. İlk çağrıda
+        // kurmak, "kim gösterecek" sorusunun cevabını tek sahipte
+        // (ProductionDirector) bırakıyor.
+        public void ShowProductionCountdown(Unit identity, float remainingSeconds, float totalSeconds)
+        {
+            if (identity == null)
+            {
+                return;
+            }
+
+            if (!productionTimers.TryGetValue(identity, out ProductionTimerView timer) || timer == null)
+            {
+                if (!TryAttachProductionTimer(identity, out timer))
+                {
+                    return;
+                }
+            }
+
+            timer.SetRemaining(remainingSeconds, totalSeconds);
+        }
+
+        /// <summary>
+        /// Bir yapının görseline geri sayım şeridini takar.
+        /// </summary>
+        /// <returns>Şerit kurulabildiyse true.</returns>
+        // AYNI DESENİN İKİNCİ UYGULAMASI ve gerekçeleri AttachHealthBar'da bir
+        // kez yazılı, burada tekrar edilmiyor: ters ölçek (şerit sahibinin
+        // ölçeğinden etkilenmemeli), yerel yükseklik (konum ebeveynin ölçeğiyle
+        // çarpılıyor), havuzdan gelen görselde ZATEN kurulu olma ihtimali.
+        //
+        // SESSİZ ÇIKIŞ, LogError DEĞİL: sprite'sız bir tahta EditMode testinde
+        // normaldir ve bağırsaydı üretim yolundan geçen her test kırmızıya
+        // dönerdi — bu tuzağa proje bir kez düştü, 482 testin 6'sı kırılmıştı.
+        // Şikâyet BuildHoverHighlight'ta bir kez, doğuşta ediliyor.
+        private bool TryAttachProductionTimer(Unit identity, out ProductionTimerView timer)
+        {
+            timer = null;
+
+            if (healthBarSprite == null
+                || !structureViews.TryGetValue(identity, out GameObject structureObject)
+                || structureObject == null)
+            {
+                return false;
+            }
+
+            Transform parent = structureObject.transform;
+            Vector3 parentScale = parent.localScale;
+
+            // YÜKSEKLİK CAN BARINDAN OKUNUYOR, GÖRSELDEN YENİDEN HESAPLANMIYOR:
+            // barın nerede durduğunu bilen tek yer barın kendisi ve iki ayrı
+            // hesap, birinin payı değiştiği gün sessizce ayrışırdı. Bar yoksa
+            // (sprite atanmamış) şerit de kurulmuyor — zaten yukarıdaki kapı
+            // aynı sprite'ı soruyor.
+            float localHeight = ProductionTimerMargin / (parentScale.y > 0.0001f ? parentScale.y : 1f);
+            if (healthBars.TryGetValue(identity, out HealthBarView bar) && bar != null)
+            {
+                localHeight += bar.transform.localPosition.y;
+            }
+
+            ProductionTimerView existing =
+                parent.GetComponentInChildren<ProductionTimerView>(includeInactive: true);
+            if (existing != null)
+            {
+                existing.SetHeightAboveOwner(localHeight);
+                productionTimers[identity] = existing;
+                timer = existing;
+                return true;
+            }
+
+            var go = new GameObject("ProductionTimer");
+            go.transform.SetParent(parent, worldPositionStays: false);
+            go.transform.localScale = new Vector3(
+                parentScale.x > 0.0001f ? 1f / parentScale.x : 1f,
+                parentScale.y > 0.0001f ? 1f / parentScale.y : 1f,
+                1f);
+
+            timer = go.AddComponent<ProductionTimerView>();
+            timer.Build(healthBarSprite, ProductionTimerSortingOrder);
+            timer.SetHeightAboveOwner(localHeight);
+
+            productionTimers[identity] = timer;
+            return true;
         }
 
         /// <summary>
@@ -1530,9 +1924,33 @@ namespace GridStrategy.Unity
             int bestDistance = int.MaxValue;
             bool bestIsFighter = false;
 
-            for (int y = 0; y < battle.Height; y++)
+            // ██ ULAŞAMAYACAĞIN YERE BAKMA ██
+            // Burada `for y in battle.Height` / `for x in battle.Width` duruyordu:
+            // kule, MENZİLİNİN İÇİNDEKİ en yakın düşmanı bulmak için tahtanın
+            // TAMAMINI geziyordu. 10x5'te 50 hücreydi ve bedeli gözlenemezdi;
+            // 100x50'de çağrı başına 5000 hücre oldu ve bunların 5000 - (2r+1)²
+            // tanesi zaten `distance > range` diye eleniyordu — yani tarama,
+            // sonucu baştan belli olan bir işi yapıyordu.
+            //
+            // ÖLÇEK: pencere (2 × range + 1)². Menzil tanımdan geliyor
+            // (`AttackProfile.Range`) ve bugün en büyüğü 4; yani 81 hücre.
+            // TAVAN: menzil tahtanın yarısını geçtiği gün pencere tahtanın
+            // kendisi kadar olur ve bu kelepçe anlamını yitirir — o gün çözüm
+            // pencereyi daraltmak değil, birim defterini gezmektir.
+            //
+            // KELEPÇE TAHTAYA DA UYGULANIYOR: pencere kenarda taşabilir ve
+            // `TryGetUnit` tahta dışı bir hücreye sorulduğunda zaten false
+            // döner, ama sınır burada kesiliyor — döngünün kendisi tahtanın
+            // dışına hiç çıkmasın diye. Kayıp yok: metrik Chebyshev, yani bu
+            // kare menzil kümesinin birebir kendisi (gerekçe aşağıda).
+            int minX = Mathf.Max(0, fromX - range);
+            int maxX = Mathf.Min(battle.Width - 1, fromX + range);
+            int minY = Mathf.Max(0, fromY - range);
+            int maxY = Mathf.Min(battle.Height - 1, fromY + range);
+
+            for (int y = minY; y <= maxY; y++)
             {
-                for (int x = 0; x < battle.Width; x++)
+                for (int x = minX; x <= maxX; x++)
                 {
                     if (!battle.TryGetUnit(x, y, out Unit standing)
                         || ReferenceEquals(standing, shooter))
@@ -1540,6 +1958,22 @@ namespace GridStrategy.Unity
                         continue;
                     }
 
+                    // ██ PENCERE HİÇBİR HEDEF KAÇIRMIYOR — VE BU BİR ██
+                    // ██ TAHMİN DEĞİL, METRİĞİN KENDİSİNDEN ÇIKIYOR ██
+                    // `GridDistance` CHEBYSHEV: uzaklık = max(|dx|, |dy|).
+                    // Yani `distance <= range` ile "|dx| <= range VE
+                    // |dy| <= range" AYNI kümedir; yukarıdaki kare, menzil
+                    // kümesinin ta kendisi. Manhattan olsaydı kare bir ÜST
+                    // küme olurdu ve yine kaçırmazdı.
+                    //
+                    // O HÂLDE BU SATIR NEDEN DURUYOR: bugün gereksiz, yarın
+                    // zorunlu. `GridDistance.Between`'in kendi yorumu metriği
+                    // değiştirmenin ne anlama geldiğini tartışıyor; metrik
+                    // Öklit'e dönseydi köşeler pencerede kalır ama menzilin
+                    // dışına düşerdi ve bu satır olmadan kule köşedeki bir
+                    // düşmanı vurmaya çalışırdı. Kelepçenin bedeli bir
+                    // karşılaştırma; kaldırmanın bedeli, metriği değiştiren
+                    // kişinin buraya bakmak zorunda olduğunu bilmemesi.
                     int distance = GridDistance.Between(fromX, fromY, x, y);
                     if (distance > range)
                     {
@@ -1636,11 +2070,15 @@ namespace GridStrategy.Unity
         // arayüzü uygulayan sahte tahtaları da kırardı.
         public void SetPlacementVisual(Sprite sprite, float sizeInCells)
         {
-            // PALETTEN BİR ŞEY ALMAK DA BİR EYLEMDİR ve bekleyen vuruşu düşürür.
-            // Sürükleme yolunun tahtaya değdiği TEK kapı burası; iptal yalnız
-            // klavyeli kipe konsaydı fareyle bina alan oyuncunun savaşçısı
-            // sürükleme sürerken kendiliğinden vururdu.
-            CancelPendingStrike();
+            // ██ PALETTEN BİNA ALMAK ARTIK HİÇBİR EMRİ DÜŞÜRMÜYOR ██
+            // Burada `CancelPendingStrike()` duruyordu ve gerekçesi şuydu:
+            // "fareyle bina alan oyuncunun savaşçısı sürükleme sürerken
+            // kendiliğinden vururdu." O cümle emrin TAHTAYA ait olduğu dünyada
+            // doğruydu. Emir birime ait olunca tam tersine döndü: oyuncunun
+            // paletten bina sürüklerken savaşçısının vurmaya DEVAM etmesi,
+            // paralel oyunun kendisidir. Bina koymak savaşçıya verilmiş bir
+            // emri neden kessin?
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
 
             pendingStructureSprite = sprite;
             pendingStructureSizeInCells = sizeInCells;
@@ -1779,43 +2217,121 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            for (int x = 0; x < battle.Width; x++)
+            // ██ ÇEVRİLEN KARAR: HÜCRE BAŞINA BİR GameObject → TEK Tilemap ██
+            // Burada şu duruyordu ve 10x5'lik bir tahtada kusursuzdu:
+            //
+            //     for (int x = 0; x < battle.Width; x++)
+            //     {
+            //         for (int y = 0; y < battle.Height; y++)
+            //         {
+            //             CreateCellVisual(x, y);   // new GameObject + SpriteRenderer
+            //         }
+            //     }
+            //
+            // KIRILAN ŞEY BİR ÖLÇÜMDÜR, BİR ZEVK DEĞİL: operatör tahtayı
+            // 100x50 yaptı ve Console şunu bastı — "[Board] built 100x50 =
+            // 5000 cells." Halkayla birlikte 5616 GameObject, 5616 Transform,
+            // 5616 SpriteRenderer. Üçü de her karede ayrı ayrı kültürleniyor
+            // (culling) ve sıralanıyor.
+            // NE ZAMAN KAZANIRDI: hücrelerin TEK TEK canlanması gerektiği gün —
+            // her hücrenin kendi animasyonu, kendi çarpıştırıcısı ya da kendi
+            // tıklama alanı olsaydı. Bu tahtada hiçbiri yok: tıklamayı Grid
+            // matematiği çözüyor, hücreler doğduktan sonra hiç değişmiyor.
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 10)
+            Tilemap ground = EnsureTilemap(GroundMapName, GroundSortingOrder);
+            if (ground == null)
             {
-                for (int y = 0; y < battle.Height; y++)
+                return;
+            }
+
+            var bounds = new BoundsInt(0, 0, 0, battle.Width, battle.Height, 1);
+            var tiles = new TileBase[battle.Width * battle.Height];
+
+            for (int y = 0; y < battle.Height; y++)
+            {
+                for (int x = 0; x < battle.Width; x++)
                 {
-                    CreateCellVisual(x, y);
+                    // İNDEKS DÜZENİ Tilemap'İN KENDİ DÜZENİ: satır satır, x
+                    // hızlı eksen. Ters yazılsaydı desen 90 derece dönerdi ve
+                    // hiçbir şey patlamazdı — sessiz bir görsel hata.
+                    tiles[x + (y * battle.Width)] = TileFor(PickTerrainSprite(x, y));
                 }
             }
 
-            Debug.Log($"[Board] built {battle.Width}x{battle.Height} = {battle.CellCount} cells.", this);
+            // TEK ÇAĞRI, 5000 SetTile DEĞİL: her SetTile kendi karo bloğunu
+            // yeniden inşa ettiriyor; blok hâlinde yazmak o işi bir kez yapıyor.
+            ground.SetTilesBlock(bounds, tiles);
+
+            Debug.Log(
+                $"[Board] built {battle.Width}x{battle.Height} = {battle.CellCount} cells on one tilemap.",
+                this);
         }
 
-        private void CreateCellVisual(int x, int y)
+        /// <summary>
+        /// Bu sprite'ı çizen karoyu verir; aynı sprite için hep AYNI karo.
+        /// </summary>
+        // ██ FLYWEIGHT — VE BU KEZ ADI KONMUŞ HÂLİ ██
+        // Projede Flyweight zaten vardı (UnitBlueprint, AttackProfile: paylaşılan
+        // değişmez tanımlar). Bu üye aynı desenin üçüncü örneği ve baskısı
+        // ÖLÇÜLMÜŞ: 5000 hücre en fazla `terrainSprites.Length` farklı görünüm
+        // taşıyor. Karo başına bir nesne kurulsaydı 5000 ScriptableObject
+        // doğardı; sözlük onu görünüm sayısına indiriyor.
+        //
+        // DIŞSAL DURUM KARONUN İÇİNDE DEĞİL: "hangi hücre" bilgisi Tilemap'in
+        // kendi tablosunda yaşıyor, karoda yalnız "nasıl görünür" var. Flyweight'i
+        // Flyweight yapan ayrım tam olarak budur.
+        private TileBase TileFor(Sprite sprite)
         {
-            var cell = new GameObject($"Cell_{x}_{y}");
+            if (sprite == null)
+            {
+                return null;
+            }
 
-            // Çıplak "transform" = this.transform; ebeveyn-çocuk hiyerarşisi
-            // GameObject'te değil Transform'da yaşar. Amaç konum değil TOPLU
-            // YAŞAM DÖNGÜSÜ: tahtayı yok etmek tek çağrıyla 15 hücreye uygulanır.
-            // → BoardAdapter.md#createcellvisualint-x-int-y
-            cell.transform.SetParent(transform, worldPositionStays: false);
+            if (tileCache.TryGetValue(sprite, out TileBase cached))
+            {
+                return cached;
+            }
 
-            // Hücrenin MERKEZİ, CellToWorld değil: köşe kullanılsaydı her hücre
-            // yarım kare kaymış görünürdü.
-            cell.transform.position = CellCentre(x, y);
+            var tile = ScriptableObject.CreateInstance<Tile>();
+            tile.sprite = sprite;
+            tileCache[sprite] = tile;
+            return tile;
+        }
 
-            // AddComponent bir MUTASYONdur: her çağrı yeni bir bileşen ekler.
-            // GetComponent'in aksine idempotent değildir, bu yüzden kurulum
-            // kodunda yaşar; kare başına çalışan bir yere konulamaz.
-            var renderer = cell.AddComponent<SpriteRenderer>();
+        /// <summary>
+        /// Adı verilen tilemap'i bulur, yoksa kurar.
+        /// </summary>
+        // ÇOCUK NESNE, BU NESNENİN ÜSTÜNDE BİLEŞEN DEĞİL: Tilemap kendi
+        // TilemapRenderer'ını istiyor ve iki katman (zemin, halka) iki AYRI
+        // sıralama değeri taşıyor. Tek nesneye iki Tilemap konamaz.
+        //
+        // GRID ARANMIYOR ÇÜNKÜ ZATEN BURADA: Tilemap ebeveyn zincirinde bir
+        // Grid istiyor ve bu bileşen Grid ile AYNI nesnede duruyor
+        // (`unityGrid = GetComponent<Grid>()`), yani çocuk olmak yetiyor.
+        private Tilemap EnsureTilemap(string name, int sortingOrder)
+        {
+            Transform existing = transform.Find(name);
+            if (existing != null)
+            {
+                var found = existing.GetComponent<Tilemap>();
+                if (found != null)
+                {
+                    // ESKİ İÇERİK SİLİNİYOR: araç ya da bir önceki koşum aynı
+                    // adı bırakmış olabilir ve üstüne yazmak eski karoları
+                    // tahtanın dışında asılı bırakırdı.
+                    found.ClearAllTiles();
+                    return found;
+                }
+            }
 
-            // SpriteRenderer ÇİZER; sprite ise çizilecek varlıktır. Çizen ile
-            // çizilen ayrı şeylerdir.
-            renderer.sprite = PickTerrainSprite(x, y);
+            var go = new GameObject(name);
+            go.transform.SetParent(transform, worldPositionStays: false);
+            go.transform.localPosition = Vector3.zero;
 
-            // Çizim önceliği: aynı katmanda büyük değer üste çizilir. Merdivenin
-            // en alt basamağı zemin; sayıların tamamı tek yerde yazılı.
-            renderer.sortingOrder = GroundSortingOrder;
+            var map = go.AddComponent<Tilemap>();
+            var mapRenderer = go.AddComponent<TilemapRenderer>();
+            mapRenderer.sortingOrder = sortingOrder;
+            return map;
         }
 
         /// <summary>
@@ -1860,14 +2376,38 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            borderRoot = new GameObject(BorderRootName);
-            borderRoot.transform.SetParent(transform, worldPositionStays: false);
+            Tilemap border = EnsureTilemap(BorderMapName, BorderSortingOrder);
+            if (border == null)
+            {
+                return;
+            }
 
+            // ██ GEOMETRİ SAHİBİ DEĞİŞMEDİ ██
+            // CollectBorderCells hâlâ hangi hücrelerin halkaya ait olduğunu
+            // söylüyor ve KENDİ testleri duruyor. Değişen tek şey o listenin
+            // ne ürettiği: eskiden hücre başına bir GameObject, şimdi bir karo
+            // dizisindeki bir girdi.
             List<Vector2Int> cells = CollectBorderCells(battle.Width, battle.Height, borderThickness);
+
+            int minX = -borderThickness;
+            int minY = -borderThickness;
+            int sizeX = battle.Width + (2 * borderThickness);
+            int sizeY = battle.Height + (2 * borderThickness);
+
+            // DİZİ BAŞTA BOŞ, yani oynanabilir alanın karşılığı null kalıyor.
+            // null bir karo "burada hiçbir şey yok" demek — halkanın çime hiç
+            // karışmamasının güvencesi artık bir atlama satırı değil, dizinin
+            // kendi boşluğu.
+            var tiles = new TileBase[sizeX * sizeY];
+
             for (int i = 0; i < cells.Count; i++)
             {
-                CreateBorderVisual(cells[i].x, cells[i].y);
+                int x = cells[i].x;
+                int y = cells[i].y;
+                tiles[(x - minX) + ((y - minY) * sizeX)] = TileFor(PickBorderSprite(x, y));
             }
+
+            border.SetTilesBlock(new BoundsInt(minX, minY, 0, sizeX, sizeY, 1), tiles);
         }
 
         /// <summary>
@@ -1907,33 +2447,19 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Halkanın tek bir süs hücresini doğurur.
-        /// </summary>
-        private void CreateBorderVisual(int x, int y)
-        {
-            var cell = new GameObject($"Border_{x}_{y}");
-            cell.transform.SetParent(borderRoot.transform, worldPositionStays: false);
-            cell.transform.position = CellCentre(x, y);
-
-            var renderer = cell.AddComponent<SpriteRenderer>();
-            renderer.sprite = PickBorderSprite(x, y);
-
-            // Halka çimin ALTINDA: oyuncu sınırı görür ama halka hiçbir zaman
-            // oynanabilir alanın üstüne binmez. Sayı merdivenin yanında.
-            renderer.sortingOrder = BorderSortingOrder;
-        }
-
-        /// <summary>
         /// Halkayı sahneden kaldırır.
         /// </summary>
-        // ADIYLA TOPLANIYOR, alandaki tek okla değil: sahne dosyasında kalmış
-        // eski bir halka bu bileşenin borderRoot alanını hiç görmez ve yalnız
-        // alana bakılsaydı her kurulumda bir halka daha üst üste binerdi. Ölçüsü
-        // basit: aynı ada sahip çocuk sayısı her Play'de bir artardı.
+        // ██ BU ÜYE GÖÇTEN SONRA DA GEREKLİ, VE SEBEBİ TEK CÜMLE ██
+        // Halka artık bir tilemap; bu bileşen "BorderRing" adlı bir nesne
+        // KURMUYOR. Ama sahne dosyasında bir öncekinin bıraktığı bir tane
+        // OLABİLİR ve o nesne, karolarıyla birlikte yeni halkanın altında
+        // asılı kalırdı. Adıyla toplamaktan başka yol yok.
+        //
+        // BURADA `borderRoot = null;` SATIRI DURUYORDU ve göçle birlikte ölü
+        // kaldı: alan yalnız yazılıyor, hiç okunmuyordu. Yalnız yazılan bir
+        // alan bir durum değil, bir kalıntıdır — silindi.
         private void ClearBorderVisuals()
         {
-            borderRoot = null;
-
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
                 Transform child = transform.GetChild(i);
@@ -2333,6 +2859,17 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
+        /// Bu tahtanın sıra kipi: sıra devrediliyor mu, yoksa herkes her an
+        /// oynayabiliyor mu.
+        /// </summary>
+        // OKUMA, MEKANİZMA DEĞİL: sayı zaten burada duruyor ve tahtayı kuran
+        // satır (`new Battle(width, height, turnMode)`) onu tek otorite olarak
+        // kullanıyor. Açılmasının tek sebebi durum şeridi — FreeForAll kipinde
+        // tur numarası hiç ilerlemiyor, yani şerit ÖLÜ bir sayı gösteriyordu ve
+        // şeridin bunu bilmesinin başka yolu yok. → BattleStatusView.cs
+        public TurnMode TurnMode => turnMode;
+
+        /// <summary>
         /// Bir kimliğin hangi tarafa ait olduğunu söyler.
         /// </summary>
         /// <returns>Kimlik bu savaşta tanınmıyorsa false.</returns>
@@ -2340,7 +2877,11 @@ namespace GridStrategy.Unity
         // ayrı tablolarda duruyor. Çağıranın hangi tabloya bakacağını bilmesi
         // gerekmesin diye soru burada birleştiriliyor — DespawnView'ın iki
         // tabloyu birleştirmesiyle aynı desen ve aynı gerekçe.
-        private bool TryGetTeam(Unit unit, out Team team)
+        //
+        // ARTIK public: durum şeridi seçili şeyin TARAFINI yazıyor ve rengini o
+        // taraftan alıyor. İKİNCİ BİR CEVAP ÜRETİLMEDİ, var olan cevabın kapısı
+        // açıldı — şerit takımı kendi hesaplasaydı savaşın defteriyle ayrışırdı.
+        public bool TryGetTeam(Unit unit, out Team team)
         {
             if (unit != null && battle.TryGetCombatant(unit, out Combatant combatant))
             {
@@ -2457,20 +2998,18 @@ namespace GridStrategy.Unity
             // bekleyen vuruşun nerede düştüğü.
             // → BoardAdapter.md#handleclick
             //
-            // BEKLEYEN VURUŞ HÂLÂ HER YENİ TIKLAMADA DÜŞER, ama iptal ARTIK
-            // EN BAŞTA DEĞİL — ve bu ÇEVRİLMİŞ bir karardır. Eski sıra "her
-            // tıklama niyeti değiştirir" diyordu ve tek bir hâli yanlış
-            // okuyordu: AYNI hedefe ikinci kez tıklamak niyeti değiştirmez,
-            // TEKRAR EDER. Ölçüm şuydu — ilk tıklama yaklaş-sonra-vur emrini
-            // yazıyor, sabırsızlanan oyuncunun ikinci tıklaması o emri iptal
-            // edip ANINDA saldırıyordu; tahta yürüyüşü çoktan işlediği için
-            // menzil sorusu geçiyor ve mermi, görseli hâlâ yolda olan bir
-            // savaşçının varmadığı hücresinden kalkıyordu. Aşağıdaki üç dalın
-            // her biri iptali kendi cümlesiyle veriyor, tek istisna emrin
-            // TEKRARI.
+            // ██ TIKLAMA ARTIK HİÇBİR EMRİ KENDİLİĞİNDEN DÜŞÜRMÜYOR ██
+            // Burada üç `CancelPendingStrike()` çağrısı vardı ve gerekçesi
+            // doğruydu: emir TAHTAYA aitken her yeni tıklama onu geçersiz
+            // kılardı. Emir birime ait olunca o gerekçe düştü — başka bir
+            // savaşçıyı seçmek, boş bir hücreyi ıskalamak ya da tahtanın
+            // dışına tıklamak, ÜÇÜNCÜ bir birimin sürmekte olan saldırısını
+            // neden kessin? İptal artık niyeti gerçekten değiştiren tek dalda:
+            // seçili birime yeni bir emir verildiğinde (yenisi eskisinin yerine
+            // geçer) ve onu yürümeye yolladığında.
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
             if (!TryReadPointerCell(out _, out _, out int x, out int y))
             {
-                CancelPendingStrike();
                 return;
             }
 
@@ -2479,49 +3018,51 @@ namespace GridStrategy.Unity
             // Battle'da yaşar; adaptörün işi ona uymak, onu tekrar yazmak değil.
             if (!battle.IsInsideGrid(x, y))
             {
-                CancelPendingStrike();
                 Debug.Log($"[Board] ({x},{y}) is OUTSIDE the {battle.Width}x{battle.Height} board.", this);
                 return;
             }
 
             if (battle.TryGetUnit(x, y, out Unit clicked))
             {
-                // AYNI EMİR İKİNCİ KEZ YAZILMAZ ve tıklama burada TÜKETİLİR:
-                // devam etseydi HandleOccupiedCellClick emri ikinci kez kurar
-                // (ya da menzile girmiş savaşçıyı erkenden vurdurur) ve oyuncu
-                // tek bir hamle için iki vuruş alırdı.
-                if (RepeatsPendingStrike(clicked))
+                // AYNI EMİR İKİNCİ KEZ YAZILMAZ ve tıklama burada TÜKETİLİR.
+                // Kalıcı emirle birlikte gerekçe DEĞİŞTİ ve daralttı: eskiden
+                // bu dal ikinci bir VURUŞ ödemesini engelliyordu, bugün emir
+                // zaten sürüyor — engellediği şey, yürümekte olan savaşçının
+                // emrinin sıfırdan yeniden kurulması ve seçimin ikinci kez
+                // bırakılması.
+                if (RepeatsOrder(clicked))
                 {
                     Debug.Log(
-                        $"[Board] '{pendingStrikeAttacker.Name}' is already closing in on " +
+                        $"[Board] '{selectedUnit.Name}' already has orders on " +
                         $"'{clicked.Name}'; the order stands.",
                         this);
                     return;
                 }
 
-                CancelPendingStrike();
                 HandleOccupiedCellClick(clicked, x, y);
                 return;
             }
 
-            CancelPendingStrike();
             HandleEmptyCellClick(x, y);
         }
 
         /// <summary>
-        /// Bu tıklama, zaten yazılmış bekleyen vuruşun AYNISINI mı istiyor?
+        /// Bu tıklama, SEÇİLİ birimin zaten taşıdığı emrin aynısını mı istiyor?
         /// </summary>
-        // OYUNDA NE İŞE YARAR: yaklaşan savaşçısına sabırsızlanıp hedefe ikinci
-        // kez tıklayan oyuncu iki vuruş ödemesin.
+        // OYUNDA NE İŞE YARAR: emrini verdiği savaşçıyı yeniden seçip aynı
+        // hedefe tıklayan oyuncu, sürmekte olan saldırıyı sıfırdan kurmasın.
         //
-        // SORU KİPE SORULUYOR, ve cevabın kipe göre DEĞİŞMESİ tam olarak bu
-        // turun konusu: Boşta kip hiçbir tıklamayı yutmaz, bekleyen vuruş kipi
-        // yalnız kendi hedefine geleni yutar. Eski hâlde cevap dört alandan
-        // hesaplanıyordu ve "hangi kipteyiz" sorusu hiç sorulmuyordu.
-        // → Modes/PendingStrikeMode.cs
-        private bool RepeatsPendingStrike(Unit clicked)
+        // SORU ARTIK KİPE DEĞİL DEFTERE SORULUYOR ve fark ölçülebilir: kip
+        // TEKTİ, yani "yazılı emir" diye tek bir emir tanıyordu. Defterde
+        // beş emir olabilir ve soru yalnız SEÇİLİ olanınkini ilgilendirir —
+        // başka bir savaşçının aynı hedefe verdiği emir bu tıklamayı yutmamalı.
+        // → Orders/UnitOrderBook.cs
+        private bool RepeatsOrder(Unit clicked)
         {
-            return Modes.Current.ConsumesClick(clicked);
+            return clicked != null
+                   && selectedUnit != null
+                   && orders.TryGet(selectedUnit, out IUnitOrder standing)
+                   && ReferenceEquals(standing.Target, clicked);
         }
 
         /// <summary>
@@ -2535,7 +3076,12 @@ namespace GridStrategy.Unity
             if (selectedUnit == null)
             {
                 SelectUnit(clicked);
-                Debug.Log($"[Board] ({x},{y}) holds '{clicked.Name}' - SELECTED.", this);
+
+                // EMRİ DE SÖYLENİYOR ve bu İŞ-2'nin ikinci yarısı: emir
+                // yazıldığı an seçim bırakılıyor, ama birime tekrar tıklamak
+                // onu geri alıyor VE ona ne söylendiğini gösteriyor. Emri
+                // olmayan birimde ek boş dizge, yani satır aynen eski hâlinde.
+                Debug.Log($"[Board] ({x},{y}) holds '{clicked.Name}' - SELECTED.{DescribeOrder(clicked)}", this);
                 return;
             }
 
@@ -2586,7 +3132,9 @@ namespace GridStrategy.Unity
                 && clickedTeam == selectedTeam)
             {
                 SelectUnit(clicked);
-                Debug.Log($"[Board] ({x},{y}) holds friendly '{clicked.Name}' - SELECTION MOVED.", this);
+                Debug.Log(
+                    $"[Board] ({x},{y}) holds friendly '{clicked.Name}' - SELECTION MOVED.{DescribeOrder(clicked)}",
+                    this);
                 return;
             }
 
@@ -2597,8 +3145,40 @@ namespace GridStrategy.Unity
             // battle" istisnası atılıyordu. Yaklaşma adımı burada tamamen
             // atlanıyor: bina olduğu yerden vurabiliyorsa vurur, vuramıyorsa
             // menzil reddini oyuncuya söyler.
+            //
+            // YAPIYA KALICI EMİR YAZILMIYOR ve bu bir eksiklik değil: ateş eden
+            // yapı zaten AdvanceStructureFire ile kendiliğinden ve kendi bekleme
+            // süresiyle en yakın düşmana vuruyor. İkinci bir kalıcılık sahibi
+            // eklemek, aynı kulenin iki ayrı tempoyla ateş etmesi demek olurdu.
+            // Oyuncunun tıklaması burada bir emir değil, TEK bir atış isteği.
             if (IsStructureIdentity(selectedUnit))
             {
+                // ██ SİLAHSIZ BİNA SEÇİLİYKEN TIKLAMA BİR RET DEĞİL, BİR ODAK ██
+                // Operatör: "bir yapıyı seçerken rakip yapıyı seçtiğimde
+                // saldıramıyor diyor... daha çok seçili olayını karşıdaki yapıya
+                // veya karşı takımın savaşçısına geçilse."
+                //
+                // ESKİ HÂLDE BURASI KOŞULSUZ SALDIRIYORDU ve kışla gibi silahsız
+                // bir bina seçiliyken her tıklama `RejectedAttackerCannotAttack`
+                // üretiyordu: oyuncu hiç istemediği bir eylemin reddini okuyordu.
+                // Oysa kışlayla düşmana tıklamanın tek anlamlı karşılığı
+                // "şimdi ONA bakıyorum" — çünkü kışla saldıramaz, yürüyemez ve
+                // düşmana yapabileceği hiçbir şey yok.
+                //
+                // SALDIRABİLEN YAPI BU DALDAN GEÇMİYOR ve bu operatörün kendi
+                // kelepçesi: "bu tabii ki saldırı yapan yapılar için geçerli
+                // değil." Taret seçiliyken tıklama yine TEK bir atış isteği.
+                //
+                // SORU `Structure.CanAttack`'E SORULUYOR, bir tür listesine
+                // değil: silahın sahibi tanımdaki AttackProfile ve o alan
+                // doluysa bina saldırabilir. İsim listesi tutulsaydı yeni bir
+                // silahlı bina eklendiği gün sessizce odak devrederdi.
+                if (!CanStructureAttack(selectedUnit))
+                {
+                    TransferFocusTo(clicked, x, y);
+                    return;
+                }
+
                 AttackOutcome structureOutcome = BattleActions.Attack(battle, selectedUnit, clicked);
                 ReactToAttack(selectedUnit, structureOutcome, clicked, x, y);
                 return;
@@ -2613,11 +3193,18 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            // Mesafe BURADA hesaplanmıyor ve hesaplatılmıyor bile: BattleActions
-            // konumları Battle'dan bulup GridDistance'a ölçtürüyor. Bu satırın
-            // bildiği tek şey "kim kime".
-            AttackOutcome outcome = BattleActions.Attack(battle, selectedUnit, clicked);
-            ReactToAttack(selectedUnit, outcome, clicked, x, y);
+            // ██ TIKLAMA ARTIK BİR VURUŞ DEĞİL, BİR EMİR YAZIYOR ██
+            // Burada `BattleActions.Attack` doğrudan çağrılıyordu ve operatörün
+            // bildirdiği eksik tam olarak o satırdı: "bir attacker'a target
+            // belirttiğimizde 1 kere saldırıyor". Vuruşu emir yapıyor, ve emir
+            // oyuncu yeniden yönlendirene ya da hedef menzilden çıkana kadar
+            // duruyor. MENZİLDEYKEN DE EMİR YAZILIYOR, yalnız uzaktayken değil:
+            // yakındaki hedefe tıklamak da "buna vurmaya devam et" demektir.
+            //
+            // Mesafe BURADA hesaplanmıyor ve hesaplatılmıyor bile: emir her
+            // karede AttackAction'a soruyor, o da konumları Battle'dan bulup
+            // GridDistance'a ölçtürüyor. Bu satırın bildiği tek şey "kim kime".
+            IssueOrder(selectedUnit, new AttackOrder(this, selectedUnit, clicked));
         }
 
         /// <summary>
@@ -2625,9 +3212,16 @@ namespace GridStrategy.Unity
         /// hücreye yürütür.
         /// </summary>
         /// <returns>
-        /// Saldırı denemesi YAPILABİLİR ise true. Yaklaşma başarısızsa false —
-        /// o zaman bu tur yalnızca yürüme (ya da hiçbir şey) olur.
+        /// Saldırı EMRİ yazılabilir ise true — hedef ya zaten menzilde, ya da
+        /// yürüyüş yola çıktı. Yaklaşma başarısızsa false; o zaman bu tıklama
+        /// hiçbir emir doğurmaz ve savaşçının varsa eski emri OLDUĞU GİBİ kalır.
         /// </returns>
+        // CEVABIN ANLAMI DEĞİŞTİ: eskiden "ŞİMDİ vurulabilir mi" demekti ve
+        // yürüyüş başladığında false dönüyordu, çünkü vuruş bir kipin işiydi.
+        // Bugün emir yürüyüşü kendisi bekliyor, dolayısıyla iki hâl de aynı
+        // cevabı hak ediyor ve ayrım tek yerde kaldı: emrin YAZILIP
+        // yazılmayacağı.
+        //
         // NEDEN AYRI BİR ADIM: hareket ile saldırı iki ayrı eylem ve ikisinin de
         // kendi kuralları var (sıra, durum, menzil). Bunları tek bir "saldır"
         // çağrısının içine gömmek, hareket reddedildiğinde saldırının neden
@@ -2682,12 +3276,16 @@ namespace GridStrategy.Unity
                 return false;
             }
 
-            SchedulePendingStrike(selectedUnit, target, targetX, targetY);
+            // EMİR ARTIK BURADA YAZILMIYOR, ÇAĞIRAN YAZIYOR — ve tek sebebi
+            // sahiplik: yürüyerek varılan hedefle zaten menzilde olan hedef
+            // AYNI emri hak ediyor. İki yerde ayrı ayrı yazılsaydı, emrin şekli
+            // değiştiği gün ikisinden biri sessizce eskirdi. Bu üye yalnız
+            // "yaklaşma başladı mı" sorusunu cevaplıyor.
             Debug.Log(
                 $"[Board] '{selectedUnit.Name}' is closing in on '{target.Name}' and will strike on arrival.",
                 this);
 
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -2951,10 +3549,25 @@ namespace GridStrategy.Unity
                 return false;
             }
 
-            SchedulePendingRevive(selectedUnit, target, targetX, targetY);
+            // EMİR BURADA YAZILIYOR, SALDIRININ TERSİNE — ve fark bir kararın
+            // kendisi: kaldırmanın KALICI hâli yok. Menzildeki bir dostu
+            // kaldırmak tek çağrıda başlayıp biten bir eylem, dolayısıyla
+            // yalnız YÜRÜYEREK varılan kaldırma bir emir gerektiriyor. Saldırı
+            // ikisinde de emir yazıyor çünkü menzildeki hedefe vurmak da
+            // "vurmaya DEVAM et" demek.
+            //
+            // ██ CÜMLE ÖNCE, EMİR SONRA — VE SIRA ZORUNLU ██
+            // <c>IssueOrder</c> seçimi bırakıyor, yani <c>selectedUnit</c> ondan
+            // sonra null. Ters sırada yazılıyken bu Console satırı her koşuşunda
+            // NullReferenceException veriyordu ve yürüyerek varılan kaldırma yolu
+            // tamamen kapalıydı. Saldırı dalında aynı tuzak yok, çünkü orada emir
+            // üyenin SON satırı — yani kırılan şey kural değil SIRAYDI.
+            // → Test: TryCloseInOnAlly_WhenTheWalkStarts_
+            //   WritesTheOrderWithoutReadingTheReleasedSelection
             Debug.Log(
                 $"[Board] '{selectedUnit.Name}' is walking to '{target.Name}' and will revive on arrival.",
                 this);
+            IssueOrder(selectedUnit, new ReviveOrder(this, selectedUnit, target));
 
             return false;
         }
@@ -2989,6 +3602,13 @@ namespace GridStrategy.Unity
             {
                 return;
             }
+
+            // ██ YÜRÜMEK, SALDIRI EMRİNİ İPTAL EDEN TEK TIKLAMADIR ██
+            // Ve iptalin yeri REDDİN ALTI: yürüyemeyen bir birime "boş hücreye
+            // tıkladın" diye emrini kaybettirmek, oyuncunun hiç istemediği bir
+            // ceza olurdu. Burada iptal edilen şey de yalnız BU birimin emri;
+            // tahtadaki öteki savaşçılar hedeflerine vurmaya devam eder.
+            CancelOrder(selectedUnit);
 
             // Yol da buradan çıkıyor: tahta hareketi ANINDA işler, ekran ise
             // birimi bu duraklardan geçirerek gecikmeli takip eder.
@@ -3119,47 +3739,16 @@ namespace GridStrategy.Unity
                     break;
             }
 
-            // SEÇİM EN SONDA BIRAKILIYOR ve sıra bir karardır: ClearSelection
-            // kendi yayınını yapıyor, üste konsaydı sağ panel vuruşun anlatıldığı
-            // satırdan ÖNCE yeniden kurulurdu.
-            if (landed)
-            {
-                ReleaseSelectionAfterStrike(attacker);
-            }
-        }
-
-        /// <summary>
-        /// İsabet eden bir saldırı emrinden sonra seçimi bırakır.
-        /// </summary>
-        // OYUNDA NE İŞE YARAR: oyuncu vurduğu savaşçıyı elle bırakmak zorunda
-        // kalmadan doğrudan başka bir şey seçebilsin.
-        //
-        // ÜÇ KOŞUL VE ÜÇÜ DE ÖLÇÜLDÜ. Birincisi çağıranda: yalnız İSABET seçimi
-        // düşürür, reddedilen saldırıda oyuncu tekrar denemek isteyecektir.
-        // İkincisi saldıranın SEÇİLİ olan olması — kendiliğinden ateş eden kule
-        // saldıranı seçimden okumuyor ve bu satır olmasaydı her atışında
-        // oyuncunun seçimini düşürürdü. Üçüncüsü yapı seçiminin KALMASI: o seçim
-        // aynı zamanda üretim panelini açık tutuyor ve her atıştan sonra
-        // kapanması, oyuncunun yeni açtığı paneli elinden alırdı.
-        //
-        // ZİNCİRİ BOZMUYOR: yaklaş-sonra-vur emri bekleyen vuruş kipinin Ilerlet
-        // işinde, yürüyüş BİTTİKTEN sonra yürüyor ve bu çağrı o vuruşun
-        // sonucundan geliyor. Seçimi yaklaşma anında bırakmak, kipin "saldıran
-        // hâlâ seçili mi" koşulunu düşürüp emri iptal ederdi.
-        private void ReleaseSelectionAfterStrike(Unit attacker)
-        {
-            if (!ReferenceEquals(attacker, selectedUnit))
-            {
-                return;
-            }
-
-            if (IsStructureIdentity(attacker))
-            {
-                return;
-            }
-
-            ClearSelection();
-            Debug.Log($"[Board] '{attacker.Name}' struck; the selection was released.", this);
+            // ██ SEÇİM ARTIK BURADAN BIRAKILMIYOR ██
+            // Burada `if (landed) ReleaseSelectionAfterStrike(attacker);`
+            // duruyordu ve gerekçesi doğruydu: vuruş TEK SEFERLİK bir olaydı,
+            // isabet ettiği an oyuncunun o birimle işi bitmiş sayılırdı.
+            // Kalıcı emirle o dünya değişti — aynı emir saniyede bir vuruyor ve
+            // her isabette seçimi düşürmek, birimini gözlemek ya da
+            // yönlendirmek için yeniden seçen oyuncunun elinden onu tekrar
+            // tekrar alırdı. Seçimi bırakan yer artık emrin YAZILDIĞI an.
+            // → IssueOrder
+            // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
         }
 
         /// <summary>
@@ -3361,27 +3950,33 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Yürüyüş bitince yapılacak vuruşu emir olarak yazar ve bekleyen vuruş
-        /// kipine geçer.
+        /// Emri deftere yazar ve SEÇİMİ BIRAKIR.
         /// </summary>
-        // GEÇİŞ ÖNCE, YAZI SONRA: ters sırada, kipe girerken kapanan bir önceki
-        // kipin Cik() işi yeni yazılmış emri silebilirdi.
-        private void SchedulePendingStrike(Unit attacker, Unit target, int targetX, int targetY)
+        // ██ SEÇİM EMİR YAZILDIĞI AN BIRAKILIYOR — ÇEVRİLMİŞ BİR KARAR ██
+        // Eskiden seçim, İSABET EDEN bir vuruştan SONRA bırakılıyordu
+        // (ReleaseSelectionAfterStrike) ve o üyenin iki koruma satırı vardı:
+        // "saldıran seçili olan mı" ve "saldıran bir yapı mı". Kalıcı emirle
+        // birlikte o yer yanlış oldu — emir tekrar tekrar vuruyor ve her
+        // isabette seçimi düşürmek, birimini yeniden seçmiş oyuncunun elinden
+        // onu ikinci kez alırdı.
+        //
+        // İKİ KORUMA SATIRI DA GEREKSİZLEŞTİ VE SİLİNDİ, çünkü artık bu üyeye
+        // ulaşan tek yol OYUNCUNUN kendi tıklaması: kendiliğinden ateş eden
+        // kule buradan geçmiyor (emri yok), yapı seçimi ise saldırı dalından
+        // ÖNCE dönüyor. Koruma bir koşuldan yapıya taşındı.
+        //
+        // EMİR SEÇİMDEN BAĞIMSIZ YAŞAR ve bu satırın çalışabilmesinin tek
+        // sebebi o: eski emir "saldıran hâlâ seçili mi" diye soruyordu, yani
+        // seçimi bırakmak emri iptal ederdi. O soru IUnitOrderHost'ta artık YOK.
+        // → Orders/IUnitOrderHost.cs
+        private void IssueOrder(Unit unit, IUnitOrder order)
         {
-            Modes.Enter(Strike);
-            Strike.Write(attacker, target, targetX, targetY);
-        }
+            orders.Write(unit, order);
 
-        /// <summary>
-        /// Yürüyüş bitince yapılacak DİRİLTMEYİ emir olarak yazar.
-        /// </summary>
-        // BAYRAK EN SONDA VE BU ZORUNLU: Write, tahtanın WriteStrikeOrder
-        // üyesine iniyor ve orası bayrağı vuruşa sıfırlıyor. Üste konsaydı
-        // kaldırma emri kendi cinsini yazıldığı anda unuturdu.
-        private void SchedulePendingRevive(Unit reviver, Unit target, int targetX, int targetY)
-        {
-            SchedulePendingStrike(reviver, target, targetX, targetY);
-            pendingStrikeIsRevive = true;
+            if (ReferenceEquals(unit, selectedUnit))
+            {
+                ClearSelection();
+            }
         }
 
         /// <summary>
@@ -3399,30 +3994,64 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Bekleyen vuruşu unutur. Tahtaya ve savaşa HİÇ dokunmaz.
+        /// Bu birimin emrini unutur. Tahtaya ve savaşa HİÇ dokunmaz.
         /// </summary>
-        // ŞARTLI ÇIKIŞ, ŞARTSIZ DEĞİL — ve bu ölçülmüş bir ayrım: bu üyeyi
-        // çağıranların bir kısmı (paletten bina almak, temizlik süpürmesi)
-        // yerleştirme kipi AÇIKKEN de gelebiliyor, ve şartsız bir çıkış
-        // oyuncunun elindeki hayaleti sessizce düşürürdü.
-        //
-        // ALANLARI BU ÜYE ARTIK SİLMİYOR: silme işi kipin Cik() işine ait ve
-        // geçiş onu kendisi koşturuyor.
-        private void CancelPendingStrike()
+        // TEK BİRİMİN EMRİ, TAHTANINKİ DEĞİL — ve fark bu turun konusu: eski
+        // CancelPendingStrike tahtadaki TEK emri silerdi, yani bir savaşçıyı
+        // yürütmek ötekinin saldırısını da keserdi. Bugün iptal edilen şey
+        // yalnız verilen kimliğin emri.
+        private bool CancelOrder(Unit unit)
         {
-            Modes.LeaveIfCurrent(Strike);
+            return orders.Cancel(unit);
         }
 
         /// <summary>
-        /// Bekleyen vuruş hâlâ anlamlı mı: saldıran seçili mi ve iki taraf da
-        /// tahtada duruyor mu.
+        /// Bu yapı saldırabiliyor mu — silahı var mı.
         /// </summary>
-        // ÜÇ İPTAL KOŞULU ARTIK KİPİN İÇİNDE ve bu üye onlara açılan kapı: soru
-        // tahtanın kendi akışında da soruluyor, ama cevabın sahibi kip.
-        // → Modes/PendingStrikeMode.cs
-        private bool PendingStrikeIsAlive()
+        /// <returns>Kimlik bir yapı DEĞİLSE de false.</returns>
+        // "YAPI DEĞİL" İLE "SİLAHSIZ YAPI" AYNI CEVABI VERİYOR ve bu güvenli:
+        // tek çağıran zaten IsStructureIdentity dalının içinde, yani kimliğin
+        // yapı olduğu orada sorulmuş durumda. Ayrı bir cevap üretilseydi hiçbir
+        // çağıranın ayırt etmediği bir üçüncü hâl doğardı.
+        private bool CanStructureAttack(Unit unit)
         {
-            return Strike.IsAlive();
+            return battle.TryGetStructure(unit, out Structure structure) && structure.CanAttack;
+        }
+
+        /// <summary>
+        /// Tıklanan şeyi seçili yapar: bu tıklama bir eylem değil, bir bakış.
+        /// </summary>
+        // AYRI BİR ÜYE, İKİ SATIRLIK OLMASINA RAĞMEN — ve gerekçesi operatörün
+        // kendi kelimesi: "reusable şekilde otomatik selection'ı ona göre
+        // ayarlatsa." Bugün tek çağıranı var (silahsız yapı dalı), ama kural
+        // artık bir ADA sahip: "yapabileceğin bir şey yoksa tıklama odak
+        // devridir." İkinci bir dal doğduğunda (örneğin düşmüş bir savaşçıyla
+        // düşmana tıklamak) kopyalanacak bir gövde değil, çağrılacak bir üye var.
+        //
+        // SelectUnit ZATEN ESKİ SEÇİMİ TEMİZLİYOR, o yüzden burada ClearSelection
+        // yok: iki kez temizlemek, dinleyiciyi bir kez daha boş seçimle
+        // uyandırmaktan başka bir şey yapmazdı.
+        private void TransferFocusTo(Unit clicked, int x, int y)
+        {
+            SelectUnit(clicked);
+
+            Debug.Log(
+                $"[Board] ({x},{y}) holds '{clicked.Name}' - FOCUS MOVED.{DescribeOrder(clicked)}",
+                this);
+        }
+
+        /// <summary>
+        /// Bu birimin emri varsa oyuncuya söylenecek eki verir; yoksa boş dizge.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: emrini verip seçimi bırakılan savaşçıya tekrar
+        // tıklayan oyuncu, ona ne söylediğini görsün.
+        //
+        // AYRI BİR ÜYE VE İKİ ÇAĞIRAN: seçim iki ayrı daldan yapılıyor (hiçbir
+        // şey seçili değilken ve dost bir birime geçerken) ve cümle ikisinde de
+        // aynı olmalı. DescribeCondition'ın deseni birebir aynı sebeple ayrı.
+        private string DescribeOrder(Unit unit)
+        {
+            return orders.TryGet(unit, out IUnitOrder order) ? $" It is {order.Describe()}." : string.Empty;
         }
 
         /// <summary>
@@ -3520,15 +4149,19 @@ namespace GridStrategy.Unity
                 ClearSelection();
             }
 
-            // TAHTADAN KALKAN BİR KİMLİK BEKLEYEN VURUŞU DA GÖTÜRÜR — saldıran
-            // da olsa hedef de olsa. Bırakılsaydı emir bir sonraki karede
-            // savaşta artık bulunmayan bir kimliğe saldırı çağırırdı ve o çağrı
-            // bir oyun sonucu değil bir istisna üretirdi.
-            if (ReferenceEquals(unit, pendingStrikeAttacker)
-                || ReferenceEquals(unit, pendingStrikeTarget))
-            {
-                CancelPendingStrike();
-            }
+            // TAHTADAN KALKAN BİR KİMLİK EMİRLERİ DE GÖTÜRÜR — kendi emrini VE
+            // kendisini hedefleyen bütün emirleri. İkinci çağrı ÇOĞUL, ve
+            // çoğulluğu bu turun kazancı: aynı hedefe saldıran üç savaşçının
+            // üçünün emri de aynı anda düşer.
+            //
+            // ESKİ GEREKÇE ("bırakılsaydı savaşta bulunmayan bir kimliğe
+            // saldırı çağrılır ve istisna atardı") ARTIK GEÇERLİ DEĞİL: emir
+            // vurmadan önce konumu kendisi soruyor ve bulamazsa iptal oluyor.
+            // Süpürme yine de burada, çünkü cevabın AYNI KAREDE görünmesi
+            // gerekiyor — çöp kutusuyla silinen bir birimin peşindeki emir bir
+            // kare daha yaşamamalı.
+            CancelOrder(unit);
+            orders.CancelTargeting(unit);
 
             // Yıkılan yapının atış sayacı da düşer; bırakılsaydı sözlük savaş
             // boyunca büyür ve tarama ölü kayıtları gezerdi.
@@ -3538,6 +4171,10 @@ namespace GridStrategy.Unity
             // silinmesi gereken tek şey tabloda kalan ok. Bırakılsaydı tablo
             // savaş boyunca büyür ve RefreshHealthBars ölü kayıtları gezerdi.
             healthBars.Remove(unit);
+
+            // Şerit de aynı sebeple: sahibinin çocuğu olduğu için sahneden
+            // kendiliğinden gidiyor, tabloda kalan ok elle siliniyor.
+            productionTimers.Remove(unit);
 
             // YAPI ÖNCE SORULUYOR ve sıra burada GÖZLENEMEZ: bir kimlik aynı
             // anda hem savaşçı hem yapı OLAMAZ, o kelepçe ThrowIfCannotJoin'de
@@ -3648,6 +4285,24 @@ namespace GridStrategy.Unity
                     structureRenderer.color = isSelected ? StructureSelectedTint : Color.white;
                 }
 
+                // ██ TEK BAŞINA RENK ÇARPANI YETMEDİ — VE BU ÖLÇÜLDÜ ██
+                // Operatör: "bazen yapılara tıkladığımda ne yazık ki seçili
+                // oldukları gözükmüyor." Sebep yukarıdaki satırın kendisi:
+                // StructureSelectedTint bir ÇARPAN ve binanın kendi sprite'ı
+                // zaten sıcak renkliyse çarpım neredeyse hiçbir şeyi
+                // değiştirmiyor. Sarımsı bir kışlada seçili ile seçilmemiş hâl
+                // gözle ayırt edilemiyordu.
+                //
+                // ÇÖZÜM SAVAŞÇIDAN GELİYOR, YENİ BİR FİKİRDEN DEĞİL: savaşçının
+                // seçimi zaten ayrı bir ÇERÇEVE nesnesinde yaşıyor
+                // (UnitView.selectionOverlay) ve tam da bu yüzden gövde rengine
+                // bağlı değil. Yapı bugüne kadar o mekanizmanın dışında
+                // kalmıştı; artık aynı dili konuşuyor.
+                //
+                // ÇARPAN SİLİNMEDİ, ÜSTÜNE KONDU: ikisi birlikte "seçili" hâlini
+                // iki ayrı kanaldan (renk + kenar) anlatıyor ve tek kanal
+                // kaybolduğunda öteki ayakta kalıyor.
+                SetStructureSelectionFrame(structureObject, isSelected);
                 return;
             }
 
@@ -3662,6 +4317,57 @@ namespace GridStrategy.Unity
             // o çerçeveyi görmüyor bile, sadece niyeti söylüyor.
             // → BoardAdapter.md#setselectionvisualunit-unit-bool-isselected
             view.SetSelected(isSelected);
+        }
+
+        /// <summary>
+        /// Bir yapının çevresindeki seçim çerçevesini açar ya da kapatır.
+        /// </summary>
+        // ÇERÇEVE İLK SEÇİMDE KURULUYOR, DOĞUMDA DEĞİL: hiç seçilmeyen bir bina
+        // için kurulan nesne, hiç çizilmeyecek bir çöp olurdu. Aynı "ilk
+        // ihtiyaçta kur" deseni can barında ve geri sayım şeridinde de var.
+        //
+        // ÖLÇEK YAZILMIYOR ve bu bir unutma değil: çerçeve yapının ÇOCUĞU,
+        // yapının localScale'i ise onun çizili boyu. Yerel ölçek 1 bırakıldığında
+        // çerçeve tam binanın boyuna oturuyor — iki hücre eninde bir karargâhta
+        // da, tek hücrelik bir kışlada da. Ters ölçek uygulansaydı (can barının
+        // yaptığı gibi) çerçeve her binada aynı boyda kalır ve büyük binanın
+        // içinde asılı dururdu.
+        //
+        // SIRA İMLEÇ ÇERÇEVESİYLE AYNI RAFTA (HoverSortingOrder) ve çakışma
+        // zararsız: ikisi de içi boş birer kenarlık ve seçim çerçevesi binanın
+        // BOYUNDA, imleç çerçevesi ise tek HÜCRE boyunda — bir hücreden geniş
+        // binada seçim çerçevesi imlecin dışına taşıp görünür kalıyor.
+        private void SetStructureSelectionFrame(GameObject structureObject, bool isSelected)
+        {
+            Transform existing = structureObject.transform.Find(StructureSelectionFrameName);
+
+            if (existing != null)
+            {
+                var existingRenderer = existing.GetComponent<SpriteRenderer>();
+                if (existingRenderer != null)
+                {
+                    existingRenderer.enabled = isSelected;
+                }
+
+                return;
+            }
+
+            // SEÇİM KALDIRILIRKEN KURULMUYOR: kapatılacak bir şey yoksa
+            // kurulacak bir şey de yok. Bu kapı olmasaydı her ClearSelection
+            // çağrısı, hiç seçilmemiş binalara da birer çerçeve takardı.
+            if (!isSelected || hoverFrameSprite == null)
+            {
+                return;
+            }
+
+            var go = new GameObject(StructureSelectionFrameName);
+            go.transform.SetParent(structureObject.transform, worldPositionStays: false);
+            go.transform.localPosition = Vector3.zero;
+
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = hoverFrameSprite;
+            renderer.color = StructureSelectionFrameColour;
+            renderer.sortingOrder = HoverSortingOrder;
         }
 
         /// <summary>

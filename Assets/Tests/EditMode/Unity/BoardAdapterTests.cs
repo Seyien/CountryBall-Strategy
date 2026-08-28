@@ -493,57 +493,100 @@ namespace GridStrategy.Tests.EditMode.Unity
         // zaman DÜŞTÜĞÜ, ne zaman yürüdüğü kadar önemli: düşmeyen bir emir,
         // oyuncunun vazgeçtiği hedefe inen bir vuruş demek.
 
+        // ══ EMRİN AYAKTA KALDIĞI VE DÜŞTÜĞÜ HÂLLER ═══════════════════════
+        // Burada üç `PendingStrikeIsAlive_*` testi duruyordu ve ikisi ARTIK
+        // YANLIŞ bir kuralı koruyordu: "saldıran hâlâ seçili mi". Operatör
+        // emrin seçimden bağımsız yaşamasını istedi, yani o koşulun kendisi
+        // kaldırıldı. Yerlerini alan iddialar aşağıda ve UnitOrderTests'te.
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
+
         /// <summary>
-        /// İki taraf da tahtada ve saldıran hâlâ seçili: emir ayakta.
+        /// SEÇİM BAŞKA BİR BİRİME GEÇSE BİLE ilk emir ayakta kalır.
         /// </summary>
+        // ██ ÇEVRİLEN KURAL TAM OLARAK BU ██
+        // Eski test `PendingStrikeIsAlive_WhenTheSelectionMovedToAnotherUnit_IsFalse`
+        // adını taşıyordu (SILINDI) ve emrin DÜŞMESİNİ bekliyordu. Dünyada
+        // değişen şey: emir tahtaya değil birime ait. İkinci savaşçısını
+        // seçen oyuncu, birincisinin saldırısını neden kaybetsin?
         [Test]
-        public void PendingStrikeIsAlive_WithBothSidesOnTheBoardAndTheAttackerSelected_IsTrue()
+        public void Orders_WhenTheSelectionMovesToAnotherUnit_TheFirstOrderStillStands()
         {
-            var target = new Unit("Raider");
-            battle.AddUnit(target, NewCombatant(Team.Enemy), 2, 2);
+            InstallViewPool();
+            Unit first = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit second = SpawnFighter("Sapper", Team.Player, 2, 0);
+            Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
 
-            SetField("pendingStrikeAttacker", placer);
-            SetField("pendingStrikeTarget", target);
+            SetField("selectedUnit", first);
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
 
-            Assert.That(Invoke("PendingStrikeIsAlive"), Is.True);
+            SetField("selectedUnit", second);
+
+            Assert.That(Orders().TryGet(first, out IUnitOrder order), Is.True);
+            Assert.That(order.Target, Is.SameAs(target));
         }
 
         /// <summary>
-        /// SEÇİM DEĞİŞTİ: oyuncu başka bir birime geçtiyse eski emir düşer.
+        /// HEDEF TAHTADAN KALKTI: emir bir sonraki ilerletmede düşer.
         /// </summary>
+        // İDDİA AYNEN DURUYOR, cevabı veren yer değişti: soru artık tahtanın
+        // dört alanına değil emrin kendisine soruluyor ve emir konumu her
+        // karede taze okuyor.
         [Test]
-        public void PendingStrikeIsAlive_WhenTheSelectionMovedToAnotherUnit_IsFalse()
+        public void Orders_Advance_WhenTheTargetLeftTheBattle_DropsTheOrder()
         {
-            var target = new Unit("Raider");
-            battle.AddUnit(target, NewCombatant(Team.Enemy), 2, 2);
+            InstallViewPool();
+            Unit attacker = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
 
-            var other = new Unit("Sapper");
-            battle.AddUnit(other, NewCombatant(Team.Player), 0, 0);
-
-            SetField("pendingStrikeAttacker", placer);
-            SetField("pendingStrikeTarget", target);
-            SetField("selectedUnit", other);
-
-            Assert.That(Invoke("PendingStrikeIsAlive"), Is.False);
-        }
-
-        /// <summary>
-        /// HEDEF TAHTADAN KALKTI. Emir düşmeseydi bir sonraki kare savaşta artık
-        /// bulunmayan bir kimliğe saldırı çağırır ve bu bir oyun sonucu değil
-        /// bir istisna üretirdi.
-        /// </summary>
-        [Test]
-        public void PendingStrikeIsAlive_WhenTheTargetLeftTheBattle_IsFalse()
-        {
-            var target = new Unit("Raider");
-            battle.AddUnit(target, NewCombatant(Team.Enemy), 2, 2);
-
-            SetField("pendingStrikeAttacker", placer);
-            SetField("pendingStrikeTarget", target);
+            SetField("selectedUnit", attacker);
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
+            Assert.That(Orders().Count, Is.EqualTo(1), "setup");
 
             Assert.That(battle.RemoveUnit(target), Is.True, "setup");
+            Orders().Advance();
 
-            Assert.That(Invoke("PendingStrikeIsAlive"), Is.False);
+            Assert.That(Orders().Count, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// UZAKTAKİ DÜŞMÜŞ DOSTA YÜRÜMEK: emir yazılır, seçim bırakılır ve
+        /// satırın kendisi bırakılmış seçimi OKUMAZ.
+        /// </summary>
+        // ██ KIRMIZI OLARAK YAZILDI — ÖLÇÜLMÜŞ BİR ÇÖKME ██
+        // <c>IssueOrder</c> seçimi bırakıyor (<c>selectedUnit</c> null oluyor) ve
+        // hemen ardından gelen Console satırı o alanı OKUYORDU; yol her
+        // koşuşunda NullReferenceException veriyordu. Saldırı dalında aynı tuzak
+        // yok, çünkü orada emir üyenin SON satırı — yani kırılan şey sıranın
+        // kendisiydi ve bu iddia onu sabitliyor.
+        //
+        // TAHTA FreeForAll KURULUYOR VE BU ŞART: Alternating kipinde yürüyüş
+        // sırayı devrediyor, üye emir satırına hiç varmadan dönüyordu. Gerçek
+        // tahta FreeForAll ile kuruluyor, yani oyuncunun gördüğü yol budur;
+        // varsayılan kiple yazılmış bir test bu çökmeyi ÖLÇEMEZDİ.
+        [Test]
+        public void TryCloseInOnAlly_WhenTheWalkStarts_WritesTheOrderWithoutReadingTheReleasedSelection()
+        {
+            InstallViewPool();
+
+            var freeForAll = new Battle(Width, Height, global::GridStrategy.Battle.TurnMode.FreeForAll);
+            SetField("battle", freeForAll);
+            battle = freeForAll;
+
+            Unit medic = SpawnFighter("Medic", Team.Player, 0, 0);
+
+            var fallen = new Unit("Fallen");
+            Combatant fallenBody = NewCombatant(Team.Player);
+            Assert.That(adapter.PlaceUnit(fallen, fallenBody, 0, 4, null), Is.True, "setup");
+            fallenBody.TakeDamage(MaxHealth);
+            Assert.That(fallenBody.State, Is.EqualTo(UnitState.Downed), "setup");
+
+            SetField("selectedUnit", medic);
+
+            Assert.DoesNotThrow(() => { Invoke("TryCloseInOnAlly", fallen, 0, 4); });
+
+            Assert.That(Orders().TryGet(medic, out IUnitOrder order), Is.True);
+            Assert.That(order.Target, Is.SameAs(fallen));
+            Assert.That(GetField("selectedUnit"), Is.Null);
         }
 
         // ══ YAPI YÜRÜMEZ — İKİ ÇAĞIRAN, TEK SORU ═════════════════════════
@@ -765,12 +808,19 @@ namespace GridStrategy.Tests.EditMode.Unity
         // ══ BİTİRİCİ VURUŞ ═══════════════════════════════════════════════
 
         /// <summary>
-        /// <c>HitAndFinished</c> bir İSABETTİR: adıyla karşılanır, programcı
-        /// hatası dalına düşmez ve isabet sonrası seçimi bırakma kuralı ona da
-        /// uygulanır.
+        /// <c>HitAndFinished</c> bir İSABETTİR: adıyla karşılanır ve programcı
+        /// hatası dalına düşmez.
         /// </summary>
+        // ██ İDDİANIN İKİNCİ YARISI ÇEVRİLDİ ██
+        // Bu test eskiden "ve isabet sonrası seçimi bırakma kuralı ona da
+        // uygulanır" diyordu. Dünyada değişen şey: vuruş artık TEK SEFERLİK bir
+        // olay değil, kalıcı bir emrin tekrarı. Her isabette seçimi düşürmek,
+        // birimini yeniden seçmiş oyuncunun elinden onu tekrar tekrar alırdı.
+        // Seçimi bırakan yer emrin YAZILDIĞI an oldu ve iddiası aşağıda:
+        // IssueOrder_WhenTheOrderIsWritten_ReleasesTheSelection.
+        // → Docs/deep/konular/09-kararlarin-cevrilmesi.md (madde 2)
         [Test]
-        public void ReactToAttack_WithHitAndFinished_IsALandedStrikeAndReleasesTheSelection()
+        public void ReactToAttack_WithHitAndFinished_IsALandedStrikeWithoutAProgrammerError()
         {
             InstallViewPool();
             Unit attacker = SpawnFighter("Finisher", Team.Player, 0, 0);
@@ -780,13 +830,13 @@ namespace GridStrategy.Tests.EditMode.Unity
             battle.AddUnit(target, NewCombatant(Team.Enemy), 0, 1);
 
             LogAssert.Expect(LogType.Log, new Regex(@"'Raider' at \(0,1\) was FINISHED OFF"));
-            LogAssert.Expect(LogType.Log, new Regex(@"struck; the selection was released"));
 
             InvokeWithArguments(
                 "ReactToAttack",
                 new object[] { attacker, AttackOutcome.HitAndFinished, target, 0, 1 });
 
-            Assert.That(GetField("selectedUnit"), Is.Null);
+            Assert.That(GetField("selectedUnit"), Is.SameAs(attacker),
+                "vuruş seçime artık dokunmuyor; bırakan yer emrin yazıldığı an");
         }
 
         // ══ İMLEÇ ÇERÇEVESİNİN ÖNBELLEĞİ ═════════════════════════════════
@@ -969,6 +1019,328 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(renderer.color, Is.EqualTo(Color.white));
         }
 
+        // ══ YERLEŞTİRME ÖNİZLEMESİ — HAYALET NEYİ SÖYLÜYOR ═════════════
+        // Bırakma davranışı DEĞİŞMEDİ ve bu testlerin yarısı onu koruyor:
+        // tahta dışı hâlâ bir vazgeçme, dolu hücre hâlâ bir ret. Değişen tek
+        // şey oyuncunun bunu parmağını kaldırmadan ÖNCE görüyor olması.
+
+        /// <summary>
+        /// Boş ve tahta içindeki hücre konulabilir.
+        /// </summary>
+        [Test]
+        public void PreviewAt_OnAFreeCellInsideTheBoard_IsPlaceable()
+        {
+            Assert.That(adapter.PreviewAt(1, 1), Is.EqualTo(PlacementPreview.Placeable));
+        }
+
+        /// <summary>
+        /// Tahtanın dışı ayrı bir cevap verir — "dolu" değil, "dışarıda".
+        /// </summary>
+        // ██ SIRA BİR KARARDIR VE BU TEST ONUN KAYDIDIR ██
+        // Ters sırada yazılsaydı (önce doluluk, sonra sınır) tahta dışındaki bir
+        // hücrede duran hiçbir şey olmadığı için cevap Placeable olurdu — yani
+        // hayalet tahtanın dışında YEŞİL görünür ve bırakma sessizce hiçbir şey
+        // yapmazdı.
+        [Test]
+        public void PreviewAt_OutsideTheBoard_SaysOutsideBoardNotOccupied()
+        {
+            Assert.That(adapter.PreviewAt(-1, 0), Is.EqualTo(PlacementPreview.OutsideBoard));
+            Assert.That(adapter.PreviewAt(999, 999), Is.EqualTo(PlacementPreview.OutsideBoard));
+        }
+
+        /// <summary>
+        /// Dolu hücre üçüncü cevabı verir.
+        /// </summary>
+        [Test]
+        public void PreviewAt_OnACellThatAlreadyHoldsSomething_IsCellOccupied()
+        {
+            InstallViewPool();
+            SpawnFighter("Vanguard", Team.Player, 2, 2);
+
+            Assert.That(adapter.PreviewAt(2, 2), Is.EqualTo(PlacementPreview.CellOccupied));
+        }
+
+        /// <summary>
+        /// <c>IsCellFree</c> kendi kuralını YAZMIYOR, önizlemeye soruyor.
+        /// </summary>
+        // ██ TEK SAHİP İDDİASININ KANITI ██
+        // Bu iddia iki kuralın AYNI kaynaktan beslendiğini ölçüyor. İkisi ayrı
+        // yazılsaydı "boş hücre" tanımı değiştiği gün (örneğin enkazın üstüne
+        // inşaya izin verildiği gün) bırakma kabul eder, hayalet kırmızı
+        // gösterirdi — ya da tersi.
+        [Test]
+        public void IsCellFree_AgreesWithPreviewAt_OnEveryKindOfCell()
+        {
+            InstallViewPool();
+            SpawnFighter("Vanguard", Team.Player, 2, 2);
+
+            Assert.That(adapter.IsCellFree(1, 1), Is.True);
+            Assert.That(adapter.IsCellFree(2, 2), Is.False, "dolu hücre boş sayılmamalı");
+            Assert.That(adapter.IsCellFree(-1, 0), Is.False, "tahta dışı boş sayılmamalı");
+        }
+
+        /// <summary>
+        /// Hayalet tahtanın DIŞINDA da görünür ve KIRMIZI olur.
+        /// </summary>
+        // ██ OPERATÖRÜN CÜMLESİ: "unit grid'in dışındakileri de hayalet ██
+        // ██ kısmını görebilmeliyiz ama kırmızılı hâlinde" ██
+        // Eski kodda ProductionDirector tahtanın dışında hayaleti GİZLİYORDU;
+        // bu iddia o hâlde yazılamazdı bile, çünkü çizilen bir hayalet yoktu.
+        [Test]
+        public void SetPlacementGhost_OutsideTheBoard_ShowsTheGhostInTheRejectedColour()
+        {
+            SpriteRenderer ghost = InstallGhost();
+            Color authored = ghost.color;
+
+            adapter.SetPlacementGhost(true, -1, 0);
+
+            Assert.That(ghost.enabled, Is.True, "tahta dışında da görünmeli");
+            Assert.That(ghost.color, Is.Not.EqualTo(authored), "reddedilen hücre farklı renk ister");
+            Assert.That(ghost.color.r, Is.GreaterThan(ghost.color.g), "kırmızıya kaymalı");
+        }
+
+        /// <summary>
+        /// Dolu hücrede de aynı kırmızı.
+        /// </summary>
+        [Test]
+        public void SetPlacementGhost_OnAnOccupiedCell_UsesTheRejectedColour()
+        {
+            InstallViewPool();
+            SpriteRenderer ghost = InstallGhost();
+            Color authored = ghost.color;
+            SpawnFighter("Vanguard", Team.Player, 2, 2);
+
+            adapter.SetPlacementGhost(true, 2, 2);
+
+            Assert.That(ghost.enabled, Is.True);
+            Assert.That(ghost.color, Is.Not.EqualTo(authored));
+        }
+
+        /// <summary>
+        /// Geçerli hücrede sahnede YAZILI renk geri geliyor.
+        /// </summary>
+        // ██ SABİT BİR BEYAZ YAZILSAYDI BU İDDİA KIRMIZIYA DÖNERDİ ██
+        // Sahnede ayarlanmış saydamlık ilk sürüklemede kalıcı olarak
+        // kaybolurdu; proje bu tuzağa hayaletin SPRITE'ı tarafında bir kez
+        // düştü ve onarımı authoredGhostSprite'ti. Renk onun ikizi.
+        [Test]
+        public void SetPlacementGhost_BackOnAFreeCell_RestoresTheAuthoredColour()
+        {
+            SpriteRenderer ghost = InstallGhost();
+            Color authored = ghost.color;
+
+            adapter.SetPlacementGhost(true, -1, 0);
+            adapter.SetPlacementGhost(true, 1, 1);
+
+            Assert.That(ghost.color, Is.EqualTo(authored));
+        }
+
+        /// <summary>
+        /// Tahta dışındaki hücre yine de OKUNABİLİYOR — önizlemenin ihtiyacı bu.
+        /// </summary>
+        // İKİZ ÜYENİN AYRIMI: TryScreenPointToCell dışarıyı REDDEDER (bırakma
+        // onu çağırıyor), TryScreenPointToAnyCell reddetmez (önizleme bunu
+        // çağırıyor). Kamera olmadan ikisi de false döner ve bu test o yüzden
+        // kamerayı kuruyor.
+        [Test]
+        public void TryScreenPointToAnyCell_OutsideTheBoard_StillReturnsTheCell()
+        {
+            GameObject cameraObject = InstallCamera();
+            Vector3 outsideWorld = new Vector3(-3.5f, 0.5f, 0f);
+            Vector3 screenPoint = cameraObject.GetComponent<Camera>().WorldToScreenPoint(outsideWorld);
+
+            Assert.That(adapter.TryScreenPointToAnyCell(screenPoint, out int x, out int _), Is.True,
+                "önizleme dışarıdaki hücreyi de öğrenebilmeli");
+            Assert.That(x, Is.LessThan(0), "hücre tahtanın solunda olmalı");
+
+            Assert.That(adapter.TryScreenPointToCell(screenPoint, out int _, out int _), Is.False,
+                "bırakma yolu dışarıyı hâlâ reddetmeli");
+        }
+
+        // ══ ÜRETİM GERİ SAYIMI — TAHTA İLE MÜDÜRÜN DİKİŞİ ═══════════════
+        // Şeridin ANİMASYONU burada sınanmıyor ve bu dürüst bir sınır: vuruş
+        // Time.deltaTime okuyor, EditMode'da o değer akmıyor. Sınanan şey
+        // dikişin kendisi — müdür bir sayı söylediğinde tahta gerçekten bir
+        // şerit kuruyor mu, ve o şerit sızıyor mu.
+
+        /// <summary>
+        /// Müdür geri sayımı söylediğinde tahta şeridi KURUYOR ve deftere
+        /// yazıyor.
+        /// </summary>
+        [Test]
+        public void ShowProductionCountdown_ForAStructure_AttachesATimerAndRemembersIt()
+        {
+            SetField("healthBarSprite", NewSprite());
+            Unit barracks = PlaceDepot(Team.Player, 0, 0);
+
+            adapter.ShowProductionCountdown(barracks, 3f, 5f);
+
+            Assert.That(ProductionTimers().ContainsKey(barracks), Is.True);
+
+            Transform strip = StructureViews()[barracks].transform.Find("ProductionTimer");
+            Assert.That(strip, Is.Not.Null, "şerit yapının çocuğu olmalı");
+        }
+
+        /// <summary>
+        /// Şerit can barının ÜSTÜNDE duruyor — ikisi üst üste binmiyor.
+        /// </summary>
+        // YÜKSEKLİK BARDAN OKUNUYOR, GÖRSELDEN YENİDEN HESAPLANMIYOR: iki ayrı
+        // hesap, birinin payı değiştiği gün sessizce ayrışırdı. Bu test o tek
+        // kaynağın kaydı.
+        [Test]
+        public void ShowProductionCountdown_PlacesTheStripAboveTheHealthBar()
+        {
+            SetField("healthBarSprite", NewSprite());
+            Unit barracks = PlaceDepot(Team.Player, 0, 0);
+
+            adapter.ShowProductionCountdown(barracks, 3f, 5f);
+
+            float barHeight = HealthBars()[barracks].transform.localPosition.y;
+            float stripHeight = ProductionTimers()[barracks].transform.localPosition.y;
+
+            Assert.That(stripHeight, Is.GreaterThan(barHeight),
+                "geri sayım şeridi can barının üstünde durmalı");
+        }
+
+        /// <summary>
+        /// İkinci çağrı İKİNCİ bir şerit kurmaz.
+        /// </summary>
+        // ██ HER KAREDE ÇAĞRILAN BİR ÜYENİN KLASİK TUZAĞI ██
+        // Müdürün Update'i bu üyeyi saniyede altmış kez çağırıyor. Kapı
+        // olmasaydı bir dakikada 3600 şerit birikirdi — havuz kullanan kodların
+        // ikinci klasik hatasının aynısı, gerekçesi AttachHealthBar'da yazılı.
+        [Test]
+        public void ShowProductionCountdown_CalledEveryFrame_BuildsTheStripOnlyOnce()
+        {
+            SetField("healthBarSprite", NewSprite());
+            Unit barracks = PlaceDepot(Team.Player, 0, 0);
+
+            for (int i = 0; i < 5; i++)
+            {
+                adapter.ShowProductionCountdown(barracks, 5f - i, 5f);
+            }
+
+            int strips = StructureViews()[barracks]
+                .GetComponentsInChildren<ProductionTimerView>(includeInactive: true).Length;
+
+            Assert.That(strips, Is.EqualTo(1));
+        }
+
+        /// <summary>
+        /// Sprite atanmamışsa sessizce hiçbir şey yapmaz — patlamaz, bağırmaz.
+        /// </summary>
+        // KADEME SEÇİMİ: eksik bir gösterge oyunu OYNANAMAZ yapmaz, yalnız
+        // okunmaz yapar. Burada LogError basılsaydı EditMode'da üretim yolundan
+        // geçen her test kırmızıya dönerdi — projeye bir kez bu oldu ve 482
+        // testin 6'sı kırıldı. Şikâyet doğuşta, BuildHoverHighlight'ta ediliyor.
+        [Test]
+        public void ShowProductionCountdown_WithNoSpriteAssigned_StaysQuiet()
+        {
+            Unit barracks = PlaceDepot(Team.Player, 0, 0);
+
+            adapter.ShowProductionCountdown(barracks, 3f, 5f);
+
+            Assert.That(ProductionTimers().ContainsKey(barracks), Is.False);
+        }
+
+        /// <summary>
+        /// Seçili yapı ÇERÇEVE de kazanır — renk çarpanı tek başına yetmiyordu.
+        /// </summary>
+        // ██ OPERATÖRÜN BELİRTİSİ: "yapılara tıkladığımda seçili oldukları ██
+        // ██ gözükmüyor" ██
+        // Üstteki test yalnızca "rengi beyaz DEĞİL" diyor ve o iddia, gözle
+        // ayırt edilemeyecek kadar küçük bir çarpanla da yeşil kalırdı — nitekim
+        // kaldı. Bu test ikinci kanalı ölçüyor: çerçeve sprite'ın kendi rengine
+        // bağlı olmadığı için bina hangi renk olursa olsun görünür.
+        [Test]
+        public void SelectUnit_OnAStructure_AlsoDrawsASelectionFrame()
+        {
+            SetField("hoverFrameSprite", NewSprite());
+            Unit tower = PlaceTower(Team.Player, range: 2, x: 0, y: 0);
+            SetField("selectedUnit", null);
+
+            Invoke("SelectUnit", tower);
+
+            Transform frame = StructureViews()[tower].transform.Find("SelectionFrame");
+            Assert.That(frame, Is.Not.Null, "seçili yapının çerçevesi olmalı");
+
+            var frameRenderer = frame.GetComponent<SpriteRenderer>();
+            Assert.That(frameRenderer, Is.Not.Null);
+            Assert.That(frameRenderer.enabled, Is.True);
+
+            // ÇERÇEVE SİLİNMİYOR, KAPANIYOR: ikinci seçimde yeniden kurmak her
+            // tıklamada bir tahsis üretirdi.
+            Invoke("ClearSelection");
+            Assert.That(frameRenderer.enabled, Is.False);
+        }
+
+        /// <summary>
+        /// SİLAHSIZ bir bina seçiliyken düşmana tıklamak SEÇİMİ ORAYA TAŞIR —
+        /// "saldıramıyor" demez.
+        /// </summary>
+        // ██ OPERATÖRÜN CÜMLESİ: "rakip yapıyı seçtiğimde saldıramıyor diyor ██
+        // ██ ...daha çok seçili olayını karşıdaki yapıya geçilse" ██
+        // Eski kodda bu dal koşulsuz BattleActions.Attack çağırıyordu ve kışla
+        // gibi silahsız bir bina için cevap her seferinde bir RETTİ. Oyuncu
+        // hiç istemediği bir eylemin reddini okuyordu.
+        [Test]
+        public void HandleOccupiedCellClick_WithAnUnarmedStructureSelected_MovesTheFocusToTheEnemyStructure()
+        {
+            Unit depot = PlaceDepot(Team.Player, 0, 0);
+            Unit enemyDepot = PlaceDepot(Team.Enemy, 2, 2);
+            SetField("selectedUnit", depot);
+
+            LogAssert.Expect(LogType.Log, new Regex(@"FOCUS MOVED"));
+
+            Invoke("HandleOccupiedCellClick", enemyDepot, 2, 2);
+
+            Assert.That(GetField("selectedUnit"), Is.SameAs(enemyDepot),
+                "silahsız bina ile tıklamak odağı devretmeli");
+        }
+
+        /// <summary>
+        /// Aynı kural karşı takımın SAVAŞÇISI için de geçerli.
+        /// </summary>
+        // AYRI BİR TEST, ÇÜNKÜ AYRI BİR DEFTER: yapılar ve savaşçılar tahtada
+        // iki ayrı tabloda yaşıyor ve odak devri ikisinde de çalışmalı.
+        // Operatör bunu adıyla istedi: "veya aynısı karşı takımın savaşçısına da".
+        [Test]
+        public void HandleOccupiedCellClick_WithAnUnarmedStructureSelected_MovesTheFocusToAnEnemyFighterToo()
+        {
+            InstallViewPool();
+            Unit depot = PlaceDepot(Team.Player, 0, 0);
+            Unit raider = SpawnFighter("Raider", Team.Enemy, 2, 2);
+            SetField("selectedUnit", depot);
+
+            LogAssert.Expect(LogType.Log, new Regex(@"FOCUS MOVED"));
+
+            Invoke("HandleOccupiedCellClick", raider, 2, 2);
+
+            Assert.That(GetField("selectedUnit"), Is.SameAs(raider));
+        }
+
+        /// <summary>
+        /// SALDIRABİLEN yapı odak devretmez — o hâlâ ateş eder.
+        /// </summary>
+        // ██ OPERATÖRÜN KENDİ KELEPÇESİ: "bu tabii ki saldırı yapan yapılar ██
+        // ██ için geçerli değil" ██
+        // Bu test olmasaydı odak devri sessizce taretleri de yutar ve oyuncu
+        // kulesiyle ateş edemez hâle gelirdi. Ayrımı yapan şey bir tür listesi
+        // değil Structure.CanAttack, yani yeni bir silahlı bina eklendiği gün
+        // bu dal kendiliğinden doğru tarafta kalıyor.
+        [Test]
+        public void HandleOccupiedCellClick_WithAnArmedTowerSelected_KeepsTheFocusAndAttacks()
+        {
+            Unit tower = PlaceTower(Team.Player, range: 4, x: 0, y: 0);
+            Unit enemyDepot = PlaceDepot(Team.Enemy, 2, 2);
+            SetField("selectedUnit", tower);
+
+            Invoke("HandleOccupiedCellClick", enemyDepot, 2, 2);
+
+            Assert.That(GetField("selectedUnit"), Is.SameAs(tower),
+                "ateş eden kule odağı devretmez");
+        }
+
         // ══ ÜRETİLEN BİRİMİN KENDİ GÖVDESİ ═══════════════════════════════
         // Ölçülen kusur: PlaceUnit her birimi havuzdan alıp yalnız SetTeam
         // çağırıyordu, yani tahtadaki her savaşçı prefab'ın dört karesinden
@@ -1039,24 +1411,142 @@ namespace GridStrategy.Tests.EditMode.Unity
                 "a pooled view must not carry the previous unit's body");
         }
 
-        // ══ SALDIRIDAN SONRA SEÇİM ═══════════════════════════════════════
-        // Oyuncunun isteği: saldırı emri verilen birim seçili kalmasın, oyuncu
-        // hemen başka bir şey seçebilsin.
+        // ══ EMİRDEN SONRA SEÇİM ══════════════════════════════════════════
+        // Operatörün isteği: "attacker'ın kime saldıracağı belirtildiğinde seçim
+        // kaldırılmalı ama tekrardan seçim alınabilecek şekilde de ayarlanabilir."
+        // Seçimi bırakan yer VURUŞ değil EMİR, ve fark ölçülebilir: kalıcı emir
+        // saniyede bir vuruyor.
 
         /// <summary>
-        /// İSABET seçimi bırakır.
+        /// EMİR YAZILDIĞI AN seçim bırakılır.
         /// </summary>
         [Test]
-        public void ReactToAttack_AfterALandedHit_ReleasesTheSelection()
+        public void IssueOrder_WhenTheOrderIsWritten_ReleasesTheSelection()
         {
             InstallViewPool();
             Unit striker = SpawnFighter("Striker", Team.Player, 0, 0);
             Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
             SetField("selectedUnit", striker);
 
-            Invoke("ReactToAttack", striker, AttackOutcome.Hit, target, 0, 1);
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
 
             Assert.That(GetField("selectedUnit"), Is.Null);
+            Assert.That(Orders().TryGet(striker, out IUnitOrder order), Is.True,
+                "emir deftere yazılmalı");
+            Assert.That(order.Target, Is.SameAs(target));
+        }
+
+        /// <summary>
+        /// Seçim bırakıldı diye emir DÜŞMEZ — ve bu bağın koparılması bu turun
+        /// asıl kararı.
+        /// </summary>
+        // ESKİ EMİR "saldıran hâlâ seçili mi" diye soruyordu, yani bu testin
+        // iddiası eski kodda KIRMIZI olurdu: seçimi bırakan çağrı emri de
+        // siler, kalıcı saldırı hiç doğmazdı.
+        [Test]
+        public void IssueOrder_AfterTheSelectionIsReleased_TheOrderStillStands()
+        {
+            InstallViewPool();
+            Unit striker = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
+            SetField("selectedUnit", striker);
+
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
+            Invoke("ClearSelection");
+
+            Assert.That(Orders().TryGet(striker, out IUnitOrder _), Is.True);
+        }
+
+        /// <summary>
+        /// Seçimi bırakılan savaşçıya yeniden tıklamak onu GERİ ALIR ve ona ne
+        /// söylendiğini de söyler.
+        /// </summary>
+        // ██ İŞ-2'NİN İKİNCİ YARISI, VE ÖLÇÜLMEMİŞ TEK YARISI BUYDU ██
+        // Operatörün cümlesi iki şart taşıyordu: "emir verildiğinde seçim
+        // kaldırılmalı AMA tekrardan seçim alınabilecek." Birinci şartın iki
+        // testi vardı; ikincisinin hiç yoktu ve DescribeOrder'ın tek çağıranı
+        // bir Debug.Log satırıydı — yani üye silinse hiçbir test kırmızıya
+        // dönmezdi. Emrini gösteren cümle bir kolaylık değil, oyuncunun
+        // seçimini geri alabildiğinin TEK ekran kanıtı.
+        [Test]
+        public void HandleOccupiedCellClick_OnAUnitThatHoldsAnOrder_SelectsItAgainAndNamesTheOrder()
+        {
+            InstallViewPool();
+            Unit striker = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
+            SetField("selectedUnit", striker);
+
+            // Emir yazılıyor; İŞ-2 gereği seçim aynı çağrıda bırakılıyor.
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
+            Assert.That(GetField("selectedUnit"), Is.Null, "emir yazılınca seçim bırakılmalı");
+
+            // SIRA ÖNEMLİ: Expect çağrının ÖNÜNDE olmalı, LogAssert bekleneni
+            // yayınlanmış satırlarla eşleştiriyor.
+            LogAssert.Expect(
+                LogType.Log,
+                new Regex(@"holds 'Striker' - SELECTED\. It is attacking 'Raider'\."));
+
+            Invoke("HandleOccupiedCellClick", striker, 0, 0);
+
+            Assert.That(GetField("selectedUnit"), Is.SameAs(striker), "birime tıklamak onu geri almalı");
+            Assert.That(Orders().TryGet(striker, out IUnitOrder standing), Is.True,
+                "geri alınan seçim emri düşürmemeli");
+            Assert.That(standing.Target, Is.SameAs(target));
+        }
+
+        /// <summary>
+        /// İKİ AYRI TAKIMDAN birer birim aynı anda emir tutabiliyor — TAHTANIN
+        /// kendi girdi kapısından geçerek.
+        /// </summary>
+        // ██ OPERATÖRÜN BİLDİRDİĞİ BELİRTİ TAM OLARAK BUYDU ██
+        // "İki taraf için paralel olarak saldırı aşamalarını gerçekleştiremiyorum."
+        // Eski kodda ikinci tıklama birincinin dört alanını eziyordu ve bu
+        // testin son iddiası kırmızıya dönerdi. UnitOrderTests aynı şeyi defter
+        // katmanında ölçüyor; burası GİRDİ kapısının da çoğul olduğunu ölçüyor.
+        [Test]
+        public void HandleOccupiedCellClick_ForTwoUnitsOnOpposingTeams_KeepsBothOrders()
+        {
+            InstallViewPool();
+            Unit friendly = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            Unit enemy = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            SetField("selectedUnit", friendly);
+            Invoke("HandleOccupiedCellClick", enemy, 0, 1);
+
+            SetField("selectedUnit", enemy);
+            Invoke("HandleOccupiedCellClick", friendly, 0, 0);
+
+            Assert.That(Orders().Count, Is.EqualTo(2));
+            Assert.That(Orders().TryGet(friendly, out IUnitOrder friendlyOrder), Is.True);
+            Assert.That(friendlyOrder.Target, Is.SameAs(enemy));
+            Assert.That(Orders().TryGet(enemy, out IUnitOrder enemyOrder), Is.True);
+            Assert.That(enemyOrder.Target, Is.SameAs(friendly));
+        }
+
+        /// <summary>
+        /// Boş bir hücreye yürümek YALNIZ o birimin emrini keser.
+        /// </summary>
+        // ESKİ HÂLDE HER TIKLAMA TAHTADAKİ TEK EMRİ DÜŞÜRÜYORDU: bir savaşçıyı
+        // yürütmek ötekinin saldırısını da keserdi.
+        [Test]
+        public void HandleEmptyCellClick_CancelsOnlyTheWalkingUnitsOrder()
+        {
+            InstallViewPool();
+            Unit walker = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            Unit stander = SpawnFighter("Archer", Team.Player, 1, 1);
+            Unit enemy = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            SetField("selectedUnit", walker);
+            Invoke("HandleOccupiedCellClick", enemy, 0, 1);
+            SetField("selectedUnit", stander);
+            Invoke("HandleOccupiedCellClick", enemy, 0, 1);
+            Assert.That(Orders().Count, Is.EqualTo(2), "setup");
+
+            SetField("selectedUnit", walker);
+            Invoke("HandleEmptyCellClick", 2, 4);
+
+            Assert.That(Orders().TryGet(walker, out IUnitOrder _), Is.False);
+            Assert.That(Orders().TryGet(stander, out IUnitOrder _), Is.True);
         }
 
         /// <summary>
@@ -1178,7 +1668,13 @@ namespace GridStrategy.Tests.EditMode.Unity
             SetField("selectedUnit", tower);
             FireTimers()[tower] = 1.2f;
 
+            // ÜÇÜNCÜ DEFTER DE KURULUYOR: testin adı "HER defter" diyor ve geri
+            // sayım şeridi eklendiği gün bu satır olmasaydı ad fazla söz vermiş
+            // olurdu — sızıntı sessizce geri dönerdi.
+            adapter.ShowProductionCountdown(tower, 3f, 5f);
+
             Assert.That(HealthBars().ContainsKey(tower), Is.True, "setup: the tower got a bar");
+            Assert.That(ProductionTimers().ContainsKey(tower), Is.True, "setup: the tower got a timer");
 
             Unit announced = null;
             adapter.UnitRemoved += identity => announced = identity;
@@ -1193,6 +1689,7 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(StructureViews(), Is.Empty);
             Assert.That(FireTimers().ContainsKey(tower), Is.False);
             Assert.That(HealthBars().ContainsKey(tower), Is.False);
+            Assert.That(ProductionTimers().ContainsKey(tower), Is.False);
             Assert.That(announced, Is.SameAs(tower));
         }
 
@@ -1220,36 +1717,43 @@ namespace GridStrategy.Tests.EditMode.Unity
         /// <summary>
         /// Kaldırılan HEDEF, kendisine yazılmış bekleyen vuruşu da götürür.
         /// </summary>
-        // BIRAKILSAYDI EMİR BİR SONRAKİ KAREDE savaşta artık bulunmayan bir
-        // kimliğe saldırı çağırırdı ve o çağrı bir oyun sonucu değil bir istisna
-        // üretirdi.
+        // GEREKÇE DEĞİŞTİ, İDDİA KALDI. Eskiden "bırakılsaydı emir bir sonraki
+        // karede savaşta bulunmayan bir kimliğe saldırı çağırır ve istisna
+        // üretirdi" deniyordu; bugün emir vurmadan ÖNCE konumu kendisi soruyor,
+        // yani istisna imkânsız. İddia yine de duruyor çünkü cevabın AYNI
+        // KAREDE görünmesi gerekiyor — kaldırılan bir birimin peşindeki emir
+        // bir kare daha yaşamamalı. Ve artık ÇOĞUL: iki saldıranın emri de
+        // aynı anda düşüyor.
         [Test]
-        public void RemoveSelected_OnAPendingStrikeTarget_CancelsTheOrder()
+        public void RemoveSelected_OnATargetedUnit_CancelsEveryOrderAimedAtIt()
         {
             InstallViewPool();
-            Unit attacker = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit first = SpawnFighter("Striker", Team.Player, 0, 0);
+            Unit second = SpawnFighter("Archer", Team.Player, 1, 1);
             Unit target = SpawnFighter("Raider", Team.Enemy, 0, 1);
 
-            SetField("selectedUnit", attacker);
-            Invoke("SchedulePendingStrike", attacker, target, 0, 1);
-            Assert.That(Invoke("PendingStrikeIsAlive"), Is.True, "setup");
+            SetField("selectedUnit", first);
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
+            SetField("selectedUnit", second);
+            Invoke("HandleOccupiedCellClick", target, 0, 1);
+            Assert.That(Orders().Count, Is.EqualTo(2), "setup");
 
             SetField("selectedUnit", target);
             Assert.That(adapter.RemoveSelected(), Is.True);
 
-            Assert.That(GetField("pendingStrikeAttacker"), Is.Null);
-            Assert.That(GetField("pendingStrikeTarget"), Is.Null);
+            Assert.That(Orders().Count, Is.EqualTo(0));
         }
 
-        // ══ GİRDİ TARAFINDA SALDIRI YIĞILMASI ════════════════════════════
+        // ══ GİRDİ TARAFINDA EMİR TEKRARI ═════════════════════════════════
         // Kuralın sahibi Core (RejectedOnCooldown); buradaki soru daha dar ve
-        // ondan ÖNCE geliyor — aynı emir ikinci kez YAZILMASIN.
+        // ondan ÖNCE geliyor — aynı emir ikinci kez YAZILMASIN. Soru artık
+        // SEÇİLİ BİRİMİN emrini soruyor, tahtanın tek emrini değil.
 
         /// <summary>
-        /// Aynı hedefe gelen ikinci tıklama, yazılı emrin TEKRARIDIR.
+        /// Seçili birim zaten o hedefe saldırıyorsa, tıklama emrin TEKRARIDIR.
         /// </summary>
         [Test]
-        public void RepeatsPendingStrike_WithTheSameTargetAndTheAttackerSelected_IsTrue()
+        public void RepeatsOrder_WithTheSameTargetAndTheAttackerSelected_IsTrue()
         {
             var attacker = new Unit("Striker");
             battle.AddUnit(attacker, NewCombatant(Team.Player), 0, 0);
@@ -1257,16 +1761,16 @@ namespace GridStrategy.Tests.EditMode.Unity
             battle.AddUnit(target, NewCombatant(Team.Enemy), 0, 4);
 
             SetField("selectedUnit", attacker);
-            Invoke("SchedulePendingStrike", attacker, target, 0, 4);
+            Orders().Write(attacker, new AttackOrder(adapter, attacker, target));
 
-            Assert.That(Invoke("RepeatsPendingStrike", target), Is.True);
+            Assert.That(Invoke("RepeatsOrder", target), Is.True);
         }
 
         /// <summary>
         /// BAŞKA bir hedefe tıklamak fikir değiştirmektir; emir tekrarı değil.
         /// </summary>
         [Test]
-        public void RepeatsPendingStrike_WithADifferentTarget_IsFalse()
+        public void RepeatsOrder_WithADifferentTarget_IsFalse()
         {
             var attacker = new Unit("Striker");
             battle.AddUnit(attacker, NewCombatant(Team.Player), 0, 0);
@@ -1276,9 +1780,33 @@ namespace GridStrategy.Tests.EditMode.Unity
             battle.AddUnit(other, NewCombatant(Team.Enemy), 2, 4);
 
             SetField("selectedUnit", attacker);
-            Invoke("SchedulePendingStrike", attacker, target, 0, 4);
+            Orders().Write(attacker, new AttackOrder(adapter, attacker, target));
 
-            Assert.That(Invoke("RepeatsPendingStrike", other), Is.False);
+            Assert.That(Invoke("RepeatsOrder", other), Is.False);
+        }
+
+        /// <summary>
+        /// BAŞKA BİR BİRİMİN aynı hedefe verdiği emir bu tıklamayı YUTMAZ.
+        /// </summary>
+        // ██ TEKİL SAHİPTEN ÇOĞUL SAHİBE GEÇİŞİN GİRDİ TARAFINDAKİ KANITI ██
+        // Eski hâlde soru "tahtada yazılı emrin hedefi bu mu" idi ve tahtada
+        // TEK emir vardı: ikinci savaşçısına aynı hedefi göstermek isteyen
+        // oyuncunun tıklaması sessizce yutulurdu, çünkü birincinin emri o
+        // hedefe yazılıydı. Bu test o yutulmanın geri gelmesini engelliyor.
+        [Test]
+        public void RepeatsOrder_WhenAnotherUnitHoldsTheOrderOnThatTarget_IsFalse()
+        {
+            var first = new Unit("Striker");
+            battle.AddUnit(first, NewCombatant(Team.Player), 0, 0);
+            var second = new Unit("Archer");
+            battle.AddUnit(second, NewCombatant(Team.Player), 2, 0);
+            var target = new Unit("Raider");
+            battle.AddUnit(target, NewCombatant(Team.Enemy), 0, 4);
+
+            Orders().Write(first, new AttackOrder(adapter, first, target));
+            SetField("selectedUnit", second);
+
+            Assert.That(Invoke("RepeatsOrder", target), Is.False);
         }
 
         /// <summary>
@@ -1286,18 +1814,20 @@ namespace GridStrategy.Tests.EditMode.Unity
         /// </summary>
         // BU TEST BİR KİLİTLENMEYİ ÖNLÜYOR: koşul emirsiz durumda true dönseydi
         // dolu hücreye yapılan her tıklama sessizce tüketilir ve oyuncu hiçbir
-        // şey seçemezdi.
+        // şey seçemezdi. null argüman ayrıca sınanıyor, çünkü boş hücreye
+        // tıklandığında oraya null geliyor.
         [Test]
-        public void RepeatsPendingStrike_WithNoOrderWritten_IsFalse()
+        public void RepeatsOrder_WithNoOrderWritten_IsFalse()
         {
             var target = new Unit("Raider");
             battle.AddUnit(target, NewCombatant(Team.Enemy), 0, 4);
 
-            Assert.That(Invoke("RepeatsPendingStrike", target), Is.False);
-            Assert.That(Invoke("RepeatsPendingStrike", new object[] { null }), Is.False);
+            Assert.That(Invoke("RepeatsOrder", target), Is.False);
+            Assert.That(Invoke("RepeatsOrder", new object[] { null }), Is.False);
         }
 
         /// <summary>
+        /// Saldırı profili TAŞIYAN bir yapıyı tahtaya koyar ve kimliğini verir.        /// <summary>
         /// Saldırı profili TAŞIYAN bir yapıyı tahtaya koyar ve kimliğini verir.
         /// </summary>
         // AYRI BİR YARDIMCI, ÇÜNKÜ CommitPlacement KULLANILAMAZ: o yol yapıyı
@@ -1320,6 +1850,27 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(adapter.PlaceStructure(identity, tower, x, y),
                 Is.EqualTo(global::GridStrategy.Battle.PlacementOutcome.Placed),
                 "setup: the tower must reach the board");
+
+            return identity;
+        }
+
+        /// <summary>
+        /// SİLAHSIZ bir yapı kurar: kışla, depo, karargâh — ateş etmeyen her şey.
+        /// </summary>
+        // PlaceTower'IN İKİZİ VE TEK FARKI AttackProfile'IN YOKLUĞU. Ayrı bir
+        // üye, çünkü ayrımın kendisi test edilen şey: odak devri kuralı tam
+        // olarak bu iki yardımcının arasındaki farka bakıyor.
+        private Unit PlaceDepot(Team team, int x, int y)
+        {
+            var identity = new Unit($"Depot_{x}_{y}");
+            var depot = new Structure(
+                new Health(StructureMaxHealth),
+                new StructureLifecycle(),
+                team);
+
+            Assert.That(adapter.PlaceStructure(identity, depot, x, y),
+                Is.EqualTo(global::GridStrategy.Battle.PlacementOutcome.Placed),
+                "setup: the depot must reach the board");
 
             return identity;
         }
@@ -1424,6 +1975,17 @@ namespace GridStrategy.Tests.EditMode.Unity
         }
 
         /// <summary>
+        /// Emir defterini yansımayla verir.
+        /// </summary>
+        // DEFTER readonly BİR ALAN, yani SetField ile YAZILAMAZ ve yazılmasına
+        // gerek de yok: alan başlatıcısında kuruluyor, dolayısıyla Awake hiç
+        // koşmasa bile dolu doğuyor. Okunması yeterli.
+        private UnitOrderBook Orders()
+        {
+            return (UnitOrderBook)GetField("orders");
+        }
+
+        /// <summary>
         /// Yapıların atış sayacı tablosunu yansımayla verir.
         /// </summary>
         private Dictionary<Unit, float> FireTimers()
@@ -1437,6 +1999,53 @@ namespace GridStrategy.Tests.EditMode.Unity
         private Dictionary<Unit, HealthBarView> HealthBars()
         {
             return (Dictionary<Unit, HealthBarView>)GetField("healthBars");
+        }
+
+        /// <summary>
+        /// Tahtaya bir yerleştirme hayaleti takar ve onu geri verir.
+        /// </summary>
+        // AUTHORED RENK BURADA YAZILIYOR: sahnede ayarlanmış saydam bir renk
+        // taklit ediliyor, çünkü sınanan şeylerden biri tam olarak o rengin
+        // geri gelmesi. Beyaz bırakılsaydı "geri geldi" iddiası, rengin hiç
+        // yazılmadığı bir dünyada da yeşil kalırdı.
+        private SpriteRenderer InstallGhost()
+        {
+            var go = new GameObject("PlacementGhost");
+            go.transform.SetParent(probe.transform, worldPositionStays: false);
+
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = NewSprite();
+            renderer.color = new Color(0.6f, 0.9f, 0.6f, 0.5f);
+
+            SetField("placementGhost", renderer);
+            Invoke("CaptureAuthoredGhostSprite");
+            return renderer;
+        }
+
+        /// <summary>
+        /// Sahneye ortografik bir MainCamera koyar.
+        /// </summary>
+        // EKRAN NOKTASI SORAN TESTLERİN ÖN ŞARTI: TryScreenPointToWorldCell
+        // Camera.main bulamazsa LogError basıp false dönüyor ve o hata satırı
+        // testin ölçtüğü şey değil.
+        private GameObject InstallCamera()
+        {
+            var go = new GameObject("TestCamera") { tag = "MainCamera" };
+            Camera camera = go.AddComponent<Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = 5f;
+            camera.transform.position = new Vector3(5f, 2.5f, -10f);
+
+            disposables.Add(go);
+            return go;
+        }
+
+        /// <summary>
+        /// Geri sayım şeritleri tablosunu yansımayla verir.
+        /// </summary>
+        private Dictionary<Unit, ProductionTimerView> ProductionTimers()
+        {
+            return (Dictionary<Unit, ProductionTimerView>)GetField("productionTimers");
         }
 
         /// <summary>
