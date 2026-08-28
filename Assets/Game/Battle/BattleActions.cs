@@ -55,11 +55,16 @@ namespace GridStrategy.Battle
         /// bulur, mesafeyi <see cref="GridDistance"/>'a ölçtürür ve saldırıyı
         /// <see cref="AttackAction"/>'a çözdürür.
         ///
-        /// Hedef bir BİRİM de olabilir bir YAPI da; hangisi olduğunu bu metot
-        /// <see cref="Battle.TryGetStructure"/>'a SORAR.
+        /// SALDIRAN da HEDEF de bir BİRİM ya da bir YAPI olabilir; hangisi
+        /// olduğunu bu metot <see cref="Battle.TryGetStructure"/>'a SORAR.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncu kendi kulesini seçip düşmana
+        /// tıkladığında ateş eden yol budur. Eskiden aynı tıklama oyunu
+        /// patlatıyordu — saldıran koşulsuz bir savaşçı sanılıyordu.
         /// </summary>
         // DERİN ANLATIM: Docs/deep/konular/04-karar-sirasi.md
-        public static AttackOutcome Attack(Battle battle, Unit attacker, Unit target)
+        private static AttackOutcome Strike(
+            Battle battle, Unit attacker, Unit target, bool spendsTurn)
         {
             if (battle == null)
             {
@@ -80,7 +85,22 @@ namespace GridStrategy.Battle
             // bir çağıran hatası hiçbir zaman bir oyun sonucu kılığına
             // girmemeli, dolayısıyla tek bir AttackOutcome dönmeden önce
             // hepsinin cevaplanmış olması gerekir.
-            Combatant attackerCombatant = RequireCombatant(battle, attacker, nameof(attacker));
+            // SALDIRAN DA BİR YAPI OLABİLİR, ve bu soru hedefinkinden ÖNCE
+            // soruluyor: eskiden burada koşulsuz bir RequireCombatant vardı ve
+            // kendi kulesini seçip düşmana tıklayan oyuncu "bu birim savaşta
+            // değil" istisnasıyla karşılaşıyordu — bir oyun kuralı değil, bir
+            // çökme. Cevabı zaten bilen tek yer Battle; çağırandan bir
+            // `attackerIsStructure` bayrağı istemek aynı çökmeyi yanlış
+            // dolduran her çağırana geri verirdi.
+            bool attackerIsStructure =
+                battle.TryGetStructure(attacker, out Structure attackerStructure);
+
+            // Savaşçı tarafı yalnızca saldıran bir yapı DEĞİLSE aranıyor; ne
+            // yapı ne savaşçı olan bir kimlik hâlâ istisna atar ve atmalı —
+            // "bu savaşta değil" bir çağıran hatasıdır, bir ret değil.
+            Combatant attackerCombatant = attackerIsStructure
+                ? null
+                : RequireCombatant(battle, attacker, nameof(attacker));
 
             // HEDEFİN NE OLDUĞU SORULUYOR, TAŞINMIYOR. Cevabı zaten bilen tek yer
             // Battle; çağırandan bir `targetIsStructure` bayrağı istemek, o
@@ -99,13 +119,24 @@ namespace GridStrategy.Battle
             RequireCell(battle, attacker, nameof(attacker), out int attackerX, out int attackerY);
             RequireCell(battle, target, nameof(target), out int targetX, out int targetY);
 
+            // TARAF SAVAŞ PARÇASINDAN GELİYOR, BİRİMDEN DEĞİL: Unit tarafı
+            // bilmez, ve bir kule de bir taraf tutar. Tek satırda birleşiyorlar
+            // çünkü sıra kuralı saldıranın NE olduğuna bakmaz.
+            Team attackerTeam = attackerIsStructure
+                ? attackerStructure.Team
+                : attackerCombatant.Team;
+
             // SIRA KURALI HER ŞEYDEN ÖNCE SORULUYOR — hedefin uygunluğundan da,
             // menzilden de önce. Aşağıya, AttackAction.Execute'un ALTINA
             // alınsaydı ret geldiğinde hasar çoktan inmiş olurdu ve "reddedildi"
-            // bir kural değil bir metin olurdu. Takım bilgisi SAVAŞÇIDAN geliyor,
-            // birimden değil: Unit tarafı bilmez.
+            // bir kural değil bir metin olurdu.
+            //
+            // SORU ARTIK SIRA DURUMUNA SORULUYOR, KURALA DOĞRUDAN DEĞİL: kum
+            // havuzunda sıra bir kapı değil yalnızca bir gösterge ve bunu bilen
+            // tek yer TurnState. Kuralın METNİ hâlâ TurnRules'ta; kalkan şey
+            // "hangi kural sorulacak" kararının bu dosyaya dağılmasıydı.
             // → BattleActions.md#attack-turnrulescanact
-            if (!TurnRules.CanAct(attackerCombatant.Team, battle.Turn.Current))
+            if (!battle.Turn.AllowsAction(attackerTeam))
             {
                 return AttackOutcome.RejectedActorCannotAct;
             }
@@ -123,11 +154,25 @@ namespace GridStrategy.Battle
             // sahipliği koruyor: çapraz komşu Chebyshev'de 1, Manhattan'da 2.
             int distance = GridDistance.Between(attackerX, attackerY, targetX, targetY);
 
-            // İKİ AŞIRI YÜKLEME, TEK AKIŞ. Dallanma burada bitiyor çünkü ayrılan
-            // tek şey hedefin TİPİ; sıra, mesafe ve saldıran iki dalda da aynı.
-            AttackOutcome outcome = targetIsStructure
-                ? AttackAction.Execute(attackerCombatant, targetStructure, distance)
-                : AttackAction.Execute(attackerCombatant, targetCombatant, distance);
+            // DÖRT AŞIRI YÜKLEME, TEK AKIŞ. Dallanma burada bitiyor çünkü
+            // ayrılan tek şey iki tarafın TİPİ; sıra, mesafe ve ret sıralaması
+            // dört dalda da aynı. Ortak bir arayüz arkasında tek çağrıya
+            // inilseydi hedef uygunluğu kuralı TargetingRules'tan parçaların
+            // İÇİNE taşınır ve "düştü" ile "yıkıldı" aynı bool'un arkasına
+            // düşerdi.
+            AttackOutcome outcome;
+            if (attackerIsStructure)
+            {
+                outcome = targetIsStructure
+                    ? AttackAction.Execute(attackerStructure, targetStructure, distance)
+                    : AttackAction.Execute(attackerStructure, targetCombatant, distance);
+            }
+            else
+            {
+                outcome = targetIsStructure
+                    ? AttackAction.Execute(attackerCombatant, targetStructure, distance)
+                    : AttackAction.Execute(attackerCombatant, targetCombatant, distance);
+            }
 
             // SIRA BURADA DEVREDİLİR — ve bu satır olmadan oyun KIRIKTI: kural
             // soruluyordu ama EndTurn üretimde hiç çağrılmıyordu. Liste BEYAZ,
@@ -137,14 +182,42 @@ namespace GridStrategy.Battle
             // → BattleActions.md#attack-endturn
             bool attacked = outcome == AttackOutcome.Hit
                 || outcome == AttackOutcome.HitAndDowned
+                || outcome == AttackOutcome.HitAndFinished
                 || outcome == AttackOutcome.HitAndDestroyed;
 
-            if (attacked)
+            if (attacked && spendsTurn)
             {
                 battle.Turn.EndTurn();
             }
 
             return outcome;
+        }
+
+        /// <summary>
+        /// Oyuncunun verdiği saldırı emri: isabet ederse sırayı devreder.
+        /// </summary>
+        public static AttackOutcome Attack(Battle battle, Unit attacker, Unit target)
+        {
+            return Strike(battle, attacker, target, spendsTurn: true);
+        }
+
+        /// <summary>
+        /// Kendiliğinden ateş eden bir yapının saldırısı: isabet etse bile
+        /// sırayı DEVRETMEZ.
+        /// </summary>
+        // AYRI BİR ADLI ÜYE, ÇIPLAK BİR BOOL DEĞİL — ve farkı çağrı yerinde
+        // okunuyor: `Attack(battle, kule, hedef, false)` satırını okuyan biri
+        // false'un neyi kapattığını bilmez. Emri KİMİN verdiği bu tasarımın tek
+        // ayrımı ve adın kendisi onu söylüyor.
+        //
+        // ÖLÇÜLEN ZARAR: kule her 2 saniyede bir ateş edip sırayı düşmana
+        // veriyordu, yani oyuncunun hakkını kendi binası harcıyordu. Bugün
+        // varsayılan kip FreeForAll olduğu için gizliydi; Alternating seçilen
+        // ilk gün görünür olurdu.
+        public static AttackOutcome AttackWithoutSpendingTurn(
+            Battle battle, Unit attacker, Unit target)
+        {
+            return Strike(battle, attacker, target, spendsTurn: false);
         }
 
         /// <summary>
@@ -184,8 +257,11 @@ namespace GridStrategy.Battle
             // İKİ KURAL, TEK RET DEĞERİ — ve sıraları GÖZLENEMEZ: ikisi de aynı
             // MoveOutcome.RejectedActorCannotAct'i döndürüyor. Burada korunacak
             // bir sıra kararı YOK, çünkü sıra kararı ancak farklı cevaplar
-            // arasında var olur. → BattleActions.md#move-turnrulescanact
-            if (!TurnRules.CanAct(combatant.Team, battle.Turn.Current))
+            // arasında var olur.
+            //
+            // Kipi bilen tek yer TurnState; gerekçesi Attack'te tek kez yazılı.
+            // → BattleActions.md#move-turnrulescanact
+            if (!battle.Turn.AllowsAction(combatant.Team))
             {
                 return MoveOutcome.RejectedActorCannotAct;
             }
@@ -257,7 +333,7 @@ namespace GridStrategy.Battle
 
             // İki kural, tek ret değeri — menzilli sürümdeki ile birebir aynı
             // gerekçe, bu yüzden orada yazılı ve burada tekrarlanmıyor.
-            if (!TurnRules.CanAct(combatant.Team, battle.Turn.Current))
+            if (!battle.Turn.AllowsAction(combatant.Team))
             {
                 return MoveOutcome.RejectedActorCannotAct;
             }
@@ -304,13 +380,27 @@ namespace GridStrategy.Battle
                 throw new ArgumentNullException(nameof(target));
             }
 
+            // YAPI DİRİLTEMEZ VE BU BİR KURALDIR, İSTİSNA DEĞİL. Aynı hata
+            // saldırı ve hareket yollarında bu turda kapatıldı; diriltme yolu
+            // gözden kaçmıştı ve sahadaki karşılığı şuydu: oyuncu kendi kulesini
+            // seçip düşmüş bir dosta tıkladığında oyun ArgumentException
+            // fırlatıyordu. Tanınmayan bir kimlik için istisna DURUYOR — o
+            // gerçekten bir programcı hatası.
+            if (battle.TryGetStructure(reviver, out Structure _))
+            {
+                return ReviveOutcome.RejectedActorCannotAct;
+            }
+
             Combatant reviverCombatant = RequireCombatant(battle, reviver, nameof(reviver));
             Combatant targetCombatant = RequireCombatant(battle, target, nameof(target));
 
             RequireCell(battle, reviver, nameof(reviver), out int reviverX, out int reviverY);
             RequireCell(battle, target, nameof(target), out int targetX, out int targetY);
 
-            if (!TurnRules.CanAct(reviverCombatant.Team, battle.Turn.Current))
+            // DİRİLTME MEKANİZMASI DEĞİŞMEDİ: aşağıdaki üç kural — dirilticinin
+            // durumu, hedefin uygunluğu, menzil — aynen duruyor. Kum havuzunun
+            // açtığı tek kapı bu satır.
+            if (!battle.Turn.AllowsAction(reviverCombatant.Team))
             {
                 return ReviveOutcome.RejectedActorCannotAct;
             }

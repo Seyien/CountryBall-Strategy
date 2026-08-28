@@ -19,8 +19,10 @@ namespace GridStrategy.Battle
     /// <summary>
     /// Bir savaşın sıra durumu: sıra hangi tarafta ve kaçıncı turdayız.
     ///
-    /// Bu tip <b>hiçbir yasak koymaz.</b> "Şu an senin sıran değil" cümlesi bir
-    /// KURAL'dır ve <see cref="TurnRules"/>'a aittir.
+    /// Bu tip <b>hiçbir yasak YAZMAZ.</b> "Şu an senin sıran değil" cümlesi bir
+    /// KURAL'dır ve <see cref="TurnRules"/>'a aittir. <see cref="AllowsAction"/>
+    /// o cümleyi kopyalamaz; yalnızca bu savaşın kipine bakıp kurala SORAR — ve
+    /// kipi bilen tek yer burasıdır.
     ///
     /// ZAMANI YOKTUR. <see cref="UnitLifecycle"/>'ın aksine burada <c>Tick</c>
     /// yok, çünkü tur süreli değil: sıra yalnızca <see cref="EndTurn"/> ile,
@@ -74,7 +76,29 @@ namespace GridStrategy.Battle
         /// sonra düşman.
         /// </summary>
         public TurnState()
-            : this(DefaultTurnOrder)
+            : this(DefaultTurnOrder, TurnMode.Alternating)
+        {
+        }
+
+        // KİP AÇIKÇA YAZILIYOR, default(TurnMode)'a GÜVENİLMİYOR. İki satır aynı
+        // savaşı kuruyor ve bu bir tekrar değil: bu kurucunun sözü "bugünkü
+        // kampanya davranışı", TurnMode'un sıfırıncı üyesinin sözü ise "atanmayı
+        // unutulanın adı". İkisi bugün örtüşüyor; sıfırıncı üye bir gün yer
+        // değiştirirse bu satır onu takip etmez, ki takip etmemesi gerekir.
+        /// <summary>
+        /// <see cref="DefaultTurnOrder"/> ile, ama seçilen KİPTE bir savaş kurar.
+        /// Kum havuzu tam olarak bu kurucuyu çağırır.
+        /// </summary>
+        public TurnState(TurnMode mode)
+            : this(DefaultTurnOrder, mode)
+        {
+        }
+
+        /// <summary>
+        /// Takım dizilimini vererek bugünkü kampanya kipinde bir savaş kurar.
+        /// </summary>
+        public TurnState(IReadOnlyList<Team> turnOrder)
+            : this(turnOrder, TurnMode.Alternating)
         {
         }
 
@@ -91,7 +115,11 @@ namespace GridStrategy.Battle
         /// Sıranın izleyeceği taraflar. Aynı taraf birden çok kez geçebilir;
         /// <see cref="Team.None"/> geçemez.
         /// </param>
-        public TurnState(IReadOnlyList<Team> turnOrder)
+        /// <param name="mode">
+        /// Sıranın bir KAPI mı yoksa yalnızca bir gösterge mi olduğu. Kip savaş
+        /// boyunca değişmez; kurulurken belli olur.
+        /// </param>
+        public TurnState(IReadOnlyList<Team> turnOrder, TurnMode mode)
         {
             if (turnOrder == null)
             {
@@ -143,6 +171,13 @@ namespace GridStrategy.Battle
             order = copy;
             orderView = Array.AsReadOnly(copy);
             TurnNumber = FirstTurnNumber;
+
+            // KİP DOĞRULANMIYOR ve bu bir eksiklik değil: TurnMode'un iki üyesi
+            // de anlamlı, tanımsız bir üçüncüsü yok. Dizilim üç kelepçe taşıyor
+            // çünkü bir LİSTE bozuk gelebilir; bir enum yalnızca uydurma bir
+            // sayı ile bozulur ve o gün AllowsAction onu Alternating gibi işler —
+            // en kötü hâli bugünkü davranıştır.
+            Mode = mode;
         }
 
         // NEDEN TurnChanged EVENT'İ YOK: olay, kimsenin SORMADIĞI bir geçiş için
@@ -158,8 +193,18 @@ namespace GridStrategy.Battle
         public Team Current => order[index];
 
         /// <summary>
+        /// Bu savaşın sıra kipi. Kurulurken belli olur ve DEĞİŞMEZ — savaşın
+        /// ortasında kip değiştirilebilseydi, sırası gelmemişken vurmuş bir
+        /// birim kip geri alındığında iki kez oynamış olurdu.
+        /// </summary>
+        public TurnMode Mode { get; }
+
+        /// <summary>
         /// Kaçıncı turdayız. İlk tur <see cref="FirstTurnNumber"/>'dır ve sayı
         /// yalnızca dizilimdeki HERKES bir kez oynadığında artar.
+        ///
+        /// <see cref="TurnMode.FreeForAll"/> kipinde bu sayı hiç artmaz: tur
+        /// ancak bir devirle tamamlanır ve o kipte devir yoktur.
         /// </summary>
         public int TurnNumber { get; private set; }
 
@@ -168,6 +213,33 @@ namespace GridStrategy.Battle
         /// değiştirilemez; değiştirilebilseydi sıra savaşın ortasında kayardı.
         /// </summary>
         public IReadOnlyList<Team> TurnOrder => orderView;
+
+        // KİP BURADA OKUNUYOR, ÇAĞIRANLARDA DEĞİL. Bu metot olmasaydı her
+        // çağıran "kip FreeForAll mi" diye kendisi sorardı: saldırıda, iki
+        // hareket aşırı yüklemesinde ve diriltmede aynı dal dört kez doğar ve
+        // beşincisi eklendiği gün biri unutulur — unutulan yerde kum havuzu
+        // yine kilitlenir ve hiçbir test kırmızı olmaz.
+        /// <summary>
+        /// Bu taraf ŞU AN bir eylem yapabilir mi?
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncunun tıkladığı birimin cevap verip
+        /// vermeyeceğini bu metot belirler. Kampanyada cevap sıraya bakar;
+        /// <see cref="TurnMode.FreeForAll"/> kipinde yalnızca tarafa bakar.
+        /// </summary>
+        public bool AllowsAction(Team team)
+        {
+            // KUM HAVUZUNDA HERKESİN SIRASI KENDİSİDİR — ve bu satırın tamamı
+            // budur. Buraya `team != Team.None` yazılsaydı "tarafsız eyleyemez"
+            // kararı ikinci bir eve taşınır, TurnRules'taki metinle sessizce
+            // ayrışırdı; kurala kendi tarafını sıra olarak vermek aynı cevabı
+            // TEK metinden alır.
+            if (Mode == TurnMode.FreeForAll)
+            {
+                return TurnRules.CanAct(team, team);
+            }
+
+            return TurnRules.CanAct(team, Current);
+        }
 
         // NEDEN EYLEM SAYACI BURADA DEĞİL: sorunun "KAÇ kez eyleyebilir" yarısı
         // bir kuraldır ve TurnRules.MaxActionsPerTurn'de yaşıyor; "KAÇ KEZ
@@ -187,10 +259,21 @@ namespace GridStrategy.Battle
         /// </summary>
         /// <returns>
         /// Bu devir bir TURU tamamladıysa true; tur içindeki bir el değiştirmeyse
-        /// false.
+        /// — ya da kip <see cref="TurnMode.FreeForAll"/> olduğu için hiç devir
+        /// yapılmadıysa — false.
         /// </returns>
         public bool EndTurn()
         {
+            // KUM HAVUZUNDA DEVİR YOKTUR, ve reddin yeri BURASI: çağıranlara
+            // "önce kipe bak, sonra çağır" dedirtseydik saldırı, iki hareket ve
+            // diriltme aynı dalı dört kez taşırdı. Sessiz bir devir çok daha
+            // beter olurdu — oyuncu düşman birimiyle vurduğunda tur sayacı
+            // ilerler ve etki süreleri savaşın ortasında kendiliğinden biterdi.
+            if (Mode == TurnMode.FreeForAll)
+            {
+                return false;
+            }
+
             index = (index + 1) % order.Length;
 
             // Sarmal TAM turu işaretler: dizilimin başına dönmek, herkesin bir

@@ -1,3 +1,4 @@
+using System;
 using GridStrategy.Combat;
 
 namespace GridStrategy.Battle
@@ -69,6 +70,27 @@ namespace GridStrategy.Battle
             // oyunda ayrışır; bugün ikisi eşit olduğu için kısa olanı seçildi
             // ve ayrışacağı gün buraya bir üçüncü soru gelir.
             return playerHasUnitsLeft ? Team.Player : Team.Enemy;
+        }
+
+        /// <summary>
+        /// Savaşın kendisine sorar: iki takımdan biri oyundan tamamen çıktıysa
+        /// öteki kazanmıştır.
+        /// </summary>
+        // İKİ BOOL YERİNE NESNE ALAN AŞIRI YÜKLEME, ve sebebi çağrı yerinde
+        // ölçüldü: iki bool'un SIRASI karışırsa kazanan TERS okunur ve hiçbir
+        // derleyici uyarmaz. Nesne alan bu yol, iki girdiyi de tek kaynaktan
+        // kendisi topluyor.
+        //
+        // İKİ BOOL'LU YOL DURUYOR: saf kuralı sınayan testlerin savaş kurmasına
+        // gerek yok ve bu üye onların girişi olmaya devam ediyor.
+        public static Team Winner(Battle battle)
+        {
+            if (battle == null)
+            {
+                throw new ArgumentNullException(nameof(battle));
+            }
+
+            return Winner(battle.IsTeamInPlay(Team.Player), battle.IsTeamInPlay(Team.Enemy));
         }
     }
 }

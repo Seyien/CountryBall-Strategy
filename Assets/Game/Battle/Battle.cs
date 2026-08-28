@@ -88,6 +88,23 @@ namespace GridStrategy.Battle
         /// </summary>
         // DERİN ANLATIM: Docs/deep/konular/03-tahta-sahipligi.md
         public Battle(int width, int height)
+            : this(width, height, TurnMode.Alternating)
+        {
+        }
+
+        /// <summary>
+        /// Belirtilen ölçüde ve belirtilen sıra KİPİNDE boş bir savaş kurar.
+        ///
+        /// OYUNDA NE İŞE YARAR: kum havuzu sahnesi bu kurucuyu
+        /// <see cref="TurnMode.FreeForAll"/> ile çağırır ve oyuncu paletten
+        /// koyduğu her birimle — kendi tarafından da karşı taraftan da —
+        /// sırasını beklemeden oynayabilir.
+        /// </summary>
+        // KİP KURUCUDAN GELİYOR, BİR SETTER'DAN DEĞİL: Turn zaten değiştirilemez
+        // ve sebebi kendi belgesinde yazılı. Kipi sonradan yazılabilir yapmak o
+        // sözü arkadan delerdi — sırası gelmemişken vurmuş bir birim, kip geri
+        // alındığında iki kez oynamış olurdu.
+        public Battle(int width, int height, TurnMode mode)
         {
             board = new UnitGrid(width, height);
 
@@ -96,7 +113,7 @@ namespace GridStrategy.Battle
             // Turn.Current okumak NullReferenceException verirdi ve "savaşı
             // kurmayı unuttum" hatası ilk tıklamada değil ilk sıra sorusunda
             // görünürdü.
-            Turn = new TurnState();
+            Turn = new TurnState(mode);
         }
 
         // Tahta DIŞARIYA açılmıyor ama assembly içinde açık: BattleActions'ın
@@ -595,6 +612,39 @@ namespace GridStrategy.Battle
             foreach (KeyValuePair<Unit, Combatant> pair in combatants)
             {
                 if (pair.Value.Team == team && pair.Value.State != UnitState.Dead)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Bir takım hâlâ oyunda mı: tek bir savaşçısı ya da AYAKTA tek bir
+        /// yapısı kaldıysa evet.
+        /// </summary>
+        // SON ASKER KAZANMAYI GETİRMEZ, ve ölçüsü sahadaydı: düşmanın son
+        // askeri düştüğünde barakası ve kulesi ayaktayken "kazandın" yazıyordu.
+        // Yapılar zaten saldırılabilir hedef; hedef olan bir şeyin yıkılmadan
+        // sayılmaması, oyuncuya yıkacak bir şey bırakmıyordu.
+        //
+        // HasUnitsLeft'İN ANLAMI DEĞİŞMEDİ ve bu bilinçli: o üyenin kendi
+        // testleri var ve sorduğu soru ("savaşçısı kaldı mı") hâlâ geçerli bir
+        // soru. Buradaki İKİNCİ soru onu kapsıyor, yerine geçmiyor.
+        //
+        // ENKAZ SAYILMAZ: IsStanding kapısı, yıkılmış bir üssün takımı sonsuza
+        // dek oyunda tutmasını engelliyor.
+        public bool IsTeamInPlay(Team team)
+        {
+            if (HasUnitsLeft(team))
+            {
+                return true;
+            }
+
+            foreach (KeyValuePair<Unit, Structure> pair in structures)
+            {
+                if (pair.Value.Team == team && pair.Value.IsStanding)
                 {
                     return true;
                 }
