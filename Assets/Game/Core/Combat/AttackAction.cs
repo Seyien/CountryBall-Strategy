@@ -20,10 +20,12 @@ namespace GridStrategy.Combat
     /// hiçbiri diğerini TANIMAZ ve tanımamalıdır. Onları bir sıraya dizen tek yer
     /// burasıdır.
     ///
-    /// İKİ HEDEF TİPİ, İKİ AŞIRI YÜKLEME — tek akış şekli. Sıra ÜÇLÜ ve her
+    /// İKİ SALDIRAN TİPİ ÇARPI İKİ HEDEF TİPİ, DÖRT AŞIRI YÜKLEME — tek akış
+    /// şekli. Sıra DÖRTLÜ ve her
     /// basamağı bir karar: önce SALDIRANIN durumu (<see cref="AttackRules"/>),
-    /// sonra HEDEFİN uygunluğu, sonra MENZİL. Genel ilke: çağıranın
-    /// düzeltemeyeceği sebep önce söylenir.
+    /// sonra HEDEFİN uygunluğu, sonra MENZİL, en sonda BEKLEME süresi. Genel
+    /// ilke: çağıranın düzeltemeyeceği sebep önce söylenir; beklemenin en sonda
+    /// olması bu ilkenin devamıdır ve gerekçesi ilk aşırı yüklemede yazılı.
     ///
     /// Takım sorusunu ve saldıranın kendi durumunu ARTIK KENDİSİ sorar; ikisi de
     /// bir üst katmanda kalmış iki borcun kapanışıdır.
@@ -89,6 +91,22 @@ namespace GridStrategy.Combat
                 return AttackOutcome.RejectedOutOfRange;
             }
 
+            // BEKLEME EN SON KAPI, ve yeri bir karar: buraya kadar gelen bir
+            // saldırıda hedef geçerli VE menzilde demektir, yani "henüz yeniden
+            // vuramaz" cevabı oyuncuya gerçekten yapabileceği tek şeyi söyler —
+            // beklemek. Bekleme saldıranın durumuyla birlikte en BAŞA konsaydı,
+            // sayacı dolu bir okçu uzaktaki bir cesede tıklandığında "yeniden
+            // vuramaz" derdi; oyuncu bekler, sonra "menzil dışı" duyar ve
+            // yaklaşır, sonra "geçersiz hedef" duyar. Aynı yanlış sıra
+            // AttackAction'ın hedef-menzil kararında da ölçülmüştü.
+            // SORMAK VE HARCAMAK TEK ÇAĞRI: `IsAttackReady` okunup sayaç ayrı
+            // bir satırda başlatılsaydı, dört aşırı yüklemenin birinde unutulan
+            // ikinci satır o dalı sınırsız hasara açardı.
+            if (!attacker.TryBeginAttackCooldown())
+            {
+                return AttackOutcome.RejectedOnCooldown;
+            }
+
             // Durumu vuruştan ÖNCE oku. Sonucu ayırt etmenin tek yolu bu:
             // "düştü mü" sorusu bir DEĞİŞİM sorusudur, bir durum sorusu değil.
             // Sonradan okunan State tek başına yeterli olmaz — hedef zaten
@@ -104,9 +122,7 @@ namespace GridStrategy.Combat
             // yalanı eler; `stateBeforeHit`i koruyan şey bir modifier değil,
             // atamanın TakeDamage çağrısından ÖNCE olmasıdır.
             // → AttackAction.md#executecombatant-attacker-combatant-target-int-distance
-            return stateBeforeHit == UnitState.Alive && target.State == UnitState.Downed
-                ? AttackOutcome.HitAndDowned
-                : AttackOutcome.Hit;
+            return Describe(stateBeforeHit, target.State);
         }
 
         /// <summary>
@@ -139,8 +155,9 @@ namespace GridStrategy.Combat
             // SALDIRANIN DURUMU BURADA DA SORULUYOR — tekrar değil, kuralın İKİ
             // akışta da uygulanması. Kuralın METNİ tek yerde (AttackRules); burada
             // yalnızca soruluyor. Bu satır olmasaydı düşmüş bir birim askere
-            // vuramaz ama barakayı yıkabilirdi. AttackRules'ın yapı ikizi YOK:
-            // yapı saldırmaz, saldıran hep bir Combatant'tır.
+            // vuramaz ama barakayı yıkabilirdi. AttackRules'ın yapı ikizi ARTIK
+            // VAR (CanStructureAttack) ve bu satır onu çağırmıyor: burada saldıran
+            // bir Combatant'tır, ayrımı yapan şey aşırı yüklemenin kendisi.
             // → AttackAction.md#executecombatant-attacker-structure-target-int-distance
             if (!AttackRules.CanAttack(attacker.State))
             {
@@ -160,6 +177,15 @@ namespace GridStrategy.Combat
                 return AttackOutcome.RejectedOutOfRange;
             }
 
+            // Bekleme yine EN SON kapı ve gerekçesi birim hedefli sürümde tek
+            // kez yazılı; değişen tek şey hedefin tipi. Kapı buradan da
+            // eksilmiyor: bu satır olmasaydı hızlı tıklayan oyuncu barakayı bir
+            // karede yıkardı.
+            if (!attacker.TryBeginAttackCooldown())
+            {
+                return AttackOutcome.RejectedOnCooldown;
+            }
+
             // BURADA "ÖNCEKİ DURUMU OKU" DESENİ YOK — eksiklik değil, sözleşme
             // farkı: Structure.TakeDamage "bu vuruş yıktı mı" cevabını zaten
             // DÖNDÜRÜYOR, Combatant.TakeDamage ise void. Deseni buraya kopyalamak
@@ -170,5 +196,166 @@ namespace GridStrategy.Combat
                 ? AttackOutcome.HitAndDestroyed
                 : AttackOutcome.Hit;
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // SALDIRAN BİR YAPI — ölçülmüş bir P0'ın kapanışı
+        //
+        // Structure.CanAttack ile Structure.AttackProfile yazılmıştı, blueprint
+        // varlığı hasar ve menzil alanlarını taşıyordu, ama saldıran-yapı aşırı
+        // yüklemesi hiç yoktu: oyuncu kendi kulesini seçip düşmana tıkladığında
+        // akış barakayı bir Combatant sanıp ArgumentException fırlatıyordu.
+        // Aşağıdaki iki metot o boşluğun tamamı.
+        //
+        // SIRA BİREBİR AYNI — saldıranın durumu, hedefin uygunluğu, menzil,
+        // hasar. Kopyalanan şey bir kural değil bir SIRA; dördünün de metni
+        // hâlâ tek sahiplerinde duruyor.
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Bir YAPININ bir savaşçıya saldırısını yürütür.
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncunun kulesi menzilindeki düşman askerine
+        /// ateş eder. Kule enkazsa, düşman değilse ya da uzaktaysa hiçbir hasar
+        /// inmez ve sebep dönüş değerinde okunur.
+        /// </summary>
+        public static AttackOutcome Execute(Structure attacker, Combatant target, int distance)
+        {
+            if (attacker == null)
+            {
+                throw new ArgumentNullException(nameof(attacker));
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            if (!AttackRules.CanStructureAttack(attacker.State))
+            {
+                return AttackOutcome.RejectedActorCannotAct;
+            }
+
+            // SALDIRMAYAN YAPI BİR İSTİSNA DEĞİL, KURALIN KENDİSİ — yapıların
+            // ÇOĞU saldırmaz ve Structure.AttackProfile bu yüzden isteğe bağlı.
+            // Buraya bir ArgumentNullException konsaydı, bir depoya tıklayan
+            // oyuncu oyunu patlatırdı; ret ise ona yalnızca "bu bina vurmaz"
+            // der. İki soru ayrı iki dal çünkü ayrı iki şey soruyorlar: üstteki
+            // yıkılıp yıkılmadığını, bu hiç silahı olup olmadığını.
+            if (!attacker.CanAttack)
+            {
+                return AttackOutcome.RejectedActorCannotAct;
+            }
+
+            if (!TargetingRules.CanBeAttacked(target.State, attacker.Team, target.Team))
+            {
+                return AttackOutcome.RejectedInvalidTarget;
+            }
+
+            if (!AttackResolver.IsWithinRange(distance, attacker.AttackProfile))
+            {
+                return AttackOutcome.RejectedOutOfRange;
+            }
+
+            // Kulenin beklemesi de EN SON kapı ve sayacı KULENİN KENDİSİ tutar:
+            // bu turda kule menzilindeki düşmanı gördüğü her karede ateş
+            // ediyordu, yani hasar kare hızına bağlıydı. Sayaç yapı başına
+            // olduğu için yan yana duran iki kule birbirinin sırasını beklemez.
+            if (!attacker.TryBeginAttackCooldown())
+            {
+                return AttackOutcome.RejectedOnCooldown;
+            }
+
+            // "Düştü mü" yine bir DEĞİŞİM sorusu ve deseni birim sürümünden
+            // devralıyor; gerekçesi orada tek kez yazılı, burada tekrar
+            // edilmiyor. Değişen tek şey saldıranın tipi.
+            UnitState stateBeforeHit = target.State;
+
+            target.TakeDamage(attacker.AttackProfile.Damage);
+
+            return Describe(stateBeforeHit, target.State);
+        }
+
+        /// <summary>
+        /// Bir YAPININ başka bir yapıya saldırısını yürütür — kule barakayı
+        /// yıkar.
+        ///
+        /// Dördüncü aşırı yükleme uydurma bir tamlık kaygısıyla değil, akışın
+        /// gerçek bir dalını kapattığı için var: saldıranı yapı olarak bulan
+        /// çağıran hedefin ne olduğunu ayrıca soruyor ve dört bileşimin dördü
+        /// de sahada oluşabiliyor.
+        /// </summary>
+        public static AttackOutcome Execute(Structure attacker, Structure target, int distance)
+        {
+            if (attacker == null)
+            {
+                throw new ArgumentNullException(nameof(attacker));
+            }
+
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            if (!AttackRules.CanStructureAttack(attacker.State))
+            {
+                return AttackOutcome.RejectedActorCannotAct;
+            }
+
+            if (!attacker.CanAttack)
+            {
+                return AttackOutcome.RejectedActorCannotAct;
+            }
+
+            if (!TargetingRules.CanBeAttacked(target.State, attacker.Team, target.Team))
+            {
+                return AttackOutcome.RejectedInvalidTarget;
+            }
+
+            if (!AttackResolver.IsWithinRange(distance, attacker.AttackProfile))
+            {
+                return AttackOutcome.RejectedOutOfRange;
+            }
+
+            // Dördüncü dalda da aynı kapı: dördünden birinde eksik kalsaydı
+            // oyuncu o bileşimi bulur ve beklemesiz vururdu.
+            if (!attacker.TryBeginAttackCooldown())
+            {
+                return AttackOutcome.RejectedOnCooldown;
+            }
+
+            // Yıkım kararının sahibi yine Structure.TakeDamage'ın dönüşü;
+            // "önceki durumu oku" deseni burada da yok ve sebebi savaşçı hedefli
+            // yapı sürümünde tek kez yazılı.
+            return target.TakeDamage(attacker.AttackProfile.Damage)
+                ? AttackOutcome.HitAndDestroyed
+                : AttackOutcome.Hit;
+        }
+
+        /// <summary>
+        /// Bir vuruşun oyuncuya nasıl anlatılacağını, hedefin vuruştan ÖNCEKİ ve
+        /// SONRAKİ hâlini karşılaştırarak seçer.
+        /// </summary>
+        // ÜÇ CEVAP TEK KARŞILAŞTIRMADAN ÇIKIYOR ve ortak olmasının sebebi iki
+        // aşırı yüklemenin aynı soruyu sorması: saldıranın tipi savaşçı da yapı
+        // da olsa hedefin geçirdiği değişim aynı. İkinci bir kopya yazılsaydı
+        // bitirici vuruş bir yolda anlatılır, ötekinde susardı.
+        private static AttackOutcome Describe(UnitState before, UnitState after)
+        {
+            if (before == UnitState.Alive && after == UnitState.Downed)
+            {
+                return AttackOutcome.HitAndDowned;
+            }
+
+            // BİTİRİCİ VURUŞ. Karşılaştırma yine DEĞİŞİM üstünden: hedef zaten
+            // ölüyken gelen vuruş hiçbir şeyi değiştirmez ve bu satır ona
+            // "bitirdin" dedirtmez.
+            if (before == UnitState.Downed && after == UnitState.Dead)
+            {
+                return AttackOutcome.HitAndFinished;
+            }
+
+            return AttackOutcome.Hit;
+        }
+
     }
 }

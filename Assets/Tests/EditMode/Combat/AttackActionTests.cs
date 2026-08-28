@@ -177,24 +177,76 @@ namespace GridStrategy.Tests.EditMode.Combat
         }
 
         /// <summary>
-        /// DEĞİŞİM KARARINI koruyan test. Hedef zaten düşmüş; vuruş geçerli
-        /// (Downed hasar almaya devam eder) ama bu vuruş onu DÜŞÜRMEDİ.
+        /// DEĞİŞİM KARARINI koruyan test. Hedef zaten düşmüş; bu vuruş onu
+        /// DÜŞÜRMÜYOR, BİTİRİYOR — ve iki cevap ayrı kalmak zorunda.
         ///
         /// Kırmızıya dönerse AttackAction sonucu vuruş SONRASI duruma bakarak
         /// belirliyor demektir — ve o hata her vuruşta düşme animasyonu
         /// oynatır, skor tablosuna aynı birim için defalarca puan yazar.
         /// </summary>
+        // İDDİA BU TURDA DEĞİŞTİ VE SEBEBİ KURAL DEĞİŞİKLİĞİDİR, testin
+        // kolaylığı değil: eskiden bu satır "sonuç Hit, hedef hâlâ Downed"
+        // diyordu ve o hâl sahada ölçülmüş bir kusurdu — düşmüş düşmana vurmak
+        // bekleme süresini harcıyor, hiçbir şeyi değiştirmiyor ve beden 15
+        // saniye boyunca dokunulamaz bir baraj olarak hücreyi işgal ediyordu.
+        // Düşme penceresi artık İKİ tarafa da açık: dost kaldırır, düşman
+        // bitirir. Testin koruduğu asıl şey değişmedi — "zaten düşmüş olan
+        // ikinci kez düşürülemez" iddiası aynen duruyor, yalnız doğru cevabın
+        // adı HitAndDowned değil HitAndFinished.
         [Test]
-        public void Execute_HittingAnAlreadyDownedTarget_ReportsHitNotHitAndDowned()
+        public void Execute_HittingAnAlreadyDownedTarget_FinishesItInsteadOfDowningItAgain()
+        {
+            // Hasar DÜŞME CANI kadar: NewDownedCombatant'ın canı 10, havuz onun
+            // yarısı. Bir çentiklik hasarla yazılsaydı bu test bitirici vuruşu
+            // değil, havuzun büyüklüğünü ölçerdi.
+            var attacker = NewCombatant(damage: 5, range: 1);
+            var target = NewDownedCombatant();
+
+            AttackOutcome outcome = AttackAction.Execute(attacker, target, distance: 1);
+
+            Assert.That(outcome, Is.EqualTo(AttackOutcome.HitAndFinished),
+                "a target that was already downed cannot be downed again by this hit");
+            Assert.That(target.State, Is.EqualTo(UnitState.Dead),
+                "the finishing blow closes the downed window for good");
+        }
+
+        /// <summary>
+        /// Bitirmek TEK çentikle olmaz: havuz boşalmadan sonuç sıradan bir
+        /// isabettir ve pencere açık kalır.
+        /// </summary>
+        // BU TESTİN KORUDUĞU ŞEY BİR KESTİRMENİN GERİ GELMEMESİ: düşmüş birime
+        // vurmanın onu ANINDA öldürmemesi bu projede yazılı bir karardı ve
+        // düşme canı tam olarak o kararın eksik kalan yarısı. Havuz sessizce
+        // bire düşürülürse bu satır kırmızıya döner.
+        [Test]
+        public void Execute_OneNickOnADownedTarget_IsAPlainHitAndLeavesTheWindowOpen()
         {
             var attacker = NewCombatant(damage: 1, range: 1);
             var target = NewDownedCombatant();
 
             AttackOutcome outcome = AttackAction.Execute(attacker, target, distance: 1);
 
-            Assert.That(outcome, Is.EqualTo(AttackOutcome.Hit),
-                "a target that was already downed cannot be downed again by this hit");
-            Assert.That(target.State, Is.EqualTo(UnitState.Downed));
+            Assert.That(outcome, Is.EqualTo(AttackOutcome.Hit));
+            Assert.That(target.State, Is.EqualTo(UnitState.Downed),
+                "one nick is under the downed pool, so the rescue window survives");
+        }
+
+        /// <summary>
+        /// Kalıcı ölüye vurmak hiçbir şeyi değiştirmez ve BİTİRDİN demez.
+        /// </summary>
+        // BU TESTİN TEK İŞİ BİR SINIR ÇİZMEK: bitirici vuruş bir DEĞİŞİMİN adı,
+        // bir durumun değil. Describe yalnız State'e baksaydı enkaza yapılan her
+        // vuruş "bitirdin" derdi ve ceset sayacı her vuruşta yeniden kurulurdu.
+        [Test]
+        public void Execute_HittingAnAlreadyDeadTarget_IsRejectedAsAnInvalidTarget()
+        {
+            var attacker = NewCombatant(damage: 1, range: 1);
+            var target = NewDeadCombatant();
+
+            AttackOutcome outcome = AttackAction.Execute(attacker, target, distance: 1);
+
+            Assert.That(outcome, Is.EqualTo(AttackOutcome.RejectedInvalidTarget));
+            Assert.That(target.State, Is.EqualTo(UnitState.Dead));
         }
 
         [Test]
@@ -217,8 +269,13 @@ namespace GridStrategy.Tests.EditMode.Combat
         {
             var target = NewCombatant();
 
+            // SALDIRAN TARAFININ İKİZİ, ve gerekçe bir alttaki testte yazılı:
+            // saldıran-yapı aşırı yüklemesi eklendikten sonra çıplak null iki
+            // aday arasında belirsiz kalır ve dosya derlenmez. Sınanan şey
+            // DEĞİŞMEDİ — hâlâ "null saldıran istisna atar"; değişen tek şey
+            // belirsizliği testin kendisinin çözmesi.
             Assert.Throws<ArgumentNullException>(
-                () => AttackAction.Execute(null, target, distance: 1));
+                () => AttackAction.Execute((Combatant)null, target, distance: 1));
         }
 
         [Test]

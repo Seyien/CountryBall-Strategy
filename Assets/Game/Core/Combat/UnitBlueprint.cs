@@ -99,7 +99,18 @@ namespace GridStrategy.Combat
         /// <summary>
         /// Bu türün saldırı tanımı. Bu türden doğan BÜTÜN savaşçılar bu TEK
         /// nesneyi paylaşır — tipin var olma sebebi olan iddia budur.
+        ///
+        /// Vuruşlar arası bekleme süresi de BU nesnenin içindedir
+        /// (<see cref="AttackProfile.CooldownSeconds"/>): tasarımcının
+        /// Inspector'a yazacağı sayı motor tarafında profile konur, buraya
+        /// değil.
         /// </summary>
+        // BEKLEME İÇİN AYRI BİR ALAN AÇILMADI, ve bu bir eksiklik değil bir
+        // ret: bu tipte bir cooldownSeconds parametresi olsaydı aynı sayının
+        // İKİ sahibi olurdu (burası ve profil) ve ayrıştıkları gün hiçbir
+        // derleme hatası çıkmazdı — hangi sayının kazandığı ancak oyunda
+        // görünürdü. Dışarı açılan yol zaten burada: motor tarafı profili üç
+        // sayıyla kurar ve o profili bu kurucuya verir.
         public AttackProfile AttackProfile { get; }
 
         /// <summary>

@@ -70,6 +70,31 @@ namespace GridStrategy.Combat
         // hareket eden düşmüş, sırası değil) BİLEREK tek değerde topluyor; ayrım
         // ancak çağıranın dallanması değiştiği gün doğar.
         // → AttackOutcome.md#rejectedactorcannotact
-        RejectedActorCannotAct
+        RejectedActorCannotAct,
+
+        /// <summary>
+        /// Saldıran ayakta, hedef geçerli ve menzildeydi — ama saldıran henüz
+        /// YENİDEN vuramaz: bir önceki vuruşun bekleme süresi dolmadı.
+        /// </summary>
+        // YEDİNCİ DEĞER, YİNE SONA EKLENDİ ve dosyanın kendi kuralı budur:
+        // araya sokulsaydı ondan sonraki tek değer sessizce yeniden
+        // numaralanırdı.
+        // RejectedActorCannotAct'A EZDİRİLMEDİ, ve ölçüsü oyuncunun duyacağı
+        // cümledir: "bu birim şu an eylem yapamaz" düşmüş bir askeri anlatır ve
+        // oyuncu ondan başka bir birim seçmesini anlar; "henüz yeniden vuramaz"
+        // ise SAĞLAM bir askeri anlatır ve oyuncu ondan beklemesini anlar. İki
+        // cümle iki farklı davranışa yol açtığı için iki değer.
+        // → AttackAction bu değeri en SON kapıda üretir; sebebi orada yazılı.
+        RejectedOnCooldown,
+
+        /// <summary>
+        /// Düşmüş bir hedefe vuruldu ve hedef BİTİRİLDİ: artık kalıcı ölü.
+        ///
+        /// <see cref="HitAndDowned"/>'dan ayrı durmasının sebebi oyuncunun
+        /// gördüğü şeyin farklı olması: biri "düşürdün, kaldırılabilir",
+        /// öteki "bitirdin, geri gelmeyecek". Aynı değere ezilseydi düşme
+        /// penceresinin kapandığını söyleyecek hiçbir cümle kalmazdı.
+        /// </summary>
+        HitAndFinished
     }
 }

@@ -153,6 +153,34 @@ namespace GridStrategy.Combat
         }
 
         /// <summary>
+        /// Düşmüş bedenin DÜŞME CANI da tükendiğinde çağrılır: kurtarma
+        /// penceresi kapanır ve beden kalıcı ölüye geçer.
+        /// </summary>
+        /// <returns>Bu çağrı gerçekten bitirdiyse true.</returns>
+        // BİTİRME AYRI BİR KAPIDAN GEÇİYOR VE SEBEBİ BU DOSYADA ZATEN YAZILIYDI:
+        // OnHealthDepleted'in kapısı bilerek yalnız Alive'dan geçiriyor, çünkü
+        // düşmüş birime tekrar vurmak onu ANINDA öldürmemeli. O yorumun işaret
+        // ettiği eksik kural — düşme canı — artık Combatant'ta yaşıyor ve bu üye
+        // onun tek çıkışı; iki kapıyı birleştirmek tam olarak reddedilen
+        // kestirmeyi geri getirirdi.
+        // ÇAĞIRAN TEK: Combatant, düşme canı boşaldığında.
+        public bool OnDownedHealthDepleted()
+        {
+            if (State != UnitState.Downed)
+            {
+                return false;
+            }
+
+            // Ceset süresi buraya SAYI olarak kopyalanmıyor, zamanla gelen
+            // geçişle aynı alandan okunuyor: iki yol tek pencereyi paylaşmasaydı
+            // bitirilen bedenin cesedi başka, süresi dolan bedenin cesedi başka
+            // sürede kalkardı ve fark ancak sahnede görülürdü.
+            SetState(UnitState.Dead);
+            remainingSeconds = corpseWindowSeconds;
+            return true;
+        }
+
+        /// <summary>
         /// Düşmüş birimi ayağa kaldırır. Yalnızca <see cref="UnitState.Downed"/>
         /// iken başarılı olur; kalıcı ölü diriltilemez.
         /// </summary>

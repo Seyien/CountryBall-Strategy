@@ -22,8 +22,12 @@ namespace GridStrategy.Combat
     /// Bu yüzden hiçbir alanı sonradan DEĞİŞMEZ: değişebilseydi, onu paylaşan
     /// her birim habersiz etkilenirdi.
     ///
-    /// Neyi TUTMAZ: kimin saldırdığını, kime saldırıldığını, o anki bekleme
-    /// süresini. Bunlar çağrı anına ya da birime ait; tanıma değil.
+    /// Neyi TUTMAZ: kimin saldırdığını, kime saldırıldığını, bir sonraki
+    /// vuruşa KALAN süreyi. Sonuncusu önemli: bekleme süresi burada bir
+    /// EŞİKtir, sayaç değil — sayacı tutan yer <see cref="Combatant"/> ile
+    /// <see cref="Structure"/>, çünkü aynı tanımı paylaşan iki okçu ayrı ayrı
+    /// bekler. Aynı ayrım <see cref="StructureBlueprint.ProductionSeconds"/>
+    /// ile <see cref="StructureProduction"/> arasında da yazılı.
     ///
     /// GEREKÇELER: Docs/deep/kod/Core/Combat/AttackProfile.md
     /// </summary>
@@ -41,7 +45,11 @@ namespace GridStrategy.Combat
     // Künyedeki "Ölçü `==` DEĞİL — Equals yazılmadığı için o karşılaştırma false
     // döner" satırı bir İTİRAFtı: tip değer semantiği vaat ediyor ama
     // uygulamıyordu. `record` bunu derleyiciye yaptırıyor; (10 hasar, 1 menzil)
-    // olan iki profil artık gerçekten eşit.
+    // olan iki profil artık gerçekten eşit. Üçüncü sayı eklenirken bu cümleyi
+    // GENİŞLETMEK gerekmedi: derleyicinin ürettiği eşitlik bütün alanları
+    // gezdiği için bekleme süresi farkı iki profili kendiliğinden ayırdı — elle
+    // yazılmış bir Equals olsaydı yeni alan orada unutulur ve hızlı vuran okçu
+    // ile yavaş vuran okçu sessizce aynı tanım sayılırdı.
     //
     // İkizi MoveProfile ile aynı karar, aynı gerekçe — ayrıntı orada yazılı.
     // Paylaşım cümlesi de bozulmuyor: record bir SINIFtır, hâlâ tek örneğe ok
@@ -56,7 +64,17 @@ namespace GridStrategy.Combat
         // noEngineReferences sınırı da o gün düşerdi.
         // → AttackProfile.md#attackprofileint-damage-int-range
         // DERİN ANLATIM: Docs/deep/konular/02-assembly-duvari.md
-        public AttackProfile(int damage, int range)
+        // ÜÇÜNCÜ SAYI VARSAYILANLI GELDİ, ZORUNLU DEĞİL: bugünkü yirmi küsur
+        // çağrının hepsi iki argümanla yazılmış ve hepsinin bugünkü anlamı
+        // "bekleme yok". Zorunlu yazılsaydı her çağıran kendi sıfırını
+        // uydurmak zorunda kalır, kural yirmi yerde tekrarlanırdı; varsayılan
+        // ise kuralı TEK yerde, imzada tutuyor.
+        /// <param name="cooldownSeconds">
+        /// İki vuruş arasındaki bekleme. 0 geçerlidir ve "sınırsız" demektir —
+        /// eşik <see cref="StructureBlueprint.ProductionSeconds"/> ile aynı
+        /// gerekçeyle gevşetildi, sıfırın burada da bir adı var.
+        /// </param>
+        public AttackProfile(int damage, int range, float cooldownSeconds = 0f)
         {
             if (damage < 0)
             {
@@ -71,8 +89,20 @@ namespace GridStrategy.Combat
                 throw new ArgumentOutOfRangeException(nameof(range), range, "Range must be at least 1.");
             }
 
+            // NEGATİF BEKLEME REDDEDİLİYOR AMA SIFIR REDDEDİLMİYOR, ve bu
+            // ayrım menzilinkinin tersi: sıfır menzil hiçbir hücreye ulaşmayan
+            // bir birim üretirdi, sıfır bekleme ise oyunun BUGÜNKÜ davranışıdır
+            // ve adı konmuş bir tanımdır. Eşiği 1'e çekseydik "sınırsız vuruş"
+            // ikinci bir mekanizma olarak yeniden yazılmak zorunda kalırdı.
+            if (cooldownSeconds < 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cooldownSeconds), cooldownSeconds, "Attack cooldown cannot be negative.");
+            }
+
             Damage = damage;
             Range = range;
+            CooldownSeconds = cooldownSeconds;
         }
 
         /// <summary>Bir vuruşun ham hasarı. Zırh/direnç burada DEĞİL.</summary>
@@ -86,5 +116,20 @@ namespace GridStrategy.Combat
         // `range < 1` kelepçesi bu property'nin değişmezidir.
         // → AttackProfile.md#range
         public int Range { get; }
+
+        /// <summary>
+        /// İki vuruş arasında geçmesi gereken saniye; 0 ise bekleme yoktur.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: oyuncu fareye ne kadar hızlı basarsa bassın bu
+        // sayı dolmadan ikinci vuruş inmez. Saldırının sırayı harcaması
+        // kalktığından beri vurmanın başka hiçbir bedeli yoktu — tek bir seçim
+        // açıkken aynı hedefe üst üste tıklamak hasarı katlıyordu; bedeli geri
+        // koyan sayı bu.
+        // SAYAÇ DEĞİL EŞİK, ve ayrımın ölçüsü şu: bu property iki okuma
+        // arasında asla değişmez, oysa bir sonraki vuruşa kalan süre her
+        // Tick'te değişir. Kalanı burada tutsaydık aynı tanımı paylaşan yüz
+        // okçu tek bir bekleme sırasına girerdi — biri vurunca hepsi susardı.
+        // → Combatant.AttackCooldownRemaining
+        public float CooldownSeconds { get; }
     }
 }

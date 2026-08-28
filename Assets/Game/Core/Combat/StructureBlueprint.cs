@@ -132,10 +132,19 @@ namespace GridStrategy.Combat
         /// <summary>Bu türden doğan her yapının başlangıç ve azami canı.</summary>
         public int MaxHealth { get; }
 
-        /// <summary>Saldırı tanımı; saldırmayan yapı türlerinde <c>null</c>.</summary>
+        /// <summary>
+        /// Saldırı tanımı; saldırmayan yapı türlerinde <c>null</c>. İki atış
+        /// arasındaki bekleme de bu nesnenin içindedir
+        /// (<see cref="AttackProfile.CooldownSeconds"/>).
+        /// </summary>
+        // İKİ BEKLEME SÜRESİ YAN YANA DURUYOR VE KARIŞMIYORLAR, çünkü ayrı iki
+        // şeyi ölçüyorlar: aşağıdaki ProductionSeconds iki BİRİM arasındaki
+        // bekleme, profildeki ise iki ATIŞ arasındaki. İkincisi buraya düz bir
+        // alan olarak konsaydı saldırmayan her yapı anlamsız bir atış
+        // beklemesi taşır ve saldıran yapının sayısı sahibinden ayrı düşerdi.
         public AttackProfile AttackProfile { get; }
 
-        /// <summary>İki üretim arasındaki bekleme eşiği; 0 ise anında.</summary>
+        /// <summary>İki ÜRETİM arasındaki bekleme eşiği; 0 ise anında.</summary>
         public float ProductionSeconds { get; }
 
         /// <summary>Sağ panelde açılışta seçili duracak birimin sırası.</summary>

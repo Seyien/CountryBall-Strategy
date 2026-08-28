@@ -39,6 +39,12 @@ namespace GridStrategy.Combat
         private readonly Health health;
         private readonly StructureLifecycle lifecycle;
 
+        // SAYAÇ YAPI BAŞINA, ve gerekçesi ikizi Combatant'ta ölçülerek yazılı:
+        // eşik tanımda (AttackProfile), kalan süre örnekte. Aynı kule tanımından
+        // dizilmiş beş kule ayrı ayrı bekler; alan tanımda olsaydı biri ateş
+        // edince beşi birden susardı.
+        private float attackCooldownRemaining;
+
         // İSTEĞE BAĞLI PARAMETRE KURALI YAZDIRIR, ZORUNLU OLAN İSTİSNAYI. Yapıların
         // ÇOĞU saldırmaz; zorunlu imzada her depo ve duvar kendine sahte bir profil
         // uydururdu — üstelik "menzil en az 1" kuralı yüzünden o profil komşu
@@ -82,6 +88,45 @@ namespace GridStrategy.Combat
         /// engellemek için var: aynı null kontrolü üç çağıranda üç kez doğmasın.
         /// </summary>
         public bool CanAttack => AttackProfile != null;
+
+        /// <summary>
+        /// Bir sonraki atışa kalan saniye; atışa hazırken 0.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: kule menzilindeki düşmanı gördüğü her karede
+        // değil, bu sayı boşaldıkça ateş eder. Otomatik ateş eden bir yapıda
+        // beklemesiz saldırı, kare hızı ne kadar yüksekse o kadar hasar demekti.
+        public float AttackCooldownRemaining => attackCooldownRemaining;
+
+        /// <summary>
+        /// Bu yapının bekleme süresi doldu mu. Yapının ayakta olup olmadığına ve
+        /// silahı olup olmadığına BAKMAZ — üçü bağımsız üç eksendir.
+        /// </summary>
+        // ÜÇ EKSENİ TEK SORUYA SIKIŞTIRMAK BİRİNİ YUTAR: buraya bir
+        // "&& CanAttack" eklenseydi, silahsız bir deponun reddi
+        // RejectedActorCannotAct yerine RejectedOnCooldown olurdu ve oyuncu
+        // deponun ateş etmesini beklerdi. Üçünü birden gören tek yer AttackAction.
+        public bool IsAttackReady => attackCooldownRemaining <= 0f;
+
+        /// <summary>
+        /// Bir atışı HARCAR: bekleme dolmuşsa sayacı baştan başlatır ve
+        /// <c>true</c> döner, dolmamışsa hiçbir şeye dokunmadan <c>false</c>.
+        /// </summary>
+        /// <returns>Atış hakkı bu çağrıyla alındıysa true.</returns>
+        // SİLAHSIZ YAPI BURADA PATLAMIYOR, ve bu Structure'ın kendi kuralının
+        // devamı: saldırı profili isteğe bağlı olduğu için bir depo da bu metodu
+        // görebilir. Cevabı "bekleme yok" — o yapının reddi ZATEN AttackAction'ın
+        // CanAttack kapısında veriliyor ve buraya konacak ikinci bir ret aynı
+        // olguya ikinci bir sebep adı takardı.
+        public bool TryBeginAttackCooldown()
+        {
+            if (attackCooldownRemaining > 0f)
+            {
+                return false;
+            }
+
+            attackCooldownRemaining = AttackProfile == null ? 0f : AttackProfile.CooldownSeconds;
+            return true;
+        }
 
         public StructureState State => lifecycle.State;
 
@@ -156,9 +201,28 @@ namespace GridStrategy.Combat
             return true;
         }
 
+        /// <summary>
+        /// Zamanı bu yapının İKİ sayacına birden iletir: enkaz geri sayımına ve
+        /// bir sonraki atışın beklemesine.
+        /// </summary>
+        // Şekli ve sırası ikizi Combatant.Tick ile birebir aynı; gerekçesi
+        // orada tek kez yazılı ve burada tekrar edilmiyor, uygulanıyor —
+        // Battle.Tick'in yapı döngüsü bu metodu zaten çağırıyor, ikinci bir tik
+        // yolu açılmadı.
         public void Tick(float deltaSeconds)
         {
             lifecycle.Tick(deltaSeconds);
+
+            if (attackCooldownRemaining <= 0f)
+            {
+                return;
+            }
+
+            attackCooldownRemaining -= deltaSeconds;
+            if (attackCooldownRemaining < 0f)
+            {
+                attackCooldownRemaining = 0f;
+            }
         }
     }
 }

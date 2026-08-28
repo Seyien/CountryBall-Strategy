@@ -135,6 +135,72 @@ namespace GridStrategy.Tests.EditMode.Combat
         // Downed bir birim hasar ALMAYA DEVAM eder. Bu, Combatant.TakeDamage'in
         // başında reddedilen "if (!health.HasRemaining) return;" satırının canlı
         // kanıtı: erken çıkış olsaydı yerdekini bitirme yolu tamamen kapanırdı.
+        /// <summary>
+        /// Düşme canı boşalınca beden BİTİYOR: kurtarma penceresi kapanır.
+        /// </summary>
+        [Test]
+        public void Downed_WhenTheDownedPoolEmpties_TheBodyIsFinished()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            combatant.TakeDamage(10);
+
+            combatant.TakeDamage(5);
+
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Dead),
+                "the downed pool is half of max health, so five closes it");
+        }
+
+        /// <summary>
+        /// Bitirmek TEK vuruşluk bir iş değil: havuz canın yarısı kadar dayanır.
+        /// </summary>
+        // BU TEST OLMASAYDI havuzun büyüklüğü sessizce bire düşebilirdi ve
+        // düşmüş beden ilk çentikte ölürdü — reddedilen kestirmenin ta kendisi.
+        [Test]
+        public void Downed_TakesMoreThanOneNickToFinish()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            combatant.TakeDamage(10);
+
+            combatant.TakeDamage(4);
+
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed),
+                "four is under the five-point downed pool");
+        }
+
+        /// <summary>
+        /// Canı bir olan birim bile düştüğü karede bitirilemez.
+        /// </summary>
+        [Test]
+        public void Downed_WithMaxHealthOne_StillSurvivesTheFrameItFellIn()
+        {
+            var combatant = NewCombatant(maxHealth: 1);
+            combatant.TakeDamage(1);
+
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed),
+                "integer division would give a zero pool; the floor of one prevents it");
+        }
+
+        /// <summary>
+        /// Kaldırılan savaşçı düşme canını da geri alır.
+        /// </summary>
+        // İKİNCİ DÜŞÜŞ YENİ BİR PENCEREDİR. Havuz bırakılmasaydı bir kez
+        // kaldırılan savaşçı ikinci düşüşünde ilk düşüşünün çentikleriyle doğar
+        // ve tek vuruşta bitirilirdi.
+        [Test]
+        public void Revive_ThenFallAgain_OpensAFreshDownedPool()
+        {
+            var combatant = NewCombatant(maxHealth: 10);
+            combatant.TakeDamage(10);
+            combatant.TakeDamage(4);
+            Assert.That(combatant.TryRevive(), Is.True, "kurulum bozuk");
+
+            combatant.TakeDamage(100);
+            combatant.TakeDamage(4);
+
+            Assert.That(combatant.State, Is.EqualTo(UnitState.Downed),
+                "the second fall must not inherit the first fall's damage");
+        }
+
         [Test]
         public void Downed_StillAcceptsDamage()
         {
@@ -340,7 +406,13 @@ namespace GridStrategy.Tests.EditMode.Combat
 
             var log = new TransitionLog();
             combatant.StateChanged += log.Record;
-            combatant.TakeDamage(5);
+
+            // SAYI BU TURDA 5'TEN 4'E İNDİ VE SEBEBİ KURALIN KENDİSİ: düşme canı
+            // artık canın yarısı, yani burada 5. Beş hasar havuzu TAM boşaltır ve
+            // bitirici geçişi tetiklerdi — testin ölçmek istediği şey o geçiş
+            // değil, DÜŞME geçişinin tekrar etmemesi. Dört hasar havuzu boşaltmaz
+            // ve iddia olduğu gibi kalır.
+            combatant.TakeDamage(4);
 
             Assert.That(log.Count, Is.Zero,
                 "hitting a downed combatant repeats no transition");
