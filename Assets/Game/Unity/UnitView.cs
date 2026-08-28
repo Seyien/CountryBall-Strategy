@@ -91,6 +91,12 @@ namespace GridStrategy.Unity
         private Sprite teamIdle;
         private Sprite teamAttacking;
 
+        // ÜRETİLEN BİRİMİN KENDİ GÖVDESİ; boşken takım kareleri geçerlidir.
+        // authoredColor ve teamIdle ile AYNI kategoride: bir oyun durumu değil,
+        // varlık dosyasında yazılı bir değerin önbelleği. Havuz görseli geri
+        // verirken bunu MUTLAKA boşaltır. → UnitView.md#setbodyspritesprite-sprite
+        private Sprite bodyOverride;
+
         // Gövdenin PREFAB'DA YAZILI rengi. Bir oyun durumu değil, TÜREV bir
         // değerin önbelleği; "unutulamaz" olma sebebi Body'nin üstünde.
         // → UnitView.md#authoredcolor
@@ -105,25 +111,74 @@ namespace GridStrategy.Unity
         // çağrı sırasındaki beşinci durak burasıdır.
         private void Awake()
         {
-            // SIRA BİR KARARDIR: normalizasyon, selectionOverlay kontrolünün
-            // ÜSTÜNDE. Altına konsaydı atanmamış BİR alan, ilgisiz İKİ şeyi
-            // birden bozardı — aşağıdaki erken çıkış bu satırı da atlar ve
-            // prefab'da ters/soluk kaydedilmiş gövde öyle kalırdı. Doğan her
-            // birim AYAKTA başlamak ZORUNDA. → UnitView.md#awake
-            SetState(UnitState.Alive);
+            // SIRA BİR KARARDIR ve KORUNUYOR: normalizasyon, selectionOverlay
+            // kontrolünün ÜSTÜNDE. Altına konsaydı atanmamış BİR alan, ilgisiz
+            // İKİ şeyi birden bozardı ve prefab'da ters ya da soluk kaydedilmiş
+            // gövde öyle kalırdı. Doğan her birim AYAKTA, seçimsiz ve takım
+            // karesinde başlamak ZORUNDA. → UnitView.md#awake
+            //
+            // DEĞİŞEN ŞEY SATIRLARIN KENDİSİ: eskiden burada SetState ile
+            // SetSelected ayrı ayrı duruyordu ve havuz da KENDİ listesini
+            // tutuyordu. İki liste sessizce ayrıştı — fabrikadan çıkan
+            // savaşçının ölünün solgun rengini devralması tam oradan doğdu.
+            // Doğuş ile havuzdan çıkış artık TEK kapıdan geçiyor.
+            ResetVisuals();
 
             // Eksik atama SESSİZ kalmasın: referans boşsa seçim hiç çalışmaz ve
             // ekranda hiçbir hata görünmez. Bir kez, doğuşta, gürültüyle söyle.
+            //
+            // ERKEN ÇIKIŞ ARTIK YOK, çünkü altında atlanacak satır kalmadı:
+            // normalizasyonun tamamı yukarıdaki tek çağrının içinde bitiyor.
             if (selectionOverlay == null)
             {
                 Debug.LogError(
                     "[UnitView] selectionOverlay is not assigned. Assign the SelectionOverlay child's SpriteRenderer on the Unit prefab.",
                     this);
-                return;
             }
+        }
 
-            // Prefab'da çerçeve AÇIK bırakılmış olabilir; doğan her birim
-            // seçimsiz başlamak ZORUNDA. Üstteki SetState ile aynı iş.
+        /// <summary>
+        /// Görünümü YENİ DOĞMUŞ hâline döndürür: ayakta, prefab'da yazılı
+        /// renginde, seçimsiz, dinlenme pozunda ve takım karesinde.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: fabrikadan çıkan savaşçı, o görünümü daha önce
+        // kullanmış olan ölünün solgun rengiyle ve baş aşağı doğmasın.
+        //
+        // SIFIRLAMA LİSTESİNİN SAHİBİ ARTIK BURASI, HAVUZ DEĞİL — ve bu bir
+        // üslup tercihi değil, ÖLÇÜLMÜŞ bir hatanın kapatılması: liste
+        // UnitViewPool'un içindeyken dört üye sayıyordu, beşincisi (yaşam
+        // durumu) unutulmuştu ve unutmak DERLEME hatası vermedi. Liste artık
+        // sıfırladığı alanların YAŞADIĞI dosyada duruyor; altıncı görsel üyeyi
+        // ekleyen kişi onu bu metotla aynı ekranda görecek.
+        //
+        // ÖNBELLEKLER BİLEREK KORUNUYOR: authoredColor, teamIdle ve
+        // teamAttacking birer oyun durumu değil, varlık dosyasında yazılı
+        // değerlerin kopyası. Onları da boşaltmak "daha temiz" görünür ama
+        // yazılı rengi geri getirilemez biçimde kaybederdi — Body önbelleği bir
+        // kez dolduğu için ikinci bir yakalama HİÇ olmaz.
+        //
+        // REDDEDILEN - alanları yansımayla gezip hepsini varsayılana çeken
+        // genel bir sıfırlayıcı.
+        // KIRILAN: sıfırlama "alanı varsayılana çek" değil "çiziciye yaz"
+        // demektir, ve korunması gereken üç önbelleği de silerdi.
+        // KAZANIRDI: yeni bir alan eklendiğinde kimsenin bu listeye dokunması
+        // gerekmezdi.
+        // TEK CUMLE: hangi alanın hafıza hangisinin önbellek olduğunu yalnız bu
+        // tip bilir, o yüzden liste elle yazılıyor ama artık bilenin yanında.
+        public void ResetVisuals()
+        {
+            // GÖVDE GEÇERSİZ KILMASI EN ÖNCE DÜŞER ve bu çağrı dinlenme pozunu
+            // da yazar: takım karesi geri gelir, kalkmış silah iner.
+            SetBodySprite(null);
+
+            // UNUTULAN SATIR TAM BURASIYDI. İki eksen birden burada sıfırlanır,
+            // çünkü ikisinin de tek sahibi SetState: baş aşağı duruş ve solgun
+            // renk çarpanı. Operatörün gördüğü belirti renkti; ters duruş,
+            // gövde simetrik olduğu için fark edilmemişti.
+            SetState(UnitState.Alive);
+
+            // Prefab'da çerçeve AÇIK bırakılmış olabilir, havuza giren görsel de
+            // seçiliyken ölmüş olabilir; iki yol da burada kapanıyor.
             SetSelected(false);
         }
 
@@ -173,7 +228,44 @@ namespace GridStrategy.Unity
                 return;
             }
 
-            Body.sprite = teamIdle;
+            // Gövdeye DOĞRUDAN yazılmıyor: hangi karenin kazandığı sorusunun tek
+            // sahibi aşağıdaki SetAttacking olsun, yoksa takım karesi üretilen
+            // birimin kendi gövdesini sessizce ezerdi.
+            SetAttacking(false);
+        }
+
+        /// <summary>
+        /// Bu birime KENDİ gövde görselini verir; <c>null</c> takım karelerine
+        /// geri döner.
+        /// </summary>
+        // OYUNDA NE İŞE YARAR: barakadan çıkan okçu tahtada okçu görünsün.
+        // Ölçüm şuydu: tahtadaki her savaşçı prefab'ın dört karesinden birini
+        // alıyordu, yani sürüklerken doğru simgeyi gören oyuncu bıraktığında
+        // hep aynı piyadeyi buluyordu.
+        //
+        // GEÇERSİZ KILMA SALDIRI POZUNU DA YUTAR — ölçülmüş bir tercih: elde
+        // birim başına ikinci bir "saldırı" karesi YOK ve takımın genel saldırı
+        // karesine düşseydi okçu vuruş anında bir an piyadeye dönüşürdü. Vuruş
+        // ekranda yine okunuyor; hamleyi UnitAttackView, mesafeli atışı
+        // ProjectileView çiziyor.
+        //
+        // REDDEDILEN - geçersiz kılınan gövdeye takım rengini ÇARPMAK.
+        // KIRILAN: bu tipin en üstündeki karar takım ayrımını tint ile değil
+        // ayrı kareyle veriyor; çarpan simgenin kendi renklerini boyar ve
+        // düşme çarpanının üstüne binerdi.
+        // KAZANIRDI: üretilen birim kendi resmini taşırken bile hangi tarafa
+        // ait olduğunu tek bakışta söylerdi.
+        // TEK CUMLE: geçersiz kılınan gövdenin takım ayrımı bugün simgenin
+        // kendisine kalıyor ve düşman üretimi doğduğu gün bu satır yeniden
+        // ölçülecek.
+        public void SetBodySprite(Sprite sprite)
+        {
+            bodyOverride = sprite;
+
+            // Dinlenme pozu yazılıyor: yeni gövde alan bir birim silahı kalkmış
+            // başlamamalı, ve null geldiğinde takım karesi tam bu satırda geri
+            // geliyor.
+            SetAttacking(false);
         }
 
         /// <summary>
@@ -183,9 +275,16 @@ namespace GridStrategy.Unity
         // POZ SÜRESİNİ BU TİP TUTMAZ ve tutmamalı — "kaç saniye sonra insin"
         // bir zamanlama kararıdır ve zaman tutmak hafıza demektir. Süreyi
         // UnitAttackView sayıyor, burası yalnızca UYGULUYOR.
+        //
+        // GEÇERSİZ KILMA İKİ POZDAN DA ÖNCE GELİR ve dallanma TEK yerde, burada:
+        // "hangi kare çizilir" sorusunun üç çağıranı var (takım, poz, gövde) ve
+        // üçü ayrı ayrı yazsaydı sıra bir kelepçeye dönüşürdü.
         public void SetAttacking(bool attacking)
         {
-            Sprite wanted = attacking ? teamAttacking : teamIdle;
+            Sprite wanted = bodyOverride != null
+                ? bodyOverride
+                : (attacking ? teamAttacking : teamIdle);
+
             if (wanted != null)
             {
                 Body.sprite = wanted;

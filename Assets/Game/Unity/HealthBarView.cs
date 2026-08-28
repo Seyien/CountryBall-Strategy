@@ -24,8 +24,10 @@ namespace GridStrategy.Unity
         private const float BarWidth = 0.7f;
         private const float BarHeight = 0.1f;
 
-        // Birimin merkezinden ne kadar yukarı. Sprite'lar bir hücre yüksekliğinde
-        // olduğu için yarım hücrenin biraz üstü, tam başının üzerine denk gelir.
+        // Yükseklik SÖYLENMEDİĞİNDE kullanılan sayı: bir hücre boyundaki sprite
+        // için yarım hücrenin biraz üstü. Söylendiğinde yerini
+        // <see cref="SetHeightAboveOwner"/> alıyor, çünkü sahibin ölçeği bu
+        // sabiti çarpıyor ve büyük bir bina barını kendi içinde bırakıyordu.
         private const float HeightAboveUnit = 0.58f;
 
         private Transform fill;
@@ -78,6 +80,25 @@ namespace GridStrategy.Unity
             // SAĞDAN kısalsın. Sprite'ın kendi pivotu ortada olduğu için
             // kaydırmayı ebeveyn yapıyor — sprite varlığına dokunmadan.
             SetFraction(1f);
+        }
+
+        /// <summary>
+        /// Barın sahibinin merkezinden ne kadar yukarıda duracağını yazar.
+        ///
+        /// OYUNDA NE İŞE YARAR: bar her birimin ve her binanın tam tepesinde
+        /// durur; büyük bir bina barını içinde bırakmaz, küçük bir asker barını
+        /// havada asılı taşımaz.
+        /// </summary>
+        /// <param name="localHeight">
+        /// Sahibinin YEREL uzayında yükseklik. Değerin dünya karşılığı sahibin
+        /// ölçeğiyle çarpılır ve o çarpanı hesaba katmak çağıranın işi.
+        /// </param>
+        // AYRI BİR ÜYE, Build'in İÇİNDE BİR PARAMETRE DEĞİL: havuzdan gelen bir
+        // görselde bar ZATEN kurulu ve Build erken dönüyor. Yükseklik orada da
+        // yazılabilsin diye çağrı tek başına duruyor.
+        public void SetHeightAboveOwner(float localHeight)
+        {
+            transform.localPosition = new Vector3(0f, localHeight, 0f);
         }
 
         /// <summary>

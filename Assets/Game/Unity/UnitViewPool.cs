@@ -17,9 +17,15 @@ namespace GridStrategy.Unity
     /// sahnesiz sınanabiliyor ve operatöre bir sürükleme borcu daha yazmıyor.
     ///
     /// TEMİZLİK SÖZLEŞMESİ: geri verilen bir görsel, YENİ DOĞMUŞ gibi görünmek
-    /// zorundadır. Yürüyüşü durdurulur, saldırı pozu iner, seçim çerçevesi kapanır.
-    /// Bu yapılmasaydı havuzdan çıkan birim, bir önceki sahibinin yarım kalmış
-    /// yürüyüşünü sürdürürdü — havuz kullanan kodlarda en sık görülen hata budur.
+    /// zorundadır. Yürüyüşü durdurulur, saldırı pozu iner, seçim çerçevesi
+    /// kapanır, ayağa kalkar ve prefab'da yazılı rengine döner. Bu yapılmasaydı
+    /// havuzdan çıkan birim, bir önceki sahibinin yarım kalmış yürüyüşünü
+    /// sürdürürdü — havuz kullanan kodlarda en sık görülen hata budur.
+    ///
+    /// SÖZLEŞMENİN GÖRÜNÜR YARISINI HAVUZ SAYMIYOR: onu
+    /// <see cref="UnitView.ResetVisuals"/> sayıyor, çünkü listenin eksik kalması
+    /// derleme hatası vermez ve bu havuz o sessizliği bir kez ödedi. Gerekçe o
+    /// metodun başında ölçülmüş hâliyle yazılı.
     /// </summary>
     public sealed class UnitViewPool
     {
@@ -89,9 +95,23 @@ namespace GridStrategy.Unity
         // OLMAYABİLİRLER; ikisi de null kontrolüyle geçiliyor.
         private static void ResetVisualState(UnitView view)
         {
-            view.SetSelected(false);
-            view.SetAttacking(false);
+            // SIFIRLAMA LİSTESİ ARTIK BURADA DEĞİL, UnitView'in içinde — ve
+            // taşınma sebebi ÖLÇÜLDÜ: liste burada dururken dört üye sayıyordu
+            // (gövde, seçim, poz, yürüyüş) ve beşincisi unutulmuştu. Ölen
+            // savaşçının solgun rengi ile baş aşağı duruşu havuzda bekleyip bir
+            // sonraki savaşçıya devroluyordu; hiçbir istisna, hiçbir konsol
+            // satırı, yalnız ekranda yanlış renk.
+            //
+            // HATAYI DOĞURAN ŞEY EKSİK BİR SATIR DEĞİL, LİSTENİN YERİYDİ:
+            // sıfırladığı alanlardan BAŞKA bir dosyada duran bir liste, o
+            // alanlara altıncısı eklendiği gün de aynı sessizlikle eksik kalır.
+            // Bugün havuz "neyi sıfırlayacağını" değil, "sıfırla" demeyi biliyor.
+            view.ResetVisuals();
 
+            // BU İKİSİ HÂLÂ BURADA ve kalmalı: ikisi de UnitView'in alanı değil,
+            // aynı GameObject üstündeki AYRI bileşenler. Görünüm onların
+            // varlığını bilmiyor — bilseydi "hafıza: yok" künyesi düşerdi — yani
+            // durdurma emrini havuzdan başka verecek kimse yok.
             UnitWalker walker = view.GetComponent<UnitWalker>();
             if (walker != null)
             {
