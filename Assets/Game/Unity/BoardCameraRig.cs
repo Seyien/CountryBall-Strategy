@@ -34,17 +34,25 @@ namespace GridStrategy.Unity
     [RequireComponent(typeof(Camera))]
     public sealed class BoardCameraRig : MonoBehaviour
     {
-        [Header("Board - written by CountryBall > Sahneyi Kur (her şey)")]
-        [Tooltip("Tahtanın dünya dikdörtgeni. Kurulum aracı yazar; elle doldurulmaz.")]
+        // ██ BU DÖRT ALAN ARTIK ÖNİZLEME, OTORİTE DEĞİL ██
+        // Otorite tahtanın kendisi: BoardAdapter Awake'te kendi dünya
+        // dikdörtgenini hesaplayıp WriteHomeFraming ile buraya yazıyor.
+        // Aracın yazmayı sürdürmesinin tek sebebi Scene görünümü — Play'e
+        // basmadan da sahnenin doğru çerçevede durması isteniyor.
+        // ÖLÇÜLDÜ: bu dört sayı tek otorite iken tahta 100x50'den 5x10'a indi
+        // ve dördü de sahnede eski tahtayı tarif etmeye devam etti; kamera
+        // artık var olmayan bir adayı çerçeveliyordu.
+        [Header("Board - preview; the board rewrites these on Awake")]
+        [Tooltip("Tahtanın dünya dikdörtgeni. Önizleme; çalışma zamanında tahta yazar.")]
         [SerializeField] private Rect boardRect = new Rect(0f, 0f, 10f, 5f);
 
-        [Tooltip("Kurulumda hesaplanan orthographicSize. Kurulum aracı yazar.")]
+        [Tooltip("Kurulumda hesaplanan orthographicSize. Önizleme; tahta yazar.")]
         [SerializeField] private float homeHalfHeight = 5f;
 
-        [Tooltip("Kurulum anındaki en boy oranı. Kurulum aracı yazar.")]
+        [Tooltip("Kurulum anındaki en boy oranı. Önizleme; tahta yazar.")]
         [SerializeField] private float homeAspect = 16f / 9f;
 
-        [Tooltip("Kurulumda hesaplanan kamera merkezi. Kurulum aracı yazar.")]
+        [Tooltip("Kurulumda hesaplanan kamera merkezi. Önizleme; tahta yazar.")]
         [SerializeField] private Vector2 homeCentre = new Vector2(5f, 2.5f);
 
         // YARDIMCI TUŞ, ASIL TUŞ DEĞİL: oyuncunun asıl kaydırma tuşu sol tuştur
@@ -96,16 +104,28 @@ namespace GridStrategy.Unity
         // karşılaştırma bir çarpma bile yapmıyor.
         private float lastAspect = -1f;
 
-        /// <summary>Tahtanın dünya dikdörtgeni; kurulum aracı yazar.</summary>
-        // ÜÇ ÜYE DE SETTER, ÇÜNKÜ TEK YAZAN VAR: SceneSetupTool. Alanları public
-        // yapmak yerine yazma yolunu adlandırmak, Inspector'dan elle doldurmanın
-        // bir HATA olduğunu söylüyor — sayının sahibi araç.
+        // Yeni bir çerçeve yazıldı ve kamera henüz oraya gitmedi. Serileşmiyor
+        // (öznitelik yok, public değil), yani sahnede duran bir "true" kalıntısı
+        // olamaz.
+        private bool homePending;
+
+        /// <summary>Tahtanın dünya dikdörtgeni ve ona ait ev çerçevesi.</summary>
+        // ██ DÖRT ALANIN TEK YAZANI: BU ÜYE ██ Çağıran iki taraf var — çalışma
+        // zamanında BoardAdapter.Awake, Editor'da SceneSetupTool — ama ikisi de
+        // buradan geçiyor. İkinci bir yazma yolu açılsaydı "kamera hangi tahtayı
+        // çerçeveliyor" sorusunun iki cevabı olurdu.
+        //
+        // MANDAL EN SONA YAZILIYOR: dört alan tamamlanmadan mandal kalksaydı
+        // aynı karede koşan LateUpdate yarısı yeni, yarısı eski bir çerçeveye
+        // giderdi. Aynı kural bu projede yayın tarafında da yazılı.
         public void WriteHomeFraming(Rect board, Vector2 centre, float halfHeight, float aspect)
         {
             boardRect = board;
             homeCentre = centre;
             homeHalfHeight = halfHeight;
             homeAspect = aspect;
+
+            homePending = true;
         }
 
         /// <summary>
@@ -200,6 +220,15 @@ namespace GridStrategy.Unity
 
             float aspect = boardCamera.aspect > 0.01f ? boardCamera.aspect : homeAspect;
 
+            // EVE GİTMEK EN BAŞTA: aşağıdaki üç adımın hepsi kameranın ŞU ANKİ
+            // konumunu ve boyunu okuyor. Sonra çağrılsaydı ilk kare bayat
+            // çerçeveyle kelepçelenir ve oyuncu bir kare boyunca eski adayı
+            // görürdü.
+            if (homePending)
+            {
+                GoHome();
+            }
+
             // ██ SIRA BİR KARARDIR: ÖNCE ORAN, SONRA TEKERLEK, SONRA SÜRÜKLEME ██
             // Oran, yakınlaştırmanın TAVANINI belirliyor; tekerlek o tavana göre
             // kelepçeleniyor; sürüklemenin sınırı ise ortaya çıkan yarım
@@ -208,6 +237,32 @@ namespace GridStrategy.Unity
             ApplyAspect(aspect);
             ApplyZoom(aspect);
             ApplyPan(aspect);
+        }
+
+        /// <summary>
+        /// Kamerayı yazılan ev çerçevesine oturtur.
+        /// </summary>
+        // ██ BU ÜYE OLMADAN ÇERÇEVE YAZMAK HİÇBİR ŞEY YAPMIYORDU ██
+        // ApplyAspect yarım yüksekliği yalnız BÜYÜTÜYOR ve kameranın konumuna
+        // hiç dokunmuyor; ApplyPan ise merkezi kelepçeliyor ama oraya
+        // GÖTÜRMÜYOR. Yani çerçeve alanları yazılsa bile kamera olduğu yerde
+        // kalıyordu ve tek götürücü, Editor aracının kamerayı elle taşıması
+        // oluyordu. Menü koşmadan Play'e basıldığında düzelen şey tam olarak bu.
+        //
+        // lastAspect SIFIRLANIYOR: hemen ardından koşan ApplyAspect, oran
+        // değişmediği için erken çıkardı ve yeni tavanı hiç hesaplamazdı.
+        private void GoHome()
+        {
+            homePending = false;
+            lastAspect = -1f;
+
+            // Z KORUNUYOR: ortografik bir kamerada z görüntüyü değiştirmez ama
+            // yakın/uzak düzlemi belirler. Ev merkezinin z'si yok, o yüzden
+            // kameranın kendi z'si aynen taşınıyor.
+            Vector3 position = boardCamera.transform.position;
+            boardCamera.transform.position =
+                new Vector3(homeCentre.x, homeCentre.y, position.z);
+            boardCamera.orthographicSize = homeHalfHeight;
         }
 
         /// <summary>

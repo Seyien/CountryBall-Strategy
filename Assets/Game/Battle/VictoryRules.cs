@@ -92,5 +92,71 @@ namespace GridStrategy.Battle
 
             return Winner(battle.IsTeamInPlay(Team.Player), battle.IsTeamInPlay(Team.Enemy));
         }
+
+        /// <summary>
+        /// Aynı iki cevabı ekranın okuyabileceği hâle çevirir: savaş sürüyor,
+        /// oyuncu kazandı, düşman kazandı ya da iki taraf da tükendi.
+        /// </summary>
+        // WINNER'IN ÜSTÜNE OTURUYOR, ONUN YERİNE GEÇMİYOR — ve bunun ölçüsü
+        // kazananın kim olduğu kuralının TEK bir yazarı kalması: aşağıda ne bir
+        // taraf tercihi ne de ikinci bir karşılaştırma var, üstteki üye ne
+        // diyorsa o. Buranın eklediği tek şey, o üyenin Team.None'da birleştirdiği
+        // İKİ olguyu geri ayırmak.
+        //
+        // PARAMETRE ADLARI ÜSTTEKİNDEN FARKLI ve fark kasıtlı: nesne alan yol
+        // buraya Battle.IsTeamInPlay'in cevabını taşıyor, yani soru "savaşçısı
+        // kaldı mı" değil "oyunda mı". Üstteki adları düzeltmek bu şeridin işi
+        // değil; yenisini yanlış adla doğurmak da olmazdı.
+        //
+        // REDDEDILEN - kazananı sonradan BattleOutcome'a çeviren bir eşleme.
+        //     public static BattleOutcome ToOutcome(Team winner)
+        //     {
+        //         if (winner == Team.Player) { return BattleOutcome.PlayerWon; }
+        //         if (winner == Team.Enemy) { return BattleOutcome.EnemyWon; }
+        //         return BattleOutcome.Ongoing;
+        //     }
+        // KIRILAN: Team.None iki olgu taşıyor ve eşlemenin elinde onları ayıracak
+        // girdi yok; berabere sonsuza dek "savaş sürüyor" okunur, pano karşılıklı
+        // yok oluşta hiç açılmaz ve tahta oyuncunun elinde sonsuza dek donuk
+        // kalırdı.
+        // KAZANIRDI: Winner bir gün beraberliğe ayrı bir Team değeri döndürseydi
+        // eşleme yeterdi ve bu üye tek satıra inerdi.
+        // TEK CUMLE: kaybolan bir ayrımı geri getirebilen tek yer girdinin
+        // kendisidir.
+        public static BattleOutcome Outcome(bool playerInPlay, bool enemyInPlay)
+        {
+            Team winner = Winner(playerInPlay, enemyInPlay);
+
+            if (winner == Team.Player)
+            {
+                return BattleOutcome.PlayerWon;
+            }
+
+            if (winner == Team.Enemy)
+            {
+                return BattleOutcome.EnemyWon;
+            }
+
+            // BURADA TEK BİR BOOL YETİYOR ve sebebi yukarıdaki dalların ne
+            // elediği: kazanan yoksa iki cevap EŞİTTİR, dolayısıyla birine
+            // bakmak ikisini birden okumaktır.
+            return playerInPlay ? BattleOutcome.Ongoing : BattleOutcome.Draw;
+        }
+
+        /// <summary>
+        /// Savaşın kendisine sorar ve cevabı ekranın okuyabileceği hâlde verir.
+        /// </summary>
+        // İKİ AŞIRI YÜKLEME, ÜSTTEKİ ÇİFTİN BİREBİR AYNI GEREKÇESİYLE: değer
+        // alan yol dört hâlin dördünü de tek satırda kurdurur, nesne alan yol
+        // iki girdiyi tek kaynaktan kendisi toplayarak sıra karışmasını keser.
+        public static BattleOutcome Outcome(Battle battle)
+        {
+            if (battle == null)
+            {
+                throw new ArgumentNullException(nameof(battle));
+            }
+
+            return Outcome(battle.IsTeamInPlay(Team.Player), battle.IsTeamInPlay(Team.Enemy));
+        }
     }
 }

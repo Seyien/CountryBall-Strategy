@@ -34,6 +34,38 @@ namespace GridStrategy.Unity
     /// </summary>
     public sealed class ProductionPanelView : MonoBehaviour
     {
+        /// <summary>
+        /// Hiçbir üretim hattı seçili değilken panelin gösterdiği cümle.
+        /// </summary>
+        // ██ İKİ SEBEP, İKİ CÜMLE — VE ESKİDEN İKİSİ AYNIYDI ██
+        // Panel boş kalmasının İKİ ayrı sebebi var ve ikisi de aynı satıra
+        // düşüyordu: "Üretim yapan bir yapı seç". Operatör o cümleyi
+        // anlayamadı ve haklıydı — cümle ne yapılacağını söylemiyor. Birinci
+        // sebep hiçbir üretici yapının SEÇİLİ olmaması, ikincisi seçili yapının
+        // asker basmıyor olması; ikisinin cevabı da farklı.
+        //
+        // CÜMLELERİN SAHİBİ GÖRÜNÜM TİPİ, KURULUM ARACI DEĞİL — ve ayrımı
+        // yapan tek soru şu: hangi sebebin geçerli olduğunu KİM biliyor.
+        // Cevabı yalnız aşağıdaki Rebuild biliyor; araç tek bir Text nesnesine
+        // tek bir dize yazabilir ve seçim yapamaz. Araç bu sabiti OKUYOR, yani
+        // Scene'de duran önizleme ile Play'de görülen cümle ayrışamaz.
+        public const string NoProducerSelected =
+            "Üretim yapan bir yapı seçili değil. Soldaki paletten Kışla, Fabrika " +
+            "ya da Karargâh'ı tahtaya sürükle, sonra üstüne tıkla.";
+
+        // Üreten yapıların adları. İKİNCİ YÜZEY OLDUĞU BİLİNEREK YAZILDI:
+        // birinci yüzey SceneSetupTool.EnsureBlueprints içindeki çağrı
+        // satırları, yani varlık dosyalarına adı yazan yer. ÖLÇÜLDÜ 2026-08-29:
+        // üreten üç yapı Kışla (1 birim), Fabrika (2), Karargâh (2); üretmeyen
+        // ikisi Taret (0) ve Hisar (0). BOZULMA ŞARTI tek: bu üç addan biri
+        // yeniden adlandırılırsa cümle yanlış bir yapıyı gösterir. ONARIM da
+        // tek satır — buradaki dizeyi yeni adla yazmak.
+        // NEDEN CANLI OKUNMUYOR: adları tutan liste StructurePaletteView'de ve
+        // ona ulaşmanın iki yolu vardı, ikisi de daha pahalı — sahneye YENİ bir
+        // serileşmiş alan eklemek (o anahtar sahnede olmadığı için tip
+        // varsayılanıyla, yani boş inerdi) ya da küresel arama.
+        private const string ProducerNames = "Kışla, Fabrika ve Karargâh";
+
         [Header("Wiring")]
         [Tooltip("The ProductionDirector in the scene. Left empty, the panel never fills.")]
         [SerializeField] private ProductionDirector director;
@@ -120,6 +152,10 @@ namespace GridStrategy.Unity
 
             if (emptyLabel != null)
             {
+                // SIRA BİR KARARDIR: cümle etiketi AÇMADAN ÖNCE yazılıyor. Ters
+                // sırada oyuncu, bir önceki sebebin cümlesini taşıyan bir
+                // etiketin açıldığını görürdü ve o kare gerçekten görünür.
+                emptyLabel.text = EmptyReason(next);
                 emptyLabel.enabled = !hasList;
             }
 
@@ -158,6 +194,31 @@ namespace GridStrategy.Unity
             // yani buraya aralık dışı bir sayı gelemez ve burada ikinci bir
             // kelepçe kurmak o kuralı ikinci bir eve koymak olurdu.
             Select(next.Blueprint.DefaultProducedIndex);
+        }
+
+        /// <summary>
+        /// Panelin neden boş olduğunu söyleyen cümle.
+        /// </summary>
+        /// <param name="next">Seçili üretim hattı; yoksa <c>null</c>.</param>
+        // ██ AYIRAN ŞEY null, CanProduce DEĞİL ██ Tahtaya konan HER yapı bir
+        // üretim kaydı doğuruyor (ProductionDirector'ın defteri), yani seçili
+        // bir taret null DEĞİL — yalnız listesi boş. Bu yüzden `next == null`
+        // "hiçbir yapı seçili değil" demek, `next != null` ise "seçili yapı
+        // asker basmıyor" demek.
+        //
+        // SEÇİLİ YAPININ ADI CANLI OKUNUYOR: tanımın kendisinden geliyor, yani
+        // bir yapı yeniden adlandırıldığında bu cümle kendiliğinden düzeliyor.
+        // Yukarıdaki ProducerNames sabiti için aynı şey geçerli değil ve orada
+        // yazılı.
+        private string EmptyReason(StructureProduction next)
+        {
+            if (next == null)
+            {
+                return NoProducerSelected;
+            }
+
+            return $"{next.Blueprint.DisplayName} asker basmaz. " +
+                   $"Asker basan yapılar: {ProducerNames}.";
         }
 
         /// <summary>
