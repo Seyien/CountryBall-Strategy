@@ -57,6 +57,16 @@ namespace GridStrategy.Unity
         [Tooltip("Icon drawn on the palette button. May be left empty - the icon slot is then hidden.")]
         [SerializeField] private Sprite icon;
 
+        // ██ AÇIKLAMA BOŞ DOĞUYOR VE BOŞLUĞU BİR EKSİKLİK DEĞİL ██
+        // Türlerin kurgusu operatörün. Ölçülmüş sayılardan türetilmiş bir taslak
+        // önerilebilir ama uydurma kurgu YAZILMAZ, çünkü uydurulmuş bir cümle
+        // bilgi penceresinde ölçülmüş sayıların yanında durur ve okuyan ikisini
+        // aynı güvenle okur.
+        // Boş bırakılan açıklama pencerede bir boşluk değil, GİZLENMİŞ bir
+        // etiket üretiyor; ölçüsü UnitInfoDialogView'in Present üyesinde.
+        [Tooltip("Bilgi penceresinde görünen açıklama. Boş bırakılırsa etiket hiç çizilmez.")]
+        [SerializeField, TextArea(3, 8)] private string description;
+
         // BİR ASKER TAM BİR HÜCRE KAPLAR, ve 1 sayısı burada bir varsayılan
         // değil bir KURAL: birim hücresinden taşarsa yanındaki hücreyi boyar ve
         // oyuncu "oraya yürüyebilir miyim" sorusunu artık gözle cevaplayamaz.
@@ -115,6 +125,15 @@ namespace GridStrategy.Unity
 
         /// <summary>Panel düğmesinin simgesi; atanmamışsa <c>null</c>.</summary>
         public Sprite Icon => icon;
+
+        /// <summary>
+        /// Bilgi penceresinde görünen açıklama; yazılmamışsa boş.
+        /// </summary>
+        // DisplayName'İN TERSİNE BOŞLUK DOLDURULMUYOR: ad boş kaldığında dosya
+        // adına düşmek okunabilir bir düğme kurtarıyor, ama açıklamanın yerine
+        // dosya adını yazmak oyuncuya bir cümle vaat edip bir etiket göstermek
+        // olurdu.
+        public string Description => description;
 
         /// <summary>
         /// Bu birimin tahtada kaç hücre kapladığı; 1 tam bir hücre demektir.

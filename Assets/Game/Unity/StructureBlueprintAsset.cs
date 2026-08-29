@@ -43,6 +43,12 @@ namespace GridStrategy.Unity
         [Tooltip("Icon drawn on the palette button. May be left empty - the icon slot is then hidden.")]
         [SerializeField] private Sprite icon;
 
+        // Gerekçe UnitBlueprintAsset'te bir kez yazılı ve burada tekrar
+        // edilmiyor: açıklama boş doğar, uydurma kurgu yazılmaz ve boş bırakılan
+        // metin pencerede gizlenmiş bir etiket üretir.
+        [Tooltip("Bilgi penceresinde görünen açıklama. Boş bırakılırsa etiket hiç çizilmez.")]
+        [SerializeField, TextArea(3, 8)] private string description;
+
         // 1,25 ÖLÇÜLDÜ, SEÇİLMEDİ. Eski tek sayı 1,6 idi ve sonucu şuydu: yan
         // yana duran iki bina, çizilen görsel genişliğinin yüzde otuz yedi
         // buçuğu kadar üst üste biniyor ve birbirini boyuyordu. 1,25'te taşma
@@ -121,6 +127,11 @@ namespace GridStrategy.Unity
 
         /// <summary>Panel düğmesinin simgesi; atanmamışsa <c>null</c>.</summary>
         public Sprite Icon => icon;
+
+        /// <summary>
+        /// Bilgi penceresinde görünen açıklama; yazılmamışsa boş.
+        /// </summary>
+        public string Description => description;
 
         /// <summary>
         /// Bu yapının tahtada kaç hücre kapladığı; 1 tam bir hücre demektir.

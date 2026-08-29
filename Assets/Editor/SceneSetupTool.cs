@@ -127,17 +127,24 @@ namespace GridStrategy.EditorTools
         //    ikisini saran ızgara AYNI sayıları kullanır; üçü ayrı yerde
         //    yazılsaydı biri büyütüldüğünde öteki taşardı.
         //    44 piksel dokunma hedefi alt sınırdır ve bu ölçüler onun iki katı.
-        private const float EntryWidth = 108f;
-        private const float EntryHeight = 122f;
-        private const float EntrySpacing = 8f;
+        //
+        // ██ SAYILAR ARTIK BURADA YAZILI DEĞİL, OKUNUYOR ██
+        // Sahipleri çalışma zamanına taşındı ve bu satırlar birer TAKMA AD.
+        // Gerekçe ölçüldü: kamera çerçevesi bu paylara bağlı ve çerçeveyi artık
+        // tahta Awake'te türetiyor, yani aynı sayıyı Editor dışında da okuyan
+        // biri var. `const` = `const` yazımı ikisinin ayrışmasını DERLEYİCİYE
+        // kapatıyor — aynı kalıp StructureSizeCeiling satırında da kullanılıyor.
+        private const float EntryWidth = BoardFraming.EntryWidth;
+        private const float EntryHeight = BoardFraming.EntryHeight;
+        private const float EntrySpacing = BoardFraming.EntrySpacing;
 
         // Simge kutusu 16 pikselik karonun TAM DÖRT KATI. Ara bir sayı (60, 72)
         // seçilseydi pikseller eşit büyümez, kimi satır kalın kimi ince
         // görünürdü — piksel sanatında en görünür kusur budur.
         private const float EntryIconSize = 64f;
         private const float EntryLabelHeight = 40f;
-        private const int PaletteColumns = 2;
-        private const float StatusBarHeight = 64f;
+        private const int PaletteColumns = BoardFraming.PaletteColumns;
+        private const float StatusBarHeight = BoardFraming.StatusBarHeight;
 
         // Kenar halkasının kaç hücre kalınlığında olduğu. AYNI SAYI İKİ YERDE
         // OKUNUR: tahtaya yazılır ve kamera çerçevesine eklenir. İkisi ayrı
@@ -159,8 +166,8 @@ namespace GridStrategy.EditorTools
         // payını hesaba katmak zorunda olduğu için ikinci bir okuyucuları var.
         // Kopyalansalardı panel büyüdüğü gün kamera onu görmezden gelir ve
         // tahtanın altı sessizce örtülürdü.
-        private const float PanelHeader = 34f;
-        private const float PanelPadding = 8f;
+        private const float PanelHeader = BoardFraming.PanelHeader;
+        private const float PanelPadding = BoardFraming.PanelPadding;
 
         // ██ EKRAN KENARININ TEK SAHİBİ ██
         // Burada `PaletteMargin = 12f` ve `ProductionMargin = 14f` duruyordu ve
@@ -179,17 +186,64 @@ namespace GridStrategy.EditorTools
         // aynı sayıyla çerçeveliyor. 24, 12 ile 14'ün ortalaması değil bir
         // ÖLÇÜ: 1920x1080 referansında ekran yüksekliğinin ~%2,2'si, yani
         // dokunma hedefinin kenardan gerçekten ayrıldığı en küçük değer.
-        private const float ScreenMargin = 24f;
+        private const float ScreenMargin = BoardFraming.ScreenMargin;
 
         // Çöp kutusunun altında asılı duran etiketin yüksekliği. AYRI BİR SAYI,
         // ÇÜNKÜ AYRI BİR ŞEY: kenar payı bütün panellerin ortak payı, bu ise tek
         // bir düğmenin kendi taşmasıdır ve yalnız o düğmenin alt payına eklenir.
         private const float TrashLabelHeight = 22f;
 
+        // ── Savaş sonu panosunun ölçüleri. HEPSİ BURADA VE YALNIZ BURADA:
+        //    panoyu kuran tek yer bu araç. BattleOverView'in kendi Inspector
+        //    alanları yalnız ÜÇ RENGİ tutuyor (kazandın/kaybettin/berabere) ve
+        //    bu dosya o üçüne hiç dokunmuyor — dokunsaydı aynı renk iki yerde
+        //    yazılır, Inspector'daki her değişiklik bir sonraki kurulumda
+        //    sessizce geri alınırdı.
+        //
+        //    BAŞLIK ORTA ÇİZGİNİN ÜSTÜNDE, DÜĞME ALTINDA ve aradaki boşluk
+        //    ekran payının aynısı: ayrı bir sayı yazılsaydı kenar payı
+        //    değiştiği gün pano onunla birlikte hareket etmezdi.
+        private const float BattleOverTitleHeight = 140f;
+        private const int BattleOverTitleSize = 72;
+        private const float BattleOverButtonWidth = 320f;
+        private const float BattleOverButtonHeight = 84f;
+        private const int BattleOverButtonTextSize = 28;
+
+        // Panonun zemini YARI SAYDAM ve bu bir zevk tercihi değil: oyuncunun
+        // savaşın bittiği andaki tahtayı görmeye devam etmesi isteniyor. Tamamen
+        // opak bir zemin, "ne oldu da bitti" sorusunun cevabını da örterdi.
+        private static readonly Color BattleOverVeil = new Color(0.04f, 0.05f, 0.07f, 0.82f);
+        private static readonly Color BattleOverButtonColor = new Color(0.16f, 0.20f, 0.26f, 1f);
+
+        // ██ BİLGİ PENCERESİNİN ÖLÇÜLERİ TAHTADAN TÜRETİLMİYOR ██
+        // Yazılı yasak: pencere boardRect, width, height ve BoardSizing
+        // okumayacak. Aşağıdaki sayılar CanvasScaler'ın referans çözünürlüğüne
+        // göre yazılı, tahtanın hücre sayısına göre değil — tahta 5x10'dan
+        // 100x50'ye çıktığında pencere aynı kalır.
+        private const float InfoDialogWidth = 560f;
+        private const float InfoDialogHeight = 620f;
+        private const float InfoDialogPadding = 24f;
+        private const int InfoDialogTitleSize = 40;
+        private const float InfoDialogTitleHeight = 56f;
+        private const int InfoDialogBodySize = 24;
+        private const float InfoDialogIconSize = 96f;
+
+        // ÇARPI KARE VE 48 PİKSEL: dokunmatik hedef için yazılı alt sınır 44
+        // piksel ve bu sayı onun bir tık üstünde duruyor.
+        private const float InfoCloseButtonSize = 48f;
+
+        // Bilgi penceresinin perdesi panonunkinden DAHA SAYDAM: pano oyunun
+        // bittiğini duyuruyor ve arkasına bakılmasını istemiyor, bu pencere ise
+        // oyun sürerken açılıyor — oyuncunun tahtayı görmeye devam etmesi
+        // isteniyor.
+        private static readonly Color InfoDialogVeil = new Color(0.04f, 0.05f, 0.07f, 0.72f);
+        private static readonly Color InfoDialogWindowColor = new Color(0.12f, 0.15f, 0.20f, 1f);
+        private static readonly Color InfoCloseButtonColor = new Color(0.22f, 0.26f, 0.32f, 1f);
+
         // CanvasScaler'ın referans çözünürlüğü. Panellerin payı bu çözünürlükte
         // piksel cinsinden biliniyor; kamera onu orana çevirip kullanıyor.
-        private const float ReferenceWidth = 1920f;
-        private const float ReferenceHeight = 1080f;
+        private const float ReferenceWidth = BoardFraming.ReferenceWidth;
+        private const float ReferenceHeight = BoardFraming.ReferenceHeight;
 
         // ── 0. KATMAN: adanın çevresindeki dünya.
         //    Kuşakların genişliği hücre cinsinden. Kumsal tam 0,3 — kenar
@@ -202,64 +256,24 @@ namespace GridStrategy.EditorTools
         //    ve sığlık 1,6 iken sığlık kuşağı 10x5 tahtada ekranın üstünden
         //    1,55 birim taşıyordu — yani deniz yukarıda hiç görünmüyor, ada da
         //    ada gibi okunmuyordu.
-        private const float BeachWidth = 0.3f;
-        private const float ShoalWidth = 0.8f;
-
-        // Kuşakların dışında kalması gereken en az deniz. Sıfır olsaydı sığlık
-        // ekranın kenarına dayanır ve "adanın çevresi su" izlenimi kaybolurdu.
-        private const float SeaSliver = 0.35f;
-
-        // Denizin kameradan kaç kat büyük serileceği. 2,2 kat, 16:9'dan 3,9:1'e
-        // kadar bütün en-boy oranlarında ekranı tamamen kaplıyor; kaplayamadığı
-        // uçlarda da kameranın arka planı denizle aynı aileden olduğu için taşma
-        // görünmüyor.
-        private const float SeaOversize = 2.2f;
-
-        // Tek bir döşeli kuşağın çizebileceği en çok karo. Gerekçesi ve neden
-        // kareköke girdiği TileScaleFor'da yazılı.
-        private const float TileBudget = 8000f;
-
-        // 0. KATMANIN ÇİZİM SIRASI. BoardAdapter'ın sırası yazılı: zemin 0,
-        // birim ve yapı 1, imleç çerçevesi 2, can barı 3, kenar halkası -1.
-        // Buradaki üçü o ikisinin de ALTINDA ve aralarında onar birim var:
-        // araya yeni bir kuşak girdiğinde numaraları kaydırmak gerekmesin.
-        private const int SeaOrder = -40;
-        private const int ShoalOrder = -30;
-        private const int BeachOrder = -20;
-
-        // 0. katmanın kök nesnesinin adı. YENİDEN KURULUMDA ADIYLA TOPLANIP YOK
-        // EDİLİYOR: sahnede duran ve bir alandan görünmeyen nesne yalnız adıyla
-        // bulunabilir; toplanmasaydı her kurulumda üstüne bir deniz daha
-        // binerdi. Aynı ölçü BoardAdapter'ın "BorderRing" halkasında da geçerli.
-        private const string BackdropRootName = "WorldBackdrop";
-
-        // Kameranın tahtaya bırakacağı paylar. PlayMargin oynanabilir tahtanın
-        // çevresinde, panellerin ALTINA GİRMEYEN bir hücrelik nefes payı.
-        private const float PlayMargin = 1f;
-
-        // IslandMargin YAZILMIYOR, TÜRETİLİYOR: halkanın dışında görünmesi
-        // gereken pay, tam olarak üç kuşağın toplamı. Elle yazılmış bir sayı
-        // olsaydı — ve ilk yazıldığında öyleydi — bir kuşak genişletildiği gün
-        // kamera eski payla kalır, kuşak sessizce ekranın dışına taşardı.
-        // Ölçüldüğünde tam bu oldu: 1,6 birimlik sığlık, 0,5 birimlik payla
-        // ekranın üstünden 1,55 birim taşıyordu.
-        private const float IslandMargin = BeachWidth + ShoalWidth + SeaSliver;
-
-        // ── 0. KATMANIN RENKLERİ. Üçü de AYNI beyaz karoyu boyuyor; aralarındaki
-        //    tek fark renk ve kuşağın boyu.
-        //    ÖLÇÜLMÜŞ REFERANS: Fatihcill/CountryBall-Strategy'nin kamerası
-        //    (0.259, 0.753, 0.906) ile temizleniyor, yani açık gök mavisi.
-        //    Operatörün "daha hoş" dediği yön bu; bütün palet o maviye akraba
-        //    seçildi ve fabrika ayarı olan lacivert-grisi tamamen bırakıldı.
-        private static readonly Color SeaColor = new Color(0.243f, 0.561f, 0.769f, 1f);
-        private static readonly Color ShoalColor = new Color(0.404f, 0.753f, 0.871f, 1f);
-        private static readonly Color BeachColor = new Color(0.949f, 0.851f, 0.651f, 1f);
+        //
+        // ██ ÜÇÜNÜN DE SAHİBİ ARTIK 0. KATMANI ÇİZEN TİP ██ Kuşakları serme
+        // işi çalışma zamanına indi ve genişlikler onun yanına gitti; buradaki
+        // satırlar birer takma ad. Neyin KALDIĞI, neyin TÜRETİLDİĞİ ayrımı da
+        // orada yazılı: kuşak genişlikleri sabit kalıyor (tahtayla
+        // ölçeklenselerdi kum yine ekranı kaplardı), serildikleri ALAN ise
+        // tahtadan hesaplanıyor.
+        // İKİ TAKMA AD KALDI, DÖRDÜ SİLİNDİ: bu dosya artık kuşakların
+        // genişliğini okumuyor, çünkü serme işini yapmıyor. Okuduğu tek iki şey
+        // kökün ADI (eskisini toplamak için) ve kameranın adaya bırakacağı PAY.
+        private const string BackdropRootName = WorldBackdrop.RootName;
+        private const float IslandMargin = WorldBackdrop.IslandMargin;
 
         // Kameranın arka planı denizin bir tık AÇIĞI. Deniz zaten ekranı
         // kaplıyor, yani bu renk normalde hiç görünmüyor; görüldüğü tek an çok
         // geniş bir ekranda denizin bittiği yer ve orada ufuk gibi okunması
         // isteniyor. Bu yüzden sky mavisi ama denizle aynı aileden.
-        private static readonly Color SkyColor = new Color(0.271f, 0.588f, 0.788f, 1f);
+        private static readonly Color SkyColor = WorldBackdrop.SkyColor;
 
         [MenuItem("CountryBall/Sahneyi Kur (her şey)")]
         public static void BuildEverything()
@@ -285,6 +299,15 @@ namespace GridStrategy.EditorTools
             EnsureProductionPanel(canvas, director, entryPrefab);
             EnsureTrashButton(canvas, board);
             EnsureStatusBar(canvas, board);
+
+            // BİLGİ PENCERESİ PANONUN ALTINDA, ÖTEKİ PANELLERİN ÜSTÜNDE ve sıra
+            // bir tercih değil bir sözleşme: aynı anda tek modal duracak, ve
+            // savaş bittiğinde kazanan panonun görünmesi gereken taraf pano.
+            EnsureUnitInfoDialog(canvas, board);
+
+            // PANO EN SONDA KURULUYOR: uGUI'de çizim sırası hiyerarşi sırasıdır
+            // ve savaş sonu panosu her panelin üstünde durmak zorunda.
+            EnsureBattleOverPanel(canvas, board);
             EnsurePlacementGhost(board);
 
             // SIRA ÖNEMLİ: 0. katmanın denizi kameranın nereye baktığını ve ne
@@ -1092,7 +1115,11 @@ namespace GridStrategy.EditorTools
 
             GameObject emptyGo = Child(rect, "EmptyLabel") ?? NewUi("EmptyLabel", rect, typeof(Text));
             var emptyLabel = Need<Text>(emptyGo);
-            StyleText(emptyLabel, "Üretim yapan bir yapı seç", 20, TextAnchor.MiddleCenter);
+            // CÜMLE BURADA YAZILI DEĞİL, OKUNUYOR: paneli boş bırakan iki ayrı
+            // sebep var ve hangisinin geçerli olduğunu yalnız görünüm tipi
+            // biliyor. Bu satır Scene'de duran ÖNİZLEME; Play'de aynı sabitten
+            // doğan cümle onun üstüne yazıyor.
+            StyleText(emptyLabel, ProductionPanelView.NoProducerSelected, 20, TextAnchor.MiddleCenter);
             emptyLabel.color = new Color(0.72f, 0.74f, 0.78f, 1f);
             var emptyRect = Need<RectTransform>(emptyGo);
             emptyRect.anchorMin = new Vector2(0f, 0f);
@@ -1161,6 +1188,340 @@ namespace GridStrategy.EditorTools
         }
 
         /// <summary>
+        /// Bir türün sayılarını ve açıklamasını gösteren bilgi penceresini
+        /// kurar: perde, pencere, başlık, çarpı düğmesi, simge ve kaydırmalı
+        /// gövde.
+        /// </summary>
+        // NEDEN ARAÇTA: pencerenin dokuz nesnesi ve altı bağlantısı var. Elle
+        // kurulsaydı her biri unutulabilir bir borç olurdu ve unutulan bir
+        // bağlantı pencereyi patlatmaz, SESSİZCE eksik açardı — simgesiz,
+        // sayısız ya da hiç kapanmayan bir modal.
+        private static void EnsureUnitInfoDialog(Canvas canvas, BoardAdapter board)
+        {
+            // KÖK BOŞ, BİLEŞEN KÖKÜN ÜSTÜNDE, KAPANAN NESNE ÇOCUK. Gerekçesi
+            // BattleOverPanel'de bir kez yazılı ve burada bir madde daha
+            // ekliyor: bu pencere Escape'i de dinliyor, yani kapandığı an
+            // Update'i duran bir bileşen onu bir daha hiç açamazdı.
+            GameObject rootGo = Child(canvas.transform, "UnitInfoDialog")
+                                ?? NewUi("UnitInfoDialog", canvas.transform);
+
+            StretchFull(Need<RectTransform>(rootGo));
+            rootGo.transform.SetAsLastSibling();
+
+            GameObject dialogGo = Child(rootGo.transform, "Dialog")
+                                  ?? NewUi("Dialog", rootGo.transform);
+            RectTransform dialogRect = Need<RectTransform>(dialogGo);
+            StretchFull(dialogRect);
+
+            // ██ PERDE İLE PENCERE KARDEŞ, İÇ İÇE DEĞİL ██
+            // Pencere perdenin çocuğu olsaydı, uGUI tıklamayı en üstteki hedefe
+            // verir ama pencerenin boş bir köşesine (Image taşımayan bir yerine)
+            // yapılan tıklama perdenin düğmesine düşerdi. Oyuncu okuduğu metnin
+            // yanına dokunduğunda pencere kapanırdı.
+            GameObject veilGo = Child(dialogRect, "Veil")
+                                ?? NewUi("Veil", dialogRect, typeof(Image), typeof(Button));
+            StretchFull(Need<RectTransform>(veilGo));
+
+            // ██ PERDENİN IŞIN HEDEFİ OLMASI TAHTA İÇİN DE ÇALIŞIYOR ██
+            // BoardAdapter basış karesinde PointerIsOverUi soruyor ve cevabı
+            // EventSystem veriyor. Perde bir ışın hedefi olduğu sürece pencereyi
+            // kapatan tıklama tahtaya GEÇMEZ — bu sözleşme maddesi için tahtada
+            // tek satır kod değişmiyor.
+            Need<Image>(veilGo).color = InfoDialogVeil;
+
+            GameObject windowGo = Child(dialogRect, "Window")
+                                  ?? NewUi("Window", dialogRect, typeof(Image));
+            RectTransform windowRect = Need<RectTransform>(windowGo);
+            windowRect.anchorMin = new Vector2(0.5f, 0.5f);
+            windowRect.anchorMax = new Vector2(0.5f, 0.5f);
+            windowRect.pivot = new Vector2(0.5f, 0.5f);
+            windowRect.anchoredPosition = Vector2.zero;
+            windowRect.sizeDelta = new Vector2(InfoDialogWidth, InfoDialogHeight);
+            Need<Image>(windowGo).color = InfoDialogWindowColor;
+
+            // PENCERE PERDEDEN SONRA: çizim sırası hiyerarşi sırası ve perde
+            // sonradan eklenseydi pencereyi örterdi.
+            windowGo.transform.SetAsLastSibling();
+
+            GameObject titleGo = Child(windowRect, "Title")
+                                 ?? NewUi("Title", windowRect, typeof(Text));
+            RectTransform titleRect = Need<RectTransform>(titleGo);
+            titleRect.anchorMin = new Vector2(0f, 1f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.pivot = new Vector2(0.5f, 1f);
+
+            // BAŞLIK ÇARPI DÜĞMESİNİN SOLUNDA BİTİYOR: sağ pay, düğmenin kendi
+            // genişliği artı iki kenar payı. Ayrı bir sayı yazılsaydı düğme
+            // büyüdüğü gün başlık onun altına girerdi.
+            titleRect.offsetMin = new Vector2(
+                InfoDialogPadding, -(InfoDialogPadding + InfoDialogTitleHeight));
+            titleRect.offsetMax = new Vector2(
+                -(InfoDialogPadding * 2f + InfoCloseButtonSize), -InfoDialogPadding);
+
+            var title = Need<Text>(titleGo);
+
+            // YER TUTUCU CÜMLE, HİÇ GÖRÜNMEZ: pencereyi açan üye başlığı her
+            // seferinde kendisi yazıyor ve açmadan önce yazıyor. Cümlenin tek
+            // sahibi UnitInfoDialogView.
+            StyleText(title, "TÜR", InfoDialogTitleSize, TextAnchor.MiddleLeft);
+
+            GameObject closeGo = Child(windowRect, "CloseButton")
+                                 ?? NewUi("CloseButton", windowRect, typeof(Image), typeof(Button));
+            RectTransform closeRect = Need<RectTransform>(closeGo);
+            closeRect.anchorMin = new Vector2(1f, 1f);
+            closeRect.anchorMax = new Vector2(1f, 1f);
+            closeRect.pivot = new Vector2(1f, 1f);
+            closeRect.anchoredPosition = new Vector2(-InfoDialogPadding, -InfoDialogPadding);
+            closeRect.sizeDelta = new Vector2(InfoCloseButtonSize, InfoCloseButtonSize);
+            Need<Image>(closeGo).color = InfoCloseButtonColor;
+
+            GameObject closeLabelGo = Child(closeRect, "Label")
+                                      ?? NewUi("Label", closeRect, typeof(Text));
+            StretchFull(Need<RectTransform>(closeLabelGo));
+
+            // ÇARPI YERİNE DÜZ BİR X: yerleşik font her kod noktasını taşımıyor
+            // ve taşımadığında boş bir kare çiziyor. Kapatma düğmesinin boş
+            // görünmesi, süslü görünmemesinden çok daha pahalı.
+            StyleText(Need<Text>(closeLabelGo), "X", InfoDialogBodySize, TextAnchor.MiddleCenter);
+
+            GameObject iconGo = Child(windowRect, "Icon")
+                                ?? NewUi("Icon", windowRect, typeof(Image));
+            RectTransform iconRect = Need<RectTransform>(iconGo);
+            iconRect.anchorMin = new Vector2(0f, 1f);
+            iconRect.anchorMax = new Vector2(0f, 1f);
+            iconRect.pivot = new Vector2(0f, 1f);
+            iconRect.anchoredPosition = new Vector2(
+                InfoDialogPadding, -(InfoDialogPadding + InfoDialogTitleHeight));
+            iconRect.sizeDelta = new Vector2(InfoDialogIconSize, InfoDialogIconSize);
+
+            Image iconImage = Need<Image>(iconGo);
+
+            // ORAN KORUNUYOR: birim ve yapı görselleri kare değil ve gerilmiş
+            // bir simge, oyuncunun tahtada gördüğü şeyle aynı görünmezdi.
+            iconImage.preserveAspect = true;
+
+            // SİMGE IŞIN HEDEFİ DEĞİL: perdeyi kapatan tıklamanın önünde duran
+            // her ışın hedefi, kapanmayı sessizce yutan bir delik açar.
+            iconImage.raycastTarget = false;
+
+            GameObject scrollGo = Child(windowRect, "Body")
+                                  ?? NewUi("Body", windowRect, typeof(ScrollRect));
+            RectTransform bodyRect = Need<RectTransform>(scrollGo);
+            bodyRect.anchorMin = Vector2.zero;
+            bodyRect.anchorMax = Vector2.one;
+            bodyRect.offsetMin = new Vector2(InfoDialogPadding, InfoDialogPadding);
+            bodyRect.offsetMax = new Vector2(
+                -InfoDialogPadding,
+                -(InfoDialogPadding + InfoDialogTitleHeight + InfoDialogIconSize + InfoDialogPadding));
+
+            GameObject viewportGo = Child(bodyRect, "Viewport")
+                                    ?? NewUi("Viewport", bodyRect, typeof(Image), typeof(RectMask2D));
+            RectTransform viewportRect = Need<RectTransform>(viewportGo);
+            StretchFull(viewportRect);
+
+            // GÖRÜNMEZ AMA IŞIN ALIYOR: ScrollRect'in tekerlek ve sürükleme
+            // olayları bir ışın hedefi olmadan hiç ulaşmaz, oysa görünen bir
+            // zemin pencerenin içinde ikinci bir dikdörtgen çizerdi.
+            Image viewportImage = Need<Image>(viewportGo);
+            viewportImage.color = new Color(0f, 0f, 0f, 0f);
+
+            GameObject contentGo = Child(viewportRect, "Content")
+                                   ?? NewUi(
+                                       "Content", viewportRect,
+                                       typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            RectTransform contentRect = Need<RectTransform>(contentGo);
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.offsetMin = Vector2.zero;
+            contentRect.offsetMax = Vector2.zero;
+
+            // ██ YÜKSEKLİĞİ DÜZEN HESAPLIYOR, ARAÇ DEĞİL ██
+            // Açıklama metninin uzunluğu tasarımcıya açık ve ürettiği birim
+            // listesi de öyle. Buraya sabit bir yükseklik yazılsaydı, uzun bir
+            // açıklama sessizce kesilir ve kesildiğini kimse görmezdi.
+            var layout = Need<VerticalLayoutGroup>(contentGo);
+            layout.childControlWidth = true;
+            layout.childControlHeight = true;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.spacing = InfoDialogPadding * 0.5f;
+
+            var fitter = Need<ContentSizeFitter>(contentGo);
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            GameObject statsGo = Child(contentRect, "Stats")
+                                 ?? NewUi("Stats", contentRect, typeof(Text));
+            var stats = Need<Text>(statsGo);
+            StyleText(stats, "Can: 0", InfoDialogBodySize, TextAnchor.UpperLeft);
+
+            GameObject descriptionGo = Child(contentRect, "Description")
+                                       ?? NewUi("Description", contentRect, typeof(Text));
+            var description = Need<Text>(descriptionGo);
+            StyleText(description, string.Empty, InfoDialogBodySize, TextAnchor.UpperLeft);
+
+            var scroll = Need<ScrollRect>(scrollGo);
+            scroll.content = contentRect;
+            scroll.viewport = viewportRect;
+
+            // YALNIZ DİKEY: yatay kaydırma açık kalsaydı satırlar sağa kayabilir
+            // ve oyuncu metnin başını kaybederdi.
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+
+            UnitInfoDialogView view = rootGo.GetComponent<UnitInfoDialogView>()
+                                      ?? rootGo.AddComponent<UnitInfoDialogView>();
+
+            var so = new SerializedObject(view);
+            so.FindProperty("board").objectReferenceValue = board;
+            so.FindProperty("dialog").objectReferenceValue = dialogGo;
+            so.FindProperty("titleLabel").objectReferenceValue = title;
+            so.FindProperty("iconImage").objectReferenceValue = iconImage;
+            so.FindProperty("statsLabel").objectReferenceValue = stats;
+            so.FindProperty("descriptionLabel").objectReferenceValue = description;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // İKİ DÜĞME, TEK VARIŞ: perde ve çarpı aynı üyeye bağlanıyor.
+            // Ayrı üyelere bağlansaydı biri düzeltildiğinde öteki eskirdi.
+            BindCloseButton(Need<Button>(veilGo), view);
+            BindCloseButton(Need<Button>(closeGo), view);
+
+            // TAHTA DA PENCEREYİ TANIYOR — bağ tek yönlü değil: yukarıda
+            // pencere tahtanın BattleEnded'ini dinlemek için `board` alanını
+            // taşıyor, burada tahta da `infoDialog` alanıyla pencereyi
+            // taşıyor. Açan tıklama henüz yazılmadı (BoardAdapter.infoDialog
+            // alanındaki not bunu söylüyor); bu satır yalnız o gün ihtiyaç
+            // duyacağı sahne bağını bugünden kuruyor.
+            var boardSo = new SerializedObject(board);
+            boardSo.FindProperty("infoDialog").objectReferenceValue = view;
+            boardSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // PENCERE KAPALI KAYDEDİLİYOR, panonunkiyle aynı gerekçe: sahnenin
+            // diskteki hâli açık kalsaydı Play'e basmadan bakan biri tahtayı hiç
+            // göremezdi.
+            dialogGo.SetActive(false);
+        }
+
+        /// <summary>
+        /// Bir düğmenin tıklamasını pencereyi kapatan üyeye bağlar.
+        /// </summary>
+        // ÖNCE TEMİZLENİYOR, çöp kutusunun ve yeniden başlat düğmesinin birebir
+        // aynı gerekçesiyle: araç ikinci kez çalıştığında aynı çağrı ikinci kez
+        // eklenseydi tek tıklama üyeyi iki kez çağırırdı.
+        private static void BindCloseButton(Button button, UnitInfoDialogView view)
+        {
+            for (int i = button.onClick.GetPersistentEventCount() - 1; i >= 0; i--)
+            {
+                UnityEventTools.RemovePersistentListener(button.onClick, i);
+            }
+
+            UnityEventTools.AddVoidPersistentListener(button.onClick, view.Close);
+        }
+
+        /// <summary>
+        /// Savaş bitince açılan panoyu kurar: sonucu yazan başlık ve yeniden
+        /// başlat düğmesi.
+        /// </summary>
+        // NEDEN ARAÇTA: oyun kazanılabiliyordu ama kimse görmüyordu — sonuç
+        // yalnız Console'a düşüyordu. Panonun kökü, zemini, başlığı, düğmesi ve
+        // dört bağlantısı burada kuruluyor; operatöre sürüklenecek hiçbir alan
+        // bırakılmıyor.
+        private static void EnsureBattleOverPanel(Canvas canvas, BoardAdapter board)
+        {
+            // ██ KÖK BOŞ, BİLEŞEN KÖKÜN ÜSTÜNDE, KAPANAN NESNE ÇOCUK ██
+            // BattleOverView aboneliğini OnDisable'da bırakıyor. Bileşen kapanan
+            // nesnenin üstünde olsaydı, "savaş sürerken pano kapalı" isteği
+            // aboneliği de kapatır ve pano bir daha hiç açılmazdı.
+            GameObject rootGo = Child(canvas.transform, "BattleOverPanel")
+                                ?? NewUi("BattleOverPanel", canvas.transform);
+
+            StretchFull(Need<RectTransform>(rootGo));
+
+            // PANO HER ŞEYİN ÜSTÜNDE: uGUI çizim sırasını hiyerarşi sırası
+            // veriyor. Yeniden kurulumda kök var olan yerinde kalırdı ve
+            // sonradan eklenen bir panel panonun üstüne binerdi.
+            rootGo.transform.SetAsLastSibling();
+
+            GameObject veilGo = Child(rootGo.transform, "Veil")
+                                ?? NewUi("Veil", rootGo.transform, typeof(Image));
+            RectTransform veilRect = Need<RectTransform>(veilGo);
+            StretchFull(veilRect);
+            Need<Image>(veilGo).color = BattleOverVeil;
+
+            GameObject titleGo = Child(veilRect, "Title") ?? NewUi("Title", veilRect, typeof(Text));
+            var titleRect = Need<RectTransform>(titleGo);
+            titleRect.anchorMin = new Vector2(0f, 0.5f);
+            titleRect.anchorMax = new Vector2(1f, 0.5f);
+            titleRect.pivot = new Vector2(0.5f, 0.5f);
+            titleRect.anchoredPosition = new Vector2(0f, BattleOverTitleHeight * 0.5f);
+            titleRect.sizeDelta = new Vector2(0f, BattleOverTitleHeight);
+            var title = Need<Text>(titleGo);
+
+            // YER TUTUCU CÜMLE, HİÇ GÖRÜNMEZ: panoyu açan üye başlığı her
+            // seferinde kendisi yazıyor ve açmadan önce yazıyor. Cümlenin tek
+            // sahibi BattleOverView.
+            StyleText(title, "SAVAŞ BİTTİ", BattleOverTitleSize, TextAnchor.MiddleCenter);
+
+            GameObject buttonGo = Child(veilRect, "RestartButton")
+                                  ?? NewUi("RestartButton", veilRect, typeof(Image), typeof(Button));
+            var buttonRect = Need<RectTransform>(buttonGo);
+            buttonRect.anchorMin = new Vector2(0.5f, 0.5f);
+            buttonRect.anchorMax = new Vector2(0.5f, 0.5f);
+            buttonRect.pivot = new Vector2(0.5f, 0.5f);
+            buttonRect.anchoredPosition =
+                new Vector2(0f, -(BattleOverButtonHeight * 0.5f + ScreenMargin));
+            buttonRect.sizeDelta = new Vector2(BattleOverButtonWidth, BattleOverButtonHeight);
+            Need<Image>(buttonGo).color = BattleOverButtonColor;
+
+            GameObject labelGo = Child(buttonRect, "Label")
+                                 ?? NewUi("Label", buttonRect, typeof(Text));
+            StretchFull(Need<RectTransform>(labelGo));
+            StyleText(
+                Need<Text>(labelGo), "YENİDEN BAŞLA",
+                BattleOverButtonTextSize, TextAnchor.MiddleCenter);
+
+            BattleOverView view = rootGo.GetComponent<BattleOverView>()
+                                  ?? rootGo.AddComponent<BattleOverView>();
+
+            var so = new SerializedObject(view);
+            so.FindProperty("board").objectReferenceValue = board;
+            so.FindProperty("panel").objectReferenceValue = veilGo;
+            so.FindProperty("titleLabel").objectReferenceValue = title;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // ONCLICK KODDAN BAĞLANIYOR ve önce TEMİZLENİYOR, çöp kutusunun
+            // birebir aynı gerekçesiyle: araç ikinci kez çalıştığında aynı çağrı
+            // ikinci kez eklenseydi tek tıklama sahneyi iki kez yüklerdi.
+            var restart = Need<Button>(buttonGo);
+            for (int i = restart.onClick.GetPersistentEventCount() - 1; i >= 0; i--)
+            {
+                UnityEventTools.RemovePersistentListener(restart.onClick, i);
+            }
+
+            UnityEventTools.AddVoidPersistentListener(restart.onClick, view.RestartBattle);
+
+            // PANO KAPALI KAYDEDİLİYOR. Çalışma anında OnEnable de kapatıyor ama
+            // sahnenin diskteki hâli açık kalsaydı, Play'e basmadan bakan biri
+            // ekranı kaplayan bir pano görür ve tahtayı hiç göremezdi.
+            veilGo.SetActive(false);
+        }
+
+        /// <summary>
+        /// Bir arayüz dikdörtgenini ebeveyninin tamamına yayar.
+        /// </summary>
+        // DÖRT SATIRIN ÜÇ ÇAĞIRANI VAR ve üçü de aynı şeyi istiyor. Kopyalansaydı
+        // dördüncü kullanımda biri unutulur, panel bir kenardan yapışık kalırdı.
+        private static void StretchFull(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        /// <summary>
         /// Tahtayı ekrana yerleştirir: ada bütünüyle görünür, oynanabilir kısım
         /// da arayüz panellerinin ALTINA GİRMEZ.
         /// </summary>
@@ -1203,57 +1564,22 @@ namespace GridStrategy.EditorTools
                 return null;
             }
 
-            var so = new SerializedObject(board);
-            float width = so.FindProperty("width").intValue;
-            float height = so.FindProperty("height").intValue;
-
             camera.orthographic = true;
-            float aspect = camera.aspect > 0.01f ? camera.aspect : 16f / 9f;
 
-            // Panellerin yediği ekran payı ORAN olarak. Piksel değil oran,
-            // çünkü kamera dünyayı birimle ölçüyor ve iki ölçü ancak burada
-            // buluşabiliyor. Sayılar CanvasScaler'ın referans çözünürlüğünde
-            // geçerli; match 0,5 ile başka en boy oranlarında birkaç yüzde
-            // kayıyorlar ve PlayMargin o kaymayı zaten yutuyor.
-            // ÜÇ PAY DA AYNI SAHİPTEN: paneller ScreenMargin ile yerleşiyor,
-            // kamera da aynı sayıyla çerçeveliyor. Eskiden kamera PaletteMargin
-            // ve ProductionMargin'i okuyordu, oysa panelleri KURAN satırlar
-            // çıplak 12 ve 14 yazıyordu — iki sayı ayrıştığı gün tahtanın kenarı
-            // sessizce panelin altına girerdi.
-            float leftInset = (ScreenMargin + PaletteWidth()) / ReferenceWidth;
-            float topInset = StatusBarHeight / ReferenceHeight;
-            float bottomInset = (ScreenMargin + ProductionHeight()) / ReferenceHeight;
+            // ██ HESAP ARTIK BURADA DEĞİL, ÇALIŞMA ZAMANINDA ██
+            // Formülün gövdesi BoardFraming.Frame'e taşındı ve buradan
+            // ÇAĞRILIYOR. Ölçü şu: aynı formülün ikinci bir kopyası burada
+            // kalsaydı, tahta Awake'te bir çerçeve hesaplar, araç Scene
+            // görünümü için başkasını yazar ve ikisi ayrıştığında Play tuşu
+            // ekranı zıplatırdı.
+            BoardFrame frame = BoardFraming.Frame(
+                BoardRectOf(board), DressedMarginOf(board), camera.aspect);
 
-            // BOŞ ALANIN MERKEZİ EKRANIN MERKEZİ DEĞİL: solda ve altta panel
-            // var, sağda ve üstte neredeyse yok. Tahtanın boş alanın ortasına
-            // oturması için kameranın ters yöne kayması gerekiyor.
-            float shiftX = leftInset * 0.5f;
-            float shiftY = (bottomInset - topInset) * 0.5f;
+            camera.orthographicSize = frame.HalfHeight;
 
-            // İSTEK 1 — oynanabilir tahta panelsiz dikdörtgene sığsın.
-            float freeWidth = 1f - leftInset;
-            float freeHeight = 1f - topInset - bottomInset;
-            float playSize = Mathf.Max(
-                (height + 2f * PlayMargin) / (2f * freeHeight),
-                (width + 2f * PlayMargin) / (2f * aspect * freeWidth));
-
-            // İSTEK 2 — ada tümüyle görünsün. KAYMA PAYDAYA GİRİYOR: kamera
-            // kaydığı yönde o kadar az görüyor, yani kaymayı hesaba katmayan bir
-            // "sığar" hesabı adanın üst sırasını ekranın dışında bırakırdı.
-            // Mutlak değer, kayma ters yöne döndüğünde de dar kenarı bulsun diye.
-            float islandHalfHeight = height * 0.5f + BorderThickness + IslandMargin;
-            float islandHalfWidth = width * 0.5f + BorderThickness + IslandMargin;
-            float islandSize = Mathf.Max(
-                islandHalfHeight / (1f - 2f * Mathf.Abs(shiftY)),
-                islandHalfWidth / (aspect * (1f - 2f * Mathf.Abs(shiftX))));
-
-            camera.orthographicSize = Mathf.Max(playSize, islandSize);
-
-            float viewHeight = 2f * camera.orthographicSize;
-            camera.transform.position = new Vector3(
-                width * 0.5f - shiftX * viewHeight * aspect,
-                height * 0.5f - shiftY * viewHeight,
-                -10f);
+            // Z KORUNMUYOR, YAZILIYOR: kurulum aracının kamerayı ilk kez
+            // yerleştirdiği hâl bu ve -10 tahtanın düzleminin arkası.
+            camera.transform.position = new Vector3(frame.Centre.x, frame.Centre.y, -10f);
 
             // ZEMİN RENGİ ARTIK GÖK MAVİSİ. Fabrika ayarı olan lacivert grisi
             // (0.192, 0.302, 0.475) ekranda "kurulmamış proje" gibi duruyordu;
@@ -1267,30 +1593,59 @@ namespace GridStrategy.EditorTools
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = SkyColor;
 
-            AttachCameraRig(camera, width, height, aspect);
+            AttachCameraRig(camera, BoardRectOf(board), frame);
             return camera;
         }
 
         /// <summary>
-        /// Kameraya gezinme bileşenini takar ve çerçeveleme sayılarını ona yazar.
+        /// Tahtanın dünya dikdörtgenini, çalışma zamanının kullandığı kapıdan
+        /// okur.
         /// </summary>
-        // ██ SAYININ SAHİBİ BU ARAÇ, KOPYASI KAMERADA ██
-        // Kaydırmanın sınırı ve yakınlaştırmanın tavanı, yukarıda hesaplanan
-        // çerçeveden türüyor. Rig o dört sayıyı Inspector'da TAŞIYOR ama
-        // YAZMIYOR — elle doldurulması bir hata ve alanların Tooltip'leri bunu
-        // söylüyor. Tek yazan burası olduğu için panel genişliği değiştiğinde
-        // araç bir kez koşuyor ve kamera da yeni sınırı öğreniyor.
+        // SerializedObject DEĞİL, ÖZELLİK: burada `FindProperty("width")`
+        // duruyordu ve bir DİZE anahtarıydı — alan yeniden adlandırıldığı gün
+        // derleyici susar, araç sessizce 0x0 bir tahta çerçevelerdi. Bileşenin
+        // kendi özelliği aynı cevabı derleyicinin denetimi altında veriyor.
+        private static Rect BoardRectOf(BoardAdapter board)
+        {
+            return board.WorldRect;
+        }
+
+        /// <summary>
+        /// Tahtanın dışında görünmesi gereken süs payı.
+        /// </summary>
+        // İKİ PARÇADAN TOPLANIYOR VE İKİSİ DE BAŞKA YERİN MALI: halkanın
+        // kalınlığı tahtanın Inspector alanı, kuşakların payı 0. katmanı çizen
+        // tipin sabiti. Aynı toplama BoardAdapter.DressedMargin içinde de var;
+        // ikisi de aynı iki sahibi topluyor, yani ayrışamazlar.
+        private static float DressedMarginOf(BoardAdapter board)
+        {
+            return RingThicknessOf(board) + IslandMargin;
+        }
+
+        /// <summary>
+        /// Kameraya gezinme bileşenini takar ve ÖNİZLEME sayılarını ona yazar.
+        /// </summary>
+        // ██ ÇEVRİLEN KARAR: SAYININ SAHİBİ ARTIK BU ARAÇ DEĞİL ██
+        // Burada "sayının sahibi bu araç, kopyası kamerada" yazıyordu ve
+        // gerekçesi o gün doğruydu: panel payları Editor'da yaşıyordu, çalışma
+        // zamanı onları göremiyordu. Ters çeviren ölçüm şu — tasarımcı tahtayı
+        // 100x50'den 5x10'a indirdi, araç koşmadı ve dört sayı da eski tahtayı
+        // tarif etmeye devam etti. Bir sayının sahibi, o sayının GİRDİSİNİ
+        // değiştirebilen yüzeyi görmek zorundadır; menü göremiyordu.
         //
-        // REDDEDİLEN — rig'in panel paylarını kendi hesaplaması:
-        //     float leftInset = (ScreenMargin + PaletteWidth()) / ReferenceWidth;
-        // KIRDIĞI ŞEY: bu dört sabit Editor aracının içinde yaşıyor ve arayüzü
-        // KURAN satırlarla aynı yerde durmalarının sebebi de bu. Çalışma
-        // zamanına ikinci bir kopya inseydi aynı nicelik iki yerde yazılabilir
-        // olurdu — bu turda `PaletteMargin`/`ProductionMargin` yalanının
-        // düzeltilme sebebi tam olarak buydu.
-        // NE ZAMAN KAZANIRDI: paneller çalışma zamanında yeniden boyutlandığı
-        // gün; o gün pay bir sabit değil bir olaydır ve sahibi de araç olmaz.
-        private static void AttachCameraRig(Camera camera, float width, float height, float aspect)
+        // BUGÜN OTORİTE TAHTA: BoardAdapter Awake'te aynı formülü çağırıp
+        // rig'e yazıyor. Bu üye YİNE de yazıyor, ama artık ÖNİZLEME olarak —
+        // Play'e basmadan Scene görünümünün doğru durması için.
+        //
+        // REDDEDILEN - aracın rig'e hiç yazmaması.
+        //     // AttachCameraRig(camera, ...);   // otorite Awake'te, burası sussun
+        // KIRILAN: Scene görünümü Play'e basmadan yanlış kalırdı ve sahneyi
+        // açan biri "kamera bozuk" diye okurdu. Önizleme ile otoritenin AYNI
+        // formülden doğması, ikisinin ayrışmasını zaten imkânsız kılıyor.
+        // KAZANIRDI: Scene görünümü de tahtayı canlı dinleseydi — bugün böyle
+        // bir dinleyici yok, çünkü bu bileşen ExecuteAlways taşımıyor.
+        // TEK CUMLE: araç önizlemeyi yazar, tahta otoriteyi.
+        private static void AttachCameraRig(Camera camera, Rect board, BoardFrame frame)
         {
             var rig = camera.GetComponent<BoardCameraRig>();
             if (rig == null)
@@ -1300,16 +1655,7 @@ namespace GridStrategy.EditorTools
 
             Undo.RecordObject(rig, "Board camera rig");
 
-            // TAHTANIN DÜNYA DİKDÖRTGENİ: hücre (0,0) merkezi (0.5, 0.5) olduğu
-            // için tahta [0,width] x [0,height] aralığını kaplıyor. Hücre
-            // merkezlerinden değil KENARLARINDAN kurulmasının sebebi, kesişme
-            // kuralının kenarları ölçmesi.
-            Vector3 p = camera.transform.position;
-            rig.WriteHomeFraming(
-                new Rect(0f, 0f, width, height),
-                new Vector2(p.x, p.y),
-                camera.orthographicSize,
-                aspect);
+            rig.WriteHomeFraming(board, frame.Centre, frame.HalfHeight, frame.Aspect);
 
             EditorUtility.SetDirty(rig);
         }
@@ -1357,129 +1703,37 @@ namespace GridStrategy.EditorTools
                 return;
             }
 
-            var so = new SerializedObject(board);
-            float width = so.FindProperty("width").intValue;
-            float height = so.FindProperty("height").intValue;
-
-            var root = new GameObject(BackdropRootName);
-            var boardCentre = new Vector2(width * 0.5f, height * 0.5f);
-
-            // Adanın dış ölçüsü: oynanabilir tahta ARTI kenar halkası. Halkanın
-            // kalınlığı burada da okunuyor çünkü kuşaklar halkanın dışından
-            // başlamak zorunda; içeriden başlasalardı toprağın üstüne binerlerdi.
-            float islandWidth = width + 2f * BorderThickness;
-            float islandHeight = height + 2f * BorderThickness;
-
-            // DENİZ KAMERAYA GÖRE ORTALANIYOR, TAHTAYA GÖRE DEĞİL. Kamera
-            // panelleri boşaltmak için sola ve aşağı kaymış durumda; deniz
-            // tahtaya göre ortalansaydı kameranın kaydığı yönde ekranın kenarı
-            // açıkta kalırdı.
-            Vector2 seaCentre = camera != null
-                ? new Vector2(camera.transform.position.x, camera.transform.position.y)
-                : boardCentre;
-
-            float seaHeight = camera != null
-                ? 2f * camera.orthographicSize * SeaOversize
-                : islandHeight * SeaOversize * 2f;
-            float seaAspect = camera != null && camera.aspect > 0.01f ? camera.aspect : 16f / 9f;
-
-            Plate(root.transform, "OpenSea", tile, SeaColor,
-                seaCentre, new Vector2(seaHeight * seaAspect, seaHeight), SeaOrder);
-
-            Plate(root.transform, "Shoal", tile, ShoalColor, boardCentre,
-                new Vector2(islandWidth + 2f * ShoalWidth, islandHeight + 2f * ShoalWidth),
-                ShoalOrder);
-
-            Plate(root.transform, "Beach", tile, BeachColor, boardCentre,
-                new Vector2(islandWidth + 2f * BeachWidth, islandHeight + 2f * BeachWidth),
-                BeachOrder);
-        }
-
-        /// <summary>
-        /// 0. katmanın tek bir kuşağını serer.
-        /// </summary>
-        // KARO GERİLMİYOR, DÖŞENİYOR. Ölçek verilseydi 16 pikselik desen ekran
-        // boyunda tek bir lekeye dönerdi; SpriteDrawMode.Tiled aynı karoyu yan
-        // yana tekrarlıyor ve deseni hücre ölçüsünde tutuyor — yani 0. katman
-        // ile tahta AYNI ritmi paylaşıyor.
-        private static void Plate(
-            Transform parent, string name, Sprite tile, Color color,
-            Vector2 centre, Vector2 size, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, worldPositionStays: false);
-            go.transform.position = new Vector3(centre.x, centre.y, 0f);
-
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = tile;
-            renderer.color = color;
-
-            // ██ KARO SAYISI BİR BÜTÇEYE KELEPÇELENİYOR ██
-            // Operatör tahtayı 10x5'ten 100x50'ye çıkardığında Unity şunu
-            // bastı: "Cannot generate 9 slice most likely because the size is
-            // too big. Requires 161872 vertices and 242808 indices." Sebep
-            // burasıydı: döşeli bir SpriteRenderer karo BAŞINA dört köşe
-            // üretiyor ve tek bir mesh 65535 köşeyi (16 bit indeks) aşamıyor.
-            // Aşınca Unity mesh'i hiç kurmuyor — yani DENİZ ÇİZİLMİYORDU.
+            // ██ SERME İŞİ ARTIK ÇALIŞMA ZAMANINDA, BURASI YALNIZ KURUYOR ██
+            // Kuşakların boyu tahtadan türüyor ve tahtayı değiştiren yüzey bu
+            // menü değil, Inspector'daki width/height alanları. Ölçüldü: 100x50
+            // için serilen 102,6x52,6 birimlik kumsal, tahta 5x10'a indikten
+            // sonra da sahnede öylece durdu ve kameranın gördüğü her piksel
+            // onun içinde kaldı — operatörün "çöl" dediği şey buydu.
             //
-            // ÖLÇEK BÜYÜTÜLÜYOR, ALAN KÜÇÜLTÜLMÜYOR: aynı dünya alanı aynı
-            // kalıyor, yalnız her karo daha büyük çiziliyor. Alanı kırpmak
-            // ekranın kenarını açıkta bırakırdı ve denizin var olma sebebi tam
-            // olarak orayı kapatmak.
-            float scale = TileScaleFor(tile, size);
-            go.transform.localScale = new Vector3(scale, scale, 1f);
+            // AYNI ÜYE HEM KURAR HEM YAZAR: karo verildiğinde eksik kuşağı
+            // kuruyor, sonra üçünün de boyunu tahtaya göre yazıyor. Çalışma
+            // zamanı aynı üyeyi karosuz çağırıyor, yani boyu düzeltiyor ama
+            // eksik kuşağı kurmuyor.
+            var root = new GameObject(BackdropRootName);
+            BoardFrame frame = BoardFraming.Frame(
+                BoardRectOf(board), DressedMarginOf(board),
+                camera != null ? camera.aspect : 0f);
 
-            // SIRA ÖNEMLİ: size yalnız döşeme kipinde yazılabiliyor, kip Simple
-            // kaldığı sürece sessizce yok sayılıyor.
-            renderer.drawMode = SpriteDrawMode.Tiled;
-            renderer.tileMode = SpriteTileMode.Continuous;
-
-            // BOY YEREL UZAYDA YAZILIYOR: transform ölçeği onu zaten çarpıyor,
-            // yani istenen dünya boyunu almanın tek yolu o çarpanı burada
-            // bölmek. Aynı düzeltme can barında da var ve gerekçesi orada
-            // yazılı.
-            renderer.size = size / scale;
-            renderer.sortingOrder = order;
+            WorldBackdrop.Build(
+                root.transform, tile, BoardRectOf(board), RingThicknessOf(board), frame);
         }
 
         /// <summary>
-        /// Döşeli bir kuşağın karo sayısını mesh bütçesinin altında tutan ölçek.
+        /// Kenar halkasının sahnede yazılı kalınlığı.
         /// </summary>
-        /// <returns>1 ya da daha büyük bir çarpan; bütçe aşılmıyorsa tam 1.</returns>
-        // ██ SAYI YAZILMIYOR, TÜRETİLİYOR ██
-        // "Deniz için ölçek 3 yaz" denebilirdi ve o sayı 100x50'de doğru,
-        // 10x5'te ise deseni gereksizce kabalaştıran bir yalan olurdu. Çarpan
-        // karonun KENDİ dünya boyundan ve istenen alandan hesaplanıyor, yani
-        // tahta büyüdükçe kendiliğinden büyüyor ve küçük tahtada tam 1 kalıyor.
-        //
-        // BÜTÇE 8000 KARO = 32000 KÖŞE ve tavan olan 65535'in yarısı. Yarısı,
-        // çünkü Unity'nin kendi iç payları (kenar karoları, yuvarlama) sayıyı
-        // birkaç yüz artırabiliyor ve tam tavana yaslanan bir bütçe bir gün
-        // sessizce aşardı.
-        //
-        // KAREKÖK, BÖLME DEĞİL: karo sayısı ALANLA büyüyor, yani ölçeği k
-        // yapmak sayıyı k KARE kadar azaltıyor. Doğrudan bölünseydi büyük
-        // tahtada bütçe yine aşılırdı.
-        private static float TileScaleFor(Sprite tile, Vector2 size)
+        // TAHTADAN OKUNUYOR, BU DOSYADAN DEĞİL: BorderThickness halkayı
+        // tahtaya YAZAN sayı; kuşaklar ise sahnede DURAN halkanın dışından
+        // başlamak zorunda ve tasarımcı o alanı elle değiştirmiş olabilir.
+        private static float RingThicknessOf(BoardAdapter board)
         {
-            if (tile == null)
-            {
-                return 1f;
-            }
-
-            Vector2 tileWorld = tile.bounds.size;
-            if (tileWorld.x <= 0.0001f || tileWorld.y <= 0.0001f)
-            {
-                return 1f;
-            }
-
-            float tiles = (size.x / tileWorld.x) * (size.y / tileWorld.y);
-            if (tiles <= TileBudget)
-            {
-                return 1f;
-            }
-
-            return Mathf.Sqrt(tiles / TileBudget);
+            var so = new SerializedObject(board);
+            SerializedProperty thickness = Optional(so, "borderThickness");
+            return thickness != null ? thickness.intValue : BorderThickness;
         }
 
         /// <summary>
@@ -1580,20 +1834,19 @@ namespace GridStrategy.EditorTools
         /// <summary>
         /// Sol paletin genişliği ve üretim panelinin yüksekliği.
         /// </summary>
-        // İKİ OKUYUCU: paneli kuran üye ile kamerayı çerçeveleyen üye. Sayılar
-        // orada da burada da yazılsaydı düğme büyüdüğü gün panel büyür, kamera
-        // ise eski payı kullanmaya devam eder ve tahtanın kenarı sessizce
-        // panelin altına girerdi.
+        // ÜÇ OKUYUCU OLDU: paneli kuran üye, kamerayı çerçeveleyen üye ve
+        // çalışma zamanında çerçeveyi türeten tahta. Hesap üçüncü okuyucunun
+        // yanına taşındı; bu iki üye artık yalnız birer kısayol. Gövde burada
+        // kalsaydı düğme büyüdüğü gün panel büyür, çalışma zamanı ise eski payı
+        // kullanmaya devam ederdi.
         private static float PaletteWidth()
         {
-            return PaletteColumns * EntryWidth
-                   + (PaletteColumns - 1) * EntrySpacing
-                   + 2f * EntrySpacing;
+            return BoardFraming.PaletteWidth();
         }
 
         private static float ProductionHeight()
         {
-            return EntryHeight + PanelHeader + 2f * PanelPadding;
+            return BoardFraming.ProductionHeight();
         }
 
         private static Sprite Sprite(string path)

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: "Ke\u015Fif U\xE7a\u011F\u0131"
   icon: {fileID: 21300000, guid: 03c140b30bf91674eb073544690b2f98, type: 3}
+  description: 
   boardSizeInCells: 1
   maxHealth: 20
   damage: 6
