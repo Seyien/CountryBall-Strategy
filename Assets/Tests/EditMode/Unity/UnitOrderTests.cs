@@ -287,7 +287,7 @@ namespace GridStrategy.Tests.EditMode.Unity
         {
             Assert.That(typeof(IUnitOrderHost).GetProperty("SelectedUnit"), Is.Null,
                 "emir seçimi sorabiliyorsa seçimi bırakmak emri iptal eder");
-            Assert.That(typeof(IUnitOrderHost).GetMethods().Length, Is.EqualTo(4),
+            Assert.That(typeof(IUnitOrderHost).GetMethods().Length, Is.EqualTo(5),
                 "IPendingStrikeHost dokuz üyeydi; daralmazsa pattern kozmetik kalmış demektir");
         }
 
@@ -461,6 +461,272 @@ namespace GridStrategy.Tests.EditMode.Unity
 
             Assert.That(new AttackOrder(board, actor, enemy).Describe(), Does.Contain("Raider"));
             Assert.That(new ReviveOrder(board, actor, fallen).Describe(), Does.Contain("Scout"));
+            Assert.That(new ChaseAndStrikeOrder(board, actor, enemy).Describe(), Does.Contain("Raider"));
+            Assert.That(new StandAndStrikeOrder(board, actor, enemy).Describe(), Does.Contain("Raider"));
+        }
+
+        // ══ KARŞILIK EMRİ — KOVALAYAN ════════════════════════════════════
+        // Bu bölümün ölçtüğü şey emrin KENDİ kararları: ne zaman yürür, ne zaman
+        // vurur, ne zaman düşer. Yürünecek hücrenin DOĞRU seçildiği burada
+        // sınanmıyor — o sorunun sahibi ApproachRules ve cevabı gerçek bir
+        // tahtayla BoardAdapterTests içinde ölçülüyor.
+
+        /// <summary>
+        /// Menzil dışındaki saldırgana YÜRÜNÜR; o karede vurulmaz.
+        /// </summary>
+        // OPERATÖRÜN BİLDİRDİĞİ EKSİK TAM OLARAK BUYDU: üç hücre öteden vurulan
+        // kılıçlı savaşçı seyirci kalıyordu.
+        [Test]
+        public void ChaseAndStrikeOrder_WhenTheAggressorIsOutOfReach_WalksInsteadOfStriking()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.NextApproach = ApproachOutcome.MoveTo;
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(board.Approaches.Count, Is.EqualTo(1));
+            Assert.That(board.Strikes, Is.Empty, "yürüyen birim aynı karede vuramaz");
+        }
+
+        /// <summary>
+        /// Kendi menziline girince vurur ve emir AYAKTA kalır.
+        /// </summary>
+        [Test]
+        public void ChaseAndStrikeOrder_OnceInsideItsOwnRange_StrikesAndKeepsStanding()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.NextApproach = ApproachOutcome.AlreadyInRange;
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(board.Strikes.Count, Is.EqualTo(2));
+            Assert.That(board.Strikes[0].Target, Is.SameAs(aggressor));
+        }
+
+        /// <summary>
+        /// MENZİL DIŞINDA OLMAK BU EMRİ DÜŞÜRMEZ — <c>AttackOrder</c> ile tek
+        /// gözlenebilir fark.
+        /// </summary>
+        // ██ AYRIŞMA NOKTASININ KİLİDİ ██
+        // Aynı olgu (hedef menzilde değil) iki emirde iki ZIT cevap alıyor.
+        // Bu iddia kırmızıya döndüğü gün karşılık emri doğduğu karede ölür,
+        // çünkü karşılık emrinin var olma sebebi menzil dışında olmaktır.
+        [Test]
+        public void ChaseAndStrikeOrder_WhenTheStrikeSaysOutOfRange_KeepsTheOrderAlive()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.NextApproach = ApproachOutcome.AlreadyInRange;
+            board.AlwaysOutcome = AttackOutcome.RejectedOutOfRange;
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+
+            // AYNI GİRDİ AttackOrder'DA İPTAL ÜRETİYOR ve o dal operatörün
+            // yazılı kararı; ikisi yan yana durduğunda fark bir hata değil cins.
+            var manual = new AttackOrder(board, defender, aggressor);
+            Assert.That(manual.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+        }
+
+        /// <summary>
+        /// Saldırgana YOL YOKSA emir düşer — tasmanın üçüncü ucu.
+        /// </summary>
+        [Test]
+        public void ChaseAndStrikeOrder_WhenThereIsNoPathToTheAggressor_IsCancelled()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.NextApproach = ApproachOutcome.RejectedUnreachable;
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+            Assert.That(board.Strikes, Is.Empty);
+        }
+
+        /// <summary>
+        /// Saldırgan tahtadan kalktı: emir düşer ve savaşa HİÇ dokunulmaz.
+        /// </summary>
+        // İKİ İDDİA DA GEREKLİ: konumu olmayan bir kimliğe yaklaşma ya da
+        // saldırı çağrısı bir oyun sonucu değil bir istisna üretir.
+        [Test]
+        public void ChaseAndStrikeOrder_WhenTheAggressorLeftTheBoard_IsCancelledWithoutTouchingTheBattle()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.TakeOffBoard(aggressor);
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+            Assert.That(board.Approaches, Is.Empty);
+            Assert.That(board.Strikes, Is.Empty);
+        }
+
+        /// <summary>
+        /// Saldırgan öldü ya da karşılık veren düştü: beklemekle düzelmeyen ret
+        /// emri düşürür.
+        /// </summary>
+        [TestCase(AttackOutcome.RejectedInvalidTarget)]
+        [TestCase(AttackOutcome.RejectedActorCannotAct)]
+        public void ChaseAndStrikeOrder_OnARejectionThatWaitingCannotFix_IsCancelled(AttackOutcome rejection)
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.NextApproach = ApproachOutcome.AlreadyInRange;
+            board.AlwaysOutcome = rejection;
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+        }
+
+        /// <summary>
+        /// Görsel yürürken ne yaklaşma sorulur ne de vurulur.
+        /// </summary>
+        // SORU YAKLAŞMADAN ÖNCE: tahta hareketi ANINDA işledi, yani yaklaşma
+        // sorulsaydı "zaten menzildesin" cevabı gelir ve savaşçı yolun
+        // ortasındayken vururdu.
+        [Test]
+        public void ChaseAndStrikeOrder_WhileTheViewIsWalking_NeitherApproachesNorStrikes()
+        {
+            var board = new FakeOrderBoard();
+            var defender = new Unit("Vanguard");
+            var aggressor = new Unit("Archer");
+            board.PutOnBoard(defender, aggressor);
+            board.StartWalking(defender);
+
+            var order = new ChaseAndStrikeOrder(board, defender, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(board.Approaches, Is.Empty);
+            Assert.That(board.Strikes, Is.Empty);
+        }
+
+        // ══ KARŞILIK EMRİ — YERİNDE DURAN ════════════════════════════════
+
+        /// <summary>
+        /// Yapı karşılık verir ama YÜRÜMEZ: tahtadan tek bir hareket istemez.
+        /// </summary>
+        // ██ STRATEGY AYRIMININ KENDİSİ BU İDDİA ██
+        // İki uygulama aynı sözleşmeyi taşıyor ve aynı deftere yazılıyor; fark
+        // yalnız burada görünüyor — bu emir hareket üyesine HİÇ dokunmuyor.
+        [Test]
+        public void StandAndStrikeOrder_WhenItRetaliates_NeverAsksTheBoardToMove()
+        {
+            var board = new FakeOrderBoard();
+            var fort = new Unit("Tower");
+            var aggressor = new Unit("Raider");
+            board.PutOnBoard(fort, aggressor);
+
+            var order = new StandAndStrikeOrder(board, fort, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+
+            Assert.That(board.Approaches, Is.Empty, "yapı yürüyemez");
+            Assert.That(board.Strikes.Count, Is.EqualTo(2));
+        }
+
+        /// <summary>
+        /// Menzil dışındaki saldırgan için yapı BEKLER; emri düşmez.
+        /// </summary>
+        // "MENZİLDEYSEM VUR, DEĞİLSEM BEKLE" — iptal edilseydi taret, uzaktan
+        // atış yapan düşman ilerlediğinde onu unutmuş olurdu.
+        [Test]
+        public void StandAndStrikeOrder_WhenTheAggressorIsOutOfRange_WaitsInsteadOfDying()
+        {
+            var board = new FakeOrderBoard();
+            var fort = new Unit("Tower");
+            var aggressor = new Unit("Raider");
+            board.PutOnBoard(fort, aggressor);
+            board.AlwaysOutcome = AttackOutcome.RejectedOutOfRange;
+
+            var order = new StandAndStrikeOrder(board, fort, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Continue));
+        }
+
+        /// <summary>
+        /// Saldırgan geçerli hedef olmaktan çıktı ya da yapı yıkıldı: emir düşer.
+        /// </summary>
+        [TestCase(AttackOutcome.RejectedInvalidTarget)]
+        [TestCase(AttackOutcome.RejectedActorCannotAct)]
+        public void StandAndStrikeOrder_OnARejectionThatWaitingCannotFix_IsCancelled(AttackOutcome rejection)
+        {
+            var board = new FakeOrderBoard();
+            var fort = new Unit("Tower");
+            var aggressor = new Unit("Raider");
+            board.PutOnBoard(fort, aggressor);
+            board.AlwaysOutcome = rejection;
+
+            var order = new StandAndStrikeOrder(board, fort, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+        }
+
+        /// <summary>
+        /// Saldırgan tahtadan kalktı: yapının emri de düşer.
+        /// </summary>
+        [Test]
+        public void StandAndStrikeOrder_WhenTheAggressorLeftTheBoard_IsCancelled()
+        {
+            var board = new FakeOrderBoard();
+            var fort = new Unit("Tower");
+            var aggressor = new Unit("Raider");
+            board.PutOnBoard(fort, aggressor);
+            board.TakeOffBoard(aggressor);
+
+            var order = new StandAndStrikeOrder(board, fort, aggressor);
+
+            Assert.That(order.Advance(), Is.EqualTo(OrderProgress.Cancelled));
+            Assert.That(board.Strikes, Is.Empty);
+        }
+
+        /// <summary>
+        /// Defter iki karşılık cinsini AYIRT ETMEDEN ilerletiyor.
+        /// </summary>
+        // ██ STRATEGY'NİN ÜÇÜNCÜ KOŞULU: TEK SÖZLEŞME ██
+        // İki uygulama, tek defter, tek çağırma noktası. Bu iddia kırmızıya
+        // döndüğü gün seçim artık çağıranda değil defterde yapılıyor demektir ve
+        // desenin adı da değişir.
+        [Test]
+        public void Book_AdvancesBothRetaliationKinds_WithoutTellingThemApart()
+        {
+            var board = new FakeOrderBoard();
+            var book = new UnitOrderBook();
+
+            var fighter = new Unit("Vanguard");
+            var fort = new Unit("Tower");
+            var aggressor = new Unit("Raider");
+            board.PutOnBoard(fighter, fort, aggressor);
+
+            book.Write(fighter, new ChaseAndStrikeOrder(board, fighter, aggressor));
+            book.Write(fort, new StandAndStrikeOrder(board, fort, aggressor));
+
+            book.Advance();
+
+            Assert.That(board.Strikes.Count, Is.EqualTo(2));
+            Assert.That(book.Count, Is.EqualTo(2), "iki karşılık emri de kalıcıdır");
         }
 
         /// <summary>
@@ -487,8 +753,21 @@ namespace GridStrategy.Tests.EditMode.Unity
             public readonly List<(Unit Reviver, Unit Target)> Revives =
                 new List<(Unit, Unit)>();
 
+            /// <summary>Yaklaşma sorusunu SORAN her çağrı buraya yazılıyor.</summary>
+            // BOŞ KALMASI DA BİR İDDİA: yerinde duran karşılık emri bu üyeye hiç
+            // dokunmuyor ve Strategy ayrımı tam olarak orada görünüyor.
+            public readonly List<(Unit Mover, Unit Target)> Approaches =
+                new List<(Unit, Unit)>();
+
             /// <summary>Hiçbir saldıran için ayrı cevap yazılmadıysa dönen sonuç.</summary>
             public AttackOutcome AlwaysOutcome = AttackOutcome.Hit;
+
+            /// <summary>Yaklaşma sorusuna verilecek cevap.</summary>
+            // VARSAYILAN "ZATEN MENZİLDE" ve bu bir kolaylık değil ölçü: bu sahte
+            // tahta hücre tutmuyor, dolayısıyla bir mesafe hesabı taklit etmesi
+            // ApproachRules'u ikinci kez yazmak olurdu. Kuralın kendi doğruluğu
+            // ApproachRulesTests'te, gerçek tahtadaki karşılığı BoardAdapterTests'te.
+            public ApproachOutcome NextApproach = ApproachOutcome.AlreadyInRange;
 
             public void PutOnBoard(params Unit[] units)
             {
@@ -543,6 +822,12 @@ namespace GridStrategy.Tests.EditMode.Unity
             public void Revive(Unit reviver, Unit target)
             {
                 Revives.Add((reviver, target));
+            }
+
+            public ApproachOutcome MoveIntoRange(Unit mover, Unit target)
+            {
+                Approaches.Add((mover, target));
+                return NextApproach;
             }
         }
     }

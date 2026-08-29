@@ -297,6 +297,21 @@ namespace GridStrategy.Unity
         [Tooltip("Starting and maximum health of each placed structure.")]
         [SerializeField, Min(1)] private int structureMaxHealth = 50;
 
+        // SEÇİLİ TÜRÜN BİLGİ PENCERESİ — sahne bağı burada, açan tıklama
+        // HENÜZ burada değil. Bağı SceneSetupTool kuruyor ve bu dosyada
+        // bugün hiçbir üye bu alanı sormuyor: bir Unit'ten hangi
+        // UnitBlueprintAsset/StructureBlueprintAsset'e ait olduğuna giden
+        // bir yol yok — SpawnUnit çıplak bir isimle, CommitPlacement
+        // Inspector sayılarıyla kuruyor, ikisi de bir varlık dosyası
+        // taşımıyor. O yol kurulmadan bu alanı bir tıklamaya bağlamak,
+        // gösterecek hiçbir şeyi olmayan bir pencere açardı.
+        // EŞİK: Unit -> BlueprintAsset eşlemesi doğduğu gün (muhtemelen
+        // IPlacementBoard sözleşmesinin bir parçası olarak) açan tıklama
+        // buraya yazılır.
+        [Header("Unit info dialog - built by CountryBall/Sahneyi Kur")]
+        [Tooltip("Optional: bir türün ayrıntı penceresi. Bugün hiçbir tıklama açmıyor.")]
+        [SerializeField] private UnitInfoDialogView infoDialog;
+
         // Unity'nin Grid bileşeni SADECE bir koordinat çevirmenidir:
         // hücre indeksi <-> dünya konumu. Hiçbir şey çizmez, kaç hücre
         // olduğunu bilmez, oyun durumu tutmaz. Tuttuğu tek şey ayarlardır
@@ -321,16 +336,22 @@ namespace GridStrategy.Unity
 
         // YAPININ GÖRSELİ İÇİN AYRI TABLO, ve ayrımı doğuran şey DEĞER tipidir:
         // birim görseli prefab'dan doğuyor ve üstünde bir UnitView taşıyor, yapı
-        // görseli ise CreateStructureVisual içinde koddan kuruluyor ve bizim
-        // hiçbir bileşenimizi taşımıyor — tek tabloda birleştirmek, olmayan bir
-        // bileşeni istemek ya da ortak ataya (Component) inip temizliğin hangi
-        // tarafta olduğunu yeniden sordurmak olurdu.
+        // görseli ise CreateStructureVisual içinde koddan kuruluyor ve kendi
+        // bileşenini orada takıyor — tek tabloda birleştirmek ortak ataya
+        // (Component) inip temizliğin hangi tarafta olduğunu yeniden sordurmak
+        // olurdu.
         //
         // BU TABLONUN YOKLUĞU BİR HATAYDI, bir sadelik değil: yapı görseli
         // doğuyor ama hiçbir yere yazılmıyordu, temizlik süpürmesi onu
         // bulamıyor, LogError basıyor ve enkaz ekranda kalıyordu.
-        private readonly Dictionary<Unit, GameObject> structureViews =
-            new Dictionary<Unit, GameObject>();
+        //
+        // ESKİ ÖLÇÜ YANLIŞTI VE DÜZELTİLDİ: burada "yapı görseli bizim hiçbir
+        // bileşenimizi taşımıyor" yazıyordu ve o cümle bir eksikliği tarif
+        // ediyordu, bir kararı değil. Çıplak GameObject tutulduğu sürece ekranın
+        // yapıya söyleyebileceği hiçbir şey yoktu; yıkılan bina ayakta duranla
+        // birebir aynı görünüyordu.
+        private readonly Dictionary<Unit, StructureView> structureViews =
+            new Dictionary<Unit, StructureView>();
 
         // Şu an seçili birim. null = seçim yok.
         private Unit selectedUnit;
@@ -367,6 +388,11 @@ namespace GridStrategy.Unity
         private BoardModeMachine modes;
         private StructurePlacementMode placementMode;
 
+        // Savaş bittikten sonraki kip. Girdiyi kapatmanın sahibi burası, çünkü
+        // "tıklama ne demek" sorusunun sahibi zaten makine.
+        // → Modes/BattleOverBoardMode.cs
+        private BattleOverBoardMode battleOverMode;
+
         // ÜÇÜ DE İLK SORULUŞTA KURULUYOR ve sebebi dilin kendisi: kipler host
         // olarak `this`i istiyor, alan başlatıcısı ise `this`i göremez (CS0027).
         // AWAKE DE OLMAZDI, ve bu ölçüldü: EditMode testleri Awake'i hiç
@@ -380,6 +406,8 @@ namespace GridStrategy.Unity
 
         private StructurePlacementMode Placement { get { EnsureModes(); return placementMode; } }
 
+        private BattleOverBoardMode BattleOver { get { EnsureModes(); return battleOverMode; } }
+
         private void EnsureModes()
         {
             if (modes != null)
@@ -388,6 +416,7 @@ namespace GridStrategy.Unity
             }
 
             placementMode = new StructurePlacementMode(this);
+            battleOverMode = new BattleOverBoardMode();
             modes = new BoardModeMachine(new IdleBoardMode());
         }
 
@@ -494,10 +523,11 @@ namespace GridStrategy.Unity
         private const string GroundMapName = "GroundTilemap";
         private const string BorderMapName = "BorderTilemap";
 
-        // Seçili yapının aldığı altın vurgu. Savaşçılarda seçim ayrı bir çerçeve
-        // nesnesinde yaşıyor; yapı görselinde öyle bir çocuk yok ve renk çarpanı
-        // burada güvenli, çünkü binanın kendi rengi hiç yazılmıyor (beyaz).
-        private static readonly Color StructureSelectedTint = new Color(1f, 0.86f, 0.45f, 1f);
+        // SEÇİM ÇARPANI ARTIK BURADA DEĞİL, StructureView'de. Taşınma sebebi
+        // ölçülmüş bir çakışma: yıkılmış bina da aynı SpriteRenderer.color
+        // alanını kullanıyor ve iki dosyadan yazılan tek alanda son yazan
+        // ötekini siler. Kenarlık çerçevesinin rengi burada KALDI — o ayrı bir
+        // çocuk nesnenin kendi rengi, gövde çarpanı değil.
 
         // Bırakılamayacak bir hücrenin üstündeki hayaletin rengi. Saydamlık
         // KORUNUYOR (0,55): opak bir kırmızı, altındaki hücreyi ve orada duran
@@ -597,6 +627,23 @@ namespace GridStrategy.Unity
         // kalırdı ve sıranın ikinci bir kopyası doğardı.
         public event Action<Team, int> TurnChanged;
 
+        /// <summary>
+        /// Savaş bittiğinde bir kez tetiklenir: kim kazandı ya da berabere.
+        /// </summary>
+        // TAHTA EKRANA HÂLÂ ÇİZMİYOR, YALNIZCA HABER VERİYOR — ve bu sınır eski
+        // hâlin yazılı sınırının aynısı: sonucu gösterecek arayüzün sahibi bu
+        // dosya değil. Değişen tek şey, o sınırın artık bir kapısı olması.
+        //
+        // OLAY BİR KEZ TETİKLENİR ve garantiyi winnerAnnounced mandalı veriyor;
+        // aynı mandal Console satırını da tekil tutuyor, yani iki kanalın
+        // tekilliği tek bir alandan geliyor.
+        //
+        // SONUÇ OLAYIN İÇİNDE TAŞINIYOR, ABONEYE SORDURULMUYOR: dinleyici
+        // "kim kazandı" diye tahtaya geri sorsaydı, cevabı üreten kuralın
+        // ikinci bir çağıranı doğardı ve o çağrı yayından SONRAKİ bir tahtayı
+        // okurdu.
+        public event Action<BattleOutcome> BattleEnded;
+
         // Son duyurulan sıra. Duyurunun İKİ kez yapılmasını engelliyor: tur
         // numarası ile takımın ikisi birden karşılaştırılıyor, çünkü iki
         // oyunculu bir sırada tur numarası aynı kalırken takım değişebilir.
@@ -606,6 +653,11 @@ namespace GridStrategy.Unity
         // Zafer bir kez duyuruldu mu. Mandal olmadan "BATTLE OVER" satırı her
         // ceset durum değiştirdikçe yeniden basılıyordu; oyuncu Console'da aynı
         // cümleyi onlarca kez görüyordu.
+        //
+        // MANDAL ARTIK İKİNCİ BİR İŞ DAHA YAPIYOR: yayın da onun arkasında
+        // duruyor. Bir dinleyici pano açarken tahtanın durumunu değiştirseydi
+        // (bir görsel yok etmek gibi) aynı kare içinde buraya geri girilirdi;
+        // mandal yayından ÖNCE yazıldığı için o geri giriş erken çıkıyor.
         private bool winnerAnnounced;
 
         // ═══ İMLEÇ ÇERÇEVESİNİN ÖNBELLEĞİ — DÖRT ANAHTAR, TEK CEVAP ══════
@@ -667,6 +719,11 @@ namespace GridStrategy.Unity
                     this);
             }
 
+            // ██ ÇERÇEVE ARTIK BURADAN DOĞUYOR, MENÜDEN DEĞİL ██
+            // Rig arandıktan HEMEN SONRA: aşağıdaki çağrı rig'e yazıyor ve
+            // rig'siz bir sahnede yalnız 0. katmanı düzeltiyor.
+            PublishBoardFraming();
+
             // Hayalet, kipte OLMADIĞIMIZ sürece çizilmez. Sahnede açık
             // bırakılmış olabilir; UnitView.Awake'in SetSelected(false) ile
             // yaptığı işin birebir aynısı — yazılı durumu değişmeze çevirmek.
@@ -701,6 +758,65 @@ namespace GridStrategy.Unity
             {
                 Debug.LogError("[Board] unitPrefab is not assigned. Assign the Unit prefab (it must carry a UnitView component) in the Inspector.", this);
             }
+        }
+
+        /// <summary>
+        /// Oynanabilir tahtanın dünya dikdörtgeni.
+        /// </summary>
+        // HÜCRE MERKEZLERİNDEN DEĞİL KENARLARINDAN: hücre (0,0) merkezi
+        // (0.5, 0.5) olduğu için tahta [0,width] x [0,height] aralığını
+        // kaplıyor. Kamera kelepçesi kesişme ölçüyor ve kesişme kenarlarla
+        // hesaplanır.
+        //
+        // battle.Width DEĞİL width: bu özellik Awake'ten ÖNCE de doğru cevap
+        // vermeli, oysa savaş nesnesi Awake'te doğuyor. İkisi zaten aynı sayı —
+        // savaşı kuran satır (`new Battle(width, height, turnMode)`) bunu tek
+        // otorite olarak bağlıyor.
+        public Rect WorldRect => new Rect(0f, 0f, width, height);
+
+        /// <summary>
+        /// Tahtanın DIŞINDA görünmesi gereken süsün genişliği, dünya birimi.
+        /// </summary>
+        // İKİ SAHİPTEN TOPLANIYOR, HİÇBİRİ BURADA YAZILI DEĞİL: halkanın
+        // kalınlığı bu bileşenin kendi Inspector alanı, kuşakların payı ise
+        // 0. katmanı çizen tipin sabiti. Toplam hiçbir yerde yazılmıyor,
+        // yalnız hesaplanıyor.
+        private float DressedMargin => borderThickness + WorldBackdrop.IslandMargin;
+
+        /// <summary>
+        /// Tahtanın dünya dikdörtgenini kameraya ve 0. katmana duyurur.
+        /// </summary>
+        // ██ OPERATÖRÜN ŞİKÂYETİ: "tahtayı 5x10 yaptım, kamera eski çerçevede" ██
+        // KÖK SEBEP: çerçeveyi yazan tek yer SceneSetupTool.AttachCameraRig'ti,
+        // yani bir Editor menüsü. Tasarımcı width/height alanını değiştirdiğinde
+        // hiçbir şey ona haber vermiyordu ve bayatladığını anlamanın yolu yoktu.
+        //
+        // YENİDEN BAŞLATMA DA BURADAN DÜZELİYOR: BattleOverView sahneyi
+        // SceneManager ile yeniden yüklüyor ve yeniden yükleme, sahnede YAZILI
+        // olan çerçeveyi geri okur. Türetme Awake'e geçtiği için yeniden
+        // başlatılan savaş da doğru çerçeveyle açılıyor.
+        //
+        // KÜRESEL ARAMA YOK: rig yukarıda ya Inspector alanından ya da
+        // MainCamera üzerinden çözülmüş durumda, kamera da onun kendi nesnesi.
+        private void PublishBoardFraming()
+        {
+            Camera view = cameraRig != null
+                ? cameraRig.GetComponent<Camera>()
+                : Camera.main;
+
+            // ÇERÇEVE RIG'SİZ DE HESAPLANIYOR: 0. katman kameranın gördüğü
+            // alana serilecek ve rig yoksa da bir şeyler serilmesi gerekiyor.
+            // Rig'i olmayan bir sahne gezinemez, ama çöl de görmemeli.
+            BoardFrame frame = BoardFraming.Frame(
+                WorldRect, DressedMargin, view != null ? view.aspect : 0f);
+
+            if (cameraRig != null)
+            {
+                cameraRig.WriteHomeFraming(
+                    WorldRect, frame.Centre, frame.HalfHeight, frame.Aspect);
+            }
+
+            WorldBackdrop.Refresh(WorldRect, borderThickness, frame);
         }
 
         // ═══ ABONELİK — VE NEDEN OnEnable/OnDisable ÇİFTİ ════════════════
@@ -791,7 +907,8 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
-        /// Savaşın bitip bitmediğini SORAR ve bittiyse Console'a tek satır yazar.
+        /// Savaşın bitip bitmediğini SORAR; bittiyse tahtayı dondurur, Console'a
+        /// tek satır yazar ve sonucu duyurur.
         /// </summary>
         // KURALI BU DOSYA YAZMIYOR ve tek satırlık kanıtı şu: aşağıda ne bir
         // sayım, ne bir durum karşılaştırması, ne de bir taraf tercihi var —
@@ -805,8 +922,16 @@ namespace GridStrategy.Unity
         // çağrılıyor. Savaş bittikten sonra kalan cesetler Downed'dan Dead'e
         // geçtikçe aynı satır yeniden basılıyordu.
         //
-        // EKRANA HİÇBİR ŞEY ÇİZİLMİYOR ve bu bir eksiklik değil bir SINIR:
-        // sonucu gösterecek arayüzün sahibi bu dosya değil.
+        // EKRANA HÂLÂ HİÇBİR ŞEY ÇİZİLMİYOR ve sınır aynı yerde duruyor: sonucu
+        // gösterecek arayüzün sahibi bu dosya değil. Değişen tek şey, o arayüzün
+        // artık haber alabilmesi.
+        //
+        // ██ WINNER DEĞİL OUTCOME SORULUYOR ██
+        // Winner beraberliği "savaş sürüyor" ile aynı cevaba indiriyor, yani iki
+        // taraf da tükendiğinde erken çıkış yapılıyor ve oyun hiçbir şey demeden
+        // donuyordu — ne Console'da satır, ne ekranda pano. Outcome o iki hâli
+        // ayırdığı için buranın erken çıkışı artık yalnız gerçekten süren bir
+        // savaşta yapılıyor. → Battle/BattleOutcome.cs
         private void AnnounceWinnerIfAny()
         {
             if (winnerAnnounced)
@@ -818,15 +943,56 @@ namespace GridStrategy.Unity
             // yalnız savaşçılardan soruyordu ve son askeri düşen tarafın ayakta
             // duran barakası hiç sayılmıyordu. İki bool'un yeri karışırsa
             // kazananın TERS okunması riski de bu imzayla birlikte düşüyor.
-            Team winner = VictoryRules.Winner(battle);
+            BattleOutcome outcome = VictoryRules.Outcome(battle);
 
-            if (winner == Team.None)
+            if (outcome == BattleOutcome.Ongoing)
             {
                 return;
             }
 
+            // ██ YAYIN EN SONDA — GEÇİŞİN SON İFADESİ ██
+            // Olayın anlamı "savaş bitti VE tahta artık girdi almıyor". O cümleyi
+            // doğru yapan iki yazım da aşağıdaki Invoke'tan önce tamamlanıyor;
+            // yayın araya girseydi pano açılmışken tahta bir kare daha tıklama
+            // kabul ederdi ve oyuncu kazandığı savaşta bir hamle daha yapardı.
+            //
+            // MANDAL KİPTEN DE ÖNCE: dinleyicinin tetikleyebileceği her geri
+            // giriş burada kesiliyor, kip geçişi ise makinenin kendi kapısından
+            // bir kez geçiyor.
             winnerAnnounced = true;
-            Debug.Log($"[Board] BATTLE OVER - {winner} wins.", this);
+            Modes.Enter(BattleOver);
+
+            // ██ KONSOL SATIRI SİLİNMEDİ, VE SEBEBİ İKİ AYRI DİNLEYİCİ ██
+            // Console'u okuyan geliştirici, panoyu okuyan oyuncu. Aynı olguyu
+            // anlatıyorlar ama biri zaman damgalı ve aranabilir bir kayıt, öteki
+            // tek karelik bir ekran; pano gelince kaydın değeri düşmüyor.
+            // Üstelik satırın metni bir testin yazılı kararı.
+            Debug.Log(BattleOverLine(outcome), this);
+
+            BattleEnded?.Invoke(outcome);
+        }
+
+        /// <summary>
+        /// Console'a düşecek tek satırı seçer.
+        /// </summary>
+        // CÜMLE HARFİ HARFİNE KORUNDU ve bunu bir test istiyor: BoardAdapterTests
+        // içindeki AnnounceWinnerIfAny_WhenTheEnemyIsWipedOut_SaysThePlayerWins
+        // "BATTLE OVER - Player wins" desenini bekliyor. Metni sonucun adına
+        // çevirmek ("PlayerWon") o testi kırardı ve kırılan şey bir yazım tercihi
+        // değil, dördüncü maddenin kanıtıydı.
+        //
+        // BERABERLİĞİN AYRI CÜMLESİ VAR çünkü eskiden hiç cümlesi yoktu: iki
+        // taraf da tükendiğinde üye erken çıkıyor ve karşılıklı yok oluş her iki
+        // kanalda da SESSİZ geçiyordu.
+        private static string BattleOverLine(BattleOutcome outcome)
+        {
+            if (outcome == BattleOutcome.Draw)
+            {
+                return "[Board] BATTLE OVER - a draw; neither side is left in play.";
+            }
+
+            Team winner = outcome == BattleOutcome.PlayerWon ? Team.Player : Team.Enemy;
+            return $"[Board] BATTLE OVER - {winner} wins.";
         }
 
         // DERİN ANLATIM: Docs/deep/konular/07-tiklamadan-eyleme.md
@@ -1274,6 +1440,42 @@ namespace GridStrategy.Unity
             ReactToRevive(reviver, revived, target, x, y);
         }
 
+        // ██ ÜÇÜNCÜ ÜYE, ÜÇÜNCÜ İŞ — VE HAREKETİN SAHİBİ DEĞİŞMEDİ ██
+        // Burada yeni bir yürüyüş yolu açılmıyor: hücreyi ApproachRules söylüyor,
+        // tahtayı BattleActions.Move taşıyor, görseli UnitWalker yürütüyor. Bu
+        // üye üçünü bir araya getiren tek satırlık bir sıradan ibaret.
+        //
+        // MENZİL SORUSU AttackRangeOf'A SORULUYOR ve o üye cevabı saldıranın
+        // KENDİ profilinden okuyor — savaşçı ya da yapı fark etmeksizin. İkinci
+        // kez okunsaydı emrin yürüdüğü menzil ile vuruşun ölçtüğü menzil sessizce
+        // ayrışır ve okçu hedefin dibine kadar yürürdü.
+        ApproachOutcome IUnitOrderHost.MoveIntoRange(Unit mover, Unit target)
+        {
+            // HÜCRE HER KAREDE TAZE OKUNUYOR: kaçan bir saldırganın yazıldığı
+            // andaki hücresine yürümek, kovalamayı hedefin ARTIK OLMADIĞI yere
+            // götürürdü.
+            if (!battle.TryGetPosition(target, out int targetX, out int targetY))
+            {
+                return ApproachOutcome.RejectedOffBoard;
+            }
+
+            ApproachOutcome plan = battle.PlanApproach(
+                mover, targetX, targetY, AttackRangeOf(mover), out int cellX, out int cellY);
+
+            if (plan != ApproachOutcome.MoveTo)
+            {
+                return plan;
+            }
+
+            // YÜRÜYÜŞ REDDEDİLİRSE CEVAP "ULAŞILAMAZ"A DÖNÜYOR ve bu bir
+            // yuvarlama değil: kural yolu var dedi ama savaş hareketi kabul
+            // etmedi (birim düştü, sırası yok). Emrin bu ikisine verecek ayrı bir
+            // tepkisi yok — ikisi de o kareyi yürünemez yapıyor.
+            return TryStartWalk(mover, cellX, cellY)
+                ? ApproachOutcome.MoveTo
+                : ApproachOutcome.RejectedUnreachable;
+        }
+
         /// <summary>
         /// Sahnede hayalete YAZILMIŞ olan sprite'ı yedek olarak saklar.
         ///
@@ -1448,10 +1650,21 @@ namespace GridStrategy.Unity
 
             structureObject.transform.localScale = StructureLocalScale(body);
 
+            // GÖRÜNÜM BİLEŞENİ BURADA TAKILIYOR, PREFAB'DA BEKLEMİYOR — ve bu
+            // REUSABLE olmanın tek satırlık kanıtı: yapı görselleri bu projede
+            // yalnız burada doğuyor, dolayısıyla bugünkü on dört yapı tanımı da
+            // yarın eklenecek olanlar da bileşeni buradan alıyor. Yeni bir tanım
+            // eklemek SIFIR satır ekran kodu istiyor.
+            //
+            // AddComponent SIRASI GÖZLENEMEZ ama gerekli: [RequireComponent] bir
+            // SpriteRenderer garanti eder, o da yukarıda zaten eklenmiş durumda —
+            // yani ikinci bir çizici doğmuyor.
+            var view = structureObject.AddComponent<StructureView>();
+
             // TABLOYA YAZMA EN SONDA: yukarıdaki kurulum satırlarından biri
             // patlarsa tabloda yarım kurulmuş bir görsele ok kalmamalı. Aynı
             // sıra Battle.AddUnit'in aboneliği en sona koymasıyla aynı sebepten.
-            structureViews.Add(structureUnit, structureObject);
+            structureViews.Add(structureUnit, view);
 
             // BARIN YÜKSEKLİĞİ ÇİZİLEN BOYDAN OKUNUYOR: aynı hesap ölçeği de
             // veriyor, dolayısıyla bar binanın tepesinde duruyor — 1,6 ölçekli
@@ -1679,13 +1892,13 @@ namespace GridStrategy.Unity
             timer = null;
 
             if (healthBarSprite == null
-                || !structureViews.TryGetValue(identity, out GameObject structureObject)
-                || structureObject == null)
+                || !structureViews.TryGetValue(identity, out StructureView structureView)
+                || structureView == null)
             {
                 return false;
             }
 
-            Transform parent = structureObject.transform;
+            Transform parent = structureView.transform;
             Vector3 parentScale = parent.localScale;
 
             // YÜKSEKLİK CAN BARINDAN OKUNUYOR, GÖRSELDEN YENİDEN HESAPLANMIYOR:
@@ -1748,6 +1961,12 @@ namespace GridStrategy.Unity
             // ölen bir birimin barı, görseli silinmeden önceki son karede eski
             // değerinde donmuş kalırdı.
             RefreshHealthBars();
+
+            // YAPI GÖRSELLERİ AYNI SEBEPLE VE AYNI YERDE: enkaz penceresi
+            // temizlikten önce başlıyor ve tam o pencerede yıkık binanın
+            // kararmış görünmesi gerekiyor. Temizlikten SONRA çağrılsaydı
+            // yıkımın ilk karesi ayakta duran bir bina gösterirdi.
+            RefreshStructureVisuals();
             AnnounceTurnIfChanged();
 
             if (battle.RemoveReadyForCleanup(cleanupBuffer) == 0)
@@ -1799,7 +2018,7 @@ namespace GridStrategy.Unity
             }
 
             structureFireBuffer.Clear();
-            foreach (KeyValuePair<Unit, GameObject> pair in structureViews)
+            foreach (KeyValuePair<Unit, StructureView> pair in structureViews)
             {
                 structureFireBuffer.Add(pair.Key);
             }
@@ -2971,6 +3190,57 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
+        /// Her yapı görselini sahibinin güncel durumuna göre tazeler.
+        ///
+        /// OYUNDA NE İŞE YARAR: taretin canı bittiğinde oyuncu kulenin çöktüğünü
+        /// görür. Bu olmadan yıkım yalnız Console'da yaşıyordu; ekranda yıkık
+        /// bina ayakta duranla BİREBİR aynı görünüyor ve enkaz penceresi boyunca
+        /// oyuncu vuruşunun işe yarayıp yaramadığını bilemiyordu.
+        /// </summary>
+        // HER KARE SORULUYOR, OLAYA BAĞLANMIYOR — ve seçim RefreshHealthBars'ın
+        // hemen üstünde ölçülerek yazılmış olanın aynısı: StructureLifecycle
+        // bilerek SESSİZ bir tip ve ona ekran için bir olay eklemek, savaş
+        // çekirdeğini ekran için değiştirmek olurdu. Tahtadaki yapı sayısı
+        // onlarla ölçüldüğü için okuma ucuz; StructureView zaten değişmeyen
+        // karelerde hiçbir iş yapmıyor.
+        //
+        // TAVAN: yapı sayısı oyuncunun yerleştirmesinden geliyor ve tahtanın
+        // hücre sayısıyla sınırlı; bu döngü hiçbir şey TAHSİS etmiyor, yalnız
+        // sözlüğü geziyor. Ölçülen tavan YOK — ölçüldüğü gün sahibi bu satır.
+        //
+        // REDDEDILEN - durumu ReactToAttack'in HitAndDestroyed dalından yazmak.
+        //     case AttackOutcome.HitAndDestroyed:
+        //         structureViews[target].SetState(StructureState.Destroyed);
+        // KIRILAN: ApplyStateVisual'ın üstünde yazılı kural — görsel SONUÇ
+        // enum'undan değil DURUMdan okunur; AttackOutcome "az önce ne oldu"yu
+        // taşır, ekranın istediği ise "şu an ne durumda"dır. Yıkımın ikinci bir
+        // yolu doğduğu gün (alan hasarı, süre dolunca çökme) o yol da tazelemeyi
+        // hatırlamak zorunda kalır ve unutmak DERLEME hatası vermez.
+        // KAZANIRDI: renk yalnız yıkım anında bir kez yazılırdı, her karede
+        // sorulmazdı.
+        // TEK CUMLE: yıkımın soranı bugün tek ama ekranın sorusu "şu an ne
+        // durumda" olduğu için cevabın kaynağı sonuç değil durum olmalı.
+        private void RefreshStructureVisuals()
+        {
+            foreach (KeyValuePair<Unit, StructureView> pair in structureViews)
+            {
+                if (pair.Value == null)
+                {
+                    continue;
+                }
+
+                // KAYDI OLMAYAN GÖRSEL SESSİZCE ATLANIYOR: süpürme ile bu tazeleme
+                // aynı karede çalışıyor ve savaştan çıkmış bir kimliğin görseli bir
+                // kare daha tabloda durabilir. LogError basmak, normal bir temizlik
+                // sırasını programcı hatası gibi gösterirdi.
+                if (battle.TryGetStructure(pair.Key, out Structure structure))
+                {
+                    pair.Value.SetState(structure.State);
+                }
+            }
+        }
+
+        /// <summary>
         /// Inspector'daki sayılardan bir savaşçı kurar.
         /// </summary>
         private Combatant NewCombatant(Team team)
@@ -3627,8 +3897,21 @@ namespace GridStrategy.Unity
         // ateş eden bir kulenin seçili olması gerekmiyor, saldıranı seçimden
         // okumak o vuruşu yanlış birime yazardı (yanlış hamle, yanlış Console
         // satırı, mermi yanlış hücreden kalkar).
+        //
+        // KARŞILIK VERME BU ÜYEDEN DOĞUYOR ve zincirin ONUNCU durağı burasıydı:
+        // vurulan taraf bu satırdan sonra hiçbir şey yapmıyordu.
+        // DERİN ANLATIM: Docs/deep/konular/11-karsilik-verme-ve-menzil.md
         private void ReactToAttack(Unit attacker, AttackOutcome outcome, Unit target, int x, int y)
         {
+            // ██ DURUM YAZIMI EKRANDAN ÖNCE ██
+            // Karşılık emri bir DURUM yazıyor (defter), aşağısı ise bir DUYURU
+            // (hamle, mermi, Console). Sıra ters olsaydı, aşağıdaki satırların
+            // birinden tetiklenen bir okuyucu defteri henüz karşılıksız görürdü.
+            if (outcome == AttackOutcome.Hit)
+            {
+                WriteRetaliation(target, attacker);
+            }
+
             // VURUŞ EKRANDA GÖRÜNÜR — ve yalnızca GERÇEKTEN vurulduğunda.
             // Reddedilen bir saldırıda da hamle oynatılsaydı oyuncu isabet ile
             // reti ayırt edemezdi; gösterim o zaman bilgi taşımaz, gürültü olurdu.
@@ -3675,16 +3958,20 @@ namespace GridStrategy.Unity
                 // oldu. Sigortanın bir oyun sonucuna harcanması, sigortayı yok
                 // etmekle aynı şeydir.
                 //
-                // BU SATIR BİR DUYURU DEĞİL, TEK DUYURU: birimler düştüğünde
-                // ekranı Battle.UnitStateChanged tazeliyor, ama yapılar o olaya
-                // KATILMIYOR — StructureLifecycle bilerek olaysız, çünkü tek
-                // geçişini yapan çağrı cevabı zaten dönüş değeriyle alıyor. O
-                // çağrının cevabının ulaştığı yer tam olarak burası.
+                // BU SATIR ARTIK TEK DUYURU DEĞİL, VE ESKİ ÖLÇÜ TAM BURADA
+                // YANLIŞTI: burada "yapı görseli bir UnitView taşımıyor, yani
+                // söylenecek bir durum yok" yazıyordu ve o cümle bir eksikliği
+                // karar gibi gösteriyordu. Yıkım ekranda hiç görünmüyordu.
                 //
-                // GÖRSELE DOKUNULMUYOR ve iki ayrı sebebi var: yapı görseli bir
-                // UnitView taşımıyor, yani söylenecek bir durum yok; enkazın
-                // sahneden kalkması ise AdvanceBattleTime'ın süpürmesinin işi ve
-                // enkaz süresi dolmadan kalkmamalı.
+                // GÖRSELE HÂLÂ BURADAN DOKUNULMUYOR, ama sebep değişti: yapının
+                // durumunu ekrana taşıyan yer RefreshStructureVisuals ve o,
+                // cevabı sonuç enum'undan değil Structure.State'ten okuyor.
+                // Yapıların Battle.UnitStateChanged'e KATILMAMASI ise duruyor —
+                // StructureLifecycle bilerek olaysız, çünkü tek geçişini yapan
+                // çağrı cevabı zaten dönüş değeriyle alıyor.
+                //
+                // Enkazın sahneden kalkması AdvanceBattleTime'ın süpürmesinin
+                // işi ve enkaz süresi dolmadan kalkmamalı.
                 //
                 // DescribeCondition ÇAĞRILMIYOR ve bu ölçülmüş bir kaçınma: o üye
                 // cevabını savaşçı defterinden okuyor, yapı kimliği orada hiç
@@ -3980,6 +4267,64 @@ namespace GridStrategy.Unity
         }
 
         /// <summary>
+        /// Vurulan tarafa, emri YOKSA, saldırgana karşılık veren bir emir yazar.
+        /// </summary>
+        // ██ BU PROJEDEKİ STRATEGY NOKTASI TAM OLARAK AŞAĞIDAKİ İKİLİ ██
+        // Emir kurmanın öteki iki noktasında (düşmana tıklama, düşmüş dosta
+        // tıklama) hangi sınıfın new'leneceği DERLEME zamanında bellidir —
+        // seçen şey programcı. Burada seçen şey program: emri doğuran olay bir
+        // vuruşun isabet etmesi ve o olay, hangi cinsin gerekeceği hakkında
+        // hiçbir şey söylemiyor. Cevabı ancak vuruş indiği anda savaşın defteri
+        // veriyor.
+        //
+        // SEÇİMİN DAYANDIĞI TEK OLGU: savunan YÜRÜYEBİLİYOR MU. Savaşçıysa
+        // kovalar, yapıysa yerinde vurur.
+        //
+        // IssueOrder ÇAĞRILMIYOR ve bu bir zorunluluk: o üye emri yazdıktan
+        // sonra seçimi bırakıyor, oysa karşılık emrini oyuncu vermedi. Elindeki
+        // birim vurulduğu her an seçimi düşen bir tahta, oyuncunun elinden
+        // birimini saniyede bir alırdı.
+        // → IssueOrder
+        // DERİN ANLATIM: Docs/deep/konular/11-karsilik-verme-ve-menzil.md
+        private void WriteRetaliation(Unit defender, Unit aggressor)
+        {
+            // ██ OYUNCUNUN EMRİ EZİLMEZ ██
+            // Deftere yazılmış bir emir oyuncunun kendi kararıdır; karşılık onu
+            // ezseydi, saldırı emri verilen savaşçı ilk yediği darbede hedefini
+            // değiştirir ve oyuncu bunu hiç istememiş olurdu. Karşılık yalnız
+            // emri OLMAYAN birime yazılır.
+            if (orders.TryGet(defender, out IUnitOrder _))
+            {
+                return;
+            }
+
+            if (battle.TryGetCombatant(defender, out Combatant _))
+            {
+                orders.Write(defender, new ChaseAndStrikeOrder(this, defender, aggressor));
+                return;
+            }
+
+            // SİLAHSIZ YAPI KARŞILIK VERMEZ ve soru Structure.CanAttack'e
+            // soruluyor: bir kışla vurulduğunda ona yazılacak emir her karede
+            // RejectedActorCannotAct alır ve doğduğu karede düşerdi.
+            //
+            // REDDEDILEN - seçimi UnitBlueprint üstünde bir alana taşımak.
+            //     retaliation = defender.Blueprint.RetaliationKind switch { ... };
+            // KIRILAN: bugün karşılık cinsi İKİ ve ikisini ayıran olgu bir tasarım
+            // tercihi değil bir yetenek — yapı yürüyemiyor. Alan, var olmayan bir
+            // seçimi oyun verisine yazar ve hangi değerin yapıya konacağını kimse
+            // söyleyemez.
+            // KAZANIRDI: üçüncü bir karşılık davranışı doğduğu gün — "kaçan birim"
+            // ya da "menzile girmeyip bekleyen birim" — çünkü o gün ayıran şey
+            // artık bir yetenek değil bir tercih olur.
+            // TEK CUMLE: iki cinste bir if, üçte bir eşleme, dörtte bir fabrika.
+            if (battle.TryGetStructure(defender, out Structure fort) && fort.CanAttack)
+            {
+                orders.Write(defender, new StandAndStrikeOrder(this, defender, aggressor));
+            }
+        }
+
+        /// <summary>
         /// Tıklanan kimlik, seçili birimin DÜŞMÜŞ bir yoldaşı mı.
         /// </summary>
         // SORUNUN İKİ YARISI DA GEREKLİ: yalnız "düşmüş mü" sorulsaydı düşmüş
@@ -4181,12 +4526,14 @@ namespace GridStrategy.Unity
             // duruyor. Sorunun ayrı bir dal olmasının sebebi sıra değil TİP —
             // yapı görselinde bir UnitView yok, dolayısıyla TryGetView onu
             // aramaya bile gidemez.
-            if (structureViews.TryGetValue(unit, out GameObject structureObject))
+            if (structureViews.TryGetValue(unit, out StructureView structureView))
             {
                 // Önce tablodan çıkar, sonra sahneden sil — gerekçe aşağıda,
                 // birim dalında bir kez yazılı ve burada TEKRAR EDİLMİYOR.
+                // Yok edilen şey BİLEŞEN değil onu taşıyan nesne: bileşeni tek
+                // başına silmek sahnede sahipsiz bir çizici bırakırdı.
                 structureViews.Remove(unit);
-                Destroy(structureObject);
+                Destroy(structureView.gameObject);
 
                 Debug.Log($"[Board] structure '{unit.Name}' was cleaned up and left the battle.", this);
                 return;
@@ -4270,28 +4617,25 @@ namespace GridStrategy.Unity
         // "No view registered for unit" hatası basıyordu, ve binanın seçili
         // olduğu ekranda HİÇ görünmüyordu.
         //
-        // RENK ÇARPANI BURADA GÜVENLİ, savaşçıda olmadığı hâlde: binanın kendi
-        // rengi hiç yazılmıyor (beyaz kalıyor), dolayısıyla çarpan bir şeyin
-        // üstüne binmiyor. Savaşçıda ise takım rengi gövdenin renginde yaşıyor
-        // ve seçim çarpanı onu bozardı — orada seçim ayrı bir çerçeve nesnesi.
+        // RENK ÇARPANI ARTIK BURADA HESAPLANMIYOR, YALNIZCA İSTENİYOR — ve eski
+        // ölçü ("binanın kendi rengi hiç yazılmıyor, çarpan bir şeyin üstüne
+        // binmiyor") artık YANLIŞ: yıkılan bina da aynı alana yazıyor. İki
+        // ekseni tek çarpımda birleştiren yer StructureView; adaptör hangi
+        // rengin çıkacağını bilmiyor, yalnız niyeti söylüyor.
         private void SetSelectionVisual(Unit unit, bool isSelected)
         {
-            if (unit != null && structureViews.TryGetValue(unit, out GameObject structureObject)
-                && structureObject != null)
+            if (unit != null && structureViews.TryGetValue(unit, out StructureView structureView)
+                && structureView != null)
             {
-                var structureRenderer = structureObject.GetComponent<SpriteRenderer>();
-                if (structureRenderer != null)
-                {
-                    structureRenderer.color = isSelected ? StructureSelectedTint : Color.white;
-                }
+                structureView.SetSelected(isSelected);
 
                 // ██ TEK BAŞINA RENK ÇARPANI YETMEDİ — VE BU ÖLÇÜLDÜ ██
                 // Operatör: "bazen yapılara tıkladığımda ne yazık ki seçili
-                // oldukları gözükmüyor." Sebep yukarıdaki satırın kendisi:
-                // StructureSelectedTint bir ÇARPAN ve binanın kendi sprite'ı
-                // zaten sıcak renkliyse çarpım neredeyse hiçbir şeyi
-                // değiştirmiyor. Sarımsı bir kışlada seçili ile seçilmemiş hâl
-                // gözle ayırt edilemiyordu.
+                // oldukları gözükmüyor." Sebep yukarıdaki satırın istediği şeyin
+                // kendisi: StructureView'deki selectedTint bir ÇARPAN ve binanın
+                // kendi sprite'ı zaten sıcak renkliyse çarpım neredeyse hiçbir
+                // şeyi değiştirmiyor. Sarımsı bir kışlada seçili ile seçilmemiş
+                // hâl gözle ayırt edilemiyordu.
                 //
                 // ÇÖZÜM SAVAŞÇIDAN GELİYOR, YENİ BİR FİKİRDEN DEĞİL: savaşçının
                 // seçimi zaten ayrı bir ÇERÇEVE nesnesinde yaşıyor
@@ -4302,7 +4646,7 @@ namespace GridStrategy.Unity
                 // ÇARPAN SİLİNMEDİ, ÜSTÜNE KONDU: ikisi birlikte "seçili" hâlini
                 // iki ayrı kanaldan (renk + kenar) anlatıyor ve tek kanal
                 // kaybolduğunda öteki ayakta kalıyor.
-                SetStructureSelectionFrame(structureObject, isSelected);
+                SetStructureSelectionFrame(structureView.gameObject, isSelected);
                 return;
             }
 

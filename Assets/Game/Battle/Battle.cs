@@ -515,6 +515,29 @@ namespace GridStrategy.Battle
         }
 
         /// <summary>
+        /// Bir birimin hedefe KENDİ menziliyle vurabilmek için durması gereken
+        /// hücreyi söyler.
+        ///
+        /// OYUNDA NE İŞE YARAR: vurulan savaşçı karşılık verirken nereye
+        /// yürüyeceğini buradan öğreniyor — kılıçlı saldırganın yanına, okçu üç
+        /// hücre ötesine.
+        /// </summary>
+        // TryFindPath'İN BİREBİR İKİZİ, ve aynı tek gerekçeyle var: `board`
+        // alanı internal ve öyle kalmalı, ama kuralın girdisi bir UnitGrid.
+        // Ekran katmanı kuralı doğrudan çağıramaz; soruyu içeri alan ince bir
+        // kapı gerekiyor.
+        //
+        // MENZİL BURADA DA SAYI, tanım değil: bu tip AttackProfile'ı tanıyor
+        // ama kural tanımıyor ve o duvarın gerekçesi ApproachRules'ta yazılı.
+        //
+        // DERİN ANLATIM: Docs/deep/konular/11-karsilik-verme-ve-menzil.md
+        public ApproachOutcome PlanApproach(
+            Unit mover, int targetX, int targetY, int range, out int cellX, out int cellY)
+        {
+            return ApproachRules.Plan(board, mover, targetX, targetY, range, out cellX, out cellY);
+        }
+
+        /// <summary>
         /// Birimin savaş durumunu verir. Kayıtlı değilse false.
         /// </summary>
         public bool TryGetCombatant(Unit unit, out Combatant combatant)

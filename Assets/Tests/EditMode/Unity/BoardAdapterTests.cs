@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
+using GridStrategy.Battle;
 using GridStrategy.Combat;
 using GridStrategy.Core;
 using GridStrategy.Unity;
@@ -212,7 +213,7 @@ namespace GridStrategy.Tests.EditMode.Unity
             // TABLODAKİ NESNE SAHNEDEKİ NESNENİN TA KENDİSİ olmalı: ayrı bir
             // GameObject'e yazılsaydı temizlik yanlış nesneyi silerdi ve enkaz
             // yine ekranda kalırdı — hiçbir şey patlamadan.
-            Assert.That(StructureViews()[standing], Is.SameAs(FindChild(standing.Name)));
+            Assert.That(StructureViews()[standing].gameObject, Is.SameAs(FindChild(standing.Name)));
         }
 
         /// <summary>
@@ -803,6 +804,76 @@ namespace GridStrategy.Tests.EditMode.Unity
             }
 
             Assert.That(lines, Is.EqualTo(1));
+        }
+
+        /// <summary>
+        /// SONUÇ EKRANA GİDEN KAPIDAN DA GEÇİYOR: pano Console'u okumuyor, bu
+        /// olayı dinliyor.
+        ///
+        /// Console satırını sayan üstteki test bu iddiayı TAŞIYAMAZ. İki kanal
+        /// aynı mandalın arkasında duruyor ama ayrı üyeler, ve biri konuşurken
+        /// öteki susabilir — o gün oyuncu hiçbir şey görmez, geliştirici ise
+        /// her şeyin yolunda olduğunu okur.
+        /// </summary>
+        [Test]
+        public void AnnounceWinnerIfAny_WhenTheEnemyIsWipedOut_PublishesThePlayerWinExactlyOnce()
+        {
+            Combatant enemy = NewCombatant(Team.Enemy);
+            battle.AddUnit(new Unit("Raider"), enemy, 2, 2);
+            KillOutright(enemy);
+
+            var announced = new List<BattleOutcome>();
+
+            // İDDİA ABONENİN İÇİNDE OKUNUYOR ve tek sebebi bu: yayının SIRASI
+            // yalnız yayın anında gözlenebilir. Dışarıdan bakan bir iddia
+            // geçişin bittiği hâli görür ve iki sıralamayı ayırt edemezdi.
+            bool frozenWhenPublished = false;
+            System.Action<BattleOutcome> collect = outcome =>
+            {
+                announced.Add(outcome);
+                frozenWhenPublished = CurrentMode().OwnsPointer;
+            };
+
+            adapter.BattleEnded += collect;
+            try
+            {
+                Invoke("AnnounceWinnerIfAny");
+                Invoke("AnnounceWinnerIfAny");
+            }
+            finally
+            {
+                adapter.BattleEnded -= collect;
+            }
+
+            Assert.That(announced, Is.EqualTo(new[] { BattleOutcome.PlayerWon }),
+                "the panel must hear the result once and only once");
+            Assert.That(frozenWhenPublished, Is.True,
+                "nobody may observe the end of the battle on a board that still takes clicks");
+        }
+
+        /// <summary>
+        /// SAVAŞ BİTİNCE TAHTA DONUYOR: yürürlüğe giren kip işaretçiyi
+        /// sahipleniyor ve <c>Update</c>'in erken çıkışı seçim, saldırı, yürüyüş,
+        /// kaydırma ve tuş akışının tamamını atlıyor.
+        ///
+        /// İDDİA GİRDİDE DEĞİL KİPTE, çünkü <c>Input</c> EditMode'da beslenemez.
+        /// Ölçülebilen şey, girdiyi okuyan dalın hangi cevaba bağlandığı.
+        /// </summary>
+        [Test]
+        public void AnnounceWinnerIfAny_AfterTheWin_LeavesAModeThatOwnsThePointer()
+        {
+            Combatant enemy = NewCombatant(Team.Enemy);
+            battle.AddUnit(new Unit("Raider"), enemy, 2, 2);
+            KillOutright(enemy);
+
+            Assert.That(CurrentMode().OwnsPointer, Is.False,
+                "setup: an unfinished battle answers every click");
+
+            Invoke("AnnounceWinnerIfAny");
+
+            Assert.That(CurrentMode(), Is.InstanceOf<BattleOverBoardMode>());
+            Assert.That(CurrentMode().OwnsPointer, Is.True,
+                "a finished battle answers none");
         }
 
         // ══ BİTİRİCİ VURUŞ ═══════════════════════════════════════════════
@@ -1826,8 +1897,295 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(Invoke("RepeatsOrder", new object[] { null }), Is.False);
         }
 
+        // ══ KARŞILIK VERME — GERÇEK TAHTA, GERÇEK KURAL ══════════════════
+        // UnitOrderTests emrin KENDİ kararlarını sahte bir pencereyle ölçüyor;
+        // burada ölçülen şey başka: yürünen hücrenin gerçekten menzil hücresi
+        // olduğu, ve seçim noktasının doğru cinsi seçtiği. İkisi ancak gerçek
+        // bir tahta, gerçek ApproachRules ve gerçek BattleActions ile görülür.
+        //
+        // TAHTA HER TESTTE FreeForAll KURULUYOR VE BU ŞART: varsayılan
+        // Alternating kipinde yaklaşma yürüyüşü sırayı devrediyor ve peşinden
+        // gelen vuruş RejectedActorCannotAct alıyor — yani emir doğduğu karede
+        // düşerdi. Üretimdeki tahta da FreeForAll; varsayılan kiple yazılmış bir
+        // test oyuncunun gördüğü davranışı ÖLÇMEZDİ.
+
         /// <summary>
-        /// Saldırı profili TAŞIYAN bir yapıyı tahtaya koyar ve kimliğini verir.        /// <summary>
+        /// UZAKTAN VURULAN KILIÇLI SAVAŞÇI saldırganın bitişiğine yürüyor ve
+        /// vardığında vuruyor.
+        /// </summary>
+        // ██ OPERATÖRÜN BİLDİRDİĞİ EKSİĞİN TAM KARŞILIĞI ██
+        // Zincir onuncu durakta bitiyordu: vurulan taraf ne bir emir alıyor ne
+        // bir hücre soruyor ne de karşılık veriyordu.
+        [Test]
+        public void Retaliation_AMeleeDefender_WalksIntoItsOwnRangeAndThenStrikes()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+            SetField("moveSpeed", 3f);
+
+            Unit defender = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            var sniperBody = NewCombatantWithRange(Team.Enemy, 3);
+            var aggressor = new Unit("Archer");
+            Assert.That(adapter.PlaceUnit(aggressor, sniperBody, 0, 3, null), Is.True, "setup");
+
+            Invoke("ReactToAttack", aggressor, AttackOutcome.Hit, defender, 0, 0);
+
+            Assert.That(Orders().TryGet(defender, out IUnitOrder order), Is.True);
+            Assert.That(order, Is.TypeOf<ChaseAndStrikeOrder>());
+            Assert.That(order.Target, Is.SameAs(aggressor));
+
+            Orders().Advance();
+
+            Assert.That(battle.TryGetPosition(defender, out int x, out int y), Is.True);
+            Assert.That(GridDistance.Between(x, y, 0, 3), Is.EqualTo(1),
+                "menzili 1 olan savaşçı saldırganın bitişiğinde durmalı");
+
+            Arrive(defender);
+
+            int before = sniperBody.CurrentHealth;
+            Orders().Advance();
+
+            Assert.That(sniperBody.CurrentHealth, Is.LessThan(before),
+                "menziline giren savaşçı karşılığını vermeli");
+        }
+
+        /// <summary>
+        /// MENZİLLİ BİRİM KENDİ MENZİLİNE GİRİP DURUYOR; saldırganın bitişiğine
+        /// gitmiyor.
+        /// </summary>
+        // ██ TEK KURAL, İKİ SAYI — VE ÖLÇÜSÜ BU TEST ██
+        // Üstteki testle arasındaki tek fark bir int; ikisi de ApproachRules'un
+        // aynı üyesini çağırıyor. Bu iddia kırmızıya döndüğü gün okçu göğüs
+        // göğüse dövüşüyor demektir.
+        [Test]
+        public void Retaliation_ARangedDefender_StopsAtItsOwnRangeInsteadOfClosingIn()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+            SetField("moveSpeed", 3f);
+
+            var defender = new Unit("Archer");
+            Assert.That(adapter.PlaceUnit(defender, NewCombatantWithRange(Team.Player, 3), 0, 0, null),
+                Is.True, "setup");
+            Unit aggressor = SpawnFighter("Raider", Team.Enemy, 0, 4);
+
+            Invoke("ReactToAttack", aggressor, AttackOutcome.Hit, defender, 0, 0);
+            Orders().Advance();
+
+            Assert.That(battle.TryGetPosition(defender, out int x, out int y), Is.True);
+            Assert.That(GridDistance.Between(x, y, 0, 4), Is.EqualTo(3),
+                "okçu üç hücre öteden atabildiği yerde durmalı");
+        }
+
+        /// <summary>
+        /// YAPI KARŞILIK VERİR AMA YÜRÜMEZ.
+        /// </summary>
+        // ██ STRATEGY NOKTASININ TAHTA TARAFINDAKİ KANITI ██
+        // Seçimi yapan olgu tek: savunan yürüyebiliyor mu. Tip iddiası burada
+        // bir tip sorgusu KOKUSU değil, testin konusunun ta kendisi — ölçülen
+        // şey hangi sınıfın seçildiği.
+        [Test]
+        public void Retaliation_AStructure_FiresBackWithoutEverMoving()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+
+            Unit tower = PlaceTower(Team.Player, range: 2, x: 0, y: 0);
+            Unit raider = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            Orders().Write(raider, new AttackOrder(adapter, raider, tower));
+            Orders().Advance();
+
+            Assert.That(Orders().TryGet(tower, out IUnitOrder order), Is.True);
+            Assert.That(order, Is.TypeOf<StandAndStrikeOrder>());
+            Assert.That(order.Target, Is.SameAs(raider));
+
+            Assert.That(battle.TryGetCombatant(raider, out Combatant raiderBody), Is.True, "setup");
+            int before = raiderBody.CurrentHealth;
+
+            Orders().Advance();
+
+            Assert.That(raiderBody.CurrentHealth, Is.LessThan(before), "taret karşılığını vermeli");
+            Assert.That(battle.TryGetPosition(tower, out int x, out int y), Is.True);
+            Assert.That(x, Is.EqualTo(0));
+            Assert.That(y, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// SİLAHSIZ YAPI karşılık emri almaz.
+        /// </summary>
+        // Kışlaya yazılacak emir her karede RejectedActorCannotAct alır ve
+        // doğduğu karede düşerdi; yazılmaması bir eksiklik değil bir kapı.
+        [Test]
+        public void Retaliation_AWeaponlessStructure_GetsNoOrderAtAll()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+
+            Unit depot = PlaceDepot(Team.Player, 0, 0);
+            Unit raider = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            Invoke("ReactToAttack", raider, AttackOutcome.Hit, depot, 0, 0);
+
+            Assert.That(Orders().Count, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// TARET BİR SAVAŞÇIYI VURUNCA savaşçı tarete yöneliyor.
+        /// </summary>
+        // ██ OPERATÖRÜN AYRICA İSTEDİĞİ HÂL ██
+        // "Taretin savaşçıya saldırması gibi durumlar için de geçerli."
+        // Saldıranın bir yapı olması hiçbir şeyi değiştirmiyor, çünkü karşılık
+        // emri saldıranın tipini hiç sormuyor — yalnız SAVUNANINKİNİ soruyor.
+        [Test]
+        public void Retaliation_WhenATurretHitsAFighter_TheFighterTurnsOnTheTurret()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+            SetField("moveSpeed", 3f);
+
+            Unit tower = PlaceTower(Team.Enemy, range: 3, x: 0, y: 0);
+            Unit fighter = SpawnFighter("Vanguard", Team.Player, 0, 3);
+
+            // ÜRETİMDEKİ YOL: kule kendiliğinden ateş ediyor, oyuncunun bir
+            // tıklaması yok. Büyük sayı bekleme penceresini kesin doldurmak için.
+            Invoke("AdvanceStructureFire", 99f);
+
+            Assert.That(Orders().TryGet(fighter, out IUnitOrder order), Is.True);
+            Assert.That(order, Is.TypeOf<ChaseAndStrikeOrder>());
+            Assert.That(order.Target, Is.SameAs(tower));
+
+            Orders().Advance();
+
+            Assert.That(battle.TryGetPosition(fighter, out int x, out int y), Is.True);
+            Assert.That(GridDistance.Between(x, y, 0, 0), Is.EqualTo(1),
+                "savaşçı kendi menziline girene kadar yürümeli");
+
+            Arrive(fighter);
+
+            Assert.That(battle.TryGetStructure(tower, out Structure fort), Is.True, "setup");
+            int before = fort.CurrentHealth;
+
+            Orders().Advance();
+
+            Assert.That(fort.CurrentHealth, Is.LessThan(before), "savaşçı tarete vurmalı");
+        }
+
+        /// <summary>
+        /// OYUNCUNUN VERDİĞİ EMİR EZİLMİYOR.
+        /// </summary>
+        // KARŞILIK YALNIZ EMRİ OLMAYAN BİRİME YAZILIR: ezseydi, saldırı emri
+        // verilen savaşçı ilk yediği darbede oyuncunun hiç istemediği bir hedefe
+        // dönerdi.
+        [Test]
+        public void Retaliation_WhenTheDefenderAlreadyHoldsAnOrder_TheOperatorsOrderSurvives()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+
+            Unit defender = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            Unit chosen = SpawnFighter("Scout", Team.Enemy, 2, 4);
+            Unit aggressor = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            Orders().Write(defender, new AttackOrder(adapter, defender, chosen));
+
+            Invoke("ReactToAttack", aggressor, AttackOutcome.Hit, defender, 0, 0);
+
+            Assert.That(Orders().TryGet(defender, out IUnitOrder order), Is.True);
+            Assert.That(order, Is.TypeOf<AttackOrder>());
+            Assert.That(order.Target, Is.SameAs(chosen));
+        }
+
+        /// <summary>
+        /// SALDIRGAN TAHTADAN KALKTI: karşılık emri bir sonraki ilerletmede düşer.
+        /// </summary>
+        [Test]
+        public void Retaliation_WhenTheAggressorLeavesTheBoard_TheOrderIsDropped()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+
+            Unit defender = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            Unit aggressor = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            Invoke("ReactToAttack", aggressor, AttackOutcome.Hit, defender, 0, 0);
+            Assert.That(Orders().Count, Is.EqualTo(1), "setup");
+
+            Assert.That(battle.RemoveUnit(aggressor), Is.True, "setup");
+            Orders().Advance();
+
+            Assert.That(Orders().Count, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// AYAKTA KALMAYAN SAVUNAN karşılık emri almaz.
+        /// </summary>
+        // KARŞILIK YALNIZ <c>Hit</c> DALINDAN DOĞUYOR ve gerekçe tek cümle:
+        // öteki üç isabet değeri savunanın DÜŞTÜĞÜNÜ, bitirildiğini ya da
+        // yıkıldığını söylüyor — karşılık verecek kimse kalmadı.
+        [TestCase(AttackOutcome.HitAndDowned)]
+        [TestCase(AttackOutcome.RejectedOutOfRange)]
+        public void Retaliation_WhenTheHitDidNotLeaveTheDefenderStanding_NoOrderIsWritten(
+            AttackOutcome outcome)
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+
+            Unit defender = SpawnFighter("Vanguard", Team.Player, 0, 0);
+            Unit aggressor = SpawnFighter("Raider", Team.Enemy, 0, 1);
+
+            Invoke("ReactToAttack", aggressor, outcome, defender, 0, 0);
+
+            Assert.That(Orders().Count, Is.EqualTo(0));
+        }
+
+        /// <summary>
+        /// Tahtayı FreeForAll kipiyle yeniden kurar.
+        /// </summary>
+        // AYRI BİR ÜYE, SetUp'A TAŞINMADI: yirmiden fazla test varsayılan
+        // Alternating kipiyle yazıldı ve bir kısmı sıra devrini AÇIKÇA ölçüyor.
+        // Kipi SetUp'ta değiştirmek onların ölçtüğü şeyi sessizce silerdi.
+        private void UseFreeForAllBoard()
+        {
+            var freeForAll = new Battle(Width, Height, global::GridStrategy.Battle.TurnMode.FreeForAll);
+            SetField("battle", freeForAll);
+            battle = freeForAll;
+        }
+
+        /// <summary>
+        /// Menzili SetUp'takinden farklı bir savaşçı kurar.
+        /// </summary>
+        // NewCombatant'IN İKİZİ VE TEK FARKI MENZİL: "tek kural, iki sayı"
+        // iddiası ancak iki farklı sayı yan yana konabildiğinde ölçülebilir.
+        private static Combatant NewCombatantWithRange(Team team, int range)
+        {
+            return new Combatant(
+                new Health(MaxHealth),
+                new UnitLifecycle(),
+                new AttackProfile(Damage, range),
+                team);
+        }
+
+        /// <summary>
+        /// Görselin yürüyüşünü BİTMİŞ sayar.
+        /// </summary>
+        // ██ EDITMODE'DA KARE GEÇMİYOR, VE BU BİR TAVİZ DEĞİL BİR SINIR ██
+        // UnitWalker adımlarını Update'te atıyor; EditMode'da o çağrı hiç
+        // gelmiyor, yani yürüyüş kendiliğinden bitmiyor ve emir sonsuza kadar
+        // "henüz varmadı" derdi. SnapToEnd üretimde de var olan bir üye
+        // (havuz ve anında eşitleme onu çağırıyor), yani burada uydurulmuş bir
+        // test kapısı açılmıyor — varışın kendisi çağrılıyor.
+        private void Arrive(Unit unit)
+        {
+            Assert.That(UnitViews().TryGetValue(unit, out UnitView view), Is.True,
+                $"no view registered for '{unit.Name}'");
+
+            UnitWalker walker = view.GetComponent<UnitWalker>();
+            Assert.That(walker, Is.Not.Null, $"'{unit.Name}' never started walking");
+            walker.SnapToEnd();
+        }
+
+        /// <summary>
         /// Saldırı profili TAŞIYAN bir yapıyı tahtaya koyar ve kimliğini verir.
         /// </summary>
         // AYRI BİR YARDIMCI, ÇÜNKÜ CommitPlacement KULLANILAMAZ: o yol yapıyı
@@ -2072,11 +2430,15 @@ namespace GridStrategy.Tests.EditMode.Unity
         /// <summary>
         /// Yapı görselleri tablosunu yansımayla verir.
         /// </summary>
-        private Dictionary<Unit, GameObject> StructureViews()
+        // DEĞER TİPİ GameObject DEĞİL StructureView: tablo artık yapının görünüm
+        // bileşenini tutuyor ve bu testin yansıması o tipi birebir yazmak
+        // zorunda — yanlış tip yazıldığında hata bir iddia değil, bir
+        // InvalidCastException olur.
+        private Dictionary<Unit, StructureView> StructureViews()
         {
             FieldInfo field = typeof(BoardAdapter).GetField("structureViews", Hidden);
             Assert.That(field, Is.Not.Null, "BoardAdapter no longer has a 'structureViews' field");
-            return (Dictionary<Unit, GameObject>)field.GetValue(adapter);
+            return (Dictionary<Unit, StructureView>)field.GetValue(adapter);
         }
 
         private GameObject FindChild(string name)
@@ -2102,6 +2464,20 @@ namespace GridStrategy.Tests.EditMode.Unity
             FieldInfo field = typeof(BoardAdapter).GetField(name, Hidden);
             Assert.That(field, Is.Not.Null, $"BoardAdapter has no private field named '{name}'");
             return field.GetValue(adapter);
+        }
+
+        /// <summary>
+        /// Yürürlükteki kipi verir.
+        /// </summary>
+        // ALAN DEĞİL ÖZELLİK OKUNUYOR ve fark ölçüldü: `modes` alanı ilk
+        // SORULUŞTA kuruluyor, Awake'te değil. Alanı doğrudan okuyan bir yardımcı
+        // hiç kip istenmemiş bir tahtada null döner ve testi sınadığı kuralın
+        // dışında bir yerde düşürürdü.
+        private IBoardMode CurrentMode()
+        {
+            PropertyInfo property = typeof(BoardAdapter).GetProperty("Modes", Hidden);
+            Assert.That(property, Is.Not.Null, "BoardAdapter has no private property named 'Modes'");
+            return ((BoardModeMachine)property.GetValue(adapter)).Current;
         }
 
         private object Invoke(string name, params object[] arguments)

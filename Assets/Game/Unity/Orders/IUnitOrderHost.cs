@@ -7,10 +7,12 @@ namespace GridStrategy.Unity
     /// Emirlerin tahtaya bakan penceresi: kim nerede duruyor, görsel hâlâ
     /// yürüyor mu, ve eylemin kendisi.
     /// </summary>
-    // DÖRT ÜYE — VE BU SAYININ KENDİSİ BİR ÖLÇÜ. Yerini aldığı
+    // BEŞ ÜYE — VE BU SAYININ KENDİSİ BİR ÖLÇÜ. Yerini aldığı
     // <c>IPendingStrikeHost</c> dokuz üyeydi (üçü IBoardModeHost'tan). Bir
     // önceki devir belgesi ölçütü şöyle koymuştu: "god object bölündükçe bu
     // arayüzler daralmalı; daralmazlarsa pattern kozmetik kalmış demektir."
+    // Beşinci üye o ölçüyü bozmuyor: dokuzdan beşe hâlâ daralma, ve üyenin
+    // hangi baskıyla doğduğu kendi satırında yazılı.
     //
     // NE YOK VE NEDEN: SelectedUnit yok — ve yokluğu bu turun ASIL kararı.
     // Eski emir "saldıran hâlâ seçili mi" diye soruyordu, yani seçimi bırakmak
@@ -51,5 +53,33 @@ namespace GridStrategy.Unity
         // sonucundan bağımsız olarak biter. Dönseydi hiçbir emrin okumadığı bir
         // cevap doğardı.
         void Revive(Unit reviver, Unit target);
+
+        /// <summary>
+        /// Vurabileceği hücreye kadar bir adım yürütür ve ne olduğunu döner.
+        /// Zaten menzildeyse HİÇ yürütmez.
+        /// </summary>
+        // ██ EMİR KURALI KENDİSİ ÇAĞIRAMIYOR, VE SEBEP ÖLÇÜLDÜ ██
+        // ApproachRules.Plan bir UnitGrid istiyor; Battle.Board internal, yani
+        // GridStrategy.Unity katmanı o argümanı hiç kuramıyor. Üye bu duvar
+        // yüzünden var — bir üslup tercihi değil.
+        // → Battle.PlanApproach
+        //
+        // BUGÜN TEK ÇAĞIRAN VAR (<c>ChaseAndStrikeOrder</c>) ve bu dürüstçe
+        // yazılıyor: üyeyi arayüze taşıyan şey çağıran sayısı değil, sınanabilme
+        // — kovalayan emrin "yürüdüm mü, vardım mı, yol yok mu" kararı savaş
+        // kurmadan ancak sahte bir pencereyle ölçülebilir. <c>StandAndStrikeOrder</c>
+        // bu üyeye hiç dokunmuyor ve dokunmaması Strategy ayrımının kendisi.
+        //
+        // REDDEDILEN - kuralı ve yürüyüşü iki ayrı üyeye bölmek.
+        //     ApproachOutcome PlanApproach(Unit mover, Unit target, out int x, out int y);
+        //     bool WalkTo(Unit mover, int x, int y);
+        // KIRILAN: menzil sayısı ikisinin arasında ÇAĞIRANA düşerdi ve emir onu
+        // sormak için altıncı bir üye isterdi; üstelik iki çağrı arasında tahta
+        // değiştiğinde plan bayatlardı.
+        // KAZANIRDI: bir emir "nereye gideceğimi öğren ama HENÜZ yürüme" demek
+        // zorunda kalsaydı — örneğin oyuncuya hedef hücreyi önizleten bir emir.
+        // TEK CUMLE: planı yapan ile yürüyüşü başlatan arasına bir kare bile
+        // girmemeli.
+        ApproachOutcome MoveIntoRange(Unit mover, Unit target);
     }
 }
