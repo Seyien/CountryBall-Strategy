@@ -156,6 +156,7 @@ açmak mümkün, ama "niye böyle" sorusunun cevabı çoğu zaman başka bir dos
 | [08](konular/08-motor-cagri-dongusu.md) | **Motorun çağrı döngüsü** — `Awake` neden bir `event` değil, sıranın sahipleri, `IEnumerator`'un ikinci hayatı | `BoardAdapter.Awake`/`OnEnable`/`OnDisable`/`Update`, `UnitView.Awake`, `PointerGesture.Reset`, `EditorSettings.asset` |
 | [09](konular/09-kararlarin-cevrilmesi.md) | **Kararların çevrilmesi** — hangi ölçüm dünkü cevabı yanlış yaptı, on iki maddenin hikâyesi | `IBoardMode`, `UnitOrderBook`, `UnitLifecycle.OnHealthDepleted`, `AttackProfile.CooldownSeconds`, `UnitGrid.TryGetPosition` |
 | [10](konular/10-geri-alinan-kararlar.md) | **Geri alınan kararlar** — kaydın yedi alanı, arşiv, henüz çevrilmemiş ikilik, reddedilen `Factory` | `UnitBlueprint.CreateCombatant`, `BoardAdapter.NewCombatant`/`SpawnUnit`, `UnitBlueprintAsset`, `arsiv/` |
+| [11](konular/11-karsilik-verme-ve-menzil.md) | **Karşılık verme ve menzil** — yaklaşma kuralının tek olması, Strategy'nin üçüncü koşulu, tasmanın nereden takılmadığı | `ApproachRules`, `ApproachOutcome`, `PathFinder`, `AttackOrder`, `UnitOrderBook`, `BoardAdapter.ReactToAttack` |
 
 ## İlgili
 

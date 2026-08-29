@@ -2,9 +2,9 @@
   <Project Path="GridStrategy.Unity.EditModeTests.csproj" />
   <Project Path="GridStrategy.Unity.csproj" />
   <Project Path="GridStrategy.Core.EditModeTests.csproj" />
+  <Project Path="GridStrategy.Battle.EditModeTests.csproj" />
   <Project Path="GridStrategy.Battle.csproj" />
   <Project Path="GridStrategy.Combat.csproj" />
-  <Project Path="GridStrategy.Battle.EditModeTests.csproj" />
   <Project Path="GridStrategy.Core.csproj" />
   <Project Path="GridStrategy.Combat.EditModeTests.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

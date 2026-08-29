@@ -193,3 +193,4 @@ Yazılırken kaynakta doğrulanan, okuyucuyu yanlış yöne götürecek üç şe
 - Üst düzey belge haritası: [../README.md](../README.md)
 - Bu ağacın kapısı: `Tools/check-curriculum-coverage.py`
 - Belge bağlantı kapısı: `Tools/check-doc-links.py`
+- Ekranın DUYULAN tarafı ve Singleton'ın müzikteki ölçüsü: [16-ses-ve-muzik.md](16-ses-ve-muzik.md)
