@@ -690,11 +690,73 @@ vardır. Bu proje bugün tam olarak orada duruyor: `UnitBlueprint` ne
 Değişen taraf yayınlar, ilgilenen taraf abone olur. Ölçüsü, yayıncının
 abonelerini tip olarak **tanımamasıdır**.
 
-**A · BUGÜNKÜ KARŞILIĞI** — **Bu desen projede var.** Üretim kodunda on bir
-`public event` duruyor, beş ayrı tipte: `Battle`, `Combatant`, `UnitLifecycle`,
-`BoardAdapter`, `PaletteEntryView` ve `ProductionDirector`. Zincir dört
-duraklı: bir birimin hâli değişince `UnitLifecycle` yayınlıyor, `Combatant`
-iletiyor, `Battle` topluyor ve `BoardAdapter` ekrana yazıyor.
+**A · BUGÜNKÜ KARŞILIĞI** — **Bu desen projede var.** Üretim kodunda **on iki**
+`public event` duruyor, altı ayrı tipte: `Battle`, `Combatant`, `UnitLifecycle`,
+`BoardAdapter` (dört), `PaletteEntryView` (dört) ve `ProductionDirector`.
+Zincir dört duraklı: bir birimin hâli değişince `UnitLifecycle` yayınlıyor,
+`Combatant` iletiyor, `Battle` topluyor ve `BoardAdapter` ekrana yazıyor.
+
+> ***SAYI BAYATLAMIŞTI VE DÜZELTİLDİ.*** Burada "on bir" yazıyordu; ölçüm
+> 2026-09-01'de on iki verdi ve tip sayısı beş değil altı. Bayat bir sayı,
+> bayat bir satır atfıyla aynı sınıftan bir kusurdur — aynı hata
+> `IPlacementBoard.cs` içinde de bir kez yakalandı. Olay eklendiğinde bu iki
+> sayı da güncellenir.
+
+### ABONELİK SAĞLIĞI — "bu altyapı bizi nereye kadar götürür"
+
+***Ölçü abonelik SAYISI değildir ve bu bir yorum değil, bir çürütmedir:*** tek
+yöne akan elli abonelik sağlıklıdır, içinde bir döngü olan dört abonelik
+bozuktur. Aynı sayı, zıt hüküm — yani sayı, sorulan soruyu ölçmüyor.
+
+Soruyu ölçen dört büyüklük, bugünkü değerleriyle (ölçüm 2026-09-01):
+
+| Ölçü | Ne sorar | BUGÜN | EŞİK | Eşik aşılınca ne doğar |
+|---|---|---|---|---|
+| **Döngü sayısı** | iki tip birbirini tetikliyor mu | **0** | **1** | Mediator — `Desen 11`'in üstü |
+| **Sıra bağımlı fan-in** | bir olayın ≥2 abonesi var VE biri ötekinin ETKİSİNE bağlı mı | **0** | **1** | olay kaldırılır, yerine sıralı çağıran |
+| **Eşleşmeyen abonelik** | `+=` var, `-=` yok, ve ömürler AYRI mı | **0** | **1** | sızıntı |
+| **En yüksek fan-in** | tek olayı kaç taraf dinliyor | **2** | **4** + dolaylılık | Event Bus → `Desen 11` |
+
+**Grafiğin bugünkü şekli — döngüsüz, tek yön, beş kenar derinliğinde:**
+
+```
+UnitLifecycle ─► Combatant ─► Battle ─► BoardAdapter ─┬─► BattleStatusView
+                                                      ├─► BattleOverView
+                                                      ├─► UnitInfoDialogView
+                                                      └─► ProductionDirector ─► ProductionPanelView
+
+PaletteEntryView ─┬─► StructurePaletteView
+                  └─► ProductionPanelView
+```
+
+**İki olayın fan-in'i 2 ve ikisi de sıra bağımsız:** `BattleEnded`'ı
+`BattleOverView` ile `UnitInfoDialogView` dinliyor (biri pano açıyor, öteki
+kendini kapatıyor); `SelectionChanged`'ı `BattleStatusView` ile
+`ProductionDirector` dinliyor (biri metin yazıyor, öteki defterine bakıp
+kendi olayını yayınlıyor). Hiçbiri ötekinin etkisini OKUMUYOR — bu tabloda
+sıfır yazmasının sebebi budur, abone sayısı değil.
+
+**Sökülmeyen beş abonelik ve neden sızıntı olmadıkları:** `Combatant`
+kendi `lifecycle` alanına abone (aynı nesnenin parçası, birlikte ölüyorlar) ve
+`StructurePaletteView` kendi dört düğme olayına abone — düğmeler `Awake`'te bir
+kez kuruluyor ve **hiç `Destroy` edilmiyor**, dosyada tek bir `Destroy` çağrısı
+yok. `ProductionPanelView` ise sökmek ZORUNDA, çünkü o düğmelerini her
+`Rebuild`'de yok ediyor. **Ayrım ömürdür, üslup değil.**
+
+> **BU ASİMETRİ YAZILI DEĞİLDİ VE BORÇTUR.** `StructurePaletteView`'da
+> `OnDisable` yok ve bunun neden güvenli olduğunu söyleyen bir satır da yok;
+> okuyan biri `ProductionPanelView` ile yan yana koyduğunda ikisinden birini
+> hatalı sanır. TETİKLEYİCİ: paletin düğmeleri bir gün yeniden kurulur hâle
+> geldiği an (takım değişimi, tanım filtresi, dinamik palet) bu dört abonelik
+> gerçek bir sızıntıya döner ve `OnDisable` zorunlu olur.
+
+***ABONELİK, NESNE TUTMAMANIN YOLU DEĞİLDİR.*** En sık yapılan yanlış okuma
+budur: `director.SelectedProductionChanged += Rebuild` satırından sonra
+**`director` paneli tutuyor** — delege, hedefini canlı tutar. Yani referans
+ortadan kalkmadı, **yönü tersine döndü ve görünmez oldu**. Kazanılan şey bellek
+değil, **bilginin yönü**: yayıncı abonesinin tipini tanımıyor. Bedeli ise bir
+delege tahsisi artı bir ömür yükümlülüğüdür (`-=`), ve o yükümlülük unutulursa
+yayıncı aboneyi sonsuza dek erişilebilir tutar.
 
 **F · MOTOR KARŞILIĞI** — **Motor bunu kısmen emiyor ve bu proje o yolu
 almadı.** `UnityEvent` bir olay alanıdır ve abonelikleri **Inspector'da**
