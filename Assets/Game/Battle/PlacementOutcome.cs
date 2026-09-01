@@ -38,10 +38,19 @@ namespace GridStrategy.Battle
         /// <summary>Hücrede zaten bir şey duruyor.</summary>
         RejectedCellOccupied,
 
-        // DÖRDÜNCÜ DEĞER YAZILMADI: bu imzada sorulacak bir EYLEYEN yok, ve
-        // sıra kuralını yapının tarafına sormak tarafsız hiçbir yapının bir daha
-        // tahtaya konamaması demekti. Üçlü bugün KAPALI bir küme — her değerin
-        // tam olarak bir üreteni var. → PlacementOutcome.md#placed
+        // ██ DÖRDÜNCÜ DEĞER GELDİ — VE GEREKÇESİ ÜÇÜNCÜNÜNKİYLE AYNI ██
+        // Üstteki blok "RejectedActorCannotAct yazılmadı" diyordu ve o karar
+        // DEĞİŞMEDİ: sıra kuralı hâlâ bu imzada sorulmuyor. Gelen değer başka
+        // bir soruya ait — bir OYUN kuralına, bir sıra kuralına değil.
+        // ÖLÇÜ KORUNUYOR: dörtlü de KAPALI bir küme, her değerin tam olarak bir
+        // üreteni var ve bu değerin üreteni BattleActions.PlaceStructure.
+        /// <summary>Bu takımın ayakta bir ana kulesi zaten var.</summary>
+        // RET, İSTİSNA DEĞİL — ve ayrım ölçütü değişmedi: bu cevabı alan çağıran
+        // YAPACAK BİR ŞEY bulabiliyor mu? Bulabiliyor — oyuncuya "önce eskisini
+        // yık" der ve oyuncu başka bir bina seçer. Yani bu bir oyun olgusudur,
+        // bir çağıran hatası değil.
+        RejectedHeadquartersExists,
+
         /// <summary>Yapı tahtaya kondu ve savaşa katıldı.</summary>
         Placed
     }

@@ -1130,6 +1130,79 @@ namespace GridStrategy.Tests.EditMode.Battle
                 () => BattleActions.PlaceStructure(battle, unit, NewStructure(), 2, 2));
         }
 
+        // ═══ TAKIM BAŞINA TEK ANA KULE ═══════════════════════════════════
+        // Kuralın var olma sebebi zafer koşulunun kendisi: ana kulesi yıkılan
+        // taraf kaybediyor, dolayısıyla ikinci bir kule kurmaya izin veren bir
+        // oyunda o koşul hiçbir zaman gerçekleşmezdi.
+
+        private static Structure NewHeadquarters(int maxHealth = 100, Team team = Team.Enemy)
+        {
+            return new Structure(
+                new Health(maxHealth), new StructureLifecycle(), team,
+                attackProfile: null, isHeadquarters: true);
+        }
+
+        [Test]
+        public void PlaceStructure_ASecondHeadquartersForTheSameTeam_IsRejected()
+        {
+            var battle = new Battle(3, 5);
+
+            Assert.That(
+                BattleActions.PlaceStructure(battle, new Unit("HQ"), NewHeadquarters(), 1, 1),
+                Is.EqualTo(PlacementOutcome.Placed));
+
+            Assert.That(
+                BattleActions.PlaceStructure(battle, new Unit("HQ 2"), NewHeadquarters(), 2, 2),
+                Is.EqualTo(PlacementOutcome.RejectedHeadquartersExists));
+
+            Assert.That(battle.StructureCount, Is.EqualTo(1),
+                "a rejected placement writes nothing");
+        }
+
+        /// <summary>
+        /// KURAL TAKIM BAŞINA, TAHTA BAŞINA DEĞİL: iki tarafın da kendi ana
+        /// kulesi olmalı.
+        /// </summary>
+        // BU TESTİN YOKLUĞU KURALI SESSİZCE İKİYE KATLARDI: "ayakta ana kule
+        // var mı" sorusu takımı sormasaydı, oyuncunun kulesini kuran ikinci
+        // çağrı düşmanın kulesini reddederdi ve düşman hiç kule kuramazdı.
+        [Test]
+        public void PlaceStructure_AHeadquartersForTheOtherTeam_IsPlaced()
+        {
+            var battle = new Battle(3, 5);
+
+            BattleActions.PlaceStructure(
+                battle, new Unit("Enemy HQ"), NewHeadquarters(team: Team.Enemy), 1, 1);
+
+            Assert.That(
+                BattleActions.PlaceStructure(
+                    battle, new Unit("Player HQ"), NewHeadquarters(team: Team.Player), 2, 2),
+                Is.EqualTo(PlacementOutcome.Placed));
+        }
+
+        /// <summary>
+        /// YIKILMIŞ bir kule ikinciyi engellemez.
+        /// </summary>
+        // SORU "AYAKTA MI" DİYE YAZILDI, "HİÇ KURDU MU" DİYE DEĞİL — ve bu test
+        // o tercihi koruyor. Ters yazılsaydı ret, savaş bittikten sonra da
+        // konuşmaya devam ederdi; oysa kulesi yıkılan taraf zaten kaybetmiş
+        // durumda ve onu ayrıca kelepçelemenin bir karşılığı yok.
+        [Test]
+        public void PlaceStructure_AfterTheHeadquartersFell_ASecondOneIsAllowed()
+        {
+            var battle = new Battle(3, 5);
+
+            Structure hq = NewHeadquarters(maxHealth: 10);
+            BattleActions.PlaceStructure(battle, new Unit("HQ"), hq, 1, 1);
+
+            hq.TakeDamage(10);
+            Assert.That(hq.State, Is.EqualTo(StructureState.Destroyed), "kurulum bozuk");
+
+            Assert.That(
+                BattleActions.PlaceStructure(battle, new Unit("HQ 2"), NewHeadquarters(), 2, 2),
+                Is.EqualTo(PlacementOutcome.Placed));
+        }
+
         [Test]
         public void PlaceStructure_NullArgument_Throws()
         {

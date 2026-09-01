@@ -210,5 +210,82 @@ namespace GridStrategy.Tests.EditMode.Battle
         {
             Assert.Throws<ArgumentNullException>(() => VictoryRules.Winner(null));
         }
+
+        // ═══ ANA KULE DALI ═══════════════════════════════════════════════
+        // Üstteki testler İMHA kuralını koruyor ve o kural DEĞİŞMEDİ; aşağıdaki
+        // üç test, ana kule kurmuş bir takım için devreye giren İKİNCİ dalı
+        // koruyor. İkisi bir arada olmalı, çünkü asıl kırılma noktası dalların
+        // KESİŞİMİ: hangi takımın hangi kuralla yaşadığını söyleyen tek şey
+        // "hiç ana kule kurdu mu" sorusudur.
+
+        private static Structure NewHeadquarters(int maxHealth = 50, Team team = Team.Enemy)
+        {
+            return new Structure(
+                new Health(maxHealth), new StructureLifecycle(), team,
+                attackProfile: null, isHeadquarters: true);
+        }
+
+        /// <summary>
+        /// ANA KULE AYAKTAYKEN takım oyunda — askeri kalmasa bile.
+        /// </summary>
+        // İMHA KURALININ TERSİ BİR CEVAP ve tam da bu yüzden sınanıyor: eski
+        // dalda "askeri yok ama yapısı var" cevabı da true'ydu, yani bu test tek
+        // başına iki dalı AYIRT ETMEZ. Ayrımı bir sonraki test yapıyor.
+        [Test]
+        public void WithAStandingHeadquarters_TheTeamIsInPlay()
+        {
+            var battle = new Battle(8, 8);
+            battle.AddStructure(new Unit("Enemy HQ"), NewHeadquarters(), 6, 6);
+
+            Assert.That(battle.HasEverPlacedHeadquarters(Team.Enemy), Is.True);
+            Assert.That(battle.IsTeamInPlay(Team.Enemy), Is.True);
+        }
+
+        /// <summary>
+        /// KURALIN KENDİSİ: ana kule yıkılınca takım oyundan çıkar — askerleri
+        /// ve öteki binaları AYAKTA olsa bile.
+        /// </summary>
+        // BU TEST ESKİ KURALLA GEÇMEZ ve ölçüsü şu: aynı kurulumda eski dal
+        // "askeri var" diyip true dönerdi. Yani bu satır, iki dalın gerçekten
+        // ayrıldığını kanıtlayan tek satır.
+        [Test]
+        public void WhenTheHeadquartersFalls_TheTeamIsOut_EvenWithSoldiersAndOtherBuildingsAlive()
+        {
+            var battle = new Battle(8, 8);
+
+            Structure hq = NewHeadquarters(maxHealth: 10);
+            battle.AddStructure(new Unit("Enemy HQ"), hq, 6, 6);
+
+            // ÖTEKİ İKİSİ BİLEREK SAĞ BIRAKILIYOR: kuralın "yalnız kuleye bakar"
+            // olduğunu ancak sağ kalan başka şeylerle sınayabiliriz.
+            battle.AddUnit(new Unit("Enemy soldier"), NewCombatant(team: Team.Enemy), 5, 5);
+            battle.AddStructure(new Unit("Enemy barracks"), NewStructure(), 4, 4);
+
+            hq.TakeDamage(10);
+            Assert.That(hq.State, Is.EqualTo(StructureState.Destroyed), "kurulum bozuk");
+
+            Assert.That(battle.HasUnitsLeft(Team.Enemy), Is.True,
+                "the soldier question is unchanged: a soldier is still alive");
+            Assert.That(battle.IsTeamInPlay(Team.Enemy), Is.False,
+                "the headquarters branch overrides the annihilation branch");
+        }
+
+        /// <summary>
+        /// ANA KULE HİÇ KURULMAMIŞSA eski imha kuralı aynen sürüyor.
+        /// </summary>
+        // BU TESTİN YOKLUĞU YENİ KURALI KENDİ KENDİNİ YEMİŞ HÂLDE BIRAKIRDI:
+        // tek dala indirilseydi, ana kulesi olmayan bir taraf ya hiç
+        // kaybedemez ya da daha ilk karede kaybetmiş olurdu. Serbest
+        // yerleştirme, kum havuzu ve öteki testlerin hepsi bu daldan geçiyor.
+        [Test]
+        public void WithNoHeadquartersEverPlaced_TheOldAnnihilationRuleStillApplies()
+        {
+            var battle = new Battle(8, 8);
+            battle.AddStructure(new Unit("Enemy barracks"), NewStructure(), 6, 6);
+
+            Assert.That(battle.HasEverPlacedHeadquarters(Team.Enemy), Is.False);
+            Assert.That(battle.IsTeamInPlay(Team.Enemy), Is.True,
+                "a standing building still keeps a headquarters-less team in play");
+        }
     }
 }

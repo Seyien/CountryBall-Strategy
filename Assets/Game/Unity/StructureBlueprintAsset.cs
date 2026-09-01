@@ -110,6 +110,19 @@ namespace GridStrategy.Unity
         [Tooltip("Seconds between two productions. 0 means instant - the structure never waits.")]
         [SerializeField, Min(0f)] private float productionSeconds = 3f;
 
+        // ANA KULE İŞARETİ. Boş bırakılırsa (varsayılan) bu yapı sıradan bir
+        // binadır; işaretlenirse iki kural birden açılır — takım en fazla bir
+        // tane kurabilir ve o yıkıldığında takım savaşı kaybeder.
+        //
+        // VARSAYILAN false OLMASI BİR KARAR VE GERİYE UYUMUN KENDİSİ: bu alan
+        // eklenmeden önce yazılmış .asset dosyalarında böyle bir anahtar YOK ve
+        // Unity onları tip varsayılanıyla açar. false, "sıradan bina" demek —
+        // yani var olan beş yapı tanımı hiçbir davranış değiştirmeden açılıyor
+        // ve yalnızca Karargâh dosyalarına true yazılıyor.
+        [Header("Role")]
+        [Tooltip("Tick for the team's headquarters. One per team; losing it loses the battle.")]
+        [SerializeField] private bool isHeadquarters;
+
         private StructureBlueprint definition;
 
         // İKİ ÖNBELLEK AMA TEK GEÇİŞ, ve tek geçiş olması bu dosyanın en pahalı
@@ -262,7 +275,8 @@ namespace GridStrategy.Unity
                 attackRange < 1 ? null : new AttackProfile(damage, attackRange, attackCooldownSeconds),
                 units,
                 index,
-                productionSeconds);
+                productionSeconds,
+                isHeadquarters);
 
             // İKİ ALAN EN SONDA yazılıyor: yukarıdaki kurucu fırlatırsa geriye
             // yarım dolu bir önbellek kalmasın ve bir sonraki okuma kurulumu

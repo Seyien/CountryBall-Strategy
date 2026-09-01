@@ -66,6 +66,21 @@ namespace GridStrategy.Battle
         private readonly Dictionary<Unit, Structure> structures =
             new Dictionary<Unit, Structure>();
 
+        // ANA KULE KURMUŞ TARAFLARIN HAFIZASI — ve bu üçüncü bir defter değil,
+        // BİR HATIRLAMA. Ayrım şu: üstteki sözlük "şu an ne var" der ve enkaz
+        // temizlendiğinde kaydı SİLİNİR; bu küme "bir zamanlar ne vardı" der ve
+        // hiç silinmez. Zafer kuralının ihtiyacı ikincisi.
+        //
+        // BU KÜME OLMASAYDI YENİ KURAL KENDİNİ YERDİ: "ana kulesi yıkılan
+        // kaybeder" cümlesi, ana kulesi HİÇ OLMAYAN bir tarafı da anında
+        // kaybettirirdi — yani serbest yerleştirmede tahtaya ilk yapıyı koyan
+        // oyuncu, daha ikinci yapısını koymadan oyunu bitirirdi.
+        //
+        // SAHİBİ VictoryRules DEĞİL, BURASI: o tip künyesinde "hafıza: yok" diye
+        // ilan ediyor ve bu bir üslup değil bir sözleşme — hatırlamak bir
+        // DURUMdur ve durumun sahibi kural tipi olamaz.
+        private readonly HashSet<Team> headquartersEverPlaced = new HashSet<Team>();
+
         // OLAY YÖNLENDİRİCİLERİ, her savaşçı için BİR tane. Sözlük bir konfor
         // değil zorunluluk: abone edilen şey her birime özel bir KAPANIŞ ve
         // kapanışlar birbirine eşit değildir — aynı metni ikinci kez yazarak
@@ -292,6 +307,51 @@ namespace GridStrategy.Battle
             // duruyor.
             board.PlaceUnit(x, y, unit);
             structures.Add(unit, structure);
+
+            // HATIRLAMA YAZMALARIN SONUNDA, ve sıra bir karardır: üstteki iki
+            // satırdan biri patlarsa (dolu hücre, çift kayıt) bu taraf ana kule
+            // kurmuş SAYILMAMALI. Başa konsaydı, başarısız tek bir denemeden
+            // sonra takım "ana kulesi vardı ve yıkıldı" durumuna düşer ve
+            // zafer kuralı onu anında elerdi.
+            if (structure.IsHeadquarters)
+            {
+                headquartersEverPlaced.Add(structure.Team);
+            }
+        }
+
+        /// <summary>
+        /// Bu takım hiç ana kule kurdu mu — kule o günden beri yıkılmış olsa
+        /// bile.
+        /// </summary>
+        // ZAFER KURALININ HANGİ DALA GİRECEĞİNİ SÖYLEYEN ÜYE. Ayakta olup
+        // olmadığını SORMUYOR; o ayrı bir soru ve ayrı bir üyenin işi.
+        public bool HasEverPlacedHeadquarters(Team team)
+        {
+            return headquartersEverPlaced.Contains(team);
+        }
+
+        /// <summary>
+        /// Bu takımın AYAKTA duran bir ana kulesi var mı.
+        /// </summary>
+        // ENKAZ SAYILMAZ ve gerekçe IsTeamInPlay'in kendi yorumuyla birebir
+        // aynı: yıkılmış bir üs, takımı sonsuza dek oyunda tutardı.
+        //
+        // SÖZLÜK ÜZERİNDE DOĞRUDAN foreach: Dictionary<,>.Enumerator bir
+        // struct'tır ve burada bir arayüz ardında saklanmadığı için kutulanmaz —
+        // aynı gerekçe Tick üyesinde de yazılı.
+        public bool HasStandingHeadquarters(Team team)
+        {
+            foreach (KeyValuePair<Unit, Structure> pair in structures)
+            {
+                if (pair.Value.IsHeadquarters
+                    && pair.Value.Team == team
+                    && pair.Value.IsStanding)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // İKİ EKLEME YOLUNUN ORTAK KAPISI: ret sebepleri burada TEK kez yazılı.
@@ -650,8 +710,39 @@ namespace GridStrategy.Battle
         //
         // ENKAZ SAYILMAZ: IsStanding kapısı, yıkılmış bir üssün takımı sonsuza
         // dek oyunda tutmasını engelliyor.
+        //
+        // ██ ANA KULE KURAN TARAF ARTIK KULESİYLE YAŞIYOR ██
+        // Eskiden bu üyenin tek cevabı TOPYEKÛN İMHA idi: kazanmak için
+        // düşmanın her askerini VE her binasını tek tek yıkmak gerekiyordu.
+        // Operatörün cümlesi: "bu nereye koyulursa, düşman tarafından yok
+        // edilirse o zaman savaşı yok eden kişinin kazanması gerekmiyor mu?"
+        //
+        // KIRILAN ŞEY, ölçülerek: imha kuralı bir SON verirdi ama bir HEDEF
+        // vermezdi. Oyuncunun tahtaya bakıp "şunu yıkarsam kazanırım" diyeceği
+        // tek bir nesne yoktu; on binayı da aynı önemde görüyordu.
+        //
+        // ESKİ GÖVDE, olduğu gibi — ve hâlâ ALT DAL olarak yaşıyor:
+        //     if (HasUnitsLeft(team)) { return true; }
+        //     foreach (... structures ...) { if (ayakta && aynı takım) return true; }
+        //     return false;
+        //
+        // İKİ DAL, ÇÜNKÜ İKİ FARKLI OYUN VAR: ana kule kurmuş taraf kulesiyle
+        // yaşar, hiç kurmamış taraf (serbest yerleştirme, testler, kum havuzu)
+        // eski imha kuralıyla yaşar. Tek dala indirilseydi ana kulesi olmayan
+        // bir taraf ya hiç kaybedemez ya da ilk kareden kaybetmiş olurdu.
+        // → StructureBlueprint.IsHeadquarters (türün gerçeği)
+        // → HasEverPlacedHeadquarters (hangi dala girileceği)
         public bool IsTeamInPlay(Team team)
         {
+            // SORU "AYAKTA MI" DEĞİL "HİÇ KURDU MU" — ve ayrım kuralın kendisi:
+            // kule yıkıldıktan SONRA da bu dal geçerli kalmalı, yoksa kulesi
+            // yıkılan taraf sessizce eski imha kuralına düşer ve askerleri
+            // sağ olduğu için oyunda kalmaya devam ederdi.
+            if (HasEverPlacedHeadquarters(team))
+            {
+                return HasStandingHeadquarters(team);
+            }
+
             if (HasUnitsLeft(team))
             {
                 return true;

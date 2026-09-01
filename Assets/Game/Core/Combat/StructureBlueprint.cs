@@ -66,13 +66,19 @@ namespace GridStrategy.Combat
         /// <param name="productionSeconds">
         /// İki üretim arasındaki bekleme. 0 geçerlidir ve "anında" demektir.
         /// </param>
+        /// <param name="isHeadquarters">
+        /// Bu TÜR takımın ana kulesi mi. Varsayılan <c>false</c>: yapıların
+        /// çoğu ana kule değildir ve zorunlu bir parametre her duvara, her
+        /// depoya bu soruyu cevaplatırdı.
+        /// </param>
         public StructureBlueprint(
             string displayName,
             int maxHealth,
             AttackProfile attackProfile,
             IReadOnlyList<UnitBlueprint> produces,
             int defaultProducedIndex,
-            float productionSeconds)
+            float productionSeconds,
+            bool isHeadquarters = false)
         {
             if (string.IsNullOrWhiteSpace(displayName))
             {
@@ -124,7 +130,23 @@ namespace GridStrategy.Combat
             AttackProfile = attackProfile;
             DefaultProducedIndex = defaultProducedIndex;
             ProductionSeconds = productionSeconds;
+            IsHeadquarters = isHeadquarters;
         }
+
+        /// <summary>
+        /// Bu TÜR takımın ana kulesi mi.
+        ///
+        /// OYUNDA NE İŞE YARAR: ana kulesi yıkılan taraf kaybeder, ve her takım
+        /// en fazla bir tane kurabilir.
+        /// </summary>
+        // TEK DOĞRULAMA YOK VE YOKLUĞU BİR KARAR: "ana kule üretmeli mi",
+        // "ana kule saldırmalı mı", "canı en yüksek olmalı mı" — üçü de TASARIM
+        // soruları ve cevapları varlık dosyasında. Buraya bir kelepçe konsaydı
+        // (örneğin "ana kule üretmek zorunda") tasarımcı bir gün üretmeyen bir
+        // ana kule denemek istediğinde kod onu engellerdi.
+        // "AYNI TAKIMDA İKİ ANA KULE OLMAZ" KURALI DA BURADA DEĞİL: o bir
+        // TÜRÜN değil bir TAHTANIN gerçeği ve sahibi BattleActions.PlaceStructure.
+        public bool IsHeadquarters { get; }
 
         /// <summary>Ekranda görünen ad; sol paneldeki düğmenin yazısı.</summary>
         public string DisplayName { get; }
@@ -187,7 +209,8 @@ namespace GridStrategy.Combat
                 new Health(MaxHealth),
                 new StructureLifecycle(),
                 team,
-                AttackProfile);
+                AttackProfile,
+                IsHeadquarters);
         }
 
         /// <summary>

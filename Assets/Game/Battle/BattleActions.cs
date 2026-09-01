@@ -506,6 +506,31 @@ namespace GridStrategy.Battle
                 return PlacementOutcome.RejectedCellOccupied;
             }
 
+            // ██ HER TAKIMDA EN FAZLA BİR ANA KULE ██
+            // OYUNDA NE İŞE YARAR: ana kulesi yıkılan taraf kaybediyor. Kural
+            // ikinci bir kule kurmaya izin verseydi, oyuncu her yıkımdan sonra
+            // yenisini dikerdi ve zafer koşulu hiçbir zaman gerçekleşmezdi —
+            // yani kuralın kendisi kendini iptal ederdi.
+            //
+            // SORU "AYAKTA MI" DİYE SORULUYOR, "HİÇ KURDU MU" DİYE DEĞİL, ve
+            // fark bir tasarım kararı: kulesi yıkılan taraf zaten kaybetmiş
+            // durumda ve o hâlde ikinci bir kule kurmasını engellemenin bir
+            // anlamı yok. Battle.HasEverPlacedHeadquarters buraya konsaydı
+            // aynı ret, savaş bittikten sonra da konuşmaya devam ederdi.
+            //
+            // SIRA BİR KARARDIR: hücre soruları ÖNCE. Bu ret üste konsaydı,
+            // tahtanın DIŞINA konmak istenen ikinci bir ana kule "kule zaten
+            // var" cevabını alırdı — oysa düzeltilemeyen sebep hücrenin kendisi.
+            //
+            // KURAL BURADA, PALETTE DEĞİL: sol panelin düğmeyi sönük göstermesi
+            // ayrı bir iştir ve o gün geldiğinde bu üyeye SORARAK yapılır.
+            // Palette yazılsaydı ikinci bir kural sahibi doğar ve klavyeli yol
+            // ile sürükleme yolu farklı cevaplar verirdi.
+            if (structure.IsHeadquarters && battle.HasStandingHeadquarters(structure.Team))
+            {
+                return PlacementOutcome.RejectedHeadquartersExists;
+            }
+
             // "BU BİRİM ZATEN SAVAŞTA" BURADA BİR RET DEĞİL, BİR ÇAĞIRAN
             // HATASI — ve kontrolü kopyalanmıyor, AddStructure'a bırakılıyor.
             // Yıkık bir yapı için de ret değeri YOK: bugün tahtaya konmadan

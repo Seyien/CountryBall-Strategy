@@ -459,10 +459,22 @@ namespace GridStrategy.EditorTools
             // sürece bu sayı hiç okunmuyor; hepsine taretin temposu yazılıyor ki
             // bir gün bu yapılardan biri silahlandırıldığında tahtada ikinci bir
             // ateş hızı doğmasın.
-            // KARARGÂH TAVANDA: oyuncunun tahtaya baktığında ilk bulması
-            //    gereken yapı, ve kaybedince oyunu bitiren yapı da o.
+            // ── KARARGÂH — ANA KULE, ve son parametredeki `true` o kuralın
+            //    tek yazıldığı yer.
+            //    TAVANDA: oyuncunun tahtaya baktığında ilk bulması gereken yapı.
+            //
+            //    ██ BU SATIRIN ÜSTÜNDEKİ CÜMLE BİR ZAMANLAR YALANDI ██
+            //    Burada "kaybedince oyunu bitiren yapı da o" yazıyordu ve
+            //    ÖLÇÜLDÜ 2026-08-30: kodda böyle bir kural YOKTU. Zafer koşulu
+            //    topyekûn imhaydı ve `Karargâh` kelimesi bu dosyanın dışında
+            //    hiçbir .cs dosyasında geçmiyordu. Yorum, olmayan bir kuralı
+            //    anlatıyordu — bayat bir sayı ile aynı sınıftan bir kusur.
+            //    Bugün cümle DOĞRU, çünkü kural yazıldı:
+            //    → Battle.IsTeamInPlay (ana kule dalı)
+            //    → BattleActions.PlaceStructure (takım başına tek kule)
             StructureBlueprint("Structure_Karargah", "Karargâh", FriendlyHq,
-                70, 0, 0, 2f, new[] { piyade, kesif }, 3f, StructureSizeCeiling);
+                70, 0, 0, 2f, new[] { piyade, kesif }, 3f, StructureSizeCeiling,
+                isHeadquarters: true);
             // KIŞLA 1,15: tek tip asker basan en küçük üretim binası, yine de
             //    birimin 1 hücresinin üstünde ki bina olduğu okunsun.
             StructureBlueprint("Structure_Kisla", "Kışla", FriendlyBarracks,
@@ -507,8 +519,12 @@ namespace GridStrategy.EditorTools
 
             // Aynadaki eş: boyut merdiveni de birebir kopyalanıyor, çünkü iki
             // taraf arasındaki tek fark renk olmalı.
+            // AYNADAKİ ANA KULE: `true` burada da yazılı, çünkü zafer koşulu
+            // simetrik olmalı — yalnız oyuncunun kulesi sayılsaydı düşmanı
+            // yenmenin tek yolu yine topyekûn imha olurdu.
             StructureBlueprint("Structure_DusmanKarargahi", "Düşman Karargâhı", EnemyHq,
-                70, 0, 0, 2f, new[] { dusmanPiyade, akinci }, 3f, StructureSizeCeiling);
+                70, 0, 0, 2f, new[] { dusmanPiyade, akinci }, 3f, StructureSizeCeiling,
+                isHeadquarters: true);
             StructureBlueprint("Structure_DusmanKislasi", "Düşman Kışlası", EnemyBarracks,
                 50, 0, 0, 2f, new[] { dusmanPiyade }, 2f, 1.15f);
             StructureBlueprint("Structure_DusmanFabrikasi", "Düşman Fabrikası", EnemyFactory,
@@ -601,7 +617,8 @@ namespace GridStrategy.EditorTools
         private static void StructureBlueprint(
             string fileName, string displayName, string spritePath,
             int maxHealth, int damage, int attackRange, float attackCooldownSeconds,
-            UnitBlueprintAsset[] produces, float productionSeconds, float boardSizeInCells)
+            UnitBlueprintAsset[] produces, float productionSeconds, float boardSizeInCells,
+            bool isHeadquarters = false)
         {
             string path = $"{BlueprintDir}/{fileName}.asset";
             var asset = AssetDatabase.LoadAssetAtPath<StructureBlueprintAsset>(path);
@@ -643,6 +660,17 @@ namespace GridStrategy.EditorTools
             // konsola hata basar. Liste burada yazıldığı üstüne indis de burada
             // yazılmalı.
             so.FindProperty("defaultProducedIndex").intValue = 0;
+
+            // ANA KULE İŞARETİ HER YAPIDA YAZILIYOR, yalnız true olanlarda
+            // değil: bir yapı bir gün ana kule OLMAKTAN ÇIKARSA, yazılmayan bir
+            // alan varlık dosyasındaki eski true'yu olduğu yerde bırakırdı ve
+            // tahtada iki ana kule doğardı. Bu aracın sözü "çağrı satırı ne
+            // diyorsa varlık odur"; sözü tutan şey koşulsuz yazmaktır.
+            SerializedProperty headquarters = Optional(so, "isHeadquarters");
+            if (headquarters != null)
+            {
+                headquarters.boolValue = isHeadquarters;
+            }
 
             SerializedProperty list = so.FindProperty("produces");
             list.arraySize = produces.Length;

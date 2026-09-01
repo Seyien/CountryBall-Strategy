@@ -25,3 +25,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7d4c220710f9d1f47b6a2f6aca2e85c6, type: 2}
   defaultProducedIndex: 0
   productionSeconds: 5
+  isHeadquarters: 0

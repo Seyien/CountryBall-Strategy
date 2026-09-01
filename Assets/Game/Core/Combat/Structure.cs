@@ -54,11 +54,17 @@ namespace GridStrategy.Combat
         /// Saldırmayan yapılar için <c>null</c>. Kural olan davranış "saldırmaz"dır;
         /// isteğe bağlı parametre, kuralı değil İSTİSNAyı yazdırır.
         /// </param>
+        /// <param name="isHeadquarters">
+        /// Bu yapı takımın ANA KULESİ mi. Kural olan davranış "değil"dir, o
+        /// yüzden isteğe bağlı — imza istisnayı yazdırır, kuralı değil; aynı
+        /// gerekçe bir satır yukarıda attackProfile için ölçülmüş durumda.
+        /// </param>
         public Structure(
             Health health,
             StructureLifecycle lifecycle,
             Team team,
-            AttackProfile attackProfile = null)
+            AttackProfile attackProfile = null,
+            bool isHeadquarters = false)
         {
             this.health = health ?? throw new ArgumentNullException(nameof(health));
             this.lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
@@ -75,6 +81,13 @@ namespace GridStrategy.Combat
             // bir setter'ın içinde sessizce verilmesini engelliyor.
             // → Structure.md#team
             AttackProfile = attackProfile;
+
+            // ANA KULE OLMAK ÖRNEĞİN DEĞİL TÜRÜN GERÇEĞİ, ve buraya tanımdan
+            // KOPYALANIYOR: tipin kendisi tanımı görmüyor (StructureBlueprint
+            // bu katmanda değil, bir üstte) ve görmesi de istenmiyor. Kopya
+            // yerine tanım referansı tutulsaydı bu tip bir üst katmana bağlanır
+            // ve Battle bir tanım defteri taşımak zorunda kalırdı.
+            IsHeadquarters = isHeadquarters;
         }
 
         /// <summary>Yapının tarafı. <see cref="Team.None"/> tarafsız yapıları anlatır.</summary>
@@ -88,6 +101,27 @@ namespace GridStrategy.Combat
         /// engellemek için var: aynı null kontrolü üç çağıranda üç kez doğmasın.
         /// </summary>
         public bool CanAttack => AttackProfile != null;
+
+        /// <summary>
+        /// Bu yapı takımın ANA KULESİ mi.
+        ///
+        /// OYUNDA NE İŞE YARAR: ana kulesi yıkılan taraf savaşı kaybeder ve her
+        /// takım en fazla bir tane kurabilir. İki kuralın da girdisi bu üye.
+        /// </summary>
+        // TÜR GERÇEĞİ, ÖRNEK GERÇEĞİ DEĞİL — ve ayrımı görmek için iki soruyu
+        // yan yana koymak yeter: "bu BİNA ana kule mi" sabittir ve ömrü boyunca
+        // değişmez, "bu TAKIMIN ayakta ana kulesi var mı" ise her yıkımda
+        // değişir. İkincisinin sahibi bu tip değil, yapı defterini tutan Battle.
+        //
+        // bool, ENUM DEĞİL — ve bu bir eksiklik değil bir eşik: bugün ayırt
+        // edilmesi gereken iki rol var (ana kule / öteki hepsi). Projenin geri
+        // kalanı rolleri VERİYLE anlatıyor — Taret'i taret yapan `range > 0`,
+        // Hisar'ı duvar yapan boş `Produces` listesi — ama "ana kule" mevcut
+        // hiçbir sayıdan türetilemiyor, o yüzden kendi alanını hak ediyor.
+        // TETİKLEYİCİ: ayırt edilmesi gereken ÜÇÜNCÜ bir rol doğduğu gün
+        // (örneğin "kaynak binası") bu bool bir StructureRole enum'una döner.
+        // Üçüncü vaka gelmeden enum yazmak, olmayan bir baskıya desen kurmaktır.
+        public bool IsHeadquarters { get; }
 
         /// <summary>
         /// Bir sonraki atışa kalan saniye; atışa hazırken 0.
