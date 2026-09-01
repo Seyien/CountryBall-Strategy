@@ -9,7 +9,7 @@ repo's own gate (`Tools/check-asset-inventory.py`) counts exactly what is
 missing.*
 
 A turn-based tactics core on a grid, with a structure/production layer on top.
-Built in Unity 2021.3.45f2 as a learning project with one working rule:
+Built in Unity 6000.5.7f1 as a learning project with one working rule:
 **no design decision ships without a measured justification.**
 
 This is not a finished game today. The battle rules, the production layer and
@@ -48,7 +48,7 @@ green result never claims more than it measured.
 | Machine gates | 10 scripts, 9 green, 1 deliberately red | loop in "Running it" below |
 | Documentation | 73 Markdown files under `Docs/` | `find Docs -name '*.md'` |
 | Assemblies | 8 `.asmdef`, engine-free enforced in 3 | `noEngineReferences` field of each `.asmdef` |
-| Unity version | 2021.3.45f2 | `ProjectSettings/ProjectVersion.txt` |
+| Unity version | 6000.5.7f1 | `ProjectSettings/ProjectVersion.txt` |
 
 ## The documentation is Turkish — a decision, not an accident
 
@@ -67,7 +67,7 @@ Start at [`Docs/README.md`](Docs/README.md).
 git clone https://github.com/Seyien/CountryBall-Strategy.git
 ```
 
-Open with Unity **2021.3.45f2**. The EditMode tests run from the command line
+Open with Unity **6000.5.7f1**. The EditMode tests run from the command line
 without touching the editor:
 
 ```powershell
