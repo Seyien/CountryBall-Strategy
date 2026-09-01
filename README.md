@@ -1,12 +1,6 @@
 # CountryBall Strategy
 
-<!-- GIF slot. When Media/gameplay.gif exists, replace the single italic line
-     below with exactly this line:
-     ![Gameplay](Media/gameplay.gif)
--->
-*Gameplay GIF pending — the scene is not wired in the editor yet, and the
-repo's own gate (`Tools/check-asset-inventory.py`) counts exactly what is
-missing.*
+![Gameplay](Media/gameplay.gif)
 
 A turn-based tactics core on a grid, with a structure/production layer on top.
 Built in Unity 6000.5.7f1 as a learning project with one working rule:
