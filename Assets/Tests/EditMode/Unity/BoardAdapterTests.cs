@@ -733,6 +733,62 @@ namespace GridStrategy.Tests.EditMode.Unity
             Assert.That(arguments[2], Is.SameAs(fighter));
         }
 
+        /// <summary>
+        /// YÜRÜYEN BİRİM HENÜZ ORADA DEĞİL: oyuncu taretin menzilindeki bir
+        /// hücreyi tıklar tıklamaz taret ateş açıyordu — asker hâlâ yoldayken.
+        /// </summary>
+        // ██ KUSURUN KENDİSİ, VE İKİ KONUMUN AYRIŞTIĞI YER ██
+        // Operatörün cümlesi: "hücrenin veya birimin ilgili taretin alanına
+        // tıklar tıklamaz taret saldırıya başlıyor. Daha bizim birimimiz gitmedi
+        // ki oraya."
+        //
+        // SEBEP tek satırda okunuyor: MoveAction mantıksal konumu ANINDA hedefe
+        // yazıyor, UnitWalker ise görseli saniyeler içinde yürütüyor. Taretin
+        // taraması battle.TryGetUnit'i, yani MANTIKSAL ızgarayı okuduğu için
+        // askeri varmış sayıyordu.
+        //
+        // ÜÇ ÖLÇÜM, TEK TESTTE — ve üçü de gerekli: menzil dışında hedef YOK,
+        // tıklamadan sonra hâlâ YOK (kusurun kapandığı yer), varıştan sonra VAR
+        // (korumanın hedefi büsbütün öldürmediğinin kanıtı). Ortadaki iddia tek
+        // başına yazılsaydı, "taret hiç ateş etmiyor" da testi geçerdi.
+        [Test]
+        public void TryFindStructureTarget_WhileTheEnemyIsStillWalkingIn_TakesNoTarget()
+        {
+            UseFreeForAllBoard();
+            InstallViewPool();
+            SetField("moveSpeed", 3f);
+
+            Unit tower = PlaceTower(Team.Player, range: 2, x: 0, y: 0);
+            Assert.That(battle.TryGetStructure(tower, out Structure structure), Is.True, "setup");
+
+            // Menzilin DIŞINDA doğuyor: (0,4) ile (0,0) arası dört hücre.
+            Unit raider = SpawnFighter("Raider", Team.Enemy, 0, 4);
+
+            object[] outOfRange = { tower, structure, null, 0, 0 };
+            Assert.That(InvokeWithArguments("TryFindStructureTarget", outOfRange), Is.False,
+                "setup: nothing is in range yet");
+
+            // TIKLAMA: menzilin İÇİNDEKİ bir hücre. Tahta hareketi ANINDA
+            // işliyor, görsel ise yürümeye başlıyor.
+            SetField("selectedUnit", raider);
+            Invoke("HandleEmptyCellClick", 0, 2);
+
+            Assert.That(battle.TryGetPosition(raider, out int x, out int y), Is.True);
+            Assert.That(GridDistance.Between(x, y, 0, 0), Is.EqualTo(2),
+                "setup: the board has already moved it into range");
+
+            object[] walking = { tower, structure, null, 0, 0 };
+            Assert.That(InvokeWithArguments("TryFindStructureTarget", walking), Is.False,
+                "the turret must not pick a unit whose view has not arrived");
+
+            Arrive(raider);
+
+            object[] arrived = { tower, structure, null, 0, 0 };
+            Assert.That(InvokeWithArguments("TryFindStructureTarget", arrived), Is.True,
+                "once it has arrived the turret sees it again");
+            Assert.That(arrived[2], Is.SameAs(raider));
+        }
+
         // ══ SEÇİMİN DÜŞMESİ TEK KAPIDAN DUYURULUR ════════════════════════
 
         /// <summary>
@@ -849,6 +905,51 @@ namespace GridStrategy.Tests.EditMode.Unity
                 "the panel must hear the result once and only once");
             Assert.That(frozenWhenPublished, Is.True,
                 "nobody may observe the end of the battle on a board that still takes clicks");
+        }
+
+        /// <summary>
+        /// SON YIKILAN ŞEY BİR YAPIYSA DA SAVAŞ BİTER.
+        /// </summary>
+        // ██ ÖLÇÜLEN KUSUR: ZAFER YALNIZ SAVAŞÇI OLAYINDAN SORULUYORDU ██
+        // Operatörün cümlesi: "hiçbir team tarafında savaşçı veya yapı
+        // olmamasına rağmen oyun bitmedi... bazen çıkıyordu."
+        //
+        // SEBEP: AnnounceWinnerIfAny'nin tek çağıranı OnUnitStateChanged'di ve
+        // o yalnız SAVAŞÇI durum değişikliklerinde koşuyor. Structure hiçbir
+        // olay yaymıyor (savaşın kendi dosyasında yazılı bir olgu), yani son
+        // yıkılan şey bir yapı olduğunda hiç kimse soruyu sormuyordu.
+        //
+        // BU TESTTE HİÇ SAVAŞÇI YOK ve bu bilerek: tek bir savaşçı bulunsaydı
+        // onun ölümü eski yolu da tetikler ve test eski kodla da geçerdi.
+        // Kusuru gören tek kurulum, savaşın YALNIZ yapılardan ibaret olduğu
+        // kurulumdur.
+        [Test]
+        public void AdvanceBattleTime_WhenTheLastEnemyBuildingFalls_AnnouncesTheWin()
+        {
+            PlaceDepot(Team.Player, 0, 0);
+            Unit enemyDepot = PlaceDepot(Team.Enemy, 2, 4);
+
+            Assert.That(battle.TryGetStructure(enemyDepot, out Structure enemy), Is.True, "setup");
+            enemy.TakeDamage(StructureMaxHealth);
+            Assert.That(enemy.IsStanding, Is.False, "setup: the building must be rubble");
+
+            var announced = new List<BattleOutcome>();
+            System.Action<BattleOutcome> collect = outcome => announced.Add(outcome);
+
+            adapter.BattleEnded += collect;
+            try
+            {
+                // ÜRETİMDEKİ YOL: hiçbir tıklama, hiçbir savaşçı olayı yok —
+                // yalnız motorun karesi ilerliyor.
+                Invoke("AdvanceBattleTime");
+            }
+            finally
+            {
+                adapter.BattleEnded -= collect;
+            }
+
+            Assert.That(announced, Is.EqualTo(new[] { BattleOutcome.PlayerWon }),
+                "a battle decided by a building must still announce itself");
         }
 
         /// <summary>

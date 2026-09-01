@@ -22,7 +22,7 @@ namespace GridStrategy.Unity
     /// İşte bu dosya o soruların listesi — fazlası değil.
     ///
     /// NE KAZANDIRIYOR, SOMUT OLARAK: üretim müdürü tahtanın binlerce satırlık
-    /// dosyasını değil, bu 13 maddelik listeyi tanıyor. Yani tahtanın içinde ne
+    /// dosyasını değil, bu 11 maddelik listeyi tanıyor. Yani tahtanın içinde ne
     /// değişirse değişsin — hücreler nasıl çizilir, tıklama nasıl okunur,
     /// birimler hangi tabloda tutulur — üretim müdürü etkilenmiyor. Değişiklik
     /// bu listeye dokunmadığı sürece öteki dosya hiç açılmıyor.
@@ -40,7 +40,7 @@ namespace GridStrategy.Unity
     // ARAYÜZ, SOYUT SINIF DEĞİL: uygulayacak tip zaten bir MonoBehaviour ve C#
     // tek kalıtıma izin verir. Soyut sınıf yazsaydık tahtanın motor bileşeni
     // olması ile bu sözleşmeyi taşıması arasında seçim yapmak gerekirdi.
-    // DAR TUTULDU: aşağıdaki 13 üyenin her birinin bugün en az bir çağıranı
+    // DAR TUTULDU: aşağıdaki 11 üyenin her birinin bugün en az bir çağıranı
     // var. "İleride lazım olur" diye tek bir üye eklenmedi, çünkü uygulanmayan
     // bir üye uygulayanı yalan bir söze zorlar.
     //
@@ -49,6 +49,50 @@ namespace GridStrategy.Unity
     // Bayat bir sayı, bayat bir satır atfıyla aynı sınıftan bir KUSURDUR:
     // arayüzün dar kaldığını iddia eden cümle, tam da darlığın ölçüsünü yanlış
     // söylüyordu. Üye eklendiğinde bu iki sayı da güncellenir.
+    //
+    // ██ ÇEVRİLEN KARAR: 13 ÜYE → 11, VE ÜSTTEKİ CÜMLE İLK KEZ DOĞRU ██
+    // ÖLÇÜLDÜ 2026-08-30: 13 üyenin İKİSİNİN tek tüketicide (ProductionDirector)
+    // sıfır çağıranı vardı. Yani "her birinin bir çağıranı var" cümlesi, tam da
+    // darlığı savunduğu satırda YANLIŞTI.
+    //
+    // ÖLÇÜMÜN ÖLÇÜSÜ — bu satır boşuna değil: ilk sayım `grep ... | head -10`
+    // ile yapıldı ve kesilen kuyrukta PreviewAt'in DÖRT test çağrısı duruyordu.
+    // Kesilmiş bir arama sonucu bir ölçüm değildir; "sıfır çağıranı var"
+    // iddiası ancak sayının TAMAMI görüldüğünde kurulabilir.
+    //
+    // DÜŞEN İKİ ÜYE, olduğu gibi:
+    //     /// <summary>Bir kimliğin karşılığı olan yapıyı verir.</summary>
+    //     bool TryGetStructure(Unit identity, out Structure structure);
+    //     /// <summary>Bu hücreye bir şey konabilir mi, konamazsa NEDEN.</summary>
+    //     PlacementPreview PreviewAt(int x, int y);
+    //
+    // NEDEN DÜŞTÜLER, tek tek:
+    // ① TryGetStructure — hiçbir yerde çağrılmıyordu ve bu KESİLMEMİŞ bir
+    //    aramayla doğrulandı: kalan bütün eşleşmeler Battle.TryGetStructure'a
+    //    ait, yani başka bir tipte başka bir üye. "Seçilen şey yapı mı"
+    //    sorusunu ProductionDirector kendi defterinden (productions) cevaplıyor
+    //    ve tahtaya hiç sormuyor. Uygulaması da tek satırlık bir aktarmaydı, o
+    //    yüzden BoardAdapter'dan da silindi.
+    // ② PreviewAt — yazılı gerekçesi "IsCellFree bu üyeden besleniyor, bu üye o
+    //    kuralın adı" idi. GERÇEKTEN öyle (IsCellFree'nin gövdesi onu çağırıyor)
+    //    ama bu BoardAdapter'ın İÇ kararı, sözleşmenin şartı değil. Bir üyeyi iç
+    //    kuralın adı olsun diye sözleşmeye koymak, arayüzü tam olarak engellemek
+    //    için var olduğu şeye çevirir: uygulamanın AYNASI. Üye tahtada KALDI ve
+    //    `public` KALDI — BoardAdapterTests onu somut tip üzerinden dört yerde
+    //    çağırıyor. private denendi ve dört CS1061 ile geri alındı; gerekçesi
+    //    BoardAdapter.cs'te o üyenin başında yazılı.
+    //    AYRIM TEK CÜMLE: bir üyenin sözleşmeden düşmesi "kimse çağırmıyor"
+    //    demek değil, "BU tüketicinin sözleşmesine ait değil" demektir.
+    //
+    // TEK CÜMLE: bir arayüz, sınıfın KAMU YÜZÜ değildir; bir tüketicinin
+    // İHTİYACININ ŞEKLİdir. İkisi yaklaştıkça arayüz kira ödemeyi bırakır.
+    //
+    // GERİ DÖNME ŞARTI — ikisi için de aynı ve ölçülebilir: ProductionDirector
+    // (ya da IPlacementBoard'ı tüketen ikinci bir tip) o soruyu GERÇEKTEN
+    // sorduğu gün üye geri gelir. Bugün soran yok.
+    // EŞİK: bu listede çağıranı olmayan üye sayısı. BUGÜN 0/11. Dörde çıktığı
+    // gün sözleşme ikiye bölünür — IPlacementBoard (müdürün sorduğu) ve
+    // tahtanın kendi kamu yüzü.
     public interface IPlacementBoard
     {
         /// <summary>
@@ -155,16 +199,6 @@ namespace GridStrategy.Unity
         void SetPlacementVisual(Sprite sprite, float sizeInCells);
 
         /// <summary>
-        /// Bir kimliğin karşılığı olan yapıyı verir; o kimlik bir yapı değilse
-        /// false.
-        /// </summary>
-        // SEÇİLEN ŞEYİN YAPI OLUP OLMADIĞINI SORAN TEK YOL BU. Tahta zaten
-        // birimleri ve yapıları ayrı defterlerde tutuyor; buraya ikinci bir
-        // "bu bir yapı mı" bayrağı koymak o ayrımın ikinci bir kopyasını
-        // üretirdi.
-        bool TryGetStructure(Unit identity, out Structure structure);
-
-        /// <summary>
         /// Bu yapının tepesinde bir sonraki üretime kaç saniye kaldığını
         /// gösterir.
         /// </summary>
@@ -204,14 +238,5 @@ namespace GridStrategy.Unity
         // `TryScreenPointToCell(p, out x, out y, true)` satırını okuyan kimse
         // `true`nun ne demek olduğunu bilemez. İki ad, iki anlam.
         bool TryScreenPointToAnyCell(Vector2 screenPoint, out int x, out int y);
-
-        /// <summary>
-        /// Bu hücreye bir şey konabilir mi, konamazsa NEDEN konamaz.
-        /// </summary>
-        // ÜRETİM MÜDÜRÜ BUGÜN ÇAĞIRMIYOR ve üye yine de burada: hayaletin
-        // rengini tahta kendi yazıyor. Sözleşmede durmasının sebebi, bırakma
-        // dalının aynı soruyu `IsCellFree` üzerinden zaten soruyor olması —
-        // ikisi TEK kuraldan besleniyor ve bu üye o kuralın adı.
-        PlacementPreview PreviewAt(int x, int y);
     }
 }

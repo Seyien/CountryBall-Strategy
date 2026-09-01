@@ -580,7 +580,7 @@ namespace GridStrategy.Unity
         // barı görselden uzaklaştırmak şeridi de sessizce iterdi.
         private const float ProductionTimerMargin = 0.14f;
 
-        // ═══ IPlacementBoard SÖZLEŞMESİ — 13 ÜYE, TEK YÖN ════════════════
+        // ═══ IPlacementBoard SÖZLEŞMESİ — 11 ÜYE, TEK YÖN ════════════════
         // Bu tip artık üretim ve yerleştirme katmanının tahtadan istediği her
         // şeyi karşılıyor. OKUN YÖNÜ TEK VE ÖLÇÜLEBİLİR: aşağıdaki hiçbir satır
         // ne ProductionDirector'ı ne bir panel tipini ADIYLA anıyor; tahta
@@ -900,9 +900,26 @@ namespace GridStrategy.Unity
         {
             ApplyStateVisual(unit, to);
 
-            // ZAFERİN SORULDUĞU TEK YER BURASI, ve sebebi bu metodun ne olduğu:
-            // cevabın değişebildiği tek an bir savaşçının durumunun değiştiği
-            // andır. Update'e konsaydı aynı cevap saniyede altmış kez üretilirdi.
+            // ██ ÇEVRİLEN KARAR: "ZAFERİN SORULDUĞU TEK YER BURASI" YANLIŞTI ██
+            // Burada şu yazıyordu: "cevabın değişebildiği tek an bir savaşçının
+            // durumunun değiştiği andır." O cümle YAPILARI unutuyordu.
+            //
+            // ÖLÇÜLDÜ 2026-08-30: Structure'ın HİÇBİR OLAYI YOK — bu, savaşın
+            // kendi dosyasında zaten yazılı bir olgu (Battle.RemoveReadyForCleanup:
+            // "Structure'ın hiçbir olayı yok, yani enkazı bulan tek yol burasıdır").
+            // Yani son ayakta duran şey bir YAPIYSA, o yıkıldığında bu metot HİÇ
+            // çağrılmıyor ve savaş sessizce donuyordu: ne Console satırı, ne pano.
+            // Operatörün cümlesi: "hiçbir team tarafında savaşçı veya yapı
+            // olmamasına rağmen oyun bitmedi... bazen çıkıyordu."
+            // O "bazen" tam olarak şu: son ölen şey bir SAVAŞÇI olduğunda.
+            //
+            // ANA KULE KURALI BU BOŞLUĞU KURAL HÂLİNE GETİRDİ: artık savaşı
+            // bitiren şey neredeyse HER ZAMAN bir yapının yıkılması, yani
+            // olaysız olan taraf. Boşluk yeni değil, ama artık ana yol.
+            //
+            // ÇAĞRI SİLİNMEDİ, İKİNCİSİ EKLENDİ: bu yol savaşçı öldüğünde
+            // cevabı AYNI KARE'de veriyor ve onu kaybetmenin bir sebebi yok.
+            // → AdvanceBattleTime (yapıları da gören ikinci çağrı)
             AnnounceWinnerIfAny();
         }
 
@@ -1799,6 +1816,33 @@ namespace GridStrategy.Unity
         // dışındaki bir hücre için TryGetUnit çağrılırdı ve orada duran hiçbir
         // şey olmadığı için cevap "boş" olurdu — yani tahta dışı yanlışlıkla
         // Placeable görünürdü.
+        //
+        // ██ SÖZLEŞMEDEN DÜŞTÜ, AMA public KALDI — VE ARADAKİ FARK ÖLÇÜLDÜ ██
+        // Üye IPlacementBoard'da duruyordu ve oradan düştü: sözleşmenin tek
+        // tüketicisi ProductionDirector bu üyeyi HİÇ çağırmıyor. Yazılı gerekçe
+        // "IsCellFree bundan besleniyor, bu üye o kuralın adı" idi; gözlem doğru
+        // ama bu, BU DOSYANIN İÇ kararıdır, sözleşmenin şartı değil.
+        //
+        // ██ private DENENDİ VE GERİ ALINDI — ÖLÇÜM YANLIŞTI ██
+        // Bir tur boyunca burada `private` yazdı. Dayanağı şu cümleydi: "iki
+        // çağıranı da bu dosyanın kendi içinde." CÜMLE YANLIŞTI ve yanlışlığın
+        // sebebi ölçümün KENDİSİydi — arama `| head -10` ile kesilmişti ve
+        // kesilen kuyrukta BoardAdapterTests'in dört çağrısı duruyordu
+        // (PreviewAt_OnAFreeCellInsideTheBoard, PreviewAt_OutsideTheBoard,
+        // PreviewAt_OnACellThatAlreadyHoldsSomething, IsCellFree_AgreesWithPreviewAt).
+        // Unity dört CS1061 ile cevap verdi.
+        //
+        // DERS, VE BU DOSYADAN BÜYÜK: kesilmiş bir arama sonucu bir ÖLÇÜM
+        // DEĞİLDİR. "Sıfır çağıranı var" iddiası ancak sayının TAMAMI
+        // görüldüğünde kurulabilir; `head` gören bir göz, görmediği satırı
+        // yok sayar.
+        //
+        // BUGÜNKÜ DOĞRU HÂL: dış tüketicisi VAR (test assembly'si) ve o
+        // tüketici üyeyi somut tip üzerinden çağırıyor — yani `public` doğru,
+        // sözleşmeden düşmesi de doğru. İkisi çelişmiyor: bir arayüzden düşmek
+        // "kimse çağırmıyor" demek değil, "bu tüketicinin sözleşmesine ait
+        // değil" demek.
+        // → IPlacementBoard.cs (düşen iki üyenin kaydı orada)
         public PlacementPreview PreviewAt(int x, int y)
         {
             if (!battle.IsInsideGrid(x, y))
@@ -1830,17 +1874,18 @@ namespace GridStrategy.Unity
             return TryScreenPointToWorldCell(screenPoint, out _, out _, out x, out y);
         }
 
-        /// <summary>
-        /// Bir kimliğin karşılığı olan yapıyı verir; o kimlik bir yapı değilse
-        /// false.
-        /// </summary>
-        // DÜZ BİR İLETİM, ve öyle olması gerekiyor: tahta zaten birimleri ve
-        // yapıları ayrı defterlerde tutuyor, buraya ikinci bir "bu bir yapı mı"
-        // bayrağı koymak o ayrımın ikinci bir kopyasını üretirdi.
-        public bool TryGetStructure(Unit identity, out Structure structure)
-        {
-            return battle.TryGetStructure(identity, out structure);
-        }
+        // ██ BURADA BİR ÜYE DURUYORDU VE HİÇBİR YERDE ÇAĞRILMIYORDU ██
+        //     public bool TryGetStructure(Unit identity, out Structure structure)
+        //     {
+        //         return battle.TryGetStructure(identity, out structure);
+        //     }
+        // ÖLÇÜLDÜ 2026-08-30: bu dosyada, ProductionDirector'da ve testlerde
+        // sıfır çağıran. "Seçilen şey yapı mı" sorusunu ProductionDirector kendi
+        // defterinden cevaplıyor ve tahtaya hiç sormuyor; bu dosya da içeride
+        // doğrudan `battle.TryGetStructure` çağırıyor, bu sarmalayıcıdan değil.
+        // GERİ GELME ŞARTI: dışarıdan biri gerçekten "bu kimlik bir yapı mı"
+        // diye sorduğu gün — o gün üye hem burada hem sözleşmede doğar.
+        // → IPlacementBoard.cs (düşen iki üyenin kaydı orada)
 
         /// <summary>
         /// Bu yapının tepesinde bir sonraki üretime kaç saniye kaldığını
@@ -1968,6 +2013,31 @@ namespace GridStrategy.Unity
             // yıkımın ilk karesi ayakta duran bir bina gösterirdi.
             RefreshStructureVisuals();
             AnnounceTurnIfChanged();
+
+            // ██ ZAFER BURADAN DA SORULUYOR — ÇÜNKÜ YAPILAR OLAY YAYMIYOR ██
+            // İkinci soru yeri, birincisinin göremediği yolu kapatıyor:
+            // OnUnitStateChanged yalnız SAVAŞÇI durum değişikliklerinde koşuyor
+            // ve Structure hiçbir olay yaymıyor. Son ayakta duran şey bir yapı
+            // olduğunda savaş sessizce donuyordu.
+            //
+            // ██ REDDEDİLEN — Structure'a bir olay eklemek ██
+            //     public event Action<StructureState, StructureState> StateChanged;
+            // KIRDIĞI ŞEY: çekirdeği EKRAN için değiştirmek olurdu ve aynı
+            // alternatif Health tipinde zaten ölçülüp reddedilmiş durumda
+            // ("Health sessiz bir tip"). Üstelik olay, aboneliği sökülmesi
+            // gereken bir bağ daha doğurur; savaşın yapı defteri ise her
+            // temizlikte değişiyor.
+            // KAZANIRDI: yapı durumunu izlemesi gereken İKİNCİ bir dinleyici
+            // doğsaydı — o gün olay, iki ayrı yoklamadan ucuz olurdu.
+            //
+            // SORMANIN BEDELİ ÖLÇÜLDÜ VE KÜÇÜK: mandal (winnerAnnounced)
+            // yüzünden savaş bittikten sonra tek bir bool okuması kalıyor;
+            // bitmeden önce ise kare başına iki IsTeamInPlay taraması var ve
+            // her biri yapı defterini geziyor. BUGÜNKÜ TAVAN: tahtadaki yapı
+            // sayısı onlarla ölçülüyor. EŞİK: yapı sayısı yüzleri bulduğu gün
+            // bu soru kare başına değil, bir yapı yıkıldığında sorulmalı — ve o
+            // gün yukarıdaki reddedilen olay kazanan seçenek olur.
+            AnnounceWinnerIfAny();
 
             if (battle.RemoveReadyForCleanup(cleanupBuffer) == 0)
             {
@@ -2238,9 +2308,24 @@ namespace GridStrategy.Unity
             if (battle.TryGetCombatant(standing, out Combatant combatant))
             {
                 isFighter = true;
-                return combatant.Team != shooterTeam && combatant.State == UnitState.Alive;
+
+                // ██ YÜRÜYEN ASKER HENÜZ ORADA DEĞİL ██
+                // Kural SÜZGECİN İÇİNDE, çağıranın hafızasında değil — ve yeri
+                // bir karardır: buradan reddedilen hedef taretin sayacını
+                // YAKMIYOR, taret "yüklü" bekliyor ve asker vardığı anda
+                // vuruyor. Çağıran tarafta yazılsaydı (atış denenip
+                // reddedilseydi) bekleme sayacı sıfırlanır, üstelik her karede
+                // bir ret satırı Console'a düşerdi.
+                // → CanBeTargetedNow (iki konum arasındaki boşluğun anlatımı orada)
+                return combatant.Team != shooterTeam
+                       && combatant.State == UnitState.Alive
+                       && CanBeTargetedNow(standing);
             }
 
+            // YAPILARA AYNI SORU SORULMUYOR ve yokluğu bir karar: yapı yürümez,
+            // yani bu soru yapı dalında hiçbir zaman false dönmez. Konsaydı
+            // "yapı yürür mü" sorusunun ikinci bir cevap yeri açılırdı — aynı
+            // gerekçe StandAndStrikeOrder'ın korumasız olmasında da yazılı.
             return battle.TryGetStructure(standing, out Structure other)
                    && other.Team != shooterTeam
                    && other.IsStanding;
@@ -4415,6 +4500,53 @@ namespace GridStrategy.Unity
 
             UnitWalker walker = view.GetComponent<UnitWalker>();
             return walker != null && walker.IsWalking;
+        }
+
+        /// <summary>
+        /// Bu kimlik ŞU AN hedef alınabilir mi — yoksa görseli hâlâ yolda mı?
+        ///
+        /// OYUNDA NE İŞE YARAR: oyuncu bir askere taretin menzilindeki bir
+        /// hücreyi tıkladığında taret ARTIK hemen ateş etmiyor; askerin gerçekten
+        /// oraya varmasını bekliyor.
+        /// </summary>
+        // ██ İKİ KONUM VAR VE ARALARINDAKİ BOŞLUĞUN ADI BUYDU ██
+        // Bir tıklamada iki şey oluyor ve ikisi AYNI ANDA olmuyor:
+        //   MANTIKSAL konum — MoveAction birimi hedefe ANINDA yazar (Battle)
+        //   GÖRSEL konum   — UnitWalker onu path.Count/moveSpeed saniyede yürütür
+        // Kuralların hepsi birinciyi okuyor, oyuncu ikincisini seyrediyor. O
+        // pencerede oyunun cevabı ile ekranın cevabı AYRIŞIYOR.
+        //
+        // ÖLÇÜLEN KUSUR: taret hedefini battle.TryGetUnit ile, yani MANTIKSAL
+        // ızgaradan seçiyordu. Oyuncu taretin menzilindeki bir hücreye
+        // tıkladığı KARE'de asker oraya mantıksal olarak varmış oluyor ve taret
+        // ateş açıyordu — asker hâlâ beş hücre ötede yürürken.
+        //
+        // BU ÜYE BİR SORUNUN TEK SAHİBİ, bir kopya değil: aynı bekleme kuralı
+        // AttackOrder, ReviveOrder ve ChaseAndStrikeOrder içinde ÜÇ KEZ elle
+        // yazılmış durumda (host.IsViewWalking). Dördüncü çağıran —
+        // AdvanceStructureFire — onu yazmayı UNUTTU ve kusur tam orada doğdu.
+        // Her çağıranın hatırlaması gereken bir ön koşul, er ya da geç
+        // hatırlanmayan bir ön koşuldur; bu yüzden kural artık hedef SÜZGECİNİN
+        // içinde yaşıyor ve yeni bir saldırı mekanizması onu atlayamıyor.
+        //
+        // SALDIRAN TARAF DEĞİL, HEDEF TARAFI — ve ayrım önemli: taret yürümez,
+        // yani "saldıran yürüyor mu" sorusu bu yolda hiç true dönmez.
+        // StandAndStrikeOrder'ın korumasız olması da tam bu sebeple DOĞRU ve
+        // öyle kalıyor.
+        //
+        // ██ BU DÜZELTMENİN BİLİNEN BEDELİ, VE SESSİZ DEĞİL ██
+        // Menzilden GEÇİP giden bir asker artık hiç vurulmuyor: yürüdüğü sürece
+        // hedef alınamıyor ve menzilde durmadığı için hiç yerleşmiyor. Eski hâl
+        // bu askere de vuramıyordu (mantıksal konumu zaten VARIŞ hücresiydi,
+        // yolun üstündeki hücreler değil), yani kaybedilen bir davranış yok —
+        // ama kazanılmayan bir davranış var ve adı konuyor.
+        // GERÇEK ÇÖZÜM BAŞKA: mantıksal hareketi de adım adım işlemek, yani iki
+        // konumu tek konuma indirmek. O gün bu üye gereksizleşir ve silinir.
+        // TETİKLEYİCİ: "taretin önünden geçen asker vurulmalı" bir oyun
+        // gereksinimi olduğu gün. → Docs/ogrenme/02-sonraki-asamalar.md
+        private bool CanBeTargetedNow(Unit unit)
+        {
+            return !IsViewWalking(unit);
         }
 
         private void WalkViewAlong(Unit unit, List<GridStep> path, int x, int y)
